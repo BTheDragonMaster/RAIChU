@@ -1,5 +1,4 @@
 from pks_tailoring_reactions import *
-from pks_elongation_reactions import *
 import os
 from os import path
 import matplotlib.pyplot as plt
@@ -7,7 +6,9 @@ import matplotlib.image as mpimg
 from copy import copy
 
 
-def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_structures_per_module = False, attach_to_acp = False):
+def pks_cluster_to_structure(modules, visualization_mechanism = False, \
+    draw_structures_per_module = False, attach_to_acp = False, \
+    draw_mechanism_per_module = False):
     """If visualization_mechanism == False: returns the final polyketide
     structure resulting from the input PKS cluster
     If visualization_mechanism == True: returns a visualization of the elong-
@@ -23,6 +24,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
     'malonylcoa'/'methylmalonylcoa', ['KR', 'DH', 'ER']]
     """
     modules = copy(modules)
+    list_drawings_per_module = []
     for module in modules:
         #Find starting unit SMILES, convert to structure
         if module == modules[0]:
@@ -34,6 +36,9 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
                 chain_intermediate = attach_to_domain(starter_unit, 'ACP')
             else:
                 chain_intermediate = starter_unit
+            if draw_structures_per_module:
+                drawing = Drawer(chain_intermediate, dont_show=True)
+                list_drawings_per_module.append([drawing])
             del modules[0]
     for module in modules:
         module_name, module_type, elongation_unit, list_domains = module
@@ -80,11 +85,11 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
         if len(list_domains) == 0:
             if visualization_mechanism == True:
                 if elongation_unit == 'methylmalonylcoa':
-                    display_reactions(['1.png', '2.png'],list_domains,'methylmalonylcoa', module_name)
+                    display_reactions(['1.png', '2.png'],list_domains,'methylmalonylcoa', module_name, draw_mechanism_per_module)
                 elif elongation_unit == 'malonylcoa':
-                    display_reactions(['1.png', '2.png'],list_domains,'malonylcoa', module_name)
+                    display_reactions(['1.png', '2.png'],list_domains,'malonylcoa', module_name, draw_mechanism_per_module)
                 elif elongation_unit == 'methoxymalonylacp':
-                    display_reactions(['1.png', '2.png'], list_domains, 'methoxymalonylacp', module_name)
+                    display_reactions(['1.png', '2.png'], list_domains, 'methoxymalonylacp', module_name, draw_mechanism_per_module)
         for domain in list_domains:
             if domain == 'KR':
                 new_chain_intermediate = ketoreductase(chain_intermediate)
@@ -95,7 +100,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
                     Drawer(chain_intermediate, save_png='3.png')
                     #Check if the module also contains a DH domain
                     if 'DH' not in list_domains:
-                        display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name)
+                        display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
             if domain == 'DH':
                 assert 'KR' in list_domains
                 new_chain_intermediate = dehydratase(chain_intermediate)
@@ -105,7 +110,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
                         os.remove('4.png')
                     Drawer(chain_intermediate, save_png='4.png')
                     if 'ER' not in list_domains:
-                        display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name)
+                        display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
             if domain == 'ER':
                 assert 'KR' in list_domains
                 assert 'DH' in list_domains
@@ -115,9 +120,10 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
                     if path.exists('5.png'):
                         os.remove('5.png')
                     Drawer(chain_intermediate, save_png='5.png')
-                    display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name)
+                    display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
         if draw_structures_per_module:
-            Drawer(chain_intermediate, save_png=f'{module_name}.png')
+            drawing = Drawer(chain_intermediate, dont_show=True)
+            list_drawings_per_module.append([drawing])
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:
         atom.draw.colour = 'black'
@@ -134,11 +140,14 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, draw_stru
         os.remove('4.png')
     if path.exists('5.png'):
         os.remove('5.png')
-    return chain_intermediate
+    if draw_structures_per_module:
+        return(list_drawings_per_module)
+    else:
+        return chain_intermediate
 
 
 
-def display_reactions(structures, tailoring_domains, elongation_unit, module_name):
+def display_reactions(structures, tailoring_domains, elongation_unit, module_name, draw_mechanism_per_module):
     """Helper function pks_cluster_to structure. Returns the visualization of
     the quick reaction mechanism per module, based on four types of situation:
     1) module catalyzes only elongation 2) module catalyzes elongation and KR
@@ -198,7 +207,13 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         #Remove all axes from the figure
         for ax in fig.get_axes():
             ax.axis('off')
-        plt.show()
+
+        if draw_mechanism_per_module:
+            plt.savefig(f'{module_name}_quick_mechanism.png')
+            plt.clf()
+            plt.close()
+        else:
+            plt.show()
 
 
     #Situation 2 when the module contains only the KR tailoring domain
@@ -265,7 +280,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         for ax in fig.get_axes():
             ax.axis('off')
 
-        plt.show()
+        if draw_mechanism_per_module:
+            plt.savefig(f'{module_name}_quick_mechanism.png')
+            plt.clf()
+            plt.close()
+        else:
+            plt.show()
 
 
     #Situation 3 when the module has both the KR and DH tailoring domains
@@ -346,7 +366,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         for ax in fig.get_axes():
             ax.axis('off')
 
-        plt.show()
+        if draw_mechanism_per_module:
+            plt.savefig(f'{module_name}_quick_mechanism.png')
+            plt.clf()
+            plt.close()
+        else:
+            plt.show()
 
 
     #Situation 4 when the module has the KR, DH and ER tailoring domains
@@ -414,7 +439,7 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         # Add ketoreductase product to plot
         ax1 = fig.add_subplot(ax[0, 6:8])
         ax1.imshow(img3)
-        ax1.text(100, -1000, f"{module_name}",fontdict={'size': 20, 'weight': 'bold', 'color': 'darkred'})
+        ax1.text(100, -800, f"{module_name}",fontdict={'size': 20, 'weight': 'bold', 'color': 'darkred'})
 
         # Add DH arrow to plot
         ax1 = fig.add_subplot(ax[0, 8])
@@ -438,7 +463,13 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         for ax in fig.get_axes():
             ax.axis('off')
 
-        plt.show()
+        if draw_mechanism_per_module:
+            plt.savefig(f'{module_name}_quick_mechanism.png')
+            plt.clf()
+            plt.close()
+        else:
+            plt.show()
+
 
 
 if __name__ == "__main__":
@@ -448,8 +479,7 @@ if __name__ == "__main__":
                     ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
                     ['module_5', 'elongation_module', 'methoxymalonylacp', []],
                     ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH']]]
-    pks_cluster_to_structure(example_cluster)
-    pks_cluster_to_structure(example_cluster, visualization_mechanism=True)
+    pks_cluster_to_structure(example_cluster, attach_to_acp=True, visualization_mechanism=True)
 
 
 

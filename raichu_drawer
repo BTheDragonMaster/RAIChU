@@ -327,7 +327,11 @@ class KKLayout:
 
 
 class Drawer:
-    def __init__(self, structure, options=None, save_png=None):
+    def __init__(self, structure, options=None, save_png=None, dont_show=None):
+        if dont_show == None:
+            self.dont_show = None
+        else:
+            self.dont_show = dont_show
         if options == None:
             self.options = Options()
         if save_png == None:
@@ -522,7 +526,7 @@ class Drawer:
             x.append(point.x)
             y.append(point.y)
 
-        ax.fill(x, y, color=color)
+        ax.fill(x, y, color=color, zorder=1)
 
     def plot_chiral_bond_back(self, lines, ax, color='black'):
         for line in lines:
@@ -559,7 +563,7 @@ class Drawer:
     def plot_line(self, line, ax, color='black'):
         ax.plot([line.point_1.x, line.point_2.x],
                 [line.point_1.y, line.point_2.y], color=color,
-                linewidth=self.line_width)
+                linewidth=self.line_width, zorder=1)
 
     def draw_svg(self):
         self.draw_structure()
@@ -568,11 +572,6 @@ class Drawer:
     # plt.clf()
 
     def draw_structure(self):
-
-        for atom in self.structure.graph:
-            if atom.draw.colour != 'black':
-                print(atom, atom.draw.colour)
-
         min_x = 100000000
         max_x = -100000000
         min_y = 100000000
@@ -813,8 +812,10 @@ class Drawer:
 
         # If a png filename is included in the initialization of the Drawer object, don't show the
         # structure, but do save it as a png image to the provided filename
-        if self.save_png == None:
+        if self.save_png == None and self.dont_show == None:
             plt.show()
+        elif self.dont_show:
+            return self
         else:
             plt.savefig(self.save_png)
             plt.clf()
@@ -922,31 +923,8 @@ class Drawer:
 
 
 
-
-
-        # for atom in self.structure.graph:
-        #     if hasattr(atom, 'central_chain'):
-        #         for bond in atom.bonds:
-        #             for neighbour in bond.neighbours:
-        #                 if neighbour != atom:
-        #                     if hasattr(neighbour, 'central_chain'):
-        #                         atom_1 = atom
-        #                         atom_2 = neighbour
-        #                         if atom_1.draw.positioned and atom_2.draw.positioned:
-        #                             line = Line(atom_1.draw.position,
-        #                                         atom_2.draw.position, atom_1,
-        #                                         atom_2)
-        #                             angle = line.get_angle()
-        #                             print('angle and atoms', atom, neighbour, line.get_angle())
-        #                             if angle != math.radians(60) or angle != math.radians(-60):
-        #
-        #                                 if angle < 0:
-        #                                     new_angle = math.radians(-60)
-        #                                 else:
-        #                                     new_angle = math.radians(60)
-
-
-
+        #Added by Sophie: extra code for polyketides
+        #need to change, add some type of substructure search to see if polyketide
         attached_to_domain = False
         for atom in self.structure.graph:
             if atom.type == 'S':
@@ -967,7 +945,6 @@ class Drawer:
         # Force the polyketide backbone to be drawn straight
         if is_polyketide:
             atoms_in_central_chain = find_central_chain(self.structure)
-            print(atoms_in_central_chain, 'CENTRAL CHAIN')
             for i in range(len(atoms_in_central_chain) - 1):
                 atom_1_cc = atoms_in_central_chain[i]
                 atom_2_cc = atoms_in_central_chain[i+1]
@@ -979,7 +956,6 @@ class Drawer:
                 line = Line(atom_1.draw.position, atom_2.draw.position, atom_1, atom_2)
                 angle = round(line.get_angle(), 10)
                 if angle != round(math.radians(60), 10) and angle != round(math.radians(-60), 10):
-                    print('NEW', atom_1, atom_2)
                     changed_angle = math.radians(240)
                     self.rotate_subtree(atom_2, atom_1, changed_angle, atom_1.draw.position)
                     angle = previous_angle * -1
@@ -987,7 +963,7 @@ class Drawer:
 
 
                 previous_angle = angle
-                print('angle and atoms', atom_1, atom_2, angle)
+
 
 
         #Force the S-Domain bond to be straight
@@ -1007,7 +983,7 @@ class Drawer:
 
             #For everything else
             if sulphur.draw.position.x > carbonyl_oxygen.draw.position.x:
-                print('need to rotate -S and =O')
+               #print('need to rotate -S and =O')
                 angle1 = sulphur.draw.position.get_rotation_away_from_vector\
                     (carbon_before_carbon.draw.position, \
                      carbon_before_s.draw.position, math.radians(50))
@@ -1020,7 +996,7 @@ class Drawer:
                                     carbon_before_s.draw.position)
             #for molecules drawn like malonyl
             elif sulphur.draw.position.y > carbonyl_oxygen.draw.position.y:
-                print('need to rotate -S and =O')
+                #print('need to rotate -S and =O')
                 angle1 = sulphur.draw.position.get_rotation_away_from_vector\
                     (carbon_before_carbon.draw.position, \
                      carbon_before_s.draw.position, math.radians(50))
@@ -1036,6 +1012,7 @@ class Drawer:
                      math.radians(100))
                 self.rotate_subtree(domain, sulphur, angle,
                                     sulphur.draw.position)
+
             #another patch
             if sulphur.draw.position.y < carbonyl_oxygen.draw.position.y:
                 angle = math.radians(180)
@@ -1044,6 +1021,14 @@ class Drawer:
                 angle = math.radians(210)
                 self.rotate_subtree(domain, sulphur, angle,
                                     sulphur.draw.position)
+
+            #fix bond length of the S-Domain bond to 15
+            if (domain.draw.position.y - sulphur.draw.position.y) > 16:
+                y_sulphur = sulphur.draw.position.y
+                new_y_domain = y_sulphur + 15
+                domain.draw.position.y = new_y_domain
+
+
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
 

@@ -22,25 +22,36 @@ global_nr_elongation_modules = 0
 
 def draw_pks_cluster(pks_cluster, interactive=False):
     """
+    Displays a visualization of the module- and domain architecture of the
+    input PKS cluster
 
     pks_cluster: [[PKS module]] representation of the PKS cluster as:
     Starter module: ['module name','starter_module','SMILES starter unit']
     Elongation modules: ['module name', 'elongation_module',
     'malonylcoa'/'methylmalonylcoa', ['KR', 'DH', 'ER']]
+
+    If interactive=True, buttons are added to the canvas for each elongation
+    module, which when pressed cause a new window to pop up displaying the
+    reaction mechanism carried out by the respective elongation module
     """
 
     #Draw (don't show!) and save png's of quick reaction mechanisms per module
-    if interactive:
-        pks_cluster_to_structure(pks_cluster, attach_to_acp=True, \
-                                visualization_mechanism=True, \
-                                draw_mechanism_per_module=True)
+    # pks_cluster_to_structure(pks_cluster, attach_to_acp=True, \
+    #                              visualization_mechanism=True, \
+    #                              draw_mechanism_per_module=True)
 
 
-    #Start length is length at ends
-    length_line = 6
+    #Save (don't show!) drawings of the chain intermediate per module
+    list_drawings_per_module = pks_cluster_to_structure(pks_cluster, attach_to_acp=True, draw_structures_per_module=True)
+    print('here', list_drawings_per_module)
+    #Reset colour of all atoms to black
+    for drawing_list in list_drawings_per_module:
+        for drawing in drawing_list:
+            for atom in drawing.structure.graph:
+                atom.draw.colour = 'black'
+
+
     nr_modules = len(pks_cluster)
-    #Account for space between modules (8)
-    length_line += ((nr_modules - 1) * 10)
     list_all_domains = []
     elongation_modules_with_mechanisms = []
     for module in pks_cluster:
@@ -49,14 +60,11 @@ def draw_pks_cluster(pks_cluster, interactive=False):
         module_type = module[1]
         if module_type == 'starter_module':
             module_list_domains += ['ACP']
-            length_line += 8
         elif module_type == 'elongation_module':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
-            length_line += 26
             for tailoring_domain in module[3]:
-                length_line += 8
                 module_list_domains.insert(-1, tailoring_domain)
         list_all_domains += [module_list_domains]
 
@@ -70,41 +78,60 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     global_figure = fig
 
 
-    #Draw horizontal line
-    ax.plot([0,length_line],[3,3], color = 'black', zorder = 1)
-    #Add text above buttons:
-    ax.text((length_line / 2), -40, \
-            'Click module name to view reaction mechanism', ha = 'center', \
-            fontdict = font_modules)
+
     #Add title
-    plt.title('Visualization PKS cluster')
+    plt.title('Visualization PKS cluster', pad=80)
     #Draw domains per module
-    x = 6
+    x = 30
+    index = 0
     for module in list_all_domains:
         module_name = module[0]
         del module[0]
         for domain in module:
             domain_circle = make_circle(x, domain)
             ax.add_patch(domain_circle)
-            plt.text(x, 3, domain, ha = 'center', va = 'center', \
+            plt.text(x, 0, domain, ha = 'center', va = 'center', \
             fontdict = font_domains)
             if domain == 'ACP':
-                plt.plot([x, x], [-3, 3], color = 'black', zorder = 1)
+                plt.plot([x, x], [-10, 0], color = 'black', zorder = 1)
+                list_drawings_per_module[index].append(x)
+                print('XXX', list_drawings_per_module[index])
+                index += 1
             if domain == module[0]:
                 x_min = x
             if domain == module[-1]:
                 x_max = x
-            x += 9
+                if domain == module[-1]:
+                    length_line = x_max + 30
+            x += 30
         x_module_name = (x_min + x_max) / 2
-        plt.text(x_module_name, 15, module_name, ha = 'center', va = 'center',\
+        plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
-        x += 8
+        x += 30
     plt.axis('equal')
     plt.axis('off')
     fig.tight_layout()
 
+    # Draw horizontal line
+    ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
+    #Add text above buttons:
+    if interactive:
+        ax.text((length_line / 2), -230, \
+            'Click module name to view reaction mechanism', ha = 'center', \
+            fontdict = font_modules)
 
+    #Change coordinates of all atoms of all structures to match pks cluster
+    list_drawings_correct_coord = []
+    for drawing_coord in list_drawings_per_module:
+        drawer_obj, x_coord = drawing_coord
+        set_domain_to_origin(drawer_obj)
+        push_drawing_to_right(drawer_obj, x_coord)
+        list_drawings_correct_coord.append(drawer_obj)
+
+    #Add molecules to pks cluster visualization
+    height = 400
+    draw_structures(list_drawings_correct_coord, fig, ax, height)
 
     #Add buttons to view reaction mechanisms per module if interactive
     if interactive:
@@ -136,11 +163,11 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     plt.show()
 
 
-    #Delete image files of quick reaction mechanisms
-    for module in pks_cluster:
-        module_name = module[0]
-        if path.exists(f'{module_name}_quick_mechanism.png'):
-            os.remove(f'{module_name}_quick_mechanism.png')
+    # #Delete image files of quick reaction mechanisms
+    # for module in pks_cluster:
+    #     module_name = module[0]
+    #     if path.exists(f'{module_name}_quick_mechanism.png'):
+    #         os.remove(f'{module_name}_quick_mechanism.png')
 
 
 def button_action(event):
@@ -191,9 +218,275 @@ def make_circle(x_coord, domain_type):
     x_coord: int, x-coordinate of the center of the circle to be drawn
     domain_type: str, PKS domain type (ACP, KS, AT, KR, DH or ER)
     """
-    circle = Circle((x_coord, 3.0), 4, facecolor=colour_fill_dict[domain_type]\
+    circle = Circle((x_coord, 0.0), 14, facecolor=colour_fill_dict[domain_type]\
     , edgecolor = colour_outline_dict[domain_type], zorder = 2)
     return circle
+
+
+
+################################################################################
+
+def set_domain_to_origin(drawer_object):
+    for atom in drawer_object.structure.graph:
+        if hasattr(atom, 'domain_type'):
+            domain = atom
+            domain_x = atom.draw.position.x
+            domain_y = atom.draw.position.y
+            atom.draw.position.x = 0
+            atom.draw.position.y = -10
+    for atom in drawer_object.structure.graph:
+        if atom != domain:
+            atom.draw.position.x -= domain_x
+            atom.draw.position.y -= domain_y
+            atom.draw.position.y -= 10
+    new_drawer_object = drawer_object
+    return new_drawer_object
+
+def push_drawing_to_right(drawer_object, shift_to_right):
+    for atom in drawer_object.structure.graph:
+        atom.draw.position.x += shift_to_right
+    return drawer_object
+
+
+###########################################################################
+def draw_structures(drawer_objects, fig, ax, height):
+    min_x = 100000000
+    max_x = -100000000
+    min_y = 100000000
+    max_y = -100000000
+    for i in range(len(drawer_objects)):
+        drawer_object = drawer_objects[i]
+        #  fig, ax = plt.subplots()
+        ax.set_aspect('equal', adjustable='box')
+        ax.axis('off')
+
+        font_size = 3500 / height
+        drawer_object.line_width = 600 / height
+
+
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0,
+                            hspace=0)
+
+        #  figure, ax = plt.subplots(figsize=(8, 8))
+        # ax.patch.set_face_color(drawer_object.options.background_color)
+        #  ax.set_aspect()('equal', adjustable='box')
+        #  plt.gca().set_aspect('equal', adjustable='box')
+
+        params = {'mathtext.default': 'regular',
+                  'font.size': font_size}
+        plt.rcParams.update(params)
+
+        ring_centers_x = []
+        ring_centers_y = []
+
+        for ring in drawer_object.rings:
+            drawer_object.set_ring_center(ring)
+
+            ring_centers_x.append(ring.center.x)
+            ring_centers_y.append(ring.center.y)
+
+        #   ax.scatter(ring_centers_x, ring_centers_y, color='blue')
+
+        for bond_nr, bond in drawer_object.structure.bonds.items():
+            if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
+                line = Line(bond.atom_1.draw.position,
+                            bond.atom_2.draw.position, bond.atom_1,
+                            bond.atom_2)
+                midpoint = line.get_midpoint()
+                truncated_line = line.get_truncated_line(
+                    drawer_object.options.short_bond_length)
+                if bond.type == 'single':
+                    if bond in drawer_object.chiral_bonds:
+                        orientation, chiral_center = \
+                            drawer_object.chiral_bond_to_orientation[bond]
+                        drawer_object.plot_chiral_bond(orientation,
+                                                       chiral_center, line,
+                                                       ax, midpoint)
+                    else:
+                        drawer_object.plot_halflines(line, ax, midpoint)
+                elif bond.type == 'double':
+                    if not drawer_object.is_terminal(
+                            bond.atom_1) and not drawer_object.is_terminal(
+                        bond.atom_2):
+                        drawer_object.plot_halflines(line, ax, midpoint)
+
+                        common_ring_numbers = drawer_object.get_common_rings(
+                            bond.atom_1, bond.atom_2)
+
+                        if common_ring_numbers:
+                            common_rings = []
+                            for ring_nr in common_ring_numbers:
+                                common_rings.append(
+                                    drawer_object.get_ring(ring_nr))
+
+                            common_rings.sort(key=lambda x: len(x.members))
+                            common_ring = common_rings[0]
+                            ring_centre = common_ring.center
+                            second_line = line.double_line_towards_center(
+                                ring_centre,
+                                drawer_object.options.bond_spacing,
+                                drawer_object.options.double_bond_length, ax)
+                            second_line_midpoint = second_line.get_midpoint()
+                            drawer_object.plot_halflines_double(second_line,
+                                                                ax,
+                                                                second_line_midpoint)
+
+                        else:
+                            bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
+                            if bond_neighbours:
+                                vectors = [atom.draw.position for atom in
+                                           bond_neighbours]
+                                gravitational_point = Vector.get_average(
+                                    vectors)
+                                second_line = line.double_line_towards_center(
+                                    gravitational_point,
+                                    drawer_object.options.bond_spacing,
+                                    drawer_object.options.double_bond_length,
+                                    ax)
+                                second_line_midpoint = second_line.get_midpoint()
+                                drawer_object.plot_halflines_double(
+                                    second_line, ax,
+                                    second_line_midpoint)
+                            else:
+                                print("Shouldn't happen!")
+                    else:
+                        if drawer_object.is_terminal(
+                                bond.atom_1) and drawer_object.is_terminal(
+                                bond.atom_2):
+                            dummy_1 = Vector(bond.atom_1.draw.position.x + 1,
+                                             bond.atom_1.draw.position.y + 1)
+                            dummy_2 = Vector(bond.atom_1.draw.position.x - 1,
+                                             bond.atom_1.draw.position.y - 1)
+                            double_bond_line_1 = line.double_line_towards_center(
+                                dummy_1,
+                                drawer_object.options.bond_spacing / 2.0,
+                                drawer_object.options.double_bond_length)
+                            double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
+                            double_bond_line_2 = line.double_line_towards_center(
+                                dummy_2,
+                                drawer_object.options.bond_spacing / 2.0,
+                                drawer_object.options.double_bond_length)
+                            double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
+
+                            drawer_object.plot_halflines_double(
+                                double_bond_line_1, ax,
+                                double_bond_line_1_midpoint)
+                            drawer_object.plot_halflines_double(
+                                double_bond_line_2, ax,
+                                double_bond_line_2_midpoint)
+
+                        else:
+
+                            if drawer_object.is_terminal(bond.atom_1):
+                                terminal_atom = bond.atom_1
+                                branched_atom = bond.atom_2
+                            else:
+                                terminal_atom = bond.atom_2
+                                branched_atom = bond.atom_1
+
+                            if len(branched_atom.drawn_neighbours) >= 3:
+                                closest_two = drawer_object.get_sorted_distances_from_list(
+                                    terminal_atom,
+                                    branched_atom.drawn_neighbours)
+                                closest_atom_1 = closest_two[0][1]
+                                closest_atom_2 = closest_two[1][1]
+
+                                line = Line(terminal_atom.draw.position,
+                                            branched_atom.draw.position,
+                                            terminal_atom, branched_atom)
+
+                                bond_1_line = Line(branched_atom.draw.position,
+                                                   closest_atom_1.draw.position,
+                                                   branched_atom,
+                                                   closest_atom_1)
+                                bond_2_line = Line(branched_atom.draw.position,
+                                                   closest_atom_2.draw.position,
+                                                   branched_atom,
+                                                   closest_atom_1)
+
+                                double_bond_line_1 = line.double_line_towards_center(
+                                    closest_atom_1.draw.position,
+                                    drawer_object.options.bond_spacing / 2.0,
+                                    drawer_object.options.double_bond_length,
+                                    ax)
+                                double_bond_line_2 = line.double_line_towards_center(
+                                    closest_atom_2.draw.position,
+                                    drawer_object.options.bond_spacing / 2.0,
+                                    drawer_object.options.double_bond_length,
+                                    ax)
+
+                                double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
+                                double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
+
+                                intersection_1 = double_bond_line_1.find_intersection(
+                                    bond_1_line)
+                                intersection_2 = double_bond_line_2.find_intersection(
+                                    bond_2_line)
+
+                                if terminal_atom.draw.position.x > branched_atom.draw.position.x:
+                                    double_bond_line_1.point_1 = intersection_1
+                                    double_bond_line_2.point_1 = intersection_2
+                                else:
+                                    double_bond_line_1.point_2 = intersection_1
+                                    double_bond_line_2.point_2 = intersection_2
+
+                                drawer_object.plot_halflines(
+                                    double_bond_line_1, ax,
+                                    double_bond_line_1_midpoint)
+                                drawer_object.plot_halflines(
+                                    double_bond_line_2, ax,
+                                    double_bond_line_2_midpoint)
+
+                            else:
+                                pass
+        # Changed by Sophie
+        for atom in drawer_object.structure.graph:
+            if atom.type != 'C' and atom.draw.positioned:
+                text = atom.type
+                if hasattr(atom, 'domain_type'):
+                    text = atom.domain_type
+                horizontal_alignment = 'center'
+                if atom.draw.has_hydrogen:
+                    # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
+                    hydrogen_count = 0
+                    for neighbour in atom.neighbours:
+                        if neighbour.type == 'H' and not neighbour.draw.is_drawn:
+                            hydrogen_count += 1
+
+                    if hydrogen_count:
+
+                        orientation = drawer_object.get_hydrogen_text_orientation(
+                            atom)
+                        if hydrogen_count > 1:
+                            if orientation == 'H_before_atom':
+                                text = r'$H_{hydrogens}${atom_type}'.format(
+                                    hydrogens=hydrogen_count,
+                                    atom_type=atom.type)
+                                horizontal_alignment = 'right'
+                                atom.draw.position.x += 3
+                            else:
+                                text = r'${atom_type}H_{hydrogens}$'.format(
+                                    hydrogens=hydrogen_count,
+                                    atom_type=atom.type)
+                                horizontal_alignment = 'left'
+                                atom.draw.position.x -= 3
+                        elif hydrogen_count == 1:
+                            if orientation == 'H_before_atom':
+                                text = f'H{atom.type}'
+                                horizontal_alignment = 'right'
+                                atom.draw.position.x += 3
+                            else:
+                                text = f'{atom.type}H'
+                                horizontal_alignment = 'left'
+                                atom.draw.position.x -= 3
+
+                plt.text(atom.draw.position.x, atom.draw.position.y,
+                         text,
+                         horizontalalignment=horizontal_alignment,
+                         verticalalignment='center',
+                         color=atom.draw.colour, zorder = 1)
+
+
 
 
 

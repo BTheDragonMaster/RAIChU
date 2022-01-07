@@ -1,11 +1,13 @@
 from pks_elongation_reactions import *
-from pikachu.general import *
 from pk_attach_to_domain import *
+from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, BondDefiner
 
 RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)
 RECENT_REDUCTION_COH = BondDefiner('recent_reduction_C-OH', 'OCCC(=O)S', 0, 1)
+RECENT_REDUCTION_MMAL_CHIRAL_C = GroupDefiner('recent_reduction_mmal_chiral_c', 'CCC(C(=O)S)C', 2)
 RECENT_REDUCTION_CC = BondDefiner('recent_reduction_C-C', 'OCCC(=O)S', 1, 2)
 RECENT_DEHYDRATION = BondDefiner('recent_dehydration', 'SC(C=CC)=O', 2, 3)
+KR_DOMAIN_TYPES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 
 
 def carbonyl_to_hydroxyl(double_bond):
@@ -81,7 +83,7 @@ def find_betaketon(structure):
         bonds.append(bond)
     return bonds
 
-def ketoreductase(chain_intermediate):
+def ketoreductase(chain_intermediate, kr_type = None):
     """
     Performs the ketoreductase reaction on the PKS chain intermediate, returns
     the reaction product as a Structure object
@@ -89,41 +91,69 @@ def ketoreductase(chain_intermediate):
     chain_intermediate: Structure object of a PKS chain intermediate just
     after an elongation step using (methyl)malonyl-CoA
     """
+    if kr_type:
+        assert kr_type in KR_DOMAIN_TYPES
+
     #Reset all colours to black:
     for atom in chain_intermediate.graph:
         atom.draw.colour = 'black'
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
-    #Identify beta-ketone bond, identify O- and C-atom participating in bond
-    beta_ketone_bond = find_betaketon(chain_intermediate)
-    for bond in beta_ketone_bond:
-        for atom in bond.neighbours:
-            if atom.type == 'O':
-                carbonyl_oxygen = atom
-            elif atom.type == 'C':
-                carbonyl_carbon = atom
+        #Identify beta-ketone bond, identify O- and C-atom participating in bond
+    if kr_type == None or kr_type.startswith('A') or kr_type.startswith('B'):
+        beta_ketone_bond = find_betaketon(chain_intermediate)
+        for bond in beta_ketone_bond:
+            for atom in bond.neighbours:
+                if atom.type == 'O':
+                    carbonyl_oxygen = atom
+                elif atom.type == 'C':
+                    carbonyl_carbon = atom
+                else:
+                    raise Exception('Cannot find atoms in beta ketone bond')
+
+        #Change carbonyl bond to single bond
+        for bond in beta_ketone_bond:
+            new_single_bond = carbonyl_to_hydroxyl(bond)
+
+
+        #Add H atom to form hydroxyl group and another H to the C
+        chain_intermediate.add_atom('H', [carbonyl_oxygen])
+        chain_intermediate.add_atom('H', [carbonyl_carbon])
+        if kr_type != None:
+            if kr_type.startswith('A'):
+                carbonyl_carbon.chiral = 'clockwise'
+            elif kr_type.startswith('B'):
+                carbonyl_carbon.chiral = 'counterclockwise'
             else:
-                raise Exception('Cannot find atoms in beta ketone bond')
+                raise ValueError('This type of KR domain is not supported by RAIChU or does not exist')
+        #If the type of KR domain is not known, the chirality of the carbonyl carbon is set to None
+        else:
+            carbonyl_carbon.chiral = None
 
-    #Change carbonyl bond to single bond
-    for bond in beta_ketone_bond:
-        new_single_bond = carbonyl_to_hydroxyl(bond)
 
+        #Set bond summary for newly formed bond (cannot do from struct.bonds?)
+        for atom in chain_intermediate.graph:
+            if atom == carbonyl_carbon:
+                for bond in atom.bonds:
+                    for neighbour in bond.neighbours:
+                        if neighbour.type == 'O':
+                            the_bond = bond
+        the_bond.set_bond_summary()
 
-    #Add H atom to form hydroxyl group and another H to the C
-    chain_intermediate.add_atom('H', [carbonyl_oxygen])
-    chain_intermediate.add_atom('H', [carbonyl_carbon])
-    carbonyl_carbon.chiral = 'counterclockwise'
-
-    #Set bond summary for newly formed bond (cannot do from struct.bonds?)
-    for atom in chain_intermediate.graph:
-        if atom == carbonyl_carbon:
-            for bond in atom.bonds:
-                for neighbour in bond.neighbours:
-                    if neighbour.type == 'O':
-                        the_bond = bond
-    the_bond.set_bond_summary()
+    #See if the previous elongation step was performed using methylmalonyl-CoA, perform epimerization if required
+    chiral_c = find_atoms(RECENT_REDUCTION_MMAL_CHIRAL_C, chain_intermediate)
+    if chiral_c and kr_type:
+        for atom in chiral_c:
+            if kr_type.endswith('1'):
+                atom.chiral = 'clockwise'
+            elif kr_type.endswith('2'):
+                atom.chiral = 'counterclockwise'
+            else:
+                raise ValueError('This type of KR domain is not supported by RAIChU or does not exist')
+    if chiral_c and not kr_type:
+        for atom in chiral_c:
+            atom.chiral = None
 
     # Refresh structure :)
     chain_intermediate.set_atom_neighbours()
@@ -134,8 +164,9 @@ def ketoreductase(chain_intermediate):
         bond.set_bond_summary()
 
     #Add colouring to the tailored group
-    for atom in new_single_bond.neighbours:
-        atom.draw.colour = 'red'
+    if kr_type == None or kr_type.startswith('A') or kr_type.startswith('B'):
+        for atom in new_single_bond.neighbours:
+            atom.draw.colour = 'red'
 
 
     return chain_intermediate
@@ -270,14 +301,11 @@ def form_double_bond(atom1, atom2):
     atom1.valence_shell.hybridise('sp2')
     atom2.valence_shell.dehybridise()
     atom2.valence_shell.hybridise('sp2')
-    print('valence shell atom c2')
-    atom2.valence_shell.print_shell()
-    print(orbital_1, 'ORBITAL 1')
+
 
     #Make sure that the electrons of the new bond are in type p orbitals instead of sp2
     if not orbital_1.orbital_type == 'p':
         electrons_in_sp2 = orbital_1.electrons
-        print('electrons in sp2', electrons_in_sp2)
         for orbital_name in atom1.valence_shell.orbitals:
             orbital = atom1.valence_shell.orbitals[orbital_name]
             if orbital.orbital_type == 'p':
@@ -477,7 +505,6 @@ def double_to_single(double_bond, structure):
 
     #Remove pi electrons from bond
     for electron in double_bond.electrons[:]:
-        print(electron, electron.orbital_type)
         if electron.orbital_type == 'p':
             double_bond.electrons.remove(electron)
 
@@ -506,7 +533,8 @@ if __name__ == "__main__":
     new_chain4 = attach_to_domain(new_chain3, 'ACP')
     #Drawer(new_chain4)
 
+    new_chain5 = add_malonylunit(new_chain4)
+    #Drawer(new_chain5)
 
-
-    new_chain5 = add_methylmalonylunit(new_chain4)
-    Drawer(new_chain5)
+    new_chain6 = ketoreductase(new_chain5)
+    Drawer(new_chain6)

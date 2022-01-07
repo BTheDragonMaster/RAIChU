@@ -1,4 +1,4 @@
-from pks_elongation_reactions import *
+from pikachu.chem.structure import *
 
 
 class Domain(Atom):
@@ -28,7 +28,7 @@ class Domain(Atom):
         assert domain_type == 'ACP' or domain_type == 'AT' or\
                domain_type == 'KS' or domain_type == 'KR' or\
                domain_type == 'DH' or domain_type == 'ER' or\
-               domain_type == 'TE'
+               domain_type == 'TE' or domain_type == 'PCP'
         self.domain_type = domain_type
 
 

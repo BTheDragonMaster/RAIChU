@@ -3,8 +3,10 @@ import os
 from os import path
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from matplotlib.patches import FancyArrow
 from copy import copy
 
+KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 
 def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     draw_structures_per_module = False, attach_to_acp = False, \
@@ -28,7 +30,6 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     for module in modules:
         #Find starting unit SMILES, convert to structure
         if module == modules[0]:
-            print(module)
             assert len(module) == 3
             assert module[1] == 'starter_module'
             starter_unit = Smiles(module[2]).smiles_to_structure()
@@ -42,7 +43,11 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
             del modules[0]
     for module in modules:
         module_name, module_type, elongation_unit, list_domains = module
-        assert elongation_unit == 'malonylcoa' or elongation_unit == 'methylmalonylcoa' or elongation_unit == 'methoxymalonylacp'
+        assert elongation_unit == 'malonylcoa' or \
+               elongation_unit == 'methylmalonylcoa' or \
+               elongation_unit == 'methoxymalonylacp' or \
+               elongation_unit == 'ethylmalonylcoa' or \
+               elongation_unit == 'pk'
         #Reset atom colours in the first structure depicted to black
         for atom in chain_intermediate.graph:
             atom.draw.colour = 'black'
@@ -81,6 +86,28 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 if path.exists('2.png'):
                     os.remove('2.png')
                 Drawer(chain_intermediate, save_png='2.png')
+        elif elongation_unit == 'ethylmalonylcoa':
+            if visualization_mechanism == True:
+                if path.exists('1.png'):
+                    os.remove('1.png')
+                Drawer(chain_intermediate, save_png='1.png')
+            new_chain_intermediate = add_ethylmalonylunit(chain_intermediate)
+            chain_intermediate = new_chain_intermediate
+            if visualization_mechanism == True:
+                if path.exists('2.png'):
+                    os.remove('2.png')
+                Drawer(chain_intermediate, save_png='2.png')
+        elif elongation_unit == 'pk':
+            if visualization_mechanism == True:
+                if path.exists('1.png'):
+                    os.remove('1.png')
+                Drawer(chain_intermediate, save_png='1.png')
+            new_chain_intermediate = add_pkunit(chain_intermediate)
+            chain_intermediate = new_chain_intermediate
+            if visualization_mechanism == True:
+                if path.exists('2.png'):
+                    os.remove('2.png')
+                Drawer(chain_intermediate, save_png='2.png')
         #If the module does not contain any tailoring domains:
         if len(list_domains) == 0:
             if visualization_mechanism == True:
@@ -90,37 +117,77 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     display_reactions(['1.png', '2.png'],list_domains,'malonylcoa', module_name, draw_mechanism_per_module)
                 elif elongation_unit == 'methoxymalonylacp':
                     display_reactions(['1.png', '2.png'], list_domains, 'methoxymalonylacp', module_name, draw_mechanism_per_module)
+                elif elongation_unit == 'ethylmalonylcoa':
+                    display_reactions(['1.png', '2.png'], list_domains, 'ethylmalonylcoa', module_name, draw_mechanism_per_module)
+                elif elongation_unit == 'pk':
+                    display_reactions(['1.png', '2.png'], list_domains, 'pk', module_name, draw_mechanism_per_module)
         for domain in list_domains:
-            if domain == 'KR':
-                new_chain_intermediate = ketoreductase(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
+            inactive_kr_domain = False
+            if domain.startswith('KR'):
+                if domain == 'KR':
+                    new_chain_intermediate = ketoreductase(chain_intermediate)
+                    chain_intermediate = new_chain_intermediate
+                elif domain == 'KR_inactive':
+                    inactive_kr_domain = True
+                else:
+                    kr_type = domain[-2:]
+                    new_chain_intermediate = ketoreductase(chain_intermediate, kr_type = kr_type)
+                    chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True and inactive_kr_domain == False:
                     if path.exists('3.png'):
                         os.remove('3.png')
                     Drawer(chain_intermediate, save_png='3.png')
                     #Check if the module also contains a DH domain
                     if 'DH' not in list_domains:
                         display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                elif inactive_kr_domain == True and visualization_mechanism == True:
+                    list_domains = []
+                    if elongation_unit == 'methylmalonylcoa':
+                        display_reactions(['1.png', '2.png'], list_domains,
+                                          'methylmalonylcoa', module_name,
+                                          draw_mechanism_per_module)
+                    elif elongation_unit == 'malonylcoa':
+                        display_reactions(['1.png', '2.png'], list_domains,
+                                          'malonylcoa', module_name,
+                                          draw_mechanism_per_module)
+                    elif elongation_unit == 'methoxymalonylacp':
+                        display_reactions(['1.png', '2.png'], list_domains,
+                                          'methoxymalonylacp', module_name,
+                                          draw_mechanism_per_module)
+                    elif elongation_unit == 'ethylmalonylcoa':
+                        display_reactions(['1.png', '2.png'], list_domains,
+                                          'ethylmalonylcoa', module_name,
+                                          draw_mechanism_per_module)
             if domain == 'DH':
-                assert 'KR' in list_domains
-                new_chain_intermediate = dehydratase(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('4.png'):
-                        os.remove('4.png')
-                    Drawer(chain_intermediate, save_png='4.png')
-                    if 'ER' not in list_domains:
-                        display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                assert any(domain.startswith('KR') for domain in list_domains)
+                executable = True
+                for domain_type in list_domains:
+                    if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
+                        executable = False
+                if executable:
+                    new_chain_intermediate = dehydratase(chain_intermediate)
+                    chain_intermediate = new_chain_intermediate
+                    if visualization_mechanism == True:
+                        if path.exists('4.png'):
+                            os.remove('4.png')
+                        Drawer(chain_intermediate, save_png='4.png')
+                        if 'ER' not in list_domains:
+                            display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
             if domain == 'ER':
-                assert 'KR' in list_domains
+                assert any(domain.startswith('KR') for domain in list_domains)
                 assert 'DH' in list_domains
-                new_chain_intermediate = enoylreductase(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('5.png'):
-                        os.remove('5.png')
-                    Drawer(chain_intermediate, save_png='5.png')
-                    display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                executable = True
+                for domain_type in list_domains:
+                    if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
+                        executable = False
+                if executable:
+                    new_chain_intermediate = enoylreductase(chain_intermediate)
+                    chain_intermediate = new_chain_intermediate
+                    if visualization_mechanism == True:
+                        if path.exists('5.png'):
+                            os.remove('5.png')
+                        Drawer(chain_intermediate, save_png='5.png')
+                        display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
         if draw_structures_per_module:
             drawing = Drawer(chain_intermediate, dont_show=True)
             list_drawings_per_module.append([drawing])
@@ -142,8 +209,8 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
         os.remove('5.png')
     if draw_structures_per_module:
         return(list_drawings_per_module)
-    else:
-        return chain_intermediate
+
+    return chain_intermediate
 
 
 
@@ -166,19 +233,10 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         #Read in images
         img1 = mpimg.imread(before_elongation)
         img2 = mpimg.imread(after_elongation)
-        imgpijl_malonylcoa = mpimg.imread('pijl_malonylcoa.png')
-        imgpijl_methylmalonylcoa = mpimg.imread('pijl_methylmalonylcoa.png')
-        imgpijl_methoxymalonylacp = mpimg.imread('pijl_methoxymalonylacp.png')
 
         #Add images to list to prevent collection by the garbage collector
         images.append(img1)
         images.append(img2)
-        if elongation_unit == 'malonylcoa':
-            images.append(imgpijl_malonylcoa)
-        elif elongation_unit == 'methylmalonylcoa':
-            images.append(imgpijl_methylmalonylcoa)
-        elif elongation_unit == 'methoxymalonylacp':
-            images.append(imgpijl_methoxymalonylacp)
 
         #Create figure
         fig = plt.figure(constrained_layout=True, figsize=[15, 8],frameon=False, num=f"Quick reaction mechanism {module_name}")
@@ -191,14 +249,22 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         #Add correct arrow to plot
         ax1 = fig.add_subplot(ax[0, 2])
+        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
         if elongation_unit == 'malonylcoa':
-            ax1.imshow(imgpijl_malonylcoa)
+            text = 'Malonyl-CoA'
         elif elongation_unit == 'methylmalonylcoa':
-            ax1.imshow(imgpijl_methylmalonylcoa)
+            text = 'Methylmalonyl-CoA'
         elif elongation_unit == 'methoxymalonylacp':
-            ax1.imshow(imgpijl_methoxymalonylacp)
-        ax1.set_title('KS, AT, ACP', pad=20, fontdict={'size': 17})
-        ax1.text(140,-550,f"{module_name}", fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+            text = 'Methoxymalonyl-ACP'
+        elif elongation_unit == 'ethylmalonylcoa':
+            text = 'Ethylmalonyl-CoA'
+        elif elongation_unit == 'pk':
+            text = 'Unknown elongation\nunit'
+        ax1.text(0.5, 0.55, text, ha='center',
+                 fontdict={'size': 12, 'color': 'black'})
+        ax1.set_title(f"{module_name}", pad = 90, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
 
         #Add elongation product to plot
         ax1 = fig.add_subplot(ax[0, 3:5])
@@ -218,30 +284,23 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
     #Situation 2 when the module contains only the KR tailoring domain
     elif len(tailoring_domains) == 1:
-        assert 'KR' in tailoring_domains
+        assert any(domain.startswith('KR') for domain in tailoring_domains)
+        kr_domain = tailoring_domains[0]
         before_elongation, after_elongation, after_kr = structures
         images = []
         #Read in images
         img1 = mpimg.imread(before_elongation)
         img2 = mpimg.imread(after_elongation)
         img3 = mpimg.imread(after_kr)
-        imgpijl = mpimg.imread('pijl.png')
-        imgpijl_KR = mpimg.imread('pijl_KR.png')
-        imgpijl_malonylcoa = mpimg.imread('pijl_malonylcoa.png')
-        imgpijl_methylmalonylcoa = mpimg.imread('pijl_methylmalonylcoa.png')
-        imgpijl_methoxymalonylacp = mpimg.imread('pijl_methoxymalonylacp.png')
+
+
 
         # Add images to list to prevent collection by the garbage collector
         images.append(img1)
         images.append(img2)
         images.append(img3)
-        images.append(imgpijl_KR)
-        if elongation_unit == 'malonylcoa':
-            images.append(imgpijl_malonylcoa)
-        elif elongation_unit == 'methylmalonylcoa':
-            images.append(imgpijl_methylmalonylcoa)
-        elif elongation_unit == 'methoxymalonylacp':
-            images.append(imgpijl_methoxymalonylacp)
+
+
 
         # Create figure
         fig = plt.figure(constrained_layout=True, figsize=[15, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
@@ -254,13 +313,21 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add correct arrow to plot (depending on elongation unit)
         ax1 = fig.add_subplot(ax[0, 2])
+        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3,  head_width=0.025, head_length=0.1, color= 'black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
         if elongation_unit == 'malonylcoa':
-            ax1.imshow(imgpijl_malonylcoa)
+            text = 'Malonyl-CoA'
         elif elongation_unit == 'methylmalonylcoa':
-            ax1.imshow(imgpijl_methylmalonylcoa)
+            text = 'Methylmalonyl-CoA'
         elif elongation_unit == 'methoxymalonylacp':
-            ax1.imshow(imgpijl_methoxymalonylacp)
-        ax1.set_title('KS, AT, ACP', pad=20, fontdict={'size': 17})
+            text = 'Methoxymalonyl-ACP'
+        elif elongation_unit == 'ethylmalonylcoa':
+            text = 'Ethylmalonyl-CoA'
+        elif elongation_unit == 'pk':
+            text = 'Unknown elongation unit'
+        ax1.text(0.5, 0.55, text, ha='center',
+                 fontdict={'size': 12, 'color': 'black'})
 
         # Add elongation product to plot
         ax1 = fig.add_subplot(ax[0, 3:5])
@@ -269,8 +336,13 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add KR arrow to plot
         ax1 = fig.add_subplot(ax[0, 5])
-        ax1.imshow(imgpijl)
-        ax1.set_title('KR', pad=20, fontdict={'size': 17, 'color':'red'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, kr_domain, ha='center',
+                 fontdict={'size': 17, 'color': 'red'})
+
 
         # Add ketoreductase product to plot
         ax1 = fig.add_subplot(ax[0, 6:8])
@@ -290,7 +362,10 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
     #Situation 3 when the module has both the KR and DH tailoring domains
     elif len(tailoring_domains) == 2:
-        assert 'KR' in tailoring_domains
+        assert any(domain.startswith('KR') for domain in tailoring_domains)
+        for domain in tailoring_domains:
+            if domain.startswith('KR'):
+                kr_domain = domain
         assert 'DH' in tailoring_domains
         before_elongation, after_elongation, after_kr, after_dh = structures
         images = []
@@ -299,25 +374,16 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         img2 = mpimg.imread(after_elongation)
         img3 = mpimg.imread(after_kr)
         img4 = mpimg.imread(after_dh)
-        imgpijl = mpimg.imread('pijl.png')
-        imgpijl_KR = mpimg.imread('pijl_KR.png')
-        imgpijl_malonylcoa = mpimg.imread('pijl_malonylcoa.png')
-        imgpijl_methylmalonylcoa = mpimg.imread('pijl_methylmalonylcoa.png')
-        imgpijl_methoxymalonylacp = mpimg.imread('pijl_methoxymalonylacp.png')
+
+
 
         # Add images to list to prevent collection by the garbage collector
         images.append(img1)
         images.append(img2)
         images.append(img3)
         images.append(img4)
-        images.append(imgpijl)
-        images.append(imgpijl_KR)
-        if elongation_unit == 'malonylcoa':
-            images.append(imgpijl_malonylcoa)
-        elif elongation_unit == 'methylmalonylcoa':
-            images.append(imgpijl_methylmalonylcoa)
-        elif elongation_unit == 'methoxymalonylacp':
-            images.append(imgpijl_methoxymalonylacp)
+
+
 
         # Create figure
         fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
@@ -330,13 +396,22 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add correct arrow to plot (depending on elongation unit)
         ax1 = fig.add_subplot(ax[0, 2])
+        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
         if elongation_unit == 'malonylcoa':
-            ax1.imshow(imgpijl_malonylcoa)
+            text = 'Malonyl-CoA'
         elif elongation_unit == 'methylmalonylcoa':
-            ax1.imshow(imgpijl_methylmalonylcoa)
+            text = 'Methylmalonyl-CoA'
         elif elongation_unit == 'methoxymalonylacp':
-            ax1.imshow(imgpijl_methoxymalonylacp)
-        ax1.set_title('KS, AT, ACP', pad=20, fontdict={'size': 17})
+            text = 'Methoxymalonyl-ACP'
+        elif elongation_unit == 'ethylmalonylcoa':
+            text = 'Ethylmalonyl-CoA'
+        elif elongation_unit == 'pk':
+            text = 'Unknown elongation unit'
+        ax1.text(0.5, 0.55, text, ha='center',
+                 fontdict={'size': 12, 'color': 'black'})
+
 
         # Add elongation product to plot
         ax1 = fig.add_subplot(ax[0, 3:5])
@@ -344,9 +419,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add KR arrow to plot
         ax1 = fig.add_subplot(ax[0, 5])
-        ax1.imshow(imgpijl)
-        ax1.set_title('KR', pad=20, fontdict={'size': 17, 'color':'red'})
-        ax1.text(0,-1000,f"{module_name}", fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, kr_domain, ha='center',
+                 fontdict={'size': 17, 'color': 'red'})
 
         # Add ketoreductase product to plot
         ax1 = fig.add_subplot(ax[0, 6:8])
@@ -354,8 +432,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add DH arrow to plot
         ax1 = fig.add_subplot(ax[0, 8])
-        ax1.imshow(imgpijl)
-        ax1.set_title('DH', pad=20, fontdict={'size': 17, 'color':'blue'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, 'DH', ha='center',
+                 fontdict={'size': 17, 'color': 'blue'})
 
         # Add dehydratase product to plot
         ax1 = fig.add_subplot(ax[0, 9:11])
@@ -376,7 +458,10 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
     #Situation 4 when the module has the KR, DH and ER tailoring domains
     elif len(tailoring_domains) == 3:
-        assert 'KR' in tailoring_domains
+        assert any(domain.startswith('KR') for domain in tailoring_domains)
+        for domain in tailoring_domains:
+            if domain.startswith('KR'):
+                kr_domain = domain
         assert 'DH' in tailoring_domains
         assert 'ER' in tailoring_domains
         before_elongation, after_elongation, after_kr, after_dh, after_er = structures
@@ -387,11 +472,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         img3 = mpimg.imread(after_kr)
         img4 = mpimg.imread(after_dh)
         img5 = mpimg.imread(after_er)
-        imgpijl = mpimg.imread('pijl.png')
-        imgpijl_KR = mpimg.imread('pijl_KR.png')
-        imgpijl_malonylcoa = mpimg.imread('pijl_malonylcoa.png')
-        imgpijl_methylmalonylcoa = mpimg.imread('pijl_methylmalonylcoa.png')
-        imgpijl_methoxymalonylacp = mpimg.imread('pijl_methoxymalonylacp.png')
+
+
 
         # Add images to list to prevent collection by the garbage collector
         images.append(img1)
@@ -399,14 +481,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         images.append(img3)
         images.append(img4)
         images.append(img5)
-        images.append(imgpijl)
-        images.append(imgpijl_KR)
-        if elongation_unit == 'malonylcoa':
-            images.append(imgpijl_malonylcoa)
-        elif elongation_unit == 'methylmalonylcoa':
-            images.append(imgpijl_methylmalonylcoa)
-        elif elongation_unit == 'methoxymalonylacp':
-            images.append(imgpijl_methoxymalonylacp)
+
+
 
         # Create figure
         fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
@@ -419,13 +495,21 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add correct arrow to plot (depending on elongation unit)
         ax1 = fig.add_subplot(ax[0, 2])
+        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
         if elongation_unit == 'malonylcoa':
-            ax1.imshow(imgpijl_malonylcoa)
+            text = 'Malonyl-CoA'
         elif elongation_unit == 'methylmalonylcoa':
-            ax1.imshow(imgpijl_methylmalonylcoa)
+            text = 'Methylmalonyl-CoA'
         elif elongation_unit == 'methoxymalonylacp':
-            ax1.imshow(imgpijl_methoxymalonylacp)
-        ax1.set_title('KS, AT, ACP', pad=20, fontdict={'size': 17})
+            text = 'Methoxymalonyl-ACP'
+        elif elongation_unit == 'ethylmalonylcoa':
+            text = 'Ethylmalonyl-CoA'
+        elif elongation_unit == 'pk':
+            text = 'Unknown elongation unit'
+        ax1.text(0.5, 0.55, text, ha='center',
+                 fontdict={'size': 12, 'color': 'black'})
 
         # Add elongation product to plot
         ax1 = fig.add_subplot(ax[0, 3:5])
@@ -433,8 +517,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add KR arrow to plot
         ax1 = fig.add_subplot(ax[0, 5])
-        ax1.imshow(imgpijl)
-        ax1.set_title('KR', pad=20, fontdict={'size': 17, 'color':'red'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, kr_domain, ha='center',
+                 fontdict={'size': 17, 'color': 'red'})
 
         # Add ketoreductase product to plot
         ax1 = fig.add_subplot(ax[0, 6:8])
@@ -443,8 +531,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add DH arrow to plot
         ax1 = fig.add_subplot(ax[0, 8])
-        ax1.imshow(imgpijl)
-        ax1.set_title('DH', pad=20, fontdict={'size': 17, 'color':'blue'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, 'DH', ha='center',
+                 fontdict={'size': 17, 'color': 'blue'})
 
         # Add dehydratase product to plot
         ax1 = fig.add_subplot(ax[0, 9:11])
@@ -452,8 +544,12 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
         # Add ER arrow to plot
         ax1 = fig.add_subplot(ax[0, 11])
-        ax1.imshow(imgpijl)
-        ax1.set_title('ER', pad=20, fontdict={'size': 17, 'color':'LIME'})
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                           color='black')
+        images.append(arrow)
+        ax1.add_patch(arrow)
+        ax1.text(0.5, 0.55, 'ER', ha='center',
+                 fontdict={'size': 17, 'color': 'lime'})
 
         # Add enoylreductase product to plot
         ax1 = fig.add_subplot(ax[0, 12:14])
@@ -473,13 +569,30 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
 
 if __name__ == "__main__":
-    example_cluster = [['module_1', 'starter_module', 'SC(CC(=O)O)=O'],
-                    ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH']],
-                    ['module_3', 'elongation_module', 'malonylcoa', ['KR']],
-                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                    ['module_5', 'elongation_module', 'methoxymalonylacp', []],
-                    ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH']]]
-    pks_cluster_to_structure(example_cluster, attach_to_acp=True, visualization_mechanism=True)
+    output = [['pks module 1 [47984:50774]', 'starter_module', 'SC(C)=O'],
+              ['pks module 2 [43232:47927]', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
+              ['pks module 3 [38414:43172]', 'elongation_module', 'malonylcoa', ['KR_B1', 'DH']],
+              ['pks module 4 [33554:38357]', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
+              ['pks module 5 [28504:33238]', 'elongation_module', 'pk', ['KR_inactive', 'DH']],
+              ['pks module 6 [22591:28447]', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH', 'ER']],
+              ['pks module 7 [19481:22331]', 'elongation_module', 'malonylcoa', []]]
+    pks_cluster_to_structure(output)
+
+# struct = Smiles('SC(C)=O').smiles_to_structure()
+# struct = add_malonylunit(struct)
+# struct = ketoreductase(struct)
+# struct = dehydratase(struct)
+# struct = add_malonylunit(struct)
+# struct = ketoreductase(struct, 'B1')
+# struct = dehydratase(struct)
+# struct = add_malonylunit(struct)
+# struct = ketoreductase(struct)
+# struct = dehydratase(struct)
+# struct = add_methylmalonylunit(struct)
+# struct = ketoreductase(struct)
+# struct = dehydratase(struct)
+# Drawer(struct)
+
 
 
 

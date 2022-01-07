@@ -1,17 +1,18 @@
 from matplotlib.patches import Circle
-from matplotlib.widgets import  Button
-from pks_modules_to_structure import *
+from matplotlib.widgets import Button
+from pks_thioesterase_reactions import *
+import matplotlib.lines as lines
 import matplotlib.image as mpimg
 
 #Colour dicts to match antiSMASH domain colouring
 colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781', \
                     'KR':'#80f680', 'DH':'#f7be81', 'ER':'#81f7f3', \
-                    'TE':'#f5c4f2'}
+                    'TE':'#f5c4f2', 'KR*':'#80f680'}
 colour_outline_dict = {'ACP':'#3d79d6', 'AT':'#df5d5d', 'KS':'#5fc65f', \
                        'KR':'#5fbb87', 'DH':'#ca9862', 'ER':'#61bbad',  \
-                       'TE':'#a25ba0'}
-font_domains = {'family' : 'verdana', 'size' : 12}
-font_modules = {'family' : 'verdana', 'size' : 15}
+                       'TE':'#a25ba0', 'KR*':'#5fbb87'}
+
+
 
 #Define some global variables that I had to use because matplotlib is not
 #necessarily the greatest package to make a GUI
@@ -19,6 +20,7 @@ images = []
 filenames_list = []
 global_figure = ''
 global_nr_elongation_modules = 0
+global_final_polyketide_Drawer_object = 0
 
 def draw_pks_cluster(pks_cluster, interactive=False):
     """
@@ -36,19 +38,30 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     """
 
     #Draw (don't show!) and save png's of quick reaction mechanisms per module
-    # pks_cluster_to_structure(pks_cluster, attach_to_acp=True, \
-    #                              visualization_mechanism=True, \
-    #                              draw_mechanism_per_module=True)
+    global global_final_polyketide_Drawer_object
+    if interactive:
+        global_final_polyketide_Drawer_object = pks_cluster_to_structure(pks_cluster, attach_to_acp=True, \
+                                     visualization_mechanism=True, \
+                                     draw_mechanism_per_module=True)
 
 
     #Save (don't show!) drawings of the chain intermediate per module
-    list_drawings_per_module = pks_cluster_to_structure(pks_cluster, attach_to_acp=True, draw_structures_per_module=True)
-    print('here', list_drawings_per_module)
-    #Reset colour of all atoms to black
+    list_drawings_per_module = pks_cluster_to_structure(pks_cluster, \
+    attach_to_acp=True, draw_structures_per_module=True)
+
+
+    #Close all matplotlib windows that were still open when generating
+    #the chain intermediate Drawer objects
+    plt.close('all')
+
+
+    #Reset colour of all atoms to black and remove 'ACP' from drawing
     for drawing_list in list_drawings_per_module:
         for drawing in drawing_list:
             for atom in drawing.structure.graph:
                 atom.draw.colour = 'black'
+                if hasattr(atom, 'domain_type'):
+                    atom.domain_type = ''
 
 
     nr_modules = len(pks_cluster)
@@ -60,11 +73,15 @@ def draw_pks_cluster(pks_cluster, interactive=False):
         module_type = module[1]
         if module_type == 'starter_module':
             module_list_domains += ['ACP']
-        elif module_type == 'elongation_module':
+        elif module_type == 'elongation_module' or module_type == 'terminator_module':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
             for tailoring_domain in module[3]:
+                if tailoring_domain.startswith('KR') and tailoring_domain != 'KR_inactive':
+                    tailoring_domain = 'KR'
+                elif tailoring_domain == 'KR_inactive':
+                    tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)
         list_all_domains += [module_list_domains]
 
@@ -82,6 +99,8 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     #Add title
     plt.title('Visualization PKS cluster', pad=80)
     #Draw domains per module
+
+    domain_text = []
     x = 30
     index = 0
     for module in list_all_domains:
@@ -90,12 +109,17 @@ def draw_pks_cluster(pks_cluster, interactive=False):
         for domain in module:
             domain_circle = make_circle(x, domain)
             ax.add_patch(domain_circle)
-            plt.text(x, 0, domain, ha = 'center', va = 'center', \
-            fontdict = font_domains)
+            domain_txt = domain
+            if domain == 'KR*':
+                domain_txt = 'KR'
+                #If the KR domain is inactive, draw cross through domain in interactive mode
+                first_line = lines.Line2D([x-9.899494937, x+9.899494937], [-9.899494937, 9.899494937], axes = ax, color = 'mediumseagreen')
+                second_line = lines.Line2D([x - 9.899494937, x + 9.899494937], [9.899494937, -9.899494937], axes = ax, color = 'mediumseagreen')
+                ax.add_line(first_line)
+                ax.add_line(second_line)
+            domain_text.append([domain_txt, x])
             if domain == 'ACP':
-                plt.plot([x, x], [-10, 0], color = 'black', zorder = 1)
                 list_drawings_per_module[index].append(x)
-                print('XXX', list_drawings_per_module[index])
                 index += 1
             if domain == module[0]:
                 x_min = x
@@ -105,6 +129,8 @@ def draw_pks_cluster(pks_cluster, interactive=False):
                     length_line = x_max + 30
             x += 30
         x_module_name = (x_min + x_max) / 2
+        module_txt_size = 15
+        font_modules = {'family': 'verdana', 'size': module_txt_size}
         plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
         x += 30
@@ -115,10 +141,17 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     # Draw horizontal line
     ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
+    #Write module names
+    domain_txt_size = (481.91 * ((length_line)**(-0.531)))
+    for domain_x in domain_text:
+        domain, x = domain_x
+        font_domains = {'family': 'verdana', 'size': domain_txt_size}
+        plt.text(x, 0, domain, ha='center', va='center', \
+                 fontdict=font_domains)
     #Add text above buttons:
     if interactive:
         ax.text((length_line / 2), -230, \
-            'Click module name to view reaction mechanism', ha = 'center', \
+            'Click module name to view reaction mechanism, or view all possible products', ha = 'center', \
             fontdict = font_modules)
 
     #Change coordinates of all atoms of all structures to match pks cluster
@@ -146,28 +179,33 @@ def draw_pks_cluster(pks_cluster, interactive=False):
             current_filename = mechanism_filename
             global filenames_list
             filenames_list.append(mechanism_filename)
-            rel_width_buttons = 1 / (nr_elongation_modules)
-            ax_button = plt.axes([x_bottomleft, 0.1, rel_width_buttons, 0.075], \
-            anchor = 'C')
-            module_button = Button(ax_button, label = module_name, color='#b3d8fa'\
-            , hovercolor='#74abde')
+            rel_width_buttons = 1 / (nr_elongation_modules + 1)
+            ax_button = plt.axes([x_bottomleft, 0.1, rel_width_buttons,\
+            0.075], anchor = 'C')
+            module_button = Button(ax_button, label = module_name, \
+            color='#b3d8fa', hovercolor='#74abde')
             module_button.label.set_fontsize(15)
             module_button.label.set_family('verdana')
             module_button.on_clicked(button_action)
             buttons.append(module_button)
-            x_bottomleft += (1 / (nr_elongation_modules))
-
-
+            x_bottomleft += (1 / (nr_elongation_modules + 1))
+        #Button for thioesterase reaction products
+        ax_button_thioesterase = plt.axes([x_bottomleft, 0.1, rel_width_buttons, 0.075], anchor='C')
+        thioesterase_button = Button(ax_button_thioesterase, label='View thioesterase\nreaction products', color='#b3d8fa', hovercolor='#74abde')
+        thioesterase_button.label.set_fontsize(15)
+        thioesterase_button.label.set_family('verdana')
+        thioesterase_button.on_clicked(button_action_thioesterase)
+        buttons.append(thioesterase_button)
 
     #Show plot
     plt.show()
 
 
     # #Delete image files of quick reaction mechanisms
-    # for module in pks_cluster:
-    #     module_name = module[0]
-    #     if path.exists(f'{module_name}_quick_mechanism.png'):
-    #         os.remove(f'{module_name}_quick_mechanism.png')
+    for module in pks_cluster:
+        module_name = module[0]
+        if path.exists(f'{module_name}_quick_mechanism.png'):
+            os.remove(f'{module_name}_quick_mechanism.png')
 
 
 def button_action(event):
@@ -185,7 +223,7 @@ def button_action(event):
     max_x = 0
     global global_nr_elongation_modules
     for i in range(global_nr_elongation_modules):
-        max_x += ((1/global_nr_elongation_modules) * (size[0]))
+        max_x += ((1/(global_nr_elongation_modules + 1)) * (size[0]))
         list_max_x_button.append(max_x)
     #If the mouse clicks the button within the x-coordinates of the button,
     #That means that particular button is being pressed
@@ -210,6 +248,19 @@ def button_action(event):
     fig2.tight_layout()
     plt.show()
 
+def button_action_thioesterase(event):
+    """Accessory function that is called when the 'View thioesterase reaction
+     products' is pressed. It opens  matplotlib windows displaying each of the
+     thioesterase reaction products
+
+    This function cannot take any arguments, so I had to go use a  global
+    variable to circumvent that
+    """
+    global global_final_polyketide_Drawer_object
+    final_polyketide = global_final_polyketide_Drawer_object
+    thioesterase_all_products(final_polyketide)
+
+
 
 def make_circle(x_coord, domain_type):
     """Easy function to draw circle for the domain visualization. Returns
@@ -218,7 +269,7 @@ def make_circle(x_coord, domain_type):
     x_coord: int, x-coordinate of the center of the circle to be drawn
     domain_type: str, PKS domain type (ACP, KS, AT, KR, DH or ER)
     """
-    circle = Circle((x_coord, 0.0), 14, facecolor=colour_fill_dict[domain_type]\
+    circle = Circle((x_coord, 0.0), 14,facecolor=colour_fill_dict[domain_type]\
     , edgecolor = colour_outline_dict[domain_type], zorder = 2)
     return circle
 
@@ -325,14 +376,14 @@ def draw_structures(drawer_objects, fig, ax, height):
                             second_line = line.double_line_towards_center(
                                 ring_centre,
                                 drawer_object.options.bond_spacing,
-                                drawer_object.options.double_bond_length, ax)
+                                drawer_object.options.double_bond_length)
                             second_line_midpoint = second_line.get_midpoint()
                             drawer_object.plot_halflines_double(second_line,
-                                                                ax,
-                                                                second_line_midpoint)
+                                                    ax, second_line_midpoint)
 
                         else:
-                            bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
+                            bond_neighbours = bond.atom_1.drawn_neighbours \
+                                              + bond.atom_2.drawn_neighbours
                             if bond_neighbours:
                                 vectors = [atom.draw.position for atom in
                                            bond_neighbours]
@@ -341,8 +392,7 @@ def draw_structures(drawer_objects, fig, ax, height):
                                 second_line = line.double_line_towards_center(
                                     gravitational_point,
                                     drawer_object.options.bond_spacing,
-                                    drawer_object.options.double_bond_length,
-                                    ax)
+                                    drawer_object.options.double_bond_length)
                                 second_line_midpoint = second_line.get_midpoint()
                                 drawer_object.plot_halflines_double(
                                     second_line, ax,
@@ -407,13 +457,11 @@ def draw_structures(drawer_objects, fig, ax, height):
                                 double_bond_line_1 = line.double_line_towards_center(
                                     closest_atom_1.draw.position,
                                     drawer_object.options.bond_spacing / 2.0,
-                                    drawer_object.options.double_bond_length,
-                                    ax)
+                                    drawer_object.options.double_bond_length)
                                 double_bond_line_2 = line.double_line_towards_center(
                                     closest_atom_2.draw.position,
                                     drawer_object.options.bond_spacing / 2.0,
-                                    drawer_object.options.double_bond_length,
-                                    ax)
+                                    drawer_object.options.double_bond_length)
 
                                 double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
                                 double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
@@ -440,12 +488,26 @@ def draw_structures(drawer_objects, fig, ax, height):
                             else:
                                 pass
         # Changed by Sophie
+        # Changed by Sophie
+        nr_unknown_sidechains = 1
         for atom in drawer_object.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
                 if hasattr(atom, 'domain_type'):
                     text = atom.domain_type
                 horizontal_alignment = 'center'
+                if atom.type == '*':
+                    for neighbour in atom.neighbours:
+                        if neighbour.type == 'C':
+                            neighbouring_c = neighbour
+                    # In order to not let the number of the sidechain overlap
+                    # with the bond, move Rx symbol along hor. axis depending on
+                    # if group is added to the left or right of the chain
+                    delta_x_r = drawer_object.get_delta_x_sidechain(atom,
+                                                           neighbouring_c)
+                    atom.draw.position.x += delta_x_r
+                    text = fr'$R_{nr_unknown_sidechains}$'
+                    nr_unknown_sidechains += 1
                 if atom.draw.has_hydrogen:
                     # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
                     hydrogen_count = 0
@@ -491,11 +553,27 @@ def draw_structures(drawer_objects, fig, ax, height):
 
 
 if __name__ == "__main__":
-    ex_module = [['module_1', 'starter_module', 'SC(CC(=O)O)=O'],
-                 ['module_2', 'elongation_module', 'methoxymalonylacp', ['KR', 'DH']],
-                 ['module_3', 'elongation_module', 'malonylcoa', ['KR']],
-                 ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                 ['module_5', 'elongation_module', 'methoxymalonylacp', []],
-                 ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH']]]
-    draw_pks_cluster(ex_module, interactive=True)
+    erythromycin_cluster = [['module_1', 'starter_module', 'SC(=O)CC'],
+                       ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
+                    ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']],
+                    ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
+                    ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                    ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
 
+    draw_pks_cluster(erythromycin_cluster, interactive=True)
+
+    bafilomycin_cluster = [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
+                           ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
+                           ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A 1']],
+                           ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
+                           ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
+                           ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']],
+                           ['pks module 7', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
+                           ['pks module 8', 'elongation_module', 'pk', ['KR_B1', 'DH']],
+                           ['pks module 9', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH', 'ER']],
+                           ['pks module 10', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
+                           ['pks module 11', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH']],
+                           ['pks module 12', 'terminator_module', 'methylmalonylcoa', ['KR_B1', 'DH']]]
+
+    #draw_pks_cluster(bafilomycin_cluster, interactive=True)

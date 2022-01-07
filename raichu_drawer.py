@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 #New import statement, changed by Sophie
-from find_central_chain import *
+from find_central_chain import find_central_chain_improved as find_central_chain
 import copy
 import math
 import matplotlib
 
-matplotlib.use('TkAgg')
-from matplotlib import pyplot as plt
 
+from matplotlib import pyplot as plt
+from pikachu.smiles.smiles import *
+from pikachu.chem.structure import  *
 from pikachu.drawing.sssr import SSSR
 from pikachu.drawing.rings import Ring, RingOverlap, find_neighbouring_rings, \
     rings_connected_by_bridge
@@ -327,11 +328,8 @@ class KKLayout:
 
 
 class Drawer:
-    def __init__(self, structure, options=None, save_png=None, dont_show=None):
-        if dont_show == None:
-            self.dont_show = None
-        else:
-            self.dont_show = dont_show
+    def __init__(self, structure, options=None, save_png=None, dont_show = False):
+        self.dont_show = dont_show
         if options == None:
             self.options = Options()
         if save_png == None:
@@ -340,7 +338,6 @@ class Drawer:
             # Check if filename is valid
             assert save_png.endswith('.png')
             self.save_png = save_png
-
         self.structure = structure.kekulise()
         self.rings = []
         self.ring_overlaps = []
@@ -357,7 +354,6 @@ class Drawer:
 
         self.ring_id_tracker = 0
         self.ring_overlap_id_tracker = 0
-
         self.draw()
 
     def prioritise_chiral_bonds(self, chiral_center):
@@ -526,7 +522,7 @@ class Drawer:
             x.append(point.x)
             y.append(point.y)
 
-        ax.fill(x, y, color=color, zorder=1)
+        ax.fill(x, y, color=color)
 
     def plot_chiral_bond_back(self, lines, ax, color='black'):
         for line in lines:
@@ -563,13 +559,32 @@ class Drawer:
     def plot_line(self, line, ax, color='black'):
         ax.plot([line.point_1.x, line.point_2.x],
                 [line.point_1.y, line.point_2.y], color=color,
-                linewidth=self.line_width, zorder=1)
+                linewidth=self.line_width)
 
     def draw_svg(self):
         self.draw_structure()
         plt.savefig("test.svg")
 
     # plt.clf()
+
+    def get_delta_x_sidechain(self, sidechain_atom, neighbouring_carbon):
+        """Returns the change tot the x-position of the sidegroup symbol in
+        the structure drawing as float
+
+        sidechain_atom: Atom object of the unknown sidechain group
+        neighoburin_carbon: Atom object of the carbon in the central chain
+        bound to the unknown sidechain group
+        """
+        sidechainatom_x = sidechain_atom.draw.position.x
+        carbon_x = neighbouring_carbon.draw.position.x
+        if (carbon_x - sidechainatom_x) < -10:
+            delta_x = 1.5
+        elif (carbon_x - sidechainatom_x) > 10:
+            delta_x = -1.5
+        else:
+            delta_x = 0.0
+
+        return delta_x
 
     def draw_structure(self):
         min_x = 100000000
@@ -591,10 +606,15 @@ class Drawer:
         height = max_y - min_y
         width = max_x - min_x
 
-        font_size = 3500 / height
-        self.line_width = 600 / height
+        # font_size = 3500 / height
+        # self.line_width = 600 / height
 
-        fig, ax = plt.subplots(figsize=(10, 10))
+        self.line_width = 2
+
+
+        #fig, ax = plt.subplots(figsize=(10, 10))
+        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,(height + 2 * self.options.padding) / 50.0), dpi=100)
+
         #  fig, ax = plt.subplots()
         ax.set_aspect('equal', adjustable='box')
         ax.axis('off')
@@ -611,8 +631,9 @@ class Drawer:
         #  ax.set_aspect()('equal', adjustable='box')
         #  plt.gca().set_aspect('equal', adjustable='box')
 
-        params = {'mathtext.default': 'regular',
-                  'font.size': font_size}
+        # params = {'mathtext.default': 'regular',
+        #           'font.size': font_size}
+        params = {'mathtext.default': 'regular', }
         plt.rcParams.update(params)
 
         ring_centers_x = []
@@ -660,7 +681,7 @@ class Drawer:
                             ring_centre = common_ring.center
                             second_line = line.double_line_towards_center(
                                 ring_centre, self.options.bond_spacing,
-                                self.options.double_bond_length, ax)
+                                self.options.double_bond_length)
                             second_line_midpoint = second_line.get_midpoint()
                             self.plot_halflines_double(second_line, ax,
                                                        second_line_midpoint)
@@ -675,7 +696,7 @@ class Drawer:
                                 second_line = line.double_line_towards_center(
                                     gravitational_point,
                                     self.options.bond_spacing,
-                                    self.options.double_bond_length, ax)
+                                    self.options.double_bond_length)
                                 second_line_midpoint = second_line.get_midpoint()
                                 self.plot_halflines_double(second_line, ax,
                                                            second_line_midpoint)
@@ -736,11 +757,11 @@ class Drawer:
                                 double_bond_line_1 = line.double_line_towards_center(
                                     closest_atom_1.draw.position,
                                     self.options.bond_spacing / 2.0,
-                                    self.options.double_bond_length, ax)
+                                    self.options.double_bond_length)
                                 double_bond_line_2 = line.double_line_towards_center(
                                     closest_atom_2.draw.position,
                                     self.options.bond_spacing / 2.0,
-                                    self.options.double_bond_length, ax)
+                                    self.options.double_bond_length)
 
                                 double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
                                 double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
@@ -765,12 +786,24 @@ class Drawer:
                             else:
                                 pass
         #Changed by Sophie
+        nr_unknown_sidechains = 1
         for atom in self.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
                 if hasattr(atom, 'domain_type'):
                     text = atom.domain_type
                 horizontal_alignment = 'center'
+                if atom.type == '*':
+                    for neighbour in atom.neighbours:
+                        if neighbour.type == 'C':
+                            neighbouring_c = neighbour
+                    #In order to not let the number of the sidechain overlap
+                    #with the bond, move Rx symbol along hor. axis depending on
+                    #if group is added to the left or right of the chain
+                    delta_x_r = self.get_delta_x_sidechain(atom, neighbouring_c)
+                    atom.draw.position.x += delta_x_r
+                    text = fr'$R_{nr_unknown_sidechains}$'
+                    nr_unknown_sidechains += 1
                 if atom.draw.has_hydrogen:
                     # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
                     hydrogen_count = 0
@@ -812,14 +845,16 @@ class Drawer:
 
         # If a png filename is included in the initialization of the Drawer object, don't show the
         # structure, but do save it as a png image to the provided filename
-        if self.save_png == None and self.dont_show == None:
-            plt.show()
-        elif self.dont_show:
+        if self.dont_show == True:
             return self
+        elif self.save_png == None and self.dont_show == False:
+            plt.show()
         else:
             plt.savefig(self.save_png)
             plt.clf()
             plt.close()
+
+
 
     def is_terminal(self, atom):
         if len(atom.drawn_neighbours) <= 1:
@@ -831,9 +866,7 @@ class Drawer:
         self.position()
         self.structure.refresh_structure()
         self.restore_ring_information()
-
         self.resolve_primary_overlaps()
-
         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
 
         for i in range(self.options.overlap_resolution_iterations):
@@ -854,6 +887,8 @@ class Drawer:
 
                     subtree_overlap_score, _ = self.get_subtree_overlap_score(
                         atom_2, atom_1, atom_to_scores)
+
+
                     if subtree_overlap_score > self.options.overlap_sensitivity:
                         neighbours_2 = atom_2.drawn_neighbours[:]
                         neighbours_2.remove(atom_1)
@@ -918,13 +953,19 @@ class Drawer:
                                                             atom_2.position)
                                     else:
                                         self.total_overlap_score = new_overlap_score
-
                         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
 
 
 
         #Added by Sophie: extra code for polyketides
-        #need to change, add some type of substructure search to see if polyketide
+        #substructure search to see if polyketide
+        is_polyketide = False
+        is_nrp = False
+        if self.structure.find_substructures(Smiles('C(O)=O').smiles_to_structure()) and self.structure.find_substructures(Smiles('SC(=O)').smiles_to_structure()):
+            is_polyketide = True
+
+
+
         attached_to_domain = False
         for atom in self.structure.graph:
             if atom.type == 'S':
@@ -940,7 +981,7 @@ class Drawer:
                                 carbon_before_carbon = neighbour
                             elif neighbour.type == 'O':
                                 carbonyl_oxygen = neighbour
-                                is_polyketide = True
+
 
         # Force the polyketide backbone to be drawn straight
         if is_polyketide:
@@ -951,18 +992,59 @@ class Drawer:
                 for atom in self.structure.graph:
                     if atom == atom_1_cc:
                         atom_1 = atom
-                    elif atom == atom_2_cc:
-                        atom_2 = atom
-                line = Line(atom_1.draw.position, atom_2.draw.position, atom_1, atom_2)
-                angle = round(line.get_angle(), 10)
-                if angle != round(math.radians(60), 10) and angle != round(math.radians(-60), 10):
-                    changed_angle = math.radians(240)
-                    self.rotate_subtree(atom_2, atom_1, changed_angle, atom_1.draw.position)
-                    angle = previous_angle * -1
-                    break
+                        for neighbour in atom_1.neighbours:
+                            if neighbour == atom_2_cc:
+                                atom_2 = neighbour
+                                line = Line(atom_1.draw.position, atom_2.draw.position, atom_1, atom_2)
+                                angle = round(line.get_angle(), 8)
+                                if angle != round(math.radians(60), 8) and angle != round(math.radians(-60), 8):
+                                    if round(last_correct_angle, 8) == round(math.radians(-60), 8):
+                                        changed_angle = angle + math.radians(60) + math.radians(180)
+                                    elif round(last_correct_angle, 8) == round(math.radians(60), 8):
+                                        changed_angle = angle + math.radians(-60) + math.radians(180)
+                                    else:
+                                        print('ERROR', changed_angle, math.radians(60))
+                                    self.rotate_subtree(atom_2, atom_1, changed_angle, atom_1.draw.position)
+                                    line = Line(atom_1.draw.position,
+                                                atom_2.draw.position, atom_1,
+                                                atom_2)
+                                    angle = round(line.get_angle(), 8)
+                                    last_correct_angle = angle
+                                else:
+                                    last_correct_angle = angle
+            new_list_central_chain_atoms = atoms_in_central_chain[1:-1]
+            for atom in self.structure.graph:
+                if atom in new_list_central_chain_atoms:
+                    for neighbour in atom.neighbours:
+                        if neighbour not in atoms_in_central_chain:
+                            sidechain_atom = neighbour
+                            x_carbon = atom.draw.position.x
+                            y_carbon = atom.draw.position.y
+                            sidechain_side = 'right'
+                            if neighbour.type == 'O':
+                                sidechain_side = 'left'
+                            list_types = []
+                            for next_atom in neighbour.neighbours:
+                                list_types.append(next_atom.type)
+
+                                if next_atom.type == 'C' and next_atom not in new_list_central_chain_atoms:
+                                    #Fix rotatation ethyl group in case of weird cases drawn like product bafilomycin cluster module 7
+                                    if next_atom.draw.position.x < neighbour.draw.position.x:
+                                        next_atom.draw.position.y = atom.draw.position.y
+                                        next_atom.draw.position.x = atom.draw.position.x + 30
+                                        self.rotate_subtree(next_atom, neighbour, math.radians(20), neighbour.draw.position)
+                            if neighbour.type == 'O' and list_types.count('C') == 2:
+                                sidechain_side = 'right'
+
+                            neighbour.draw.position.y = y_carbon
+                            if sidechain_side == 'left':
+                                neighbour.draw.position.x = x_carbon - 15
+                            elif sidechain_side == 'right':
+                                neighbour.draw.position.x = x_carbon + 15
 
 
-                previous_angle = angle
+
+        self.structure.refresh_structure()
 
 
 
@@ -994,7 +1076,8 @@ class Drawer:
                      math.radians(120))
                 self.rotate_subtree(carbonyl_oxygen, carbon_before_s, angle2, \
                                     carbon_before_s.draw.position)
-            #for molecules drawn like malonyl
+
+            # For molecule drawn like malonyl (not straight)
             elif sulphur.draw.position.y > carbonyl_oxygen.draw.position.y:
                 #print('need to rotate -S and =O')
                 angle1 = sulphur.draw.position.get_rotation_away_from_vector\
@@ -1027,6 +1110,16 @@ class Drawer:
                 y_sulphur = sulphur.draw.position.y
                 new_y_domain = y_sulphur + 15
                 domain.draw.position.y = new_y_domain
+
+            #If the ACP domain and S atom are positioned weirdly (ex. bafilomycin cluster module 7), fix this
+            if (sulphur.draw.position.y - carbon_before_s.draw.position.y) > 20:
+                sulphur.draw.position.y = carbon_before_s.draw.position.y + 15
+                sulphur.draw.position.x = carbon_before_s.draw.position.x
+                self.rotate_subtree(sulphur, carbon_before_s, math.radians(30),
+                                    carbon_before_s.draw.position)
+                domain.draw.position.x = sulphur.draw.position.x
+                domain.draw.position.y = sulphur.draw.position.y + 15
+
 
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)

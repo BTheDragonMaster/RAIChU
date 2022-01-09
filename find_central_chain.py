@@ -1,98 +1,75 @@
 from pks_elongation_reactions import *
-from pks_tailoring_reactions import *
+from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+
+POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 
 def find_central_chain(polyketide):
     """
-    Need to make it more specific: include some find_substructure searches to find beginning and end of polyketide
+    Returns a list of the atoms that make up the central carbon chain in the
+    polyketide, from end carbon to start carbon (the atom attached to the
+    sulphur atom)
 
+    polyketide: PIKAChU Structure object of a polyketide
     """
     central_chain = []
     visited = []
-    for atom in polyketide.graph:
-        if atom.type == 'S':
-            sulphur = atom
-            visited.append(sulphur)
-            for neighbour in sulphur.neighbours:
-                if neighbour.type == 'C':
-                    chain_carbon = neighbour
-                    visited.append(chain_carbon)
-                    flag = True
-                    central_chain += [chain_carbon]
-                    while flag:
-                        visited.append(chain_carbon)
-                        for next_atom in chain_carbon.neighbours:
-                            if next_atom not in visited:
-                                flag2 = True
-                                next_atom_neighbour_types = []
-                                if next_atom.type == 'C' and next_atom not in visited:
-                                    for neighbor in next_atom.neighbours:
-                                        if neighbor not in visited:
-                                            next_atom_neighbour_types.append(neighbor.type)
-                                            next_atom_neighbour_neighbour_types = []
-                                            for next_atom_neighbour_neighbour in neighbor.neighbours:
-                                                next_atom_neighbour_neighbour_types.append(next_atom_neighbour_neighbour.type)
-                                            if next_atom_neighbour_neighbour_types.count('H') == 3:
-                                                flag2 = False
-                                        if next_atom_neighbour_types.count('H') == 1 and next_atom_neighbour_neighbour_types.count('C') == 3:
-                                            flag2 = True
-                                        if next_atom_neighbour_types.count('H') == 3:
-                                            continue
-                                        if next_atom_neighbour_types.count('O') == 2:
-                                            central_chain.append(next_atom)
-                                            flag = False
-                                        else:
-                                            if flag2:
-                                                central_chain += [next_atom]
-                                                visited.append(next_atom)
-                                                chain_carbon = next_atom
-    return list(reversed(central_chain))
 
-def find_central_chain_improved(polyketide):
-    """
-    Need to make it more specific: include some find_substructure searches to
-    find beginning and end of polyketide
+    #Check if structure is a polyketide, define sulphur attached to domain
+    locations_sulphur = find_atoms(POLYKETIDE_S, polyketide)
+    assert len(locations_sulphur) == 1
+    sulphur_polyketide = locations_sulphur[0]
 
-    """
-    central_chain = []
-    visited = []
-    for atom in polyketide.graph:
-        if atom.type == 'S':
-            sulphur = atom
-            for neighbour in sulphur.neighbours:
-                if neighbour.type == 'C':
-                    chain_carbon = neighbour
-                    end_carbon = False
-                    central_chain += [chain_carbon]
-                    visited.append(chain_carbon)
-                    while not end_carbon:
-                        for next_atom in chain_carbon.neighbours:
-                            ethyl_branch = False
-                            methyl_group = False
-                            next_atom_neighbour_types = []
-                            if next_atom.type == 'C' and next_atom not in visited:
-                                #build list of next_atom_neighbour_types
-                                c_neighbours = []
-                                for neighbor in next_atom.neighbours:
-                                    next_atom_neighbour_types.append(neighbor.type)
-                                    if neighbor.type == 'C':
-                                        c_neighbours.append(neighbor)
-                                types = []
-                                if len(c_neighbours) == 2 and 'O' not in next_atom_neighbour_types:
-                                    for atom in c_neighbours:
-                                        neighbours_atom = atom.neighbours
-                                        for neighbour in neighbours_atom:
-                                            types.append(neighbour.type)
-                                    if types.count('H') == 4 and types.count('C') == 4:
-                                        ethyl_branch = True
-                                if next_atom_neighbour_types.count('O') == 2:
-                                    central_chain.append(next_atom)
-                                    end_carbon = True
-                                if next_atom_neighbour_types.count('H') == 3:
-                                    methyl_group = True
-                                if not ethyl_branch and not methyl_group and not end_carbon:
-                                    central_chain += [next_atom]
-                                    chain_carbon = next_atom
-                                    visited.append(chain_carbon)
+    #Iterate over atom neighbours, check if the atom belongs to the central
+    #carbon chain (i.e., not a methyl/ethyl/methoxy sidechain) and add to list
+    for neighbour in sulphur_polyketide.neighbours:
+        if neighbour.type == 'C':
+            chain_carbon = neighbour
+            end_carbon = False
+            central_chain += [chain_carbon]
+            visited.append(chain_carbon)
+            while not end_carbon:
+                for next_atom in chain_carbon.neighbours:
+                    ethyl_branch = False
+                    methyl_group = False
+                    next_atom_neighbour_types = []
+
+                    #Build lists of neighbouring atom types
+                    if next_atom.type == 'C' and next_atom not in visited:
+                        c_neighbours = []
+                        for neighbor in next_atom.neighbours:
+                            next_atom_neighbour_types.append(neighbor.type)
+                            if neighbor.type == 'C':
+                                c_neighbours.append(neighbor)
+
+                        #Confirm carbon doesn't belong to ethyl sidebranch
+                        types = []
+                        if len(c_neighbours) == 2 and 'O' not in \
+                            next_atom_neighbour_types:
+                            for atom in c_neighbours:
+                                neighbours_atom = atom.neighbours
+                                for neighbour in neighbours_atom:
+                                    types.append(neighbour.type)
+                            if types.count('H') == 4 and types.count('C') == 4:
+                                ethyl_branch = True
+
+                        #Carbon of terminal carboxylic acid group is the final
+                        #carbon in the central chain
+                        if next_atom_neighbour_types.count('O') == 2:
+                            central_chain.append(next_atom)
+                            end_carbon = True
+
+                        #Confirm carbon doesn't belong to methyl sidebranch
+                        if next_atom_neighbour_types.count('H') == 3:
+                            methyl_group = True
+
+                        #Identification of central chain carbon atoms through
+                        #exclusion
+                        if not ethyl_branch and not methyl_group and not \
+                            end_carbon:
+                            central_chain += [next_atom]
+                            chain_carbon = next_atom
+                            visited.append(chain_carbon)
+
     return list(reversed(central_chain))
 
 
@@ -108,4 +85,4 @@ if __name__ == "__main__":
     #print(struct.graph)
     #Drawer(struct)
     print(struct2.graph)
-    print(find_central_chain_improved(struct2), 'CENTRAL CHAHN')
+

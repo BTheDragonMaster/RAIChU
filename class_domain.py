@@ -33,6 +33,13 @@ class Domain(Atom):
 
 
 def make_domain(domain_type, next_atom_nr):
+    """
+    Returns a Domain of the input type containing the appropriate nr in the
+    Structure object
+
+    domain_type: Str, domain type
+    next_atom_nr: Int, 'atom nr' of the domain in the structure
+    """
     domain = Domain('I', next_atom_nr, None, 0, False)
     domain.set_domain_type(domain_type)
     return domain

@@ -587,10 +587,10 @@ class Drawer:
         return delta_x
 
     def draw_structure(self):
-        min_x = 100000000
-        max_x = -100000000
-        min_y = 100000000
-        max_y = -100000000
+        min_x = 10000000000
+        max_x = -10000000000
+        min_y = 10000000000
+        max_y = -10000000000
 
         for atom in self.structure.graph:
             if atom.draw.positioned:
@@ -613,7 +613,7 @@ class Drawer:
 
 
         #fig, ax = plt.subplots(figsize=(10, 10))
-        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,(height + 2 * self.options.padding) / 50.0), dpi=100)
+        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,(height + 2 * self.options.padding) / 50.0), dpi=500)
 
         #  fig, ax = plt.subplots()
         ax.set_aspect('equal', adjustable='box')

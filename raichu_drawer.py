@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #New import statement, changed by Sophie
-from find_central_chain import find_central_chain_improved as find_central_chain
+from find_central_chain import find_central_chain
 import copy
 import math
 import matplotlib

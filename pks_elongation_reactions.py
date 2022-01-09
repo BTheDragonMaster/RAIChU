@@ -1,8 +1,11 @@
 from raichu_drawer import *
 from pikachu.smiles.smiles import *
 from pikachu.chem.structure import *
+from pikachu.reactions.functional_groups import BondDefiner
 #from pikachu.drawing.drawing import *
 
+COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
+THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 
 
 def combine_structures(structures):
@@ -89,7 +92,6 @@ def combine_structures(structures):
         struct1.bonds[updated_bond_nr] = bond
     bonds1 = struct1.bonds
 
-
     #In order to prevent aliasing issues, make all bonds new Bond instances for
     #the bonds in structure 1:
     for nr, bond in bonds1.items():
@@ -104,7 +106,7 @@ def combine_structures(structures):
         new_bonds_1[bond_nr] = new_bond
         new_bond.electrons = bond_electrons
 
-
+    #Make new structure object of the combined structure
     bonds2.update(new_bonds_1)
     for structure in structures:
         new_graph.update(structure.graph)
@@ -118,43 +120,90 @@ def combine_structures(structures):
         bond.set_bond_summary()
     return new_structure
 
-
-class BondDefiner():
+def pks_elongation(pk_chain, elongation_monomer):
     """
-    Class to store an object that defines a bond type
+    Returns a Structure object of the PK chain after a single elongation step
+    elongation step.
 
-    Attributes
-    ----------
-    name: str, name of the bond type
-    smiles: Smiles object indicating the structure of the bond
-    atom_1: int, index of atom 1 in the bond in the smiles string
-    atom_2: int, index of atom 2 in the bond in the smiles string
+    structure: PIKAChU Structure object of the RC(=O)S PK intermediate before
+    the elongation step
+    elongation_monomer: ['SMILES_elongation_unit', index_c_to_c, index_c_to_s']
     """
-    def __init__(self, name, smiles, atom_nr_1, atom_nr_2):
-        self.name = name
-        self.smiles = Smiles(smiles)
-        self.structure = self.smiles.smiles_to_structure()
-        self.find_atoms(atom_nr_1, atom_nr_2)
-        self.bond = self.structure.bond_lookup[self.atom_1][self.atom_2]
+    # Reset atom colours to black
+    for atom in pk_chain.graph:
+        atom.draw.colour = 'black'
 
-    def __repr__(self):
-        return self.name
+    # Defining the structure of the elongation units when malonyl-CoA is
+    # used as the elongation unit during PK synthesis
+    elongation_monomer_struct = Smiles(elongation_monomer[0]).smiles_to_structure()
+    for atom in elongation_monomer_struct.graph:
+        if atom.nr == elongation_monomer[1]:
+            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
+            c_to_pkchain = atom
+            c_to_pkchain.central_chain = True
+            for atom in c_to_pkchain.neighbours:
+                if atom.type == 'H':
+                    h_to_remove = atom
+                    continue
+        elif atom.nr == elongation_monomer[2]:
+            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
+            c_to_s = atom
+            c_to_s.central_chain = True
+            for atom in c_to_s.neighbours:
+                if atom.type == 'H':
+                    h_to_remove2 = atom
+                    continue
 
-    def find_atoms(self, atom_nr_1, atom_nr_2):
-        self.atom_1 = None
-        self.atom_2 = None
-        for atom in self.structure.graph:
-            if atom.nr == atom_nr_1:
-                self.atom_1 = atom
-            elif atom.nr == atom_nr_2:
-                self.atom_2 = atom
-            if self.atom_1 and self.atom_2:
-                break
-        if not self.atom_1 or not self.atom_2:
-            raise Exception("Can't find atoms adjacent to bond.")
+    #Remove the Hs in the malonylunit in order to add it to the pk chain
+    elongation_monomer_struct.remove_atom(h_to_remove)
+    elongation_monomer_struct.set_atom_neighbours()
+    elongation_monomer_struct.remove_atom(h_to_remove2)
+    for atom in elongation_monomer_struct.graph:
+        atom.set_connectivity()
+    elongation_monomer_struct.set_atom_neighbours()
 
-COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
-THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
+    #find thioester bond in growing chain, define Cs to attach new unit
+    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
+    for bond in thioester_bonds:
+        if bond.atom_1.type == 'S':
+            s_pkchain = bond.atom_1
+            c_pkchain = bond.atom_2
+        elif bond.atom_2.type == 'S':
+            s_pkchain = bond.atom_2
+            c_pkchain = bond.atom_1
+
+    #Breaking the thioester bond in the PK chain
+    for bond in thioester_bonds[:]:
+        pk_chain.break_bond(bond)
+    pk_chain.get_connectivities()
+    pk_chain.set_connectivities()
+    pk_chain.set_atom_neighbours()
+    pk_chain.make_bond_lookup()
+
+    #refresh malonylunit
+    elongation_monomer_struct.refresh_structure()
+
+    # Combining structures PK chain and elongation unit into one Structure object
+    pk_chain_and_malonyl = (elongation_monomer_struct, pk_chain)
+    combined = combine_structures(pk_chain_and_malonyl)
+    combined.get_connectivities()
+    combined.set_connectivities()
+    combined.set_atom_neighbours()
+    combined.make_bond_lookup()
+
+    #Adding the bonds to form the new molecule after the single elongation step
+    new_bond_nr = combined.find_next_bond_nr()
+    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
+    new_bond_nr = combined.find_next_bond_nr()
+    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
+    combined.get_connectivities()
+    combined.set_connectivities()
+    combined.set_atom_neighbours()
+    combined.make_bond_lookup()
+    for bond_nr, bond in combined.bonds.items():
+        bond.set_bond_summary()
+
+    return combined
 
 
 def find_bonds(structure, bond_type):
@@ -202,81 +251,9 @@ def add_malonylunit(pk_chain):
     pk_chain: Structure object of the RC(=O)S PK intermediate before the
     elongation step
     """
-    # Reset atom colours to black
-    for atom in pk_chain.graph:
-        atom.draw.colour = 'black'
+    elongation_product = pks_elongation(pk_chain, ['CC=O', 0, 1])
 
-    # Defining the structure of the elongation units when malonyl-CoA is
-    # used as the elongation unit during PK synthesis
-    malonylunit = Smiles('CC=O').smiles_to_structure()
-    for atom in malonylunit.graph:
-        if atom.nr == 0:
-            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
-            c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
-            for atom in c_to_pkchain.neighbours:
-                if atom.type == 'H':
-                    h_to_remove = atom
-                    continue
-        elif atom.nr == 1:
-            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
-            c_to_s = atom
-            c_to_s.central_chain = True
-            for atom in c_to_s.neighbours:
-                if atom.type == 'H':
-                    h_to_remove2 = atom
-                    continue
-
-    #Remove the Hs in the malonylunit in order to add it to the pk chain
-    malonylunit.remove_atom(h_to_remove)
-    malonylunit.set_atom_neighbours()
-    malonylunit.remove_atom(h_to_remove2)
-    for atom in malonylunit.graph:
-        atom.set_connectivity()
-    malonylunit.set_atom_neighbours()
-
-    #find thioester bond in growing chain, define Cs to attach new unit
-    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    for bond in thioester_bonds:
-        if bond.atom_1.type == 'S':
-            s_pkchain = bond.atom_1
-            c_pkchain = bond.atom_2
-        elif bond.atom_2.type == 'S':
-            s_pkchain = bond.atom_2
-            c_pkchain = bond.atom_1
-
-    #Breaking the thioester bond in the PK chain
-    for bond in thioester_bonds[:]:
-        pk_chain.break_bond(bond)
-    pk_chain.get_connectivities()
-    pk_chain.set_connectivities()
-    pk_chain.set_atom_neighbours()
-    pk_chain.make_bond_lookup()
-
-    #refresh malonylunit
-    malonylunit.refresh_structure()
-
-    # Combining structures PK chain and elongation unit into one Structure object
-    pk_chain_and_malonyl = (malonylunit, pk_chain)
-    combined = combine_structures(pk_chain_and_malonyl)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-
-    #Adding the bonds to form the new molecule after the single elongation step
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
-
-    return combined
+    return elongation_product
 
 def add_methylmalonylunit(pk_chain):
     """
@@ -286,85 +263,9 @@ def add_methylmalonylunit(pk_chain):
     pk_chain: Structure object of the RC(=O)S PK intermediate before the
     elongation step
     """
-    # Reset atom colours to black
-    for atom in pk_chain.graph:
-        atom.draw.colour = 'black'
-    # Defining the structure of the elongation units when methylmalonyl-CoA is
-    # used as the elongation unit during PK synthesis
-    methylmalonylunit = Smiles('O=CCC').smiles_to_structure()
-    for atom in methylmalonylunit.graph:
-        if atom.nr == 2:
-            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
-            c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
-            c_to_pkchain.chiral = 'clockwise'
-            for atom in c_to_pkchain.neighbours:
-                if atom.type == 'H':
-                    h_to_remove = atom
-                    continue
-        elif atom.nr == 1:
-            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
-            c_to_s = atom
-            c_to_s.central_chain = True
-            for atom in c_to_s.neighbours:
-                if atom.type == 'H':
-                    h_to_remove2 = atom
-                    continue
+    elongation_product = pks_elongation(pk_chain, ['O=CCC', 2, 1])
 
-
-    #Remove the Hs in the malonylunit in order to add it to the pk chain
-    methylmalonylunit.remove_atom(h_to_remove)
-    methylmalonylunit.set_atom_neighbours()
-    methylmalonylunit.remove_atom(h_to_remove2)
-    for atom in methylmalonylunit.graph:
-        atom.set_connectivity()
-    methylmalonylunit.set_atom_neighbours()
-
-    #find thioester bond in growing chain, define Cs to attach new unit
-    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    for bond in thioester_bonds:
-        if bond.atom_1.type == 'S':
-            s_pkchain = bond.atom_1
-            c_pkchain = bond.atom_2
-        elif bond.atom_2.type == 'S':
-            s_pkchain = bond.atom_2
-            c_pkchain = bond.atom_1
-
-    #Breaking the thioester bond in the PK chain
-    for bond in thioester_bonds[:]:
-        pk_chain.break_bond(bond)
-    pk_chain.get_connectivities()
-    pk_chain.set_connectivities()
-    pk_chain.set_atom_neighbours()
-    pk_chain.make_bond_lookup()
-
-    #refresh methylmalonylunit
-    methylmalonylunit.refresh_structure()
-
-    # Combining structures PK chain and elongation unit into one Structure object
-    pk_chain_and_malonyl = (methylmalonylunit, pk_chain)
-    combined = combine_structures(pk_chain_and_malonyl)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-
-    #Adding the bonds to form the new molecule after the single elongation step
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    combined.find_cycles()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
-
-    return combined
-
-
+    return elongation_product
 
 
 def add_methoxymalonylunit(pk_chain):
@@ -375,85 +276,9 @@ def add_methoxymalonylunit(pk_chain):
     pk_chain: Structure object of the RC(=O)S PK intermediate before the
     elongation step
     """
-    # Reset atom colours to black
-    for atom in pk_chain.graph:
-        atom.draw.colour = 'black'
-    # Defining the structure of the elongation units when methylmalonyl-CoA is
-    # used as the elongation unit during PK synthesis
-    methoxymalonylunit = Smiles('O=CCOC').smiles_to_structure()
-    for atom in methoxymalonylunit.graph:
-        if atom.nr == 2:
-            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
-            c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
-            c_to_pkchain.chiral = 'counterclockwise'
-            for atom in c_to_pkchain.neighbours:
-                if atom.type == 'H':
-                    h_to_remove = atom
-                    continue
-        elif atom.nr == 1:
-            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
-            c_to_s = atom
-            c_to_s.central_chain = True
-            for atom in c_to_s.neighbours:
-                if atom.type == 'H':
-                    h_to_remove2 = atom
-                    continue
+    elongation_product = pks_elongation(pk_chain, ['O=CCOC', 2, 1])
 
-
-    #Remove the Hs in the malonylunit in order to add it to the pk chain
-    methoxymalonylunit.remove_atom(h_to_remove)
-    methoxymalonylunit.set_atom_neighbours()
-    methoxymalonylunit.remove_atom(h_to_remove2)
-    for atom in methoxymalonylunit.graph:
-        atom.set_connectivity()
-    methoxymalonylunit.set_atom_neighbours()
-
-
-    #find thioester bond in growing chain, define Cs to attach new unit
-    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    for bond in thioester_bonds:
-        if bond.atom_1.type == 'S':
-            s_pkchain = bond.atom_1
-            c_pkchain = bond.atom_2
-        elif bond.atom_2.type == 'S':
-            s_pkchain = bond.atom_2
-            c_pkchain = bond.atom_1
-
-    #Breaking the thioester bond in the PK chain
-    for bond in thioester_bonds[:]:
-        pk_chain.break_bond(bond)
-    pk_chain.get_connectivities()
-    pk_chain.set_connectivities()
-    pk_chain.set_atom_neighbours()
-    pk_chain.make_bond_lookup()
-
-    #refresh methylmalonylunit
-    methoxymalonylunit.refresh_structure()
-
-    # Combining structures PK chain and elongation unit into one Structure object
-    pk_chain_and_malonyl = (methoxymalonylunit, pk_chain)
-    combined = combine_structures(pk_chain_and_malonyl)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-
-    #Adding the bonds to form the new molecule after the single elongation step
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    combined.find_cycles()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
-
-    return combined
-
+    return elongation_product
 
 def add_ethylmalonylunit(pk_chain):
     """
@@ -463,83 +288,9 @@ def add_ethylmalonylunit(pk_chain):
     pk_chain: Structure object of the RC(=O)S PK intermediate before the
     elongation step
     """
-    # Reset atom colours to black
-    for atom in pk_chain.graph:
-        atom.draw.colour = 'black'
-    # Defining the structure of the elongation units when methylmalonyl-CoA is
-    # used as the elongation unit during PK synthesis
-    ethylmalonylunit = Smiles('O=CCCC').smiles_to_structure()
-    for atom in ethylmalonylunit.graph:
-        if atom.nr == 2:
-            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
-            c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
-            c_to_pkchain.chiral = 'clockwise'
-            for atom in c_to_pkchain.neighbours:
-                if atom.type == 'H':
-                    h_to_remove = atom
-                    continue
-        elif atom.nr == 1:
-            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
-            c_to_s = atom
-            c_to_s.central_chain = True
-            for atom in c_to_s.neighbours:
-                if atom.type == 'H':
-                    h_to_remove2 = atom
-                    continue
+    elongation_product = pks_elongation(pk_chain, ['O=CCCC', 2, 1])
 
-
-    #Remove the Hs in the malonylunit in order to add it to the pk chain
-    ethylmalonylunit.remove_atom(h_to_remove)
-    ethylmalonylunit.set_atom_neighbours()
-    ethylmalonylunit.remove_atom(h_to_remove2)
-    for atom in ethylmalonylunit.graph:
-        atom.set_connectivity()
-    ethylmalonylunit.set_atom_neighbours()
-
-    #find thioester bond in growing chain, define Cs to attach new unit
-    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    for bond in thioester_bonds:
-        if bond.atom_1.type == 'S':
-            s_pkchain = bond.atom_1
-            c_pkchain = bond.atom_2
-        elif bond.atom_2.type == 'S':
-            s_pkchain = bond.atom_2
-            c_pkchain = bond.atom_1
-
-    #Breaking the thioester bond in the PK chain
-    for bond in thioester_bonds[:]:
-        pk_chain.break_bond(bond)
-    pk_chain.get_connectivities()
-    pk_chain.set_connectivities()
-    pk_chain.set_atom_neighbours()
-    pk_chain.make_bond_lookup()
-
-    #refresh methylmalonylunit
-    ethylmalonylunit.refresh_structure()
-
-    # Combining structures PK chain and elongation unit into one Structure object
-    pk_chain_and_malonyl = (ethylmalonylunit, pk_chain)
-    combined = combine_structures(pk_chain_and_malonyl)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-
-    #Adding the bonds to form the new molecule after the single elongation step
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    combined.find_cycles()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
-
-    return combined
+    return elongation_product
 
 def add_pkunit(pk_chain):
     """
@@ -549,84 +300,10 @@ def add_pkunit(pk_chain):
     pk_chain: Structure object of the RC(=O)S PK intermediate before the
     elongation step
     """
-    # Reset atom colours to black
-    for atom in pk_chain.graph:
-        atom.draw.colour = 'black'
-    # Defining the structure of the elongation units when pk is
-    # used as the elongation unit during PK synthesis
-    pkunit = Smiles('O=CC*').smiles_to_structure()
-    for atom in pkunit.graph:
-        if atom.nr == 2:
-            # C0 needs to be attached to the C atom of the C-S bond in the PK chain
-            c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
-            c_to_pkchain.chiral = 'clockwise'
-            for atom in c_to_pkchain.neighbours:
-                if atom.type == 'H':
-                    h_to_remove = atom
-                    continue
-        elif atom.nr == 1:
-            # C1 needs to be attached to the S atom of the C-S bond in the PK chain
-            c_to_s = atom
-            c_to_s.central_chain = True
-            for atom in c_to_s.neighbours:
-                if atom.type == 'H':
-                    h_to_remove2 = atom
-                    continue
+    elongation_product = pks_elongation(pk_chain, ['O=CC*', 2, 1])
 
+    return elongation_product
 
-    #Remove the Hs in the pk unit in order to add it to the pk chain
-    pkunit.remove_atom(h_to_remove)
-    pkunit.set_atom_neighbours()
-    pkunit.remove_atom(h_to_remove2)
-    for atom in pkunit.graph:
-        atom.set_connectivity()
-    pkunit.set_atom_neighbours()
-
-
-    #find thioester bond in growing chain, define Cs to attach new unit
-    thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    for bond in thioester_bonds:
-        if bond.atom_1.type == 'S':
-            s_pkchain = bond.atom_1
-            c_pkchain = bond.atom_2
-        elif bond.atom_2.type == 'S':
-            s_pkchain = bond.atom_2
-            c_pkchain = bond.atom_1
-
-    #Breaking the thioester bond in the PK chain
-    for bond in thioester_bonds[:]:
-        pk_chain.break_bond(bond)
-    pk_chain.get_connectivities()
-    pk_chain.set_connectivities()
-    pk_chain.set_atom_neighbours()
-    pk_chain.make_bond_lookup()
-
-    #refresh pkunit
-    pkunit.refresh_structure()
-
-    # Combining structures PK chain and elongation unit into one Structure object
-    pk_chain_and_malonyl = (pkunit, pk_chain)
-    combined = combine_structures(pk_chain_and_malonyl)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-
-    #Adding the bonds to form the new molecule after the single elongation step
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
-    new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(c_to_s, s_pkchain, new_bond_nr)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    combined.find_cycles()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
-
-    return combined
 
 def repeat_elongations(pk_chain, times):
     for i in range(times-1):

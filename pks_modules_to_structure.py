@@ -17,13 +17,13 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     ation and/or tailoring reactions performed by each PKS module
     If attach_to_acp == True: the polyketide will be attached to an ACP domain
     object of type Domain. Can be combined with previous optional flags.
-    If draw_structures_per_module: saves the polyketide intermediate as
-    'module_name'.png, doesn't display any visualzisation
+    If draw_structures_per_module == True: saves the polyketide intermediates
+    as 'module_name'.png, doesn't display any visualisations
 
-    modules: [[PKS module]] representation of the PKS cluster as:
+    modules: [Starter module, elongation module, Elongation module, ...] with
     Starter module: ['module name','starter_module','SMILES starter unit']
     Elongation modules: ['module name', 'elongation_module',
-    'malonylcoa'/'methylmalonylcoa', ['KR', 'DH', 'ER']]
+    'elongation_monomer', ['KR', 'DH', 'ER']]
     """
     modules = copy(modules)
     list_drawings_per_module = []
@@ -578,20 +578,6 @@ if __name__ == "__main__":
               ['pks module 7 [19481:22331]', 'elongation_module', 'malonylcoa', []]]
     pks_cluster_to_structure(output)
 
-# struct = Smiles('SC(C)=O').smiles_to_structure()
-# struct = add_malonylunit(struct)
-# struct = ketoreductase(struct)
-# struct = dehydratase(struct)
-# struct = add_malonylunit(struct)
-# struct = ketoreductase(struct, 'B1')
-# struct = dehydratase(struct)
-# struct = add_malonylunit(struct)
-# struct = ketoreductase(struct)
-# struct = dehydratase(struct)
-# struct = add_methylmalonylunit(struct)
-# struct = ketoreductase(struct)
-# struct = dehydratase(struct)
-# Drawer(struct)
 
 
 

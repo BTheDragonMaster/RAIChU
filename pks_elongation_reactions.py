@@ -133,8 +133,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     for atom in pk_chain.graph:
         atom.draw.colour = 'black'
 
-    # Defining the structure of the elongation units when malonyl-CoA is
-    # used as the elongation unit during PK synthesis
+    # Defining the structure of the elongation units
     elongation_monomer_struct = Smiles(elongation_monomer[0]).smiles_to_structure()
     for atom in elongation_monomer_struct.graph:
         if atom.nr == elongation_monomer[1]:
@@ -153,6 +152,18 @@ def pks_elongation(pk_chain, elongation_monomer):
                 if atom.type == 'H':
                     h_to_remove2 = atom
                     continue
+
+    #If the elongation unit contains an unknown moiety, add a number to the
+    #'*' atom to display in the structure drawing
+    pk_chain_atom_types = []
+    for atom in pk_chain.graph:
+        pk_chain_atom_types.append(atom.type)
+    nr_unknown_atoms = pk_chain_atom_types.count('*')
+    if elongation_monomer[0] == 'O=CC*':
+        for atom in elongation_monomer_struct.graph:
+            if atom.type == '*':
+                atom.unknown_index = nr_unknown_atoms + 1
+
 
     #Remove the Hs in the malonylunit in order to add it to the pk chain
     elongation_monomer_struct.remove_atom(h_to_remove)

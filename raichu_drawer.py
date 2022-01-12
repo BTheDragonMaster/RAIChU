@@ -786,7 +786,6 @@ class Drawer:
                             else:
                                 pass
         #Changed by Sophie
-        nr_unknown_sidechains = 1
         for atom in self.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
@@ -802,8 +801,7 @@ class Drawer:
                     #if group is added to the left or right of the chain
                     delta_x_r = self.get_delta_x_sidechain(atom, neighbouring_c)
                     atom.draw.position.x += delta_x_r
-                    text = fr'$R_{nr_unknown_sidechains}$'
-                    nr_unknown_sidechains += 1
+                    text = fr'$R_{atom.unknown_index}$'
                 if atom.draw.has_hydrogen:
                     # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
                     hydrogen_count = 0

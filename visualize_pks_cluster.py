@@ -488,8 +488,6 @@ def draw_structures(drawer_objects, fig, ax, height):
                             else:
                                 pass
         # Changed by Sophie
-        # Changed by Sophie
-        nr_unknown_sidechains = 1
         for atom in drawer_object.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
@@ -506,8 +504,7 @@ def draw_structures(drawer_objects, fig, ax, height):
                     delta_x_r = drawer_object.get_delta_x_sidechain(atom,
                                                            neighbouring_c)
                     atom.draw.position.x += delta_x_r
-                    text = fr'$R_{nr_unknown_sidechains}$'
-                    nr_unknown_sidechains += 1
+                    text = fr'$R_{atom.unknown_index}$'
                 if atom.draw.has_hydrogen:
                     # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
                     hydrogen_count = 0
@@ -554,26 +551,24 @@ def draw_structures(drawer_objects, fig, ax, height):
 
 if __name__ == "__main__":
     erythromycin_cluster = [['module_1', 'starter_module', 'SC(=O)CC'],
-                       ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
+                       ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2', 'DH', 'ER']],
                     ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']],
-                    ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                    ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                    ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
+                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']]]
 
-    draw_pks_cluster(erythromycin_cluster, interactive=True)
+    #draw_pks_cluster(erythromycin_cluster, interactive=True)
 
     bafilomycin_cluster = [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
                            ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
-                           ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A 1']],
+                           ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A1']],
                            ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
                            ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
                            ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']],
                            ['pks module 7', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
                            ['pks module 8', 'elongation_module', 'pk', ['KR_B1', 'DH']],
-                           ['pks module 9', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH', 'ER']],
+                           ['pks module 9', 'elongation_module', 'pk', ['KR_B1', 'DH', 'ER']],
                            ['pks module 10', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
-                           ['pks module 11', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH']],
+                           ['pks module 11', 'elongation_module', 'pk', ['KR_B1', 'DH']],
                            ['pks module 12', 'terminator_module', 'methylmalonylcoa', ['KR_B1', 'DH']]]
 
-    #draw_pks_cluster(bafilomycin_cluster, interactive=True)
+    draw_pks_cluster(bafilomycin_cluster)
+

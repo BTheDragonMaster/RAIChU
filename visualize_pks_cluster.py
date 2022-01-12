@@ -83,6 +83,8 @@ def draw_pks_cluster(pks_cluster, interactive=False):
                 elif tailoring_domain == 'KR_inactive':
                     tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)
+            if module_type == 'terminator_module':
+                module_list_domains.append('TE')
         list_all_domains += [module_list_domains]
 
 

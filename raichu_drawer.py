@@ -587,10 +587,10 @@ class Drawer:
         return delta_x
 
     def draw_structure(self):
-        min_x = 10000000000
-        max_x = -10000000000
-        min_y = 10000000000
-        max_y = -10000000000
+        min_x = 100000000
+        max_x = -100000000
+        min_y = 100000000
+        max_y = -100000000
 
         for atom in self.structure.graph:
             if atom.draw.positioned:

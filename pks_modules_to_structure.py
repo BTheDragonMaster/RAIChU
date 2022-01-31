@@ -57,57 +57,57 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 #image files are removed before continuing
                 if path.exists('1.png'):
                     os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             new_chain_intermediate = add_malonylunit(chain_intermediate)
             chain_intermediate = new_chain_intermediate
             if visualization_mechanism == True:
                 if path.exists('2.png'):
                     os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
         elif elongation_unit == 'methylmalonylcoa':
             if visualization_mechanism == True:
                 if path.exists('1.png'):
                     os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             new_chain_intermediate = add_methylmalonylunit(chain_intermediate)
             chain_intermediate = new_chain_intermediate
             if visualization_mechanism == True:
                 if path.exists('2.png'):
                     os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
         elif elongation_unit == 'methoxymalonylacp':
             if visualization_mechanism == True:
                 if path.exists('1.png'):
                     os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             new_chain_intermediate = add_methoxymalonylunit(chain_intermediate)
             chain_intermediate = new_chain_intermediate
             if visualization_mechanism == True:
                 if path.exists('2.png'):
                     os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
         elif elongation_unit == 'ethylmalonylcoa':
             if visualization_mechanism == True:
                 if path.exists('1.png'):
                     os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             new_chain_intermediate = add_ethylmalonylunit(chain_intermediate)
             chain_intermediate = new_chain_intermediate
             if visualization_mechanism == True:
                 if path.exists('2.png'):
                     os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
         elif elongation_unit == 'pk':
             if visualization_mechanism == True:
                 if path.exists('1.png'):
                     os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             new_chain_intermediate = add_pkunit(chain_intermediate)
             chain_intermediate = new_chain_intermediate
             if visualization_mechanism == True:
                 if path.exists('2.png'):
                     os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
         #If the module does not contain any tailoring domains:
         if len(list_domains) == 0:
             if visualization_mechanism == True:
@@ -136,7 +136,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 if visualization_mechanism == True and inactive_kr_domain == False:
                     if path.exists('3.png'):
                         os.remove('3.png')
-                    Drawer(chain_intermediate, save_png='3.png')
+                    Drawer(chain_intermediate, save_png='3.png', dpi_drawer=500)
                     #Check if the module also contains a DH domain
                     if 'DH' not in list_domains:
                         display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
@@ -170,7 +170,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     if visualization_mechanism == True:
                         if path.exists('4.png'):
                             os.remove('4.png')
-                        Drawer(chain_intermediate, save_png='4.png')
+                        Drawer(chain_intermediate, save_png='4.png', dpi_drawer=500)
                         if 'ER' not in list_domains:
                             display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
             if domain == 'ER':
@@ -186,10 +186,10 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     if visualization_mechanism == True:
                         if path.exists('5.png'):
                             os.remove('5.png')
-                        Drawer(chain_intermediate, save_png='5.png')
+                        Drawer(chain_intermediate, save_png='5.png', dpi_drawer=500)
                         display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
         if draw_structures_per_module:
-            drawing = Drawer(chain_intermediate, dont_show=True)
+            drawing = Drawer(chain_intermediate, dont_show=True, dpi_drawer=500)
             list_drawings_per_module.append([drawing])
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:

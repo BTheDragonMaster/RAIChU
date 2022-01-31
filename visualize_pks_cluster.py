@@ -553,11 +553,14 @@ def draw_structures(drawer_objects, fig, ax, height):
 
 if __name__ == "__main__":
     erythromycin_cluster = [['module_1', 'starter_module', 'SC(=O)CC'],
-                       ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2', 'DH', 'ER']],
-                    ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']]]
+                            ['module_2', 'elongation_module', 'pk', ['KR_B2']],
+                            ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                            ['module_4', 'elongation_module', 'pk', ['KR_C2']],
+                            ['module_5', 'elongation_module', 'pk', ['KR', 'DH', 'ER']],
+                            ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                            ['module_7', 'terminator_module', 'pk', ['KR_A1']]]
 
-    #draw_pks_cluster(erythromycin_cluster, interactive=True)
+    draw_pks_cluster(erythromycin_cluster, interactive=True)
 
     bafilomycin_cluster = [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
                            ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
@@ -572,5 +575,5 @@ if __name__ == "__main__":
                            ['pks module 11', 'elongation_module', 'pk', ['KR_B1', 'DH']],
                            ['pks module 12', 'terminator_module', 'methylmalonylcoa', ['KR_B1', 'DH']]]
 
-    draw_pks_cluster(bafilomycin_cluster)
+    #draw_pks_cluster(bafilomycin_cluster)
 

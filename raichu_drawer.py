@@ -328,7 +328,7 @@ class KKLayout:
 
 
 class Drawer:
-    def __init__(self, structure, options=None, save_png=None, dont_show = False):
+    def __init__(self, structure, options=None, save_png=None, dont_show = False, dpi_drawer = 100):
         self.dont_show = dont_show
         if options == None:
             self.options = Options()
@@ -338,6 +338,10 @@ class Drawer:
             # Check if filename is valid
             assert save_png.endswith('.png')
             self.save_png = save_png
+        if dpi_drawer == 100:
+            dpi_drawer = 100
+        else:
+            dpi_drawer = dpi_drawer
         self.structure = structure.kekulise()
         self.rings = []
         self.ring_overlaps = []
@@ -354,7 +358,7 @@ class Drawer:
 
         self.ring_id_tracker = 0
         self.ring_overlap_id_tracker = 0
-        self.draw()
+        self.draw(dpi_drawer)
 
     def prioritise_chiral_bonds(self, chiral_center):
 
@@ -475,14 +479,14 @@ class Drawer:
                     self.chiral_bonds.append(bond)
                     self.chiral_bond_to_orientation[bond] = (wedge, atom)
 
-    def draw(self):
+    def draw(self, dpi_drawer):
         if not self.options.draw_hydrogens:
             self.hide_hydrogens()
         self.get_atom_nr_to_atom()
         self.define_rings()
         self.process_structure()
         self.set_chiral_bonds()
-        self.draw_structure()
+        self.draw_structure(dpi_drawer)
         # self.draw_svg()
 
     #  self.draw_png()
@@ -586,7 +590,7 @@ class Drawer:
 
         return delta_x
 
-    def draw_structure(self):
+    def draw_structure(self, dpi_drawer):
         min_x = 100000000
         max_x = -100000000
         min_y = 100000000
@@ -613,7 +617,7 @@ class Drawer:
 
 
         #fig, ax = plt.subplots(figsize=(10, 10))
-        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,(height + 2 * self.options.padding) / 50.0), dpi=500)
+        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,(height + 2 * self.options.padding) / 50.0), dpi=dpi_drawer)
 
         #  fig, ax = plt.subplots()
         ax.set_aspect('equal', adjustable='box')

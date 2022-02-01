@@ -2,6 +2,7 @@ from pikachu.reactions.basic_reactions import condensation
 from pikachu.reactions.functional_groups import find_bonds, BondDefiner, GroupDefiner, find_atoms
 from pikachu.general import draw_structure
 from pikachu.smiles.smiles import Smiles
+from raichu_drawer import Drawer
 
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)C[N]', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
@@ -54,7 +55,7 @@ def make_nrp(list_amino_acids):
     for i in range(len(list_amino_acids)):
         list_amino_acids[i] = list_amino_acids[i].upper()
 
-    # Take amino acid Structure object from list and add to growing NRP chain
+    # Take amino acid Structure object from dict and add to growing NRP chain
     nrp_chain_intermediate = dict_aa_structure[list_amino_acids[0]].copy()
     list_amino_acids = list_amino_acids[1:]
     for amino_acid_name in list_amino_acids:
@@ -69,8 +70,7 @@ def make_nrp(list_amino_acids):
 
 
 if __name__ == "__main__":
-    tryptophan = Smiles('C1=CC=C2C(=C1)C(=CN2)CC(C(=O)O)N').smiles_to_structure()
-    alanine = Smiles('NC(C)C(O)=O').smiles_to_structure()
-    test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'threonine', 'cysteine'])
+    test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline', 'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
     test_peptide.find_cycles()
     draw_structure(test_peptide)
+    Drawer(test_peptide)

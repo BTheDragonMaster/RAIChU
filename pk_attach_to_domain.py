@@ -1,7 +1,9 @@
 from class_domain import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+from raichu_drawer import *
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
+NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 
 def attach_to_domain(polyketide, domain_type):
     """
@@ -42,3 +44,56 @@ def attach_to_domain(polyketide, domain_type):
 
     return structure
 
+def attach_to_domain_nrp(nrp, domain_type):
+    """
+    Attaches the NRP to a PCP domain
+
+    domain_type: Str, domain type
+    """
+    #Create domain
+    next_atom_nr = nrp.find_next_atom_nr()
+    domain = make_domain(domain_type, next_atom_nr)
+    domain.add_shell_layout()
+
+    #Remove H atom from S in polyketide, to allow attachment to domain
+    locations_c_to_domain = find_atoms(NRP_C, nrp)
+    assert len(locations_c_to_domain) == 1
+    c_atom_to_domain = locations_c_to_domain[0]
+    for neighbour in c_atom_to_domain.neighbours:
+        if neighbour.type == 'O':
+            if nrp.bond_lookup[c_atom_to_domain][neighbour].type == 'single':
+                remove_o = neighbour
+                bond_to_break = nrp.bond_lookup[c_atom_to_domain][neighbour]
+
+    nrp.break_bond(bond_to_break)
+    split = nrp.split_disconnected_structures()
+    one, two = split
+    if len(one.graph) == 2:
+        hydroxyl = one
+        structure = two
+    else:
+        hydroxyl = two
+        structure = one
+
+    # Add S atom to C in NRP
+    structure.add_atom('S', [c_atom_to_domain])
+    structure.set_atom_neighbours()
+    for atom in structure.graph:
+        if atom.type == 'S':
+            for neighbour in atom.neighbours:
+                if neighbour == c_atom_to_domain:
+                    sulphur_to_pcp = atom
+
+    #Make new bond between S in NRP and domain
+    for i, neighbour in enumerate([sulphur_to_pcp]):
+        next_bond_nr = structure.find_next_bond_nr()
+        structure.make_bond(domain, neighbour, next_bond_nr)
+
+
+
+    return structure
+
+if __name__ == "__main__":
+    peptide = Smiles('C(C(NC(C(NC(C(=O)[o])C)=O)C(C)=O)=O)(N)CCC').smiles_to_structure()
+    attached_peptide = attach_to_domain_nrp(peptide, 'PCP')
+    Drawer(attached_peptide)

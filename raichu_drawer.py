@@ -984,6 +984,7 @@ class Drawer:
         ###NEW CODE POLYKETIDES
         if is_polyketide and attached_to_domain:
             central_chain_carbons = find_central_chain(self.structure)
+            print('central chain carbons', central_chain_carbons)
             # Rotate the entire structure 180 degrees. Works
             angle = domain.draw.position.get_rotation_away_from_vector \
                 (central_chain_carbons[0].draw.position, sulphur.draw.position, \
@@ -1082,6 +1083,16 @@ class Drawer:
                     atom.draw.position.y = pcp_y - 15
 
             backbone_atoms.pop(0)
+
+            #Fix S-C angle
+            angle = get_angle(backbone_atoms[0].draw.position, backbone_atoms[1].draw.position)
+            angle_degrees = round(math.degrees(angle), 3)
+            correct_angle_deg = 60
+            delta_angle_deg = correct_angle_deg - angle_degrees
+            delta_angle_rad = math.radians(delta_angle_deg)
+            self.rotate_subtree(backbone_atoms[1], backbone_atoms[0], delta_angle_rad, backbone_atoms[0].draw.position)
+
+            #Rotate all other bonds in peptide backbone of NRP
             i = 0
             while i < (len(backbone_atoms) - 1):
                 atom1 = backbone_atoms[i]

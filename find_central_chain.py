@@ -19,6 +19,7 @@ def find_central_chain(polyketide):
     locations_sulphur = find_atoms(POLYKETIDE_S, polyketide)
     assert len(locations_sulphur) == 1
     sulphur_polyketide = locations_sulphur[0]
+    central_chain.append(sulphur_polyketide)
 
     #Iterate over atom neighbours, check if the atom belongs to the central
     #carbon chain (i.e., not a methyl/ethyl/methoxy sidechain) and add to list
@@ -94,9 +95,8 @@ def find_central_chain(polyketide):
                             central_chain += [next_atom]
                             chain_carbon = next_atom
                             visited.append(chain_carbon)
-    print(central_chain)
-    return list(reversed(central_chain))
 
+    return central_chain
 
 
 

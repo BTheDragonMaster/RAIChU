@@ -871,7 +871,6 @@ class Drawer:
         self.restore_ring_information()
         self.resolve_primary_overlaps()
         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
-
         for i in range(self.options.overlap_resolution_iterations):
             for bond in self.drawn_bonds:
                 if self.bond_is_rotatable(bond):
@@ -972,7 +971,6 @@ class Drawer:
 
 
 
-
         attached_to_domain = False
         for atom in self.structure.graph:
             if atom.type == 'S':
@@ -981,156 +979,99 @@ class Drawer:
                     if hasattr(neighbour, 'domain_type'):
                         attached_to_domain = True
                         domain = neighbour
-                    else:
-                        carbon_before_s = neighbour
-                        for neighbour in carbon_before_s.neighbours:
-                            if neighbour.type == 'C':
-                                carbon_before_carbon = neighbour
-                            elif neighbour.type == 'O':
-                                carbonyl_oxygen = neighbour
 
 
+        ###NEW CODE POLYKETIDES
+        if is_polyketide and attached_to_domain:
+            central_chain_carbons = find_central_chain(self.structure)
+            # Rotate the entire structure 180 degrees. Works
+            angle = domain.draw.position.get_rotation_away_from_vector \
+                (central_chain_carbons[0].draw.position, sulphur.draw.position, \
+                 math.radians(180))
+            self.rotate_subtree(sulphur, domain, angle,
+                                sulphur.draw.position)
 
+            #Rotate S-C bond into fixed position
+            angle = get_angle(sulphur.draw.position, central_chain_carbons[0].draw.position)
+            angle_degrees = round(math.degrees(angle), 3)
+            correct_angle_deg = 120.0
+            delta_angle_deg = correct_angle_deg - angle_degrees
+            delta_angle_rad = math.radians(delta_angle_deg)
+            self.rotate_subtree(central_chain_carbons[0], sulphur, delta_angle_rad, sulphur.draw.position)
 
+            #Rotate EVERY bond in central chain to proper angle
+            i = 0
+            while i < len(central_chain_carbons) - 1:
+                atom1 = central_chain_carbons[i]
+                atom2 = central_chain_carbons[i+1]
+                angle = get_angle(atom1.draw.position, atom2.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
+                if round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 120.0:
+                    correct_angle_deg = 60
+                elif round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 60.0:
+                    correct_angle_deg = 120
+                print(atom1, atom2, angle_degrees, correct_angle_deg)
+                delta_angle_deg = correct_angle_deg - angle_degrees
+                delta_angle_rad = math.radians(delta_angle_deg)
+                self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                i += 1
 
-        # Force the polyketide backbone to be drawn straight
-        if is_polyketide:
-            atoms_in_central_chain = find_central_chain(self.structure)
-            for i in range(len(atoms_in_central_chain) - 1):
-                atom_1_cc = atoms_in_central_chain[i]
-                atom_2_cc = atoms_in_central_chain[i+1]
-                for atom in self.structure.graph:
-                    if atom == atom_1_cc:
-                        atom_1 = atom
-                        for neighbour in atom_1.neighbours:
-                            if neighbour == atom_2_cc:
-                                atom_2 = neighbour
-                                line = Line(atom_1.draw.position, atom_2.draw.position, atom_1, atom_2)
-                                angle = round(line.get_angle(), 8)
-                                if angle != round(math.radians(60), 8) and angle != round(math.radians(-60), 8):
-                                    if round(last_correct_angle, 8) == round(math.radians(-60), 8):
-                                        changed_angle = angle + math.radians(60) + math.radians(180)
-                                    elif round(last_correct_angle, 8) == round(math.radians(60), 8):
-                                        changed_angle = angle + math.radians(-60) + math.radians(180)
-                                    else:
-                                        print('ERROR', changed_angle, math.radians(60))
-                                    self.rotate_subtree(atom_2, atom_1, changed_angle, atom_1.draw.position)
-                                    line = Line(atom_1.draw.position,
-                                                atom_2.draw.position, atom_1,
-                                                atom_2)
-                                    angle = round(line.get_angle(), 8)
-                                    last_correct_angle = angle
-                                else:
-                                    last_correct_angle = angle
-            new_list_central_chain_atoms = atoms_in_central_chain[1:-1]
-            for atom in self.structure.graph:
-                if atom in new_list_central_chain_atoms:
-                    for neighbour in atom.neighbours:
-                        if neighbour not in atoms_in_central_chain:
-                            sidechain_atom = neighbour
-                            x_carbon = atom.draw.position.x
-                            y_carbon = atom.draw.position.y
-                            sidechain_side = 'right'
-                            if neighbour.type == 'O':
-                                sidechain_side = 'left'
-                            list_types = []
-                            for next_atom in neighbour.neighbours:
-                                list_types.append(next_atom.type)
+            #Position ACP domain right above sulphur atom
+            domain.draw.position.x = sulphur.draw.position.x
+            domain.draw.position.y = sulphur.draw.position.y + 15
 
-                                if next_atom.type == 'C' and next_atom not in new_list_central_chain_atoms:
-                                    #Fix rotatation ethyl group in case of weird cases drawn like product bafilomycin cluster module 7
-                                    if next_atom.draw.position.x < neighbour.draw.position.x:
-                                        next_atom.draw.position.y = atom.draw.position.y
-                                        next_atom.draw.position.x = atom.draw.position.x + 30
-                                        self.rotate_subtree(next_atom, neighbour, math.radians(20), neighbour.draw.position)
-                            if neighbour.type == 'O' and list_types.count('C') == 2:
-                                sidechain_side = 'right'
-
-                            neighbour.draw.position.y = y_carbon
-                            if sidechain_side == 'left':
-                                neighbour.draw.position.x = x_carbon - 15
-                            elif sidechain_side == 'right':
-                                neighbour.draw.position.x = x_carbon + 15
-
+            #Rotate all sidegroups to the proper angles
+            central_chain_carbons = central_chain_carbons[1:]
+            for central_atom in central_chain_carbons:
+                for neighbour in central_atom.neighbours:
+                    if neighbour.type == 'C' and neighbour not in central_chain_carbons:
+                        first_carbon_sidechain = neighbour
+                        correct_angle_deg = 0
+                        angle = get_angle(central_atom.draw.position, first_carbon_sidechain.draw.position)
+                        angle_degrees = round(math.degrees(angle), 3)
+                        delta_angle_deg = correct_angle_deg - angle_degrees
+                        delta_angle_rad = math.radians(delta_angle_deg)
+                        print(angle_degrees)
+                        self.rotate_subtree(first_carbon_sidechain, central_atom, delta_angle_rad, central_atom.draw.position)
+                    elif neighbour.type == 'O':
+                        first_oxygen_sidechain = neighbour
+                        for o_neighbour in first_oxygen_sidechain.neighbours:
+                            if o_neighbour.type == 'C' and o_neighbour not in central_chain_carbons:
+                                # This means it is a methoxymalonylgroup
+                                correct_angle_deg = 0
+                                angle = get_angle(central_atom.draw.position,
+                                                  first_oxygen_sidechain.draw.position)
+                                angle_degrees = round(math.degrees(angle), 3)
+                                delta_angle_deg = correct_angle_deg - angle_degrees
+                                delta_angle_rad = math.radians(delta_angle_deg)
+                                print(angle_degrees)
+                                self.rotate_subtree(first_oxygen_sidechain,
+                                                    central_atom,
+                                                    delta_angle_rad,
+                                                    central_atom.draw.position)
+                            else:
+                                #this means it is either an -OH or =O group
+                                correct_angle_deg = 180
+                                angle = get_angle(central_atom.draw.position,
+                                                  first_oxygen_sidechain.draw.position)
+                                angle_degrees = round(math.degrees(angle), 3)
+                                delta_angle_deg = correct_angle_deg - angle_degrees
+                                delta_angle_rad = math.radians(delta_angle_deg)
+                                print(angle_degrees)
+                                self.rotate_subtree(first_oxygen_sidechain,
+                                                    central_atom,
+                                                    delta_angle_rad,
+                                                    central_atom.draw.position)
+                        pass
+        ###END NEW CODE POLYKETIDES
 
 
         self.structure.refresh_structure()
 
 
 
-        #Force the S-Domain bond to be straight
-        if attached_to_domain:
-            # Rotate the entire structure 180 degrees. Works
-            angle = domain.draw.position.get_rotation_away_from_vector \
-                (carbon_before_s.draw.position, sulphur.draw.position, \
-                 math.radians(180))
-            self.rotate_subtree(sulphur, domain, angle, sulphur.draw.position)
-            #Force S-Domain bond to be straight
-            angle = domain.draw.position.get_rotation_away_from_vector\
-                (carbon_before_s.draw.position, sulphur.draw.position,\
-                 math.radians(220))
-            self.rotate_subtree(domain, sulphur, angle, sulphur.draw.position)
 
-
-
-            #For everything else
-            if sulphur.draw.position.x > carbonyl_oxygen.draw.position.x:
-               #print('need to rotate -S and =O')
-                angle1 = sulphur.draw.position.get_rotation_away_from_vector\
-                    (carbon_before_carbon.draw.position, \
-                     carbon_before_s.draw.position, math.radians(50))
-                self.rotate_subtree(sulphur, carbon_before_s, angle1, \
-                                    carbon_before_s.draw.position)
-                angle2 = carbonyl_oxygen.draw.position.get_rotation_away_from_vector\
-                    (carbon_before_carbon.draw.position, carbon_before_s.draw.position,\
-                     math.radians(120))
-                self.rotate_subtree(carbonyl_oxygen, carbon_before_s, angle2, \
-                                    carbon_before_s.draw.position)
-
-            # For molecule drawn like malonyl (not straight)
-            elif sulphur.draw.position.y > carbonyl_oxygen.draw.position.y:
-                #print('need to rotate -S and =O')
-                angle1 = sulphur.draw.position.get_rotation_away_from_vector\
-                    (carbon_before_carbon.draw.position, \
-                     carbon_before_s.draw.position, math.radians(50))
-                self.rotate_subtree(sulphur, carbon_before_s, angle1, \
-                                    carbon_before_s.draw.position)
-                angle2 = carbonyl_oxygen.draw.position.get_rotation_away_from_vector\
-                    (carbon_before_carbon.draw.position, carbon_before_s.draw.position,\
-                     math.radians(0))
-                self.rotate_subtree(carbonyl_oxygen, carbon_before_s, angle2, \
-                                    carbon_before_s.draw.position)
-                angle = domain.draw.position.get_rotation_away_from_vector \
-                    (carbon_before_s.draw.position, sulphur.draw.position, \
-                     math.radians(100))
-                self.rotate_subtree(domain, sulphur, angle,
-                                    sulphur.draw.position)
-
-            #another patch
-            if sulphur.draw.position.y < carbonyl_oxygen.draw.position.y:
-                angle = math.radians(180)
-                self.rotate_subtree(sulphur, carbon_before_s, angle,
-                                    carbon_before_s.draw.position)
-                angle = math.radians(210)
-                self.rotate_subtree(domain, sulphur, angle,
-                                    sulphur.draw.position)
-
-            #fix bond length of the S-Domain bond to 15
-            if (domain.draw.position.y - sulphur.draw.position.y) > 16:
-                y_sulphur = sulphur.draw.position.y
-                new_y_domain = y_sulphur + 15
-                domain.draw.position.y = new_y_domain
-
-            #If the ACP domain and S atom are positioned weirdly (ex. bafilomycin cluster module 7), fix this
-            if (sulphur.draw.position.y - carbon_before_s.draw.position.y) > 20:
-                sulphur.draw.position.y = carbon_before_s.draw.position.y + 15
-                sulphur.draw.position.x = carbon_before_s.draw.position.x
-                self.rotate_subtree(sulphur, carbon_before_s, math.radians(30),
-                                    carbon_before_s.draw.position)
-                domain.draw.position.x = sulphur.draw.position.x
-                domain.draw.position.y = sulphur.draw.position.y + 15
-
-        ###Force peptide backbone to be drawn straight:
+        ### NRPS code: Force peptide backbone to be drawn straight:
         if is_nrp and attached_to_domain:
             backbone_atoms = find_central_chain_nrp(self.structure)
             pcp_x = backbone_atoms[0].draw.position.x
@@ -1192,9 +1133,10 @@ class Drawer:
                     self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
                 i += 1
 
+
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
-
+    ### End NRPS rotation code
 
     def position(self):
         start_atom = None

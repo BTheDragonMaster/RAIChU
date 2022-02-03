@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.patches import FancyArrow
 from copy import copy
+from NRPS_condensation import condensation_nrps
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 
@@ -25,172 +26,210 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     Elongation modules: ['module name', 'elongation_module',
     'elongation_monomer', ['KR', 'DH', 'ER']]
     """
+    #Construct dict to find the SMILES of all amino acids recognized by PARAS
+    dict_aa_smiles = make_dict_aa_smiles()
+
     modules = copy(modules)
     list_drawings_per_module = []
     for module in modules:
         #Find starting unit SMILES, convert to structure
         if module == modules[0]:
             assert len(module) == 3
-            assert module[1] == 'starter_module'
-            starter_unit = Smiles(module[2]).smiles_to_structure()
-            if attach_to_acp:
-                chain_intermediate = attach_to_domain(starter_unit, 'ACP')
-            else:
-                chain_intermediate = starter_unit
-            if draw_structures_per_module:
-                drawing = Drawer(chain_intermediate, dont_show=True)
-                list_drawings_per_module.append([drawing])
+            assert module[1] == 'starter_module' or module[1] == 'starter_module_nrps'
+            if module[1] == 'starter_module':
+                starter_unit = Smiles(module[2]).smiles_to_structure()
+                if attach_to_acp:
+                    chain_intermediate = attach_to_domain(starter_unit, 'ACP')
+                else:
+                    chain_intermediate = starter_unit
+                if draw_structures_per_module:
+                    drawing = Drawer(chain_intermediate, dont_show=True)
+                    list_drawings_per_module.append([drawing])
+            elif module[1] == 'starter_module_nrps':
+                starter_unit = Smiles(dict_aa_smiles[module[2].upper()]).smiles_to_structure()
+                if attach_to_acp:
+                    chain_intermediate = attach_to_domain_nrp(starter_unit, 'PCP')
+                else:
+                    chain_intermediate = starter_unit
+                if draw_structures_per_module:
+                    drawing = Drawer(chain_intermediate, dont_show=True)
+                    list_drawings_per_module.append([drawing])
             del modules[0]
     for module in modules:
-        module_name, module_type, elongation_unit, list_domains = module
-        assert elongation_unit == 'malonylcoa' or \
-               elongation_unit == 'methylmalonylcoa' or \
-               elongation_unit == 'methoxymalonylacp' or \
-               elongation_unit == 'ethylmalonylcoa' or \
-               elongation_unit == 'pk'
-        #Reset atom colours in the first structure depicted to black
-        for atom in chain_intermediate.graph:
-            atom.draw.colour = 'black'
-        if elongation_unit == 'malonylcoa':
-            if visualization_mechanism == True:
-                #If a previous process was stopped prematurely, make sure the
-                #image files are removed before continuing
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
-            new_chain_intermediate = add_malonylunit(chain_intermediate)
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
-        elif elongation_unit == 'methylmalonylcoa':
-            if visualization_mechanism == True:
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
-            new_chain_intermediate = add_methylmalonylunit(chain_intermediate)
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
-        elif elongation_unit == 'methoxymalonylacp':
-            if visualization_mechanism == True:
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
-            new_chain_intermediate = add_methoxymalonylunit(chain_intermediate)
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
-        elif elongation_unit == 'ethylmalonylcoa':
-            if visualization_mechanism == True:
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
-            new_chain_intermediate = add_ethylmalonylunit(chain_intermediate)
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
-        elif elongation_unit == 'pk':
-            if visualization_mechanism == True:
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
-            new_chain_intermediate = add_pkunit(chain_intermediate)
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
-        #If the module does not contain any tailoring domains:
-        if len(list_domains) == 0:
-            if visualization_mechanism == True:
-                if elongation_unit == 'methylmalonylcoa':
-                    display_reactions(['1.png', '2.png'],list_domains,'methylmalonylcoa', module_name, draw_mechanism_per_module)
-                elif elongation_unit == 'malonylcoa':
-                    display_reactions(['1.png', '2.png'],list_domains,'malonylcoa', module_name, draw_mechanism_per_module)
-                elif elongation_unit == 'methoxymalonylacp':
-                    display_reactions(['1.png', '2.png'], list_domains, 'methoxymalonylacp', module_name, draw_mechanism_per_module)
-                elif elongation_unit == 'ethylmalonylcoa':
-                    display_reactions(['1.png', '2.png'], list_domains, 'ethylmalonylcoa', module_name, draw_mechanism_per_module)
-                elif elongation_unit == 'pk':
-                    display_reactions(['1.png', '2.png'], list_domains, 'pk', module_name, draw_mechanism_per_module)
-        for domain in list_domains:
-            inactive_kr_domain = False
-            if domain.startswith('KR'):
-                if domain == 'KR':
-                    new_chain_intermediate = ketoreductase(chain_intermediate)
-                    chain_intermediate = new_chain_intermediate
-                elif domain == 'KR_inactive':
-                    inactive_kr_domain = True
-                else:
-                    kr_type = domain[-2:]
-                    new_chain_intermediate = ketoreductase(chain_intermediate, kr_type = kr_type)
-                    chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True and inactive_kr_domain == False:
-                    if path.exists('3.png'):
-                        os.remove('3.png')
-                    Drawer(chain_intermediate, save_png='3.png', dpi_drawer=500)
-                    #Check if the module also contains a DH domain
-                    if 'DH' not in list_domains:
-                        display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
-                elif inactive_kr_domain == True and visualization_mechanism == True:
-                    list_domains = []
+        if module[1] == 'elongation_module' or module[1] == 'terminator_module':
+            module_name, module_type, elongation_unit, list_domains = module
+            assert elongation_unit == 'malonylcoa' or \
+                   elongation_unit == 'methylmalonylcoa' or \
+                   elongation_unit == 'methoxymalonylacp' or \
+                   elongation_unit == 'ethylmalonylcoa' or \
+                   elongation_unit == 'pk'
+            #Reset atom colours in the first structure depicted to black
+            for atom in chain_intermediate.graph:
+                atom.draw.colour = 'black'
+            if elongation_unit == 'malonylcoa':
+                if visualization_mechanism == True:
+                    #If a previous process was stopped prematurely, make sure the
+                    #image files are removed before continuing
+                    if path.exists('1.png'):
+                        os.remove('1.png')
+                    Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+                new_chain_intermediate = add_malonylunit(chain_intermediate)
+                chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True:
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+            elif elongation_unit == 'methylmalonylcoa':
+                if visualization_mechanism == True:
+                    if path.exists('1.png'):
+                        os.remove('1.png')
+                    Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+                new_chain_intermediate = add_methylmalonylunit(chain_intermediate)
+                chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True:
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+            elif elongation_unit == 'methoxymalonylacp':
+                if visualization_mechanism == True:
+                    if path.exists('1.png'):
+                        os.remove('1.png')
+                    Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+                new_chain_intermediate = add_methoxymalonylunit(chain_intermediate)
+                chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True:
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+            elif elongation_unit == 'ethylmalonylcoa':
+                if visualization_mechanism == True:
+                    if path.exists('1.png'):
+                        os.remove('1.png')
+                    Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+                new_chain_intermediate = add_ethylmalonylunit(chain_intermediate)
+                chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True:
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+            elif elongation_unit == 'pk':
+                if visualization_mechanism == True:
+                    if path.exists('1.png'):
+                        os.remove('1.png')
+                    Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+                new_chain_intermediate = add_pkunit(chain_intermediate)
+                chain_intermediate = new_chain_intermediate
+                if visualization_mechanism == True:
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+            #If the module does not contain any tailoring domains:
+            if len(list_domains) == 0:
+                if visualization_mechanism == True:
                     if elongation_unit == 'methylmalonylcoa':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'methylmalonylcoa', module_name,
-                                          draw_mechanism_per_module)
+                        display_reactions(['1.png', '2.png'],list_domains,'methylmalonylcoa', module_name, draw_mechanism_per_module)
                     elif elongation_unit == 'malonylcoa':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'malonylcoa', module_name,
-                                          draw_mechanism_per_module)
+                        display_reactions(['1.png', '2.png'],list_domains,'malonylcoa', module_name, draw_mechanism_per_module)
                     elif elongation_unit == 'methoxymalonylacp':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'methoxymalonylacp', module_name,
-                                          draw_mechanism_per_module)
+                        display_reactions(['1.png', '2.png'], list_domains, 'methoxymalonylacp', module_name, draw_mechanism_per_module)
                     elif elongation_unit == 'ethylmalonylcoa':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'ethylmalonylcoa', module_name,
-                                          draw_mechanism_per_module)
-            if domain == 'DH':
-                assert any(domain.startswith('KR') for domain in list_domains)
-                executable = True
-                for domain_type in list_domains:
-                    if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
-                        executable = False
-                if executable:
-                    new_chain_intermediate = dehydratase(chain_intermediate)
-                    chain_intermediate = new_chain_intermediate
-                    if visualization_mechanism == True:
-                        if path.exists('4.png'):
-                            os.remove('4.png')
-                        Drawer(chain_intermediate, save_png='4.png', dpi_drawer=500)
-                        if 'ER' not in list_domains:
-                            display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
-            if domain == 'ER':
-                assert any(domain.startswith('KR') for domain in list_domains)
-                assert 'DH' in list_domains
-                executable = True
-                for domain_type in list_domains:
-                    if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
-                        executable = False
-                if executable:
-                    new_chain_intermediate = enoylreductase(chain_intermediate)
-                    chain_intermediate = new_chain_intermediate
-                    if visualization_mechanism == True:
-                        if path.exists('5.png'):
-                            os.remove('5.png')
-                        Drawer(chain_intermediate, save_png='5.png', dpi_drawer=500)
-                        display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
-        if draw_structures_per_module:
-            drawing = Drawer(chain_intermediate, dont_show=True, dpi_drawer=500)
-            list_drawings_per_module.append([drawing])
+                        display_reactions(['1.png', '2.png'], list_domains, 'ethylmalonylcoa', module_name, draw_mechanism_per_module)
+                    elif elongation_unit == 'pk':
+                        display_reactions(['1.png', '2.png'], list_domains, 'pk', module_name, draw_mechanism_per_module)
+            for domain in list_domains:
+                inactive_kr_domain = False
+                if domain.startswith('KR'):
+                    if domain == 'KR':
+                        new_chain_intermediate = ketoreductase(chain_intermediate)
+                        chain_intermediate = new_chain_intermediate
+                    elif domain == 'KR_inactive':
+                        inactive_kr_domain = True
+                    else:
+                        kr_type = domain[-2:]
+                        new_chain_intermediate = ketoreductase(chain_intermediate, kr_type = kr_type)
+                        chain_intermediate = new_chain_intermediate
+                    if visualization_mechanism == True and inactive_kr_domain == False:
+                        if path.exists('3.png'):
+                            os.remove('3.png')
+                        Drawer(chain_intermediate, save_png='3.png', dpi_drawer=500)
+                        #Check if the module also contains a DH domain
+                        if 'DH' not in list_domains:
+                            display_reactions(['1.png', '2.png', '3.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                    elif inactive_kr_domain == True and visualization_mechanism == True:
+                        list_domains = []
+                        if elongation_unit == 'methylmalonylcoa':
+                            display_reactions(['1.png', '2.png'], list_domains,
+                                              'methylmalonylcoa', module_name,
+                                              draw_mechanism_per_module)
+                        elif elongation_unit == 'malonylcoa':
+                            display_reactions(['1.png', '2.png'], list_domains,
+                                              'malonylcoa', module_name,
+                                              draw_mechanism_per_module)
+                        elif elongation_unit == 'methoxymalonylacp':
+                            display_reactions(['1.png', '2.png'], list_domains,
+                                              'methoxymalonylacp', module_name,
+                                              draw_mechanism_per_module)
+                        elif elongation_unit == 'ethylmalonylcoa':
+                            display_reactions(['1.png', '2.png'], list_domains,
+                                              'ethylmalonylcoa', module_name,
+                                              draw_mechanism_per_module)
+                if domain == 'DH':
+                    assert any(domain.startswith('KR') for domain in list_domains)
+                    executable = True
+                    for domain_type in list_domains:
+                        if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
+                            executable = False
+                    if executable:
+                        new_chain_intermediate = dehydratase(chain_intermediate)
+                        chain_intermediate = new_chain_intermediate
+                        if visualization_mechanism == True:
+                            if path.exists('4.png'):
+                                os.remove('4.png')
+                            Drawer(chain_intermediate, save_png='4.png', dpi_drawer=500)
+                            if 'ER' not in list_domains:
+                                display_reactions(['1.png', '2.png', '3.png','4.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                if domain == 'ER':
+                    assert any(domain.startswith('KR') for domain in list_domains)
+                    assert 'DH' in list_domains
+                    executable = True
+                    for domain_type in list_domains:
+                        if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
+                            executable = False
+                    if executable:
+                        new_chain_intermediate = enoylreductase(chain_intermediate)
+                        chain_intermediate = new_chain_intermediate
+                        if visualization_mechanism == True:
+                            if path.exists('5.png'):
+                                os.remove('5.png')
+                            Drawer(chain_intermediate, save_png='5.png', dpi_drawer=500)
+                            display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+            if draw_structures_per_module:
+                drawing = Drawer(chain_intermediate, dont_show=True, dpi_drawer=500)
+                list_drawings_per_module.append([drawing])
+        #NRPS part
+        elif module[1] == 'elongation_module_nrps' or module[1] == 'terminator_module_nrps':
+            module_name, module_type, aa_specifity = module
+            print(aa_specifity)
+            aa_specifity = aa_specifity.upper()
+            assert aa_specifity in dict_aa_smiles
+            # Reset atom colours in the first structure depicted to black
+            for atom in chain_intermediate.graph:
+                atom.draw.colour = 'black'
+            if visualization_mechanism == True:
+                # If a previous process was stopped prematurely, make sure the
+                # image files are removed before continuing
+                if path.exists('1.png'):
+                    os.remove('1.png')
+                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+            aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
+            new_chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
+
+            chain_intermediate = new_chain_intermediate
+            if visualization_mechanism == True:
+                if path.exists('2.png'):
+                    os.remove('2.png')
+                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
+
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:
         atom.draw.colour = 'black'
@@ -567,16 +606,38 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
             plt.show()
 
 
+def make_dict_aa_smiles():
+    """
+    Returns a dict as {name_aa : SMILES_aa} from the amino acids in the
+    PARAS_smiles.txt file
+    """
+    # Parse list SMILES amino acids attached to PCP to dict name -> Structure
+    lines_aa = open('PARAS_smiles.txt', 'r', encoding='utf8').readlines()
+    dict_aa_smiles = {}
+
+    for line in lines_aa:
+        line = line.strip()
+        name, smiles = line.split()
+        name = name.upper()
+        dict_aa_smiles[name] = smiles
+
+    return dict_aa_smiles
 
 if __name__ == "__main__":
-    output = [['pks module 1 [47984:50774]', 'starter_module', 'SC(C)=O'],
-              ['pks module 2 [43232:47927]', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
-              ['pks module 3 [38414:43172]', 'elongation_module', 'malonylcoa', ['KR_B1', 'DH']],
-              ['pks module 4 [33554:38357]', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
-              ['pks module 5 [28504:33238]', 'elongation_module', 'pk', ['KR_inactive', 'DH']],
-              ['pks module 6 [22591:28447]', 'elongation_module', 'methylmalonylcoa', ['KR_B1', 'DH', 'ER']],
-              ['pks module 7 [19481:22331]', 'elongation_module', 'malonylcoa', []]]
-    pks_cluster_to_structure(output)
+    pks_cluster =   [['module_1', 'starter_module', 'SC(=O)CC'],
+                           ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
+                           ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                           ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']]]
+
+
+    nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
+              ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+              ['NRPS module 3', 'elongation_module_nrps', 'cysteine'],
+              ['NRPS module 4', 'terminator_module_nrps', 'arginine']]
+
+
+    pks_cluster_to_structure(pks_cluster, attach_to_acp=True)
+    pks_cluster_to_structure(nrps_cluster)
 
 
 

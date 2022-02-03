@@ -8,7 +8,7 @@ from find_central_peptide_chain import find_central_chain_nrp
 
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)C[N]', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
-
+LEAVING_S_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(CN)S', 0, 4)
 def condensation_nrps(amino_acid, nrp_intermediate):
     """
     Returns the NRPS condensation product as a PIKAChU Structure object
@@ -20,6 +20,8 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     found_bonds = find_bonds(LEAVING_OH_BOND, nrp_intermediate)
     assert len(found_bonds) == 1
     oh_bond = found_bonds[0]
+
+
 
     # Define the bond attached to the -H leaving group
     n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
@@ -33,6 +35,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
 
     # Carry out condensation reaction using build-in PIKAChU function
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
+    condensation_product.find_cycles()
     return condensation_product
 
 def make_nrp(list_amino_acids):

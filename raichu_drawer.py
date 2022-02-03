@@ -1075,6 +1075,7 @@ class Drawer:
         ### NRPS code: Force peptide backbone to be drawn straight:
         if is_nrp and attached_to_domain:
             backbone_atoms = find_central_chain_nrp(self.structure)
+            pcp = backbone_atoms[0]
             pcp_x = backbone_atoms[0].draw.position.x
             pcp_y = backbone_atoms[0].draw.position.y
             for atom in self.structure.graph:
@@ -1085,6 +1086,8 @@ class Drawer:
             backbone_atoms.pop(0)
 
             #Fix S-C angle
+            sulphur = backbone_atoms[0]
+            first_carbon = backbone_atoms[1]
             angle = get_angle(backbone_atoms[0].draw.position, backbone_atoms[1].draw.position)
             angle_degrees = round(math.degrees(angle), 3)
             correct_angle_deg = 60
@@ -1143,6 +1146,19 @@ class Drawer:
                     delta_angle_rad = math.radians(delta_angle_deg)
                     self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
                 i += 1
+
+            #Fix the positions of S and PCP
+            print(pcp, sulphur, first_carbon)
+            sulphur.draw.position.x = first_carbon.draw.position.x
+            sulphur.draw.position.y = first_carbon.draw.position.y + 15
+            angle = get_angle(first_carbon.draw.position, sulphur.draw.position)
+            angle_degrees = round(math.degrees(angle), 3)
+            correct_angle_deg = -120
+            delta_angle_deg = correct_angle_deg - angle_degrees
+            delta_angle_rad = math.radians(delta_angle_deg)
+            self.rotate_subtree(sulphur, first_carbon, delta_angle_rad, first_carbon.draw.position)
+            pcp.draw.position.x = sulphur.draw.position.x
+            pcp.draw.position.y = sulphur.draw.position.y + 15
 
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)

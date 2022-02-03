@@ -2,7 +2,9 @@ from pikachu.reactions.basic_reactions import condensation
 from pikachu.reactions.functional_groups import find_bonds, BondDefiner, GroupDefiner, find_atoms
 from pikachu.general import draw_structure
 from pikachu.smiles.smiles import Smiles
+from pk_attach_to_domain import attach_to_domain_nrp
 from raichu_drawer import Drawer
+from find_central_peptide_chain import find_central_chain_nrp
 
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)C[N]', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
@@ -64,13 +66,16 @@ def make_nrp(list_amino_acids):
 
     # Refresh chain intermediate
     nrp_chain_intermediate.refresh_structure()
+    nrp_chain_intermediate.set_connectivities()
+    nrp_chain_intermediate.set_atom_neighbours()
     nrp_chain_intermediate.find_cycles()
 
     return nrp_chain_intermediate
 
 
 if __name__ == "__main__":
-    test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline', 'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
-    test_peptide.find_cycles()
-    draw_structure(test_peptide)
-    Drawer(test_peptide)
+    test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline',  'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
+    attached_test_peptide = attach_to_domain_nrp(test_peptide, 'PCP')
+    Drawer(attached_test_peptide)
+    print(find_central_chain_nrp(attached_test_peptide))
+    print(len(find_central_chain_nrp(attached_test_peptide)))

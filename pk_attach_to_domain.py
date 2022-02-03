@@ -1,6 +1,6 @@
 from class_domain import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
-from raichu_drawer import *
+
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
@@ -90,6 +90,7 @@ def attach_to_domain_nrp(nrp, domain_type):
         structure.make_bond(domain, neighbour, next_bond_nr)
 
 
+    structure.find_cycles()
 
     return structure
 

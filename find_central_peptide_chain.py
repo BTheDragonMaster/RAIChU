@@ -12,7 +12,6 @@ def find_central_chain_nrp(nrp):
         if atom.type == 'S':
             sulphur = atom
             for z in atom.neighbours:
-                print(z)
                 if hasattr(z, 'domain_type'):
                     pcp_domain = z
                     central_peptide_chain = [pcp_domain]
@@ -31,7 +30,6 @@ def find_central_chain_nrp(nrp):
                                 second_carbon = u
                                 current_atom = second_carbon
                 while not terminal_nitrogen:
-                    print(central_peptide_chain)
                     current_atom_neighbour_types = []
                     current_atom_neighbours = []
                     for current_atom_neighbour in current_atom.neighbours:

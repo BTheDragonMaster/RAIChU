@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #New import statement, changed by Sophie
 from find_central_chain import find_central_chain
+from find_central_peptide_chain import find_central_chain_nrp
 import copy
 import math
 import matplotlib
@@ -12,7 +13,7 @@ from pikachu.chem.structure import  *
 from pikachu.drawing.sssr import SSSR
 from pikachu.drawing.rings import Ring, RingOverlap, find_neighbouring_rings, \
     rings_connected_by_bridge
-from pikachu.math_functions import Vector, Polygon, Line, Permutations
+from pikachu.math_functions import *
 from pikachu.chem.chirality import find_chirality_from_nonh, \
     get_chiral_permutations
 from pikachu.chem.atom_properties import ATOM_PROPERTIES
@@ -963,8 +964,12 @@ class Drawer:
         #substructure search to see if polyketide
         is_polyketide = False
         is_nrp = False
-        if self.structure.find_substructures(Smiles('C(O)=O').smiles_to_structure()) and self.structure.find_substructures(Smiles('SC(=O)').smiles_to_structure()):
-            is_polyketide = True
+        if self.structure.find_substructures(Smiles('SC(=O)').smiles_to_structure()):
+            if self.structure.find_substructures(Smiles('SC(CN)=O').smiles_to_structure()):
+                is_nrp = True
+            else:
+                is_polyketide = True
+
 
 
 
@@ -983,6 +988,9 @@ class Drawer:
                                 carbon_before_carbon = neighbour
                             elif neighbour.type == 'O':
                                 carbonyl_oxygen = neighbour
+
+
+
 
 
         # Force the polyketide backbone to be drawn straight
@@ -1122,9 +1130,51 @@ class Drawer:
                 domain.draw.position.x = sulphur.draw.position.x
                 domain.draw.position.y = sulphur.draw.position.y + 15
 
+        ###Force peptide backbone to be drawn straight:
+        if is_nrp and attached_to_domain:
+            backbone_atoms = find_central_chain_nrp(self.structure)
+            pcp_x = backbone_atoms[0].draw.position.x
+            pcp_y = backbone_atoms[0].draw.position.y
+            for atom in self.structure.graph:
+                if atom == backbone_atoms[1]:
+                    atom.draw.position.x = pcp_x
+                    atom.draw.position.y = pcp_y - 15
+
+            backbone_atoms.pop(0)
+            i = 0
+            while i < (len(backbone_atoms) - 1):
+                atom1 = backbone_atoms[i]
+                atom2 = backbone_atoms[i+1]
+                angle = get_angle(atom1.draw.position, atom2.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
+                if angle_degrees != 120.0 and angle_degrees != 60:
+                    if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120.0:
+                        correct_angle_deg = 60.0
+                    elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
+                        correct_angle_deg = 120.0
+                    print(atom1, atom2, angle_degrees, correct_angle_deg)
+                    delta_angle_deg = correct_angle_deg - angle_degrees
+                    delta_angle_rad = math.radians(delta_angle_deg)
+                    connected_to_sidechain = False
+                    for neighbour in atom1.neighbours:
+                        if neighbour not in backbone_atoms and neighbour.type != 'H':
+                            first_atom_sidechain = neighbour
+                            connected_to_sidechain = True
+                    # if connected_to_sidechain:
+                    #     self.rotate_subtree_independent(atom2, atom1, [first_atom_sidechain], delta_angle_rad, atom1.draw.position)
+                    # else:
+                    #     self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                    # i = 0
+                    self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                    i = 0
+                else:
+                    print(atom1, atom2, angle_degrees)
+                    i += 1
+
 
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)
+
 
 
     def position(self):
@@ -1743,6 +1793,17 @@ class Drawer:
                 if anchored_ring.center:
                     anchored_ring.center.rotate_around_vector(angle, center)
 
+    def rotate_subtree_independent(self, root, root_parent, masked_atoms, angle, center):
+
+        masked_atoms.append(root_parent)
+        masked_atoms = set(masked_atoms)
+
+        for atom in self.traverse_substructure(root, {masked_atoms}):
+            atom.draw.position.rotate_around_vector(angle, center)
+            for anchored_ring in atom.draw.anchored_rings:
+                if anchored_ring.center:
+                    anchored_ring.center.rotate_around_vector(angle, center)
+
     def traverse_substructure(self, atom, visited):
         yield atom
         visited.add(atom)
@@ -2230,6 +2291,11 @@ class Drawer:
 
         return atom_distances
 
+
+def get_angle(vector1, vector2):
+    difference = Vector.subtract_vectors(vector1, vector2)
+    difference_angle = difference.angle()
+    return difference_angle
 
 class Options:
     def __init__(self):

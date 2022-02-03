@@ -1152,26 +1152,45 @@ class Drawer:
                         correct_angle_deg = 60.0
                     elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
                         correct_angle_deg = 120.0
-                    print(atom1, atom2, angle_degrees, correct_angle_deg)
                     delta_angle_deg = correct_angle_deg - angle_degrees
                     delta_angle_rad = math.radians(delta_angle_deg)
-                    connected_to_sidechain = False
-                    for neighbour in atom1.neighbours:
-                        if neighbour not in backbone_atoms and neighbour.type != 'H':
-                            first_atom_sidechain = neighbour
-                            connected_to_sidechain = True
-                    # if connected_to_sidechain:
-                    #     self.rotate_subtree_independent(atom2, atom1, [first_atom_sidechain], delta_angle_rad, atom1.draw.position)
-                    # else:
-                    #     self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
-                    # i = 0
                     self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
                     i = 0
                 else:
-                    print(atom1, atom2, angle_degrees)
                     i += 1
 
-
+            # Force amino acid sidechains to stick out straight from each side
+            i = 0
+            backbone_atoms = backbone_atoms[1:]
+            while i < (len(backbone_atoms)):
+                atom = backbone_atoms[i]
+                connected_to_sidechain = False
+                for neighbour in atom.neighbours:
+                    if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.type == 'O' and self.structure.bond_lookup[neighbour][atom].type == 'double':
+                        first_atom_sidechain = neighbour
+                        connected_to_sidechain = True
+                        if backbone_atoms[i-1].draw.position.x < backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'right'
+                        elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'left'
+                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S':
+                        first_atom_sidechain = neighbour
+                        connected_to_sidechain = True
+                        if backbone_atoms[i-1].draw.position.x < backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'right'
+                        elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'left'
+                if connected_to_sidechain:
+                    angle = get_angle(atom.draw.position, first_atom_sidechain.draw.position)
+                    angle_degrees = round(math.degrees(angle), 3)
+                    if sidechain_orientation == 'right':
+                        correct_angle_deg = 180
+                    elif sidechain_orientation == 'left':
+                        correct_angle_deg = 0
+                    delta_angle_deg = correct_angle_deg - angle_degrees
+                    delta_angle_rad = math.radians(delta_angle_deg)
+                    self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
+                i += 1
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 

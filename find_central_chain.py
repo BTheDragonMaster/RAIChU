@@ -30,7 +30,6 @@ def find_central_chain(polyketide):
             central_chain += [chain_carbon]
             visited.append(chain_carbon)
             while not end_carbon:
-                print(central_chain)
                 for next_atom in chain_carbon.neighbours:
                     ethyl_branch = False
                     methyl_group = False

@@ -6,6 +6,7 @@ import matplotlib.image as mpimg
 from matplotlib.patches import FancyArrow
 from copy import copy
 from NRPS_condensation import condensation_nrps
+from copy import deepcopy
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 
@@ -56,8 +57,12 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
             elif module[1] == 'starter_module_nrps':
                 starter_unit = Smiles(dict_aa_smiles[module[2].upper()]).smiles_to_structure()
                 chain_intermediate = starter_unit
-                if draw_structures_per_module:
-                    drawing = Drawer(chain_intermediate, dont_show=True)
+                if draw_structures_per_module and attach_to_acp:
+                    copy_chain_intermediate = deepcopy(chain_intermediate)
+                    copy_chain_intermediate.find_cycles()
+                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                    copy_attached.find_cycles()
+                    drawing = Drawer(copy_attached, dont_show=True)
                     list_drawings_per_module.append([drawing])
             del modules[0]
     for module in modules:
@@ -208,7 +213,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                                 os.remove('5.png')
                             Drawer(chain_intermediate, save_png='5.png', dpi_drawer=500)
                             display_reactions(['1.png', '2.png', '3.png','4.png','5.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
-            if draw_structures_per_module:
+            if draw_structures_per_module and attach_to_acp:
                 drawing = Drawer(chain_intermediate, dont_show=True, dpi_drawer=500)
                 list_drawings_per_module.append([drawing])
         #NRPS part
@@ -228,6 +233,12 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
+            if draw_structures_per_module and attach_to_acp:
+                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate.find_cycles()
+                copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                drawing = Drawer(copy_attached, dont_show=True, dpi_drawer=500)
+                list_drawings_per_module.append([drawing])
 
 
     # Reset the atom color in the final structure to black
@@ -643,8 +654,8 @@ if __name__ == "__main__":
 
 
     pks_cluster_to_structure(pks_cluster, attach_to_acp=True)
-    pks_cluster_to_structure(nrps_cluster, attach_to_acp=True)
-
+    list = pks_cluster_to_structure(nrps_cluster, attach_to_acp=True, draw_structures_per_module=True)
+    print(len(list))
 
 
 

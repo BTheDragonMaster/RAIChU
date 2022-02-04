@@ -1011,7 +1011,6 @@ class Drawer:
                     correct_angle_deg = 60
                 elif round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 60.0:
                     correct_angle_deg = 120
-                print(atom1, atom2, angle_degrees, correct_angle_deg)
                 delta_angle_deg = correct_angle_deg - angle_degrees
                 delta_angle_rad = math.radians(delta_angle_deg)
                 self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
@@ -1032,7 +1031,6 @@ class Drawer:
                         angle_degrees = round(math.degrees(angle), 3)
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
-                        print(angle_degrees)
                         self.rotate_subtree(first_carbon_sidechain, central_atom, delta_angle_rad, central_atom.draw.position)
                     elif neighbour.type == 'O':
                         first_oxygen_sidechain = neighbour
@@ -1045,7 +1043,6 @@ class Drawer:
                                 angle_degrees = round(math.degrees(angle), 3)
                                 delta_angle_deg = correct_angle_deg - angle_degrees
                                 delta_angle_rad = math.radians(delta_angle_deg)
-                                print(angle_degrees)
                                 self.rotate_subtree(first_oxygen_sidechain,
                                                     central_atom,
                                                     delta_angle_rad,
@@ -1058,7 +1055,6 @@ class Drawer:
                                 angle_degrees = round(math.degrees(angle), 3)
                                 delta_angle_deg = correct_angle_deg - angle_degrees
                                 delta_angle_rad = math.radians(delta_angle_deg)
-                                print(angle_degrees)
                                 self.rotate_subtree(first_oxygen_sidechain,
                                                     central_atom,
                                                     delta_angle_rad,
@@ -1148,7 +1144,6 @@ class Drawer:
                 i += 1
 
             #Fix the positions of S and PCP
-            print(pcp, sulphur, first_carbon)
             sulphur.draw.position.x = first_carbon.draw.position.x
             sulphur.draw.position.y = first_carbon.draw.position.y + 15
             angle = get_angle(first_carbon.draw.position, sulphur.draw.position)

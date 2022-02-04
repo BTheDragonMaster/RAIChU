@@ -72,9 +72,12 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     for module in pks_cluster:
         module_name = module[0]
         module_list_domains = [module[0]]
+        print('module list domains', module_list_domains)
         module_type = module[1]
         if module_type == 'starter_module':
             module_list_domains += ['ACP']
+        elif module_type == 'starter_module_nrps':
+            module_list_domains += ['A', 'PCP']
         elif module_type == 'elongation_module' or module_type == 'terminator_module':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
@@ -86,6 +89,10 @@ def draw_pks_cluster(pks_cluster, interactive=False):
                     tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)
             if module_type == 'terminator_module':
+                module_list_domains.append('TE')
+        elif module_type == 'elongation_module_nrps' or module_type == 'terminator_module_nrps':
+            module_list_domains += ['C', 'A', 'PCP']
+            if module_type == 'terminator_module_nrps':
                 module_list_domains.append('TE')
         list_all_domains += [module_list_domains]
 
@@ -108,6 +115,7 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     x = 30
     index = 0
     for module in list_all_domains:
+        print('module', module)
         module_name = module[0]
         del module[0]
         for domain in module:
@@ -123,6 +131,9 @@ def draw_pks_cluster(pks_cluster, interactive=False):
                 ax.add_line(second_line)
             domain_text.append([domain_txt, x])
             if domain == 'ACP':
+                list_drawings_per_module[index].append(x)
+                index += 1
+            if domain == 'PCP':
                 list_drawings_per_module[index].append(x)
                 index += 1
             if domain == module[0]:
@@ -578,4 +589,13 @@ if __name__ == "__main__":
                            ['pks module 12', 'terminator_module', 'methylmalonylcoa', ['KR_B1', 'DH']]]
 
     #draw_pks_cluster(bafilomycin_cluster)
+
+    nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
+              ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+              ['NRPS module 3', 'elongation_module_nrps', 'serine'],
+              ['NRPS module 4', 'elongation_module_nrps', 'cysteine'],
+              ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
+              ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
+              ['NRPS module 7', 'terminator_module_nrps', 'valine']]
+    draw_pks_cluster(nrps_cluster)
 

@@ -26,6 +26,14 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     Elongation modules: ['module name', 'elongation_module',
     'elongation_monomer', ['KR', 'DH', 'ER']]
     """
+    last_module_nrps = False
+    #See if last module is NRPS module:
+    if modules[-1][1] == 'elongation_module_nrps' or \
+            modules[-1][1] == 'starter_module_nrps' or \
+            modules[-1][1] == 'terminator_module_nrps':
+        last_module_nrps = True
+        print('trueeeee')
+
     #Construct dict to find the SMILES of all amino acids recognized by PARAS
     dict_aa_smiles = make_dict_aa_smiles()
 
@@ -47,10 +55,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     list_drawings_per_module.append([drawing])
             elif module[1] == 'starter_module_nrps':
                 starter_unit = Smiles(dict_aa_smiles[module[2].upper()]).smiles_to_structure()
-                if attach_to_acp:
-                    chain_intermediate = attach_to_domain_nrp(starter_unit, 'PCP')
-                else:
-                    chain_intermediate = starter_unit
+                chain_intermediate = starter_unit
                 if draw_structures_per_module:
                     drawing = Drawer(chain_intermediate, dont_show=True)
                     list_drawings_per_module.append([drawing])
@@ -222,19 +227,21 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     os.remove('1.png')
                 Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
             aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
-            new_chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
+            chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
 
-            chain_intermediate = new_chain_intermediate
-            if visualization_mechanism == True:
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                Drawer(chain_intermediate, save_png='2.png', dpi_drawer=500)
 
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:
         atom.draw.colour = 'black'
     if not visualization_mechanism and not draw_structures_per_module:
-        Drawer(chain_intermediate)
+        if last_module_nrps and attach_to_acp:
+            chain_intermediate.find_cycles()
+            chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'PCP')
+            chain_intermediate.find_cycles()
+            Drawer(chain_intermediate)
+        else:
+            chain_intermediate.find_cycles()
+            Drawer(chain_intermediate)
     # Remove all intermediate structure files
     if path.exists('1.png'):
         os.remove('1.png')
@@ -632,12 +639,11 @@ if __name__ == "__main__":
 
     nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
               ['NRPS module 2', 'elongation_module_nrps', 'valine'],
-              ['NRPS module 3', 'elongation_module_nrps', 'cysteine'],
-              ['NRPS module 4', 'terminator_module_nrps', 'arginine']]
+              ['NRPS module 3', 'elongation_module_nrps', 'tryptophan']]
 
 
     pks_cluster_to_structure(pks_cluster, attach_to_acp=True)
-    pks_cluster_to_structure(nrps_cluster)
+    pks_cluster_to_structure(nrps_cluster, attach_to_acp=True)
 
 
 

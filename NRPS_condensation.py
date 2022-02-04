@@ -40,10 +40,10 @@ def condensation_nrps(amino_acid, nrp_intermediate):
 
     # Carry out condensation reaction using build-in PIKAChU function
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
-    nrp_intermediate.set_connectivities()
-    nrp_intermediate.find_cycles()
-    nrp_intermediate.refresh_structure()
-    nrp_intermediate.set_atom_neighbours()
+    condensation_product.refresh_structure()
+    condensation_product.set_connectivities()
+    condensation_product.set_atom_neighbours()
+    condensation_product.find_cycles()
     print('ja')
     return condensation_product
 

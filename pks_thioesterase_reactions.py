@@ -1,6 +1,7 @@
-from copy import deepcopy
 from pks_modules_to_structure import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+
+
 
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
@@ -147,11 +148,15 @@ def thioesterase_all_products(chain_intermediate):
      chain_intermediate: PIKAChU Structure object of a polyketide
     """
     #Perform first thioesterase reaction, generating linear polyketide
+    chain_intermediate.refresh_structure()
     chain_intermediate_copy = deepcopy(chain_intermediate)
     Drawer(thioesterase_linear_product(chain_intermediate_copy))
 
     #Find OH groups in polyketide, perform cyclization for each -OH group
     chain_intermediate_copy = deepcopy(chain_intermediate)
+    chain_intermediate_copy.refresh_structure()
+    chain_intermediate.set_connectivities()
+    chain_intermediate.set_atom_neighbours()
     o_oh_atoms = find_atoms(O_OH, chain_intermediate_copy)
 
     #Define -OH group that should not be used to carry out the thioesterase
@@ -162,6 +167,7 @@ def thioesterase_all_products(chain_intermediate):
     #Perform all possible thioesterase reactions leading to the formation of
     #circular products, save Structure objects to list
     for o_oh in o_oh_atoms:
+        chain_intermediate.refresh_structure()
         chain_intermediate_copy = deepcopy(chain_intermediate)
         for atom in chain_intermediate_copy.graph:
             if atom == o_oh:
@@ -203,6 +209,7 @@ if __name__ == "__main__":
                     ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
                     ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
     erythromycin = pks_cluster_to_structure(erythromycin_cluster)
+    print(type(erythromycin))
     thioesterase_all_products(erythromycin)
 
 

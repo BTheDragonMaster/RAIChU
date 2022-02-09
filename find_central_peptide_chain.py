@@ -60,6 +60,18 @@ def find_central_chain_nrp(nrp):
                                         for c in current_atom_neighbours:
                                             if c.type == 'N':
                                                 current_atom = c
+                        #Special case for glycine incorporation in peptide:
+                        elif len(current_atom_neighbour_types) == 4 and\
+                                current_atom_neighbour_types.count('H') == 2 and\
+                                current_atom_neighbour_types.count('N') == 1:
+                            for y in current_atom_neighbours:
+                                if y.type == 'C':
+                                    if y in visited:
+                                        visited.append(current_atom)
+                                        central_peptide_chain.append(current_atom)
+                                        for c in current_atom_neighbours:
+                                            if c.type == 'N':
+                                                current_atom = c
                         elif len(current_atom_neighbour_types) == 4 and\
                                 current_atom_neighbour_types.count('C') == 3 and\
                                 current_atom_neighbour_types.count('N') == 1:

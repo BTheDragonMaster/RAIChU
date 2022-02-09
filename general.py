@@ -1,7 +1,8 @@
 """
 This script contains examples of the general functionalities of RAIChU
 """
-from visualize_pks_cluster import * #this script contains all import statements
+from visualize_pks_cluster import *
+#this script contains all import statements
 #for the necessary functions
 
 if __name__ == "__main__":

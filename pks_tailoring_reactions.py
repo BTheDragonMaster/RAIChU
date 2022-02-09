@@ -231,7 +231,7 @@ def dehydratase(chain_intermediate):
             c1 = atom
 
     #Make double c1=c2 bond
-    form_double_bond(c1, c2)
+    form_double_bond(c1, c2, chain_intermediate.bond_lookup[c1][c2])
 
     #After double bond formation, remove chirality c1 and c2
     for atom in chain_intermediate.graph:
@@ -273,13 +273,16 @@ def dehydratase(chain_intermediate):
     return chain_intermediate
 
 
-def form_double_bond(atom1, atom2):
+def form_double_bond(atom1, atom2, bond):
     """Forms a double bond between two carbon atoms which are already single
     bonded
 
     atom1: Atom object of a carbon atom bonded with atom2 through a single bond
     atom2: Atom object of a carbon atom bonded with atom1 through a single bond
+    bond: Bond object of the bond between atom1 and atom2
     """
+
+
     #Select the bonding electron in the first atom valence shell
     for orbital_name in atom2.valence_shell.orbitals:
         orbital = atom2.valence_shell.orbitals[orbital_name]
@@ -295,6 +298,9 @@ def form_double_bond(atom1, atom2):
     #Add the lone electron of atom 1 to the orbital of atom 2 and vice versa
     orbital_1.add_electron(electron_2)
     orbital_2.add_electron(electron_1)
+
+    orbital_1.set_bond(bond, 'pi')
+    orbital_2.set_bond(bond, 'pi')
 
     #Change hybridisation
     atom1.valence_shell.dehybridise()
@@ -356,6 +362,9 @@ def form_double_bond(atom1, atom2):
             for electron in orbital.electrons:
                 if electron not in newly_double_bond.electrons:
                     newly_double_bond.electrons.append(electron)
+                    newly_double_bond.set_bond_summary()
+
+
 
 def find_oh_dh(structure):
     """
@@ -475,7 +484,7 @@ def double_to_single(double_bond, structure):
 
     double_bond
     """
-    assert double_bond.type == 'double'
+
     c1 = double_bond.atom_1
     c2 = double_bond.atom_2
 
@@ -484,6 +493,7 @@ def double_to_single(double_bond, structure):
     for electron in double_bond.electrons:
         if electron.orbital_type == 'p':
             pi_electrons.append(electron)
+
 
     #Remove electrons that participate in the pi bond from each atom in the bond
     for orbital_name in c1.valence_shell.orbitals:

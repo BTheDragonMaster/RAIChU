@@ -1081,15 +1081,19 @@ class Drawer:
 
             backbone_atoms.pop(0)
 
-            #Fix S-C angle
+            #Fix position of the S and C atom and the S-C angle
             sulphur = backbone_atoms[0]
             first_carbon = backbone_atoms[1]
-            angle = get_angle(backbone_atoms[0].draw.position, backbone_atoms[1].draw.position)
+            sulphur.draw.position.x = first_carbon.draw.position.x
+            sulphur.draw.position.y = first_carbon.draw.position.y + 15
+            angle = get_angle(first_carbon.draw.position, sulphur.draw.position)
             angle_degrees = round(math.degrees(angle), 3)
-            correct_angle_deg = 60
+            correct_angle_deg = -120
             delta_angle_deg = correct_angle_deg - angle_degrees
             delta_angle_rad = math.radians(delta_angle_deg)
-            self.rotate_subtree(backbone_atoms[1], backbone_atoms[0], delta_angle_rad, backbone_atoms[0].draw.position)
+            self.rotate_subtree(sulphur, first_carbon, delta_angle_rad, first_carbon.draw.position)
+            pcp.draw.position.x = sulphur.draw.position.x
+            pcp.draw.position.y = sulphur.draw.position.y + 15
 
             #Rotate all other bonds in peptide backbone of NRP
             i = 0
@@ -1098,17 +1102,54 @@ class Drawer:
                 atom2 = backbone_atoms[i+1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
-                if angle_degrees != 120.0 and angle_degrees != 60:
-                    if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120.0:
-                        correct_angle_deg = 60.0
-                    elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
+                print(atom1, atom2, angle_degrees)
+                if atom1.inside_ring and atom2.inside_ring:
+                    if angle_degrees != -90.0:
+                        correct_angle_deg = -90
+                        delta_angle_deg = correct_angle_deg - angle_degrees
+                        delta_angle_rad = math.radians(delta_angle_deg)
+                        self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                        i = 0
+                    else:
+                        i += 1
+                elif atom2.inside_ring and not atom1.inside_ring and backbone_atoms[i+2].inside_ring:
+                    if angle_degrees != 120.0 and angle_degrees != 60.0:
+                        if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120.0:
+                            correct_angle_deg = 60.0
+                            first_angle_cyclic = 60.0
+                        elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
+                            correct_angle_deg = 120.0
+                            first_angle_cyclic = 120.0
+                        delta_angle_deg = correct_angle_deg - angle_degrees
+                        delta_angle_rad = math.radians(delta_angle_deg)
+                        self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                        i = 0
+                    else:
+                        i += 1
+                elif atom1.inside_ring and not atom2.inside_ring and backbone_atoms[i-1].inside_ring:
+                    if first_angle_cyclic == 60.0:
                         correct_angle_deg = 120.0
-                    delta_angle_deg = correct_angle_deg - angle_degrees
-                    delta_angle_rad = math.radians(delta_angle_deg)
-                    self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
-                    i = 0
+                    elif first_angle_cyclic == 120.0:
+                        correct_angle_deg = 60.0
+                    if angle_degrees != correct_angle_deg:
+                        delta_angle_deg = correct_angle_deg - angle_degrees
+                        delta_angle_rad = math.radians(delta_angle_deg)
+                        self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                        i = 0
+                    else:
+                        i += 1
                 else:
-                    i += 1
+                    if angle_degrees != 120.0 and angle_degrees != 60:
+                        if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120.0:
+                            correct_angle_deg = 60.0
+                        elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
+                            correct_angle_deg = 120.0
+                        delta_angle_deg = correct_angle_deg - angle_degrees
+                        delta_angle_rad = math.radians(delta_angle_deg)
+                        self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+                        i = 0
+                    else:
+                        i += 1
 
             # Force amino acid sidechains to stick out straight from each side
             i = 0
@@ -1143,18 +1184,16 @@ class Drawer:
                     self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
                 i += 1
 
-            #Fix the positions of S and PCP
-            sulphur.draw.position.x = first_carbon.draw.position.x
-            sulphur.draw.position.y = first_carbon.draw.position.y + 15
-            angle = get_angle(first_carbon.draw.position, sulphur.draw.position)
+            # If the drawer rotated the entire structure, correct this
+            angle = get_angle(pcp.draw.position,
+                               sulphur.draw.position)
             angle_degrees = round(math.degrees(angle), 3)
-            correct_angle_deg = -120
-            delta_angle_deg = correct_angle_deg - angle_degrees
-            delta_angle_rad = math.radians(delta_angle_deg)
-            self.rotate_subtree(sulphur, first_carbon, delta_angle_rad, first_carbon.draw.position)
-            pcp.draw.position.x = sulphur.draw.position.x
-            pcp.draw.position.y = sulphur.draw.position.y + 15
-
+            if angle_degrees != 90.0:
+                correct_angle_deg = 90
+                delta_angle_deg = correct_angle_deg - angle_degrees
+                delta_angle_rad = math.radians(delta_angle_deg)
+                self.rotate_subtree(sulphur, pcp, delta_angle_rad,
+                                    pcp.draw.position)
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 

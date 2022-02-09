@@ -11,6 +11,8 @@ def find_central_chain_nrp(nrp):
         if atom.in_ring(nrp):
             atom.inside_ring = True
             print(atom)
+        else:
+            atom.inside_ring = False
     visited = []
     found_the_sulphur = False
     for atom in nrp.graph:

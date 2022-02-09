@@ -6,6 +6,11 @@ def find_central_chain_nrp(nrp):
     NEED TO CLEAN THIS FUNCTION UP!!!!!!!!! WITH PROPER VARIABLE NAMES
 
     """
+    # find atoms in the structure inside a cycle
+    for atom in nrp.graph:
+        if atom.in_ring(nrp):
+            atom.inside_ring = True
+            print(atom)
     visited = []
     found_the_sulphur = False
     for atom in nrp.graph:
@@ -100,7 +105,19 @@ def find_central_chain_nrp(nrp):
                                 if d.type == 'C':
                                     if d not in visited:
                                         current_atom = d
-
+                        # Special case for cyclic amino acids like proline
+                        if current_atom_neighbour_types.count('C') == 3:
+                            visited.append(current_atom)
+                            central_peptide_chain.append(current_atom)
+                            for g in current_atom_neighbours:
+                                g_neighbour_types = []
+                                for t in g.neighbours:
+                                    g_neighbour_types.append(t.type)
+                                if len(g_neighbour_types) == 3 and\
+                                        g_neighbour_types.count('O') == 1 and\
+                                        g_neighbour_types.count('N') == 1 and\
+                                        g_neighbour_types.count('C') == 1:
+                                    current_atom = g
 
     return central_peptide_chain
 

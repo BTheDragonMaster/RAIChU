@@ -16,17 +16,10 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     nrp_intermediate: PIKAChU Structure object of the NRP intermediate
     amino_acid: PIKAChU Structure object of the amino acid
     """
-    # Define the bond attached to the -OH leaving group
-    # nrp_intermediate.set_connectivities()
-    # nrp_intermediate.find_cycles()
-    # nrp_intermediate.refresh_structure()
-    # nrp_intermediate.set_atom_neighbours()
     found_bonds = find_bonds(LEAVING_OH_BOND, nrp_intermediate)
     print(found_bonds, 'found bonds')
     assert len(found_bonds) == 1
     oh_bond = found_bonds[0]
-
-
 
     # Define the bond attached to the -H leaving group
     n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
@@ -44,7 +37,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     condensation_product.set_connectivities()
     condensation_product.set_atom_neighbours()
     condensation_product.find_cycles()
-    print('ja')
+
     return condensation_product
 
 def make_nrp(list_amino_acids):
@@ -93,3 +86,11 @@ if __name__ == "__main__":
     test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
     attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
     Drawer(attached_test_peptide2)
+    peptide = make_nrp(['valine','proline', 'valine'])
+    Drawer(peptide)
+    attached = attach_to_domain_nrp(peptide, 'PCP')
+    print(attached.graph)
+    Drawer(attached)
+
+
+

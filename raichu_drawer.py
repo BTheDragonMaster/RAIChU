@@ -550,6 +550,7 @@ class Drawer:
                                            color=halfline.atom.draw.colour)
 
     def plot_halflines(self, line, ax, midpoint):
+        # print(line.atom_1, line.atom_2, midpoint, line.point_1, line.point_2)
         halflines = line.divide_in_two(midpoint)
         for halfline in halflines:
             truncated_line = halfline.get_truncated_line(
@@ -1048,17 +1049,59 @@ class Drawer:
                                                     delta_angle_rad,
                                                     central_atom.draw.position)
                             else:
-                                #this means it is either an -OH or =O group
-                                correct_angle_deg = 180
-                                angle = get_angle(central_atom.draw.position,
-                                                  first_oxygen_sidechain.draw.position)
-                                angle_degrees = round(math.degrees(angle), 3)
-                                delta_angle_deg = correct_angle_deg - angle_degrees
-                                delta_angle_rad = math.radians(delta_angle_deg)
-                                self.rotate_subtree(first_oxygen_sidechain,
-                                                    central_atom,
-                                                    delta_angle_rad,
-                                                    central_atom.draw.position)
+                                central_atom_neighbour_types = []
+                                central_atom_neighbours = []
+                                for central_atom_neighbour in central_atom.neighbours:
+                                    central_atom_neighbours.append(central_atom_neighbour)
+                                    central_atom_neighbour_types.append(central_atom_neighbour.type)
+                                #Distinguish between terminal -COOH group (if present) and sidechain oxygens
+                                for central_atom_neighbour in central_atom.neighbours:
+                                    if central_atom_neighbour_types.count('O') == 2:
+
+                                        if self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'double' and central_atom_neighbour.type == 'O':
+                                            print(central_atom)
+                                            correct_angle_deg = 60
+                                            angle = get_angle(
+                                                central_atom.draw.position,
+                                                central_atom_neighbour.draw.position)
+                                            angle_degrees = round(
+                                                math.degrees(angle), 3)
+                                            delta_angle_deg = correct_angle_deg - angle_degrees
+                                            delta_angle_rad = math.radians(
+                                                delta_angle_deg)
+                                            self.rotate_subtree(
+                                                central_atom_neighbour,
+                                                central_atom,
+                                                delta_angle_rad,
+                                                central_atom.draw.position)
+                                        elif self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'single' and central_atom_neighbour.type == 'O':
+                                            print(central_atom, central_atom_neighbour, 'SINGLE OH')
+                                            correct_angle_deg = 180
+                                            angle = get_angle(
+                                                central_atom.draw.position,
+                                                central_atom_neighbour.draw.position)
+                                            angle_degrees = round(
+                                                math.degrees(angle), 3)
+                                            delta_angle_deg = correct_angle_deg - angle_degrees
+                                            delta_angle_rad = math.radians(
+                                                delta_angle_deg)
+                                            self.rotate_subtree(
+                                                central_atom_neighbour,
+                                                central_atom,
+                                                delta_angle_rad,
+                                                central_atom.draw.position)
+                                    else:
+                                        #this means it is either an -OH or =O group
+                                        correct_angle_deg = 180
+                                        angle = get_angle(central_atom.draw.position,
+                                                          first_oxygen_sidechain.draw.position)
+                                        angle_degrees = round(math.degrees(angle), 3)
+                                        delta_angle_deg = correct_angle_deg - angle_degrees
+                                        delta_angle_rad = math.radians(delta_angle_deg)
+                                        self.rotate_subtree(first_oxygen_sidechain,
+                                                            central_atom,
+                                                            delta_angle_rad,
+                                                            central_atom.draw.position)
                         pass
         ###END NEW CODE POLYKETIDES
 

@@ -59,15 +59,17 @@ def find_central_chain(polyketide):
                         #Carbon of terminal carboxylic acid group is the final
                         #carbon in the central chain
                         if next_atom_neighbour_types.count('O') == 2:
-                            central_chain.append(next_atom) or next_atom_neighbour_types.count('H') == 3
+                            central_chain.append(next_atom)
                             end_carbon = True
                             visited.append(chain_carbon)
+
 
 
                         #Confirm carbon doesn't belong to methyl sidebranch
                         if next_atom_neighbour_types.count('H') == 3:
                             methyl_group = True
                             print('methyl branch!!')
+
                         #If the methylgroup is terminal, it is not a sidebranch!!!
                             count_c_neighbours_not_visited = 0
                             for neighbouring_atom in chain_carbon.neighbours:

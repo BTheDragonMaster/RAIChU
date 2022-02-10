@@ -1102,7 +1102,7 @@ class Drawer:
                 atom2 = backbone_atoms[i+1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
-                print(atom1, atom2, angle_degrees)
+                print(i, atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
                     if angle_degrees != 90.0:
                         correct_angle_deg = 90
@@ -1127,12 +1127,10 @@ class Drawer:
                     else:
                         i += 1
                 elif atom1.inside_ring and not atom2.inside_ring and backbone_atoms[i-1].inside_ring:
-                    print('HERe', atom1, atom2, angle_degrees)
                     if first_angle_cyclic == 60.0:
                         correct_angle_deg = 120.0
                     elif first_angle_cyclic == 120.0:
                         correct_angle_deg = 60.0
-                    print('HERe', atom1, atom2, correct_angle_deg)
                     if angle_degrees != correct_angle_deg:
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
@@ -1151,7 +1149,31 @@ class Drawer:
                         self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
                         i = 0
                     else:
-                        i += 1
+                        if i >= 1:
+                            if angle_degrees == 120.0:
+                                if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120:
+                                    correct_angle_deg = 60.0
+                                    delta_angle_deg = correct_angle_deg - angle_degrees
+                                    delta_angle_rad = math.radians(delta_angle_deg)
+                                    self.rotate_subtree(atom2, atom1,
+                                                        delta_angle_rad,
+                                                        atom1.draw.position)
+                                    i = 0
+                                else:
+                                    i += 1
+                            elif angle_degrees == 60.0:
+                                if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60:
+                                    correct_angle_deg = 120.0
+                                    delta_angle_deg = correct_angle_deg - angle_degrees
+                                    delta_angle_rad = math.radians(delta_angle_deg)
+                                    self.rotate_subtree(atom2, atom1,
+                                                        delta_angle_rad,
+                                                        atom1.draw.position)
+                                    i = 0
+                                else:
+                                    i += 1
+                        else:
+                            i += 1
 
             # Force amino acid sidechains to stick out straight from each side
             i = 0
@@ -1197,7 +1219,14 @@ class Drawer:
                 self.rotate_subtree(sulphur, pcp, delta_angle_rad,
                                     pcp.draw.position)
 
-
+            i = 0
+            while i < (len(backbone_atoms) - 1):
+                atom1 = backbone_atoms[i]
+                atom2 = backbone_atoms[i + 1]
+                angle = get_angle(atom1.draw.position, atom2.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
+                print(atom1, atom2, angle_degrees)
+                i += 1
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     ### End NRPS rotation code

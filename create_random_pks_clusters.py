@@ -4,10 +4,9 @@ from visualize_pks_cluster import *
 starter_units = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
                  'SC(C(C(O)=O)CC)=O', 'SC(C(C(O)=O)OC)=O', 'SC(C*)=O',
                  'SC(C(C)CC)=O', 'SC(C1C(CCC1)C(=O)O)=O', 'SC(C)=O',
-                 'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O', 'SC(C(C(=O)O)CC[Cl])=O',
-                 'SC(C1CCCCC1)=C']
+                 'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O', 'SC(C(C(=O)O)CC[Cl])=O']
 tailoring_domain_combinations = [[], ['KR'], ['KR', 'DH'], ['KR', 'DH', 'ER']]
-elongation_units = ['malonylcoa', 'methylmalonylcoa', 'pk', 'methoxymalonylcoa', 'ethylmalonylcoa']
+elongation_units = ['malonylcoa', 'methylmalonylcoa', 'pk', 'methoxymalonylacp', 'ethylmalonylcoa']
 
 def generate_random_cluster():
     """
@@ -26,7 +25,7 @@ def generate_random_cluster():
 
 if __name__ == "__main__":
     #Pick a number (how many random clusters you want to generate and draw)
-    times = 5
+    times = 100
     for i in range(times):
         generated_cluster = generate_random_cluster()
         print(generated_cluster)

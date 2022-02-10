@@ -32,6 +32,8 @@ def find_central_chain(polyketide):
             while not end_carbon:
                 print(central_chain)
                 for next_atom in chain_carbon.neighbours:
+                    if next_atom.nr == 10:
+                        print('found it')
                     ethyl_branch = False
                     methyl_group = False
                     next_atom_neighbour_types = []
@@ -54,6 +56,9 @@ def find_central_chain(polyketide):
                                     types.append(neighbour.type)
                             if types.count('H') == 4 and types.count('C') == 4:
                                 ethyl_branch = True
+                            for c_atom in c_neighbours:
+                                if c_atom not in visited and c_atom != next_atom:
+                                    ethyl_branch = False
                             visited.append(chain_carbon)
 
 

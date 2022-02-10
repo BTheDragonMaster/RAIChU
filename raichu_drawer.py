@@ -1104,8 +1104,8 @@ class Drawer:
                 angle_degrees = round(math.degrees(angle), 3)
                 print(atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
-                    if angle_degrees != -90.0:
-                        correct_angle_deg = -90
+                    if angle_degrees != 90.0:
+                        correct_angle_deg = 90
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
@@ -1127,10 +1127,12 @@ class Drawer:
                     else:
                         i += 1
                 elif atom1.inside_ring and not atom2.inside_ring and backbone_atoms[i-1].inside_ring:
+                    print('HERe', atom1, atom2, angle_degrees)
                     if first_angle_cyclic == 60.0:
                         correct_angle_deg = 120.0
                     elif first_angle_cyclic == 120.0:
                         correct_angle_deg = 60.0
+                    print('HERe', atom1, atom2, correct_angle_deg)
                     if angle_degrees != correct_angle_deg:
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
@@ -1165,7 +1167,7 @@ class Drawer:
                             sidechain_orientation = 'right'
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
-                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S':
+                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and not neighbour.inside_ring:
                         first_atom_sidechain = neighbour
                         connected_to_sidechain = True
                         if backbone_atoms[i-1].draw.position.x < backbone_atoms[i].draw.position.x:
@@ -1194,6 +1196,7 @@ class Drawer:
                 delta_angle_rad = math.radians(delta_angle_deg)
                 self.rotate_subtree(sulphur, pcp, delta_angle_rad,
                                     pcp.draw.position)
+
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 

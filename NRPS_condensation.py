@@ -80,12 +80,12 @@ def make_nrp(list_amino_acids):
 
 
 if __name__ == "__main__":
-    # test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline',  'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
-    # attached_test_peptide = attach_to_domain_nrp(test_peptide, 'PCP')
-    # Drawer(attached_test_peptide)
-    # test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
-    # attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
-    # Drawer(attached_test_peptide2)
+    test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline',  'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
+    attached_test_peptide = attach_to_domain_nrp(test_peptide, 'PCP')
+    Drawer(attached_test_peptide)
+    test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
+    attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
+    Drawer(attached_test_peptide2)
     peptide = make_nrp(['valine','proline', 'valine'])
     # Drawer(peptide)
     attached = attach_to_domain_nrp(peptide, 'PCP')

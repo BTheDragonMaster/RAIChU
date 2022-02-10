@@ -792,6 +792,10 @@ class Drawer:
                             else:
                                 pass
         #Changed by Sophie
+        #If the starter unit contains an unknown moiety, number this R1
+        for atom in self.structure.graph:
+            if atom.type == '*' and not hasattr(atom, 'unknown_index'):
+                atom.unknown_index = 1
         for atom in self.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type

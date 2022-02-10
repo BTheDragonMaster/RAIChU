@@ -30,6 +30,7 @@ def find_central_chain(polyketide):
             central_chain += [chain_carbon]
             visited.append(chain_carbon)
             while not end_carbon:
+                print(central_chain)
                 for next_atom in chain_carbon.neighbours:
                     ethyl_branch = False
                     methyl_group = False
@@ -66,7 +67,7 @@ def find_central_chain(polyketide):
 
 
                         #Confirm carbon doesn't belong to methyl sidebranch
-                        if next_atom_neighbour_types.count('H') == 3:
+                        if next_atom_neighbour_types.count('H') == 3 or (next_atom_neighbour_types.count('H') == 2 and next_atom_neighbour_types.count('*') == 1):
                             methyl_group = True
                             print('methyl branch!!')
 
@@ -83,7 +84,7 @@ def find_central_chain(polyketide):
                                         next_neighbours = []
                                         for next_neighbour in neighbour.neighbours:
                                             next_neighbours.append(next_neighbour.type)
-                                        if next_neighbours.count('H') == 3:
+                                        if next_neighbours.count('H') == 3 or (next_neighbours.count('H') == 2 and (next_neighbours.count('*')) == 1):
                                             central_chain.append(neighbour)
                                 end_carbon = True
 

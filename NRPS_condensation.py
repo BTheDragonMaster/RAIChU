@@ -4,7 +4,7 @@ from pikachu.general import draw_structure
 from pikachu.smiles.smiles import Smiles
 from pk_attach_to_domain import attach_to_domain_nrp
 from raichu_drawer import Drawer
-from find_central_peptide_chain import find_central_chain_nrp
+
 
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)CN', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)

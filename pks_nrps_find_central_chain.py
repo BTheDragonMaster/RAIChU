@@ -6,6 +6,7 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
 
     """
     # find atoms in the structure inside a cycle
+    pks_nrps_attached.find_cycles()
     for atom in pks_nrps_attached.graph:
         if atom.in_ring(pks_nrps_attached):
             atom.inside_ring = True
@@ -42,3 +43,4 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
                     visited.append(neighbour)
 
     return central_chain
+

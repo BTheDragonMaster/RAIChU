@@ -1117,6 +1117,7 @@ class Drawer:
         ### NRPS code: Force peptide backbone to be drawn straight:
         if is_nrp and attached_to_domain:
             backbone_atoms = find_central_chain_pks_nrps(self.structure)
+            print(backbone_atoms)
             for atom in self.structure.graph:
                 if hasattr(atom, 'domain_type'):
                     pcp = atom

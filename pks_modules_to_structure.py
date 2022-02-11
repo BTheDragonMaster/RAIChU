@@ -9,6 +9,9 @@ from NRPS_condensation import condensation_nrps
 from copy import deepcopy
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
+N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
+C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
+C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 
 def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     draw_structures_per_module = False, attach_to_acp = False, \
@@ -56,6 +59,21 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     list_drawings_per_module.append([drawing])
             elif module[1] == 'starter_module_nrps':
                 starter_unit = Smiles(dict_aa_smiles[module[2].upper()]).smiles_to_structure()
+                n_atoms_aa = find_atoms(N_AMINO_ACID, starter_unit)
+                c1_atoms_aa = find_atoms(C1_AMINO_ACID, starter_unit)
+                c2_atoms_aa = find_atoms(C2_AMINO_ACID, starter_unit)
+                assert len(n_atoms_aa) == 1
+                assert len(c1_atoms_aa) == 1
+                assert len(c2_atoms_aa) == 1
+                for atom in starter_unit.graph:
+                    if atom == n_atoms_aa[0]:
+                        atom.in_central_chain = True
+                    elif atom == c1_atoms_aa[0]:
+                        atom.in_central_chain = True
+                    elif atom == c2_atoms_aa[0]:
+                        atom.in_central_chain = True
+                    else:
+                        atom.in_central_chain = False
                 chain_intermediate = starter_unit
                 if draw_structures_per_module and attach_to_acp:
                     copy_chain_intermediate = deepcopy(chain_intermediate)

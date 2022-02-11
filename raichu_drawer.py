@@ -986,126 +986,126 @@ class Drawer:
 
 
         ###NEW CODE POLYKETIDES
-        if is_polyketide and attached_to_domain:
-            central_chain_carbons = find_central_chain_pks_nrps(self.structure)
-            print('central chain carbons', central_chain_carbons)
-            # Rotate the entire structure 180 degrees. Works
-            angle = domain.draw.position.get_rotation_away_from_vector \
-                (central_chain_carbons[0].draw.position, sulphur.draw.position, \
-                 math.radians(180))
-            self.rotate_subtree(sulphur, domain, angle,
-                                sulphur.draw.position)
-
-            #Rotate S-C bond into fixed position
-            angle = get_angle(sulphur.draw.position, central_chain_carbons[0].draw.position)
-            angle_degrees = round(math.degrees(angle), 3)
-            correct_angle_deg = 120.0
-            delta_angle_deg = correct_angle_deg - angle_degrees
-            delta_angle_rad = math.radians(delta_angle_deg)
-            self.rotate_subtree(central_chain_carbons[0], sulphur, delta_angle_rad, sulphur.draw.position)
-
-            #Rotate EVERY bond in central chain to proper angle
-            i = 0
-            while i < len(central_chain_carbons) - 1:
-                atom1 = central_chain_carbons[i]
-                atom2 = central_chain_carbons[i+1]
-                angle = get_angle(atom1.draw.position, atom2.draw.position)
-                angle_degrees = round(math.degrees(angle), 3)
-                if round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 120.0:
-                    correct_angle_deg = 60
-                elif round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 60.0:
-                    correct_angle_deg = 120
-                delta_angle_deg = correct_angle_deg - angle_degrees
-                delta_angle_rad = math.radians(delta_angle_deg)
-                self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
-                i += 1
-
-            #Position ACP domain right above sulphur atom
-            domain.draw.position.x = sulphur.draw.position.x
-            domain.draw.position.y = sulphur.draw.position.y + 15
-
-            #Rotate all sidegroups to the proper angles
-            central_chain_carbons = central_chain_carbons[1:]
-            for central_atom in central_chain_carbons:
-                for neighbour in central_atom.neighbours:
-                    if neighbour.type == 'C' and neighbour not in central_chain_carbons:
-                        first_carbon_sidechain = neighbour
-                        correct_angle_deg = 0
-                        angle = get_angle(central_atom.draw.position, first_carbon_sidechain.draw.position)
-                        angle_degrees = round(math.degrees(angle), 3)
-                        delta_angle_deg = correct_angle_deg - angle_degrees
-                        delta_angle_rad = math.radians(delta_angle_deg)
-                        self.rotate_subtree(first_carbon_sidechain, central_atom, delta_angle_rad, central_atom.draw.position)
-                    elif neighbour.type == 'O':
-                        first_oxygen_sidechain = neighbour
-                        for o_neighbour in first_oxygen_sidechain.neighbours:
-                            if o_neighbour.type == 'C' and o_neighbour not in central_chain_carbons:
-                                # This means it is a methoxymalonylgroup
-                                correct_angle_deg = 0
-                                angle = get_angle(central_atom.draw.position,
-                                                  first_oxygen_sidechain.draw.position)
-                                angle_degrees = round(math.degrees(angle), 3)
-                                delta_angle_deg = correct_angle_deg - angle_degrees
-                                delta_angle_rad = math.radians(delta_angle_deg)
-                                self.rotate_subtree(first_oxygen_sidechain,
-                                                    central_atom,
-                                                    delta_angle_rad,
-                                                    central_atom.draw.position)
-                            else:
-                                central_atom_neighbour_types = []
-                                central_atom_neighbours = []
-                                for central_atom_neighbour in central_atom.neighbours:
-                                    central_atom_neighbours.append(central_atom_neighbour)
-                                    central_atom_neighbour_types.append(central_atom_neighbour.type)
-                                #Distinguish between terminal -COOH group (if present) and sidechain oxygens
-                                for central_atom_neighbour in central_atom.neighbours:
-                                    if central_atom_neighbour_types.count('O') == 2:
-
-                                        if self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'double' and central_atom_neighbour.type == 'O':
-                                            print(central_atom)
-                                            correct_angle_deg = 60
-                                            angle = get_angle(
-                                                central_atom.draw.position,
-                                                central_atom_neighbour.draw.position)
-                                            angle_degrees = round(
-                                                math.degrees(angle), 3)
-                                            delta_angle_deg = correct_angle_deg - angle_degrees
-                                            delta_angle_rad = math.radians(
-                                                delta_angle_deg)
-                                            self.rotate_subtree(
-                                                central_atom_neighbour,
-                                                central_atom,
-                                                delta_angle_rad,
-                                                central_atom.draw.position)
-                                        elif self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'single' and central_atom_neighbour.type == 'O':
-                                            print(central_atom, central_atom_neighbour, 'SINGLE OH')
-                                            correct_angle_deg = 180
-                                            angle = get_angle(
-                                                central_atom.draw.position,
-                                                central_atom_neighbour.draw.position)
-                                            angle_degrees = round(
-                                                math.degrees(angle), 3)
-                                            delta_angle_deg = correct_angle_deg - angle_degrees
-                                            delta_angle_rad = math.radians(
-                                                delta_angle_deg)
-                                            self.rotate_subtree(
-                                                central_atom_neighbour,
-                                                central_atom,
-                                                delta_angle_rad,
-                                                central_atom.draw.position)
-                                    else:
-                                        #this means it is either an -OH or =O group
-                                        correct_angle_deg = 180
-                                        angle = get_angle(central_atom.draw.position,
-                                                          first_oxygen_sidechain.draw.position)
-                                        angle_degrees = round(math.degrees(angle), 3)
-                                        delta_angle_deg = correct_angle_deg - angle_degrees
-                                        delta_angle_rad = math.radians(delta_angle_deg)
-                                        self.rotate_subtree(first_oxygen_sidechain,
-                                                            central_atom,
-                                                            delta_angle_rad,
-                                                            central_atom.draw.position)
-                        pass
+        # if is_polyketide and attached_to_domain:
+        #     central_chain_carbons = find_central_chain_pks_nrps(self.structure)
+        #     print('central chain carbons', central_chain_carbons)
+        #     # Rotate the entire structure 180 degrees. Works
+        #     angle = domain.draw.position.get_rotation_away_from_vector \
+        #         (central_chain_carbons[0].draw.position, sulphur.draw.position, \
+        #          math.radians(180))
+        #     self.rotate_subtree(sulphur, domain, angle,
+        #                         sulphur.draw.position)
+        #
+        #     #Rotate S-C bond into fixed position
+        #     angle = get_angle(sulphur.draw.position, central_chain_carbons[0].draw.position)
+        #     angle_degrees = round(math.degrees(angle), 3)
+        #     correct_angle_deg = 120.0
+        #     delta_angle_deg = correct_angle_deg - angle_degrees
+        #     delta_angle_rad = math.radians(delta_angle_deg)
+        #     self.rotate_subtree(central_chain_carbons[0], sulphur, delta_angle_rad, sulphur.draw.position)
+        #
+        #     #Rotate EVERY bond in central chain to proper angle
+        #     i = 0
+        #     while i < len(central_chain_carbons) - 1:
+        #         atom1 = central_chain_carbons[i]
+        #         atom2 = central_chain_carbons[i+1]
+        #         angle = get_angle(atom1.draw.position, atom2.draw.position)
+        #         angle_degrees = round(math.degrees(angle), 3)
+        #         if round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 120.0:
+        #             correct_angle_deg = 60
+        #         elif round(math.degrees(get_angle(central_chain_carbons[i-1].draw.position, central_chain_carbons[i].draw.position)), 3) == 60.0:
+        #             correct_angle_deg = 120
+        #         delta_angle_deg = correct_angle_deg - angle_degrees
+        #         delta_angle_rad = math.radians(delta_angle_deg)
+        #         self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
+        #         i += 1
+        #
+        #     #Position ACP domain right above sulphur atom
+        #     domain.draw.position.x = sulphur.draw.position.x
+        #     domain.draw.position.y = sulphur.draw.position.y + 15
+        #
+        #     #Rotate all sidegroups to the proper angles
+        #     central_chain_carbons = central_chain_carbons[1:]
+        #     for central_atom in central_chain_carbons:
+        #         for neighbour in central_atom.neighbours:
+        #             if neighbour.type == 'C' and neighbour not in central_chain_carbons:
+        #                 first_carbon_sidechain = neighbour
+        #                 correct_angle_deg = 0
+        #                 angle = get_angle(central_atom.draw.position, first_carbon_sidechain.draw.position)
+        #                 angle_degrees = round(math.degrees(angle), 3)
+        #                 delta_angle_deg = correct_angle_deg - angle_degrees
+        #                 delta_angle_rad = math.radians(delta_angle_deg)
+        #                 self.rotate_subtree(first_carbon_sidechain, central_atom, delta_angle_rad, central_atom.draw.position)
+        #             elif neighbour.type == 'O':
+        #                 first_oxygen_sidechain = neighbour
+        #                 for o_neighbour in first_oxygen_sidechain.neighbours:
+        #                     if o_neighbour.type == 'C' and o_neighbour not in central_chain_carbons:
+        #                         # This means it is a methoxymalonylgroup
+        #                         correct_angle_deg = 0
+        #                         angle = get_angle(central_atom.draw.position,
+        #                                           first_oxygen_sidechain.draw.position)
+        #                         angle_degrees = round(math.degrees(angle), 3)
+        #                         delta_angle_deg = correct_angle_deg - angle_degrees
+        #                         delta_angle_rad = math.radians(delta_angle_deg)
+        #                         self.rotate_subtree(first_oxygen_sidechain,
+        #                                             central_atom,
+        #                                             delta_angle_rad,
+        #                                             central_atom.draw.position)
+        #                     else:
+        #                         central_atom_neighbour_types = []
+        #                         central_atom_neighbours = []
+        #                         for central_atom_neighbour in central_atom.neighbours:
+        #                             central_atom_neighbours.append(central_atom_neighbour)
+        #                             central_atom_neighbour_types.append(central_atom_neighbour.type)
+        #                         #Distinguish between terminal -COOH group (if present) and sidechain oxygens
+        #                         for central_atom_neighbour in central_atom.neighbours:
+        #                             if central_atom_neighbour_types.count('O') == 2:
+        #
+        #                                 if self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'double' and central_atom_neighbour.type == 'O':
+        #                                     print(central_atom)
+        #                                     correct_angle_deg = 60
+        #                                     angle = get_angle(
+        #                                         central_atom.draw.position,
+        #                                         central_atom_neighbour.draw.position)
+        #                                     angle_degrees = round(
+        #                                         math.degrees(angle), 3)
+        #                                     delta_angle_deg = correct_angle_deg - angle_degrees
+        #                                     delta_angle_rad = math.radians(
+        #                                         delta_angle_deg)
+        #                                     self.rotate_subtree(
+        #                                         central_atom_neighbour,
+        #                                         central_atom,
+        #                                         delta_angle_rad,
+        #                                         central_atom.draw.position)
+        #                                 elif self.structure.bond_lookup[central_atom_neighbour][central_atom].type == 'single' and central_atom_neighbour.type == 'O':
+        #                                     print(central_atom, central_atom_neighbour, 'SINGLE OH')
+        #                                     correct_angle_deg = 180
+        #                                     angle = get_angle(
+        #                                         central_atom.draw.position,
+        #                                         central_atom_neighbour.draw.position)
+        #                                     angle_degrees = round(
+        #                                         math.degrees(angle), 3)
+        #                                     delta_angle_deg = correct_angle_deg - angle_degrees
+        #                                     delta_angle_rad = math.radians(
+        #                                         delta_angle_deg)
+        #                                     self.rotate_subtree(
+        #                                         central_atom_neighbour,
+        #                                         central_atom,
+        #                                         delta_angle_rad,
+        #                                         central_atom.draw.position)
+        #                             else:
+        #                                 #this means it is either an -OH or =O group
+        #                                 correct_angle_deg = 180
+        #                                 angle = get_angle(central_atom.draw.position,
+        #                                                   first_oxygen_sidechain.draw.position)
+        #                                 angle_degrees = round(math.degrees(angle), 3)
+        #                                 delta_angle_deg = correct_angle_deg - angle_degrees
+        #                                 delta_angle_rad = math.radians(delta_angle_deg)
+        #                                 self.rotate_subtree(first_oxygen_sidechain,
+        #                                                     central_atom,
+        #                                                     delta_angle_rad,
+        #                                                     central_atom.draw.position)
+        #                 pass
         ###END NEW CODE POLYKETIDES
 
 
@@ -1114,8 +1114,9 @@ class Drawer:
 
 
 
-        ### NRPS code: Force peptide backbone to be drawn straight:
-        if is_nrp and attached_to_domain:
+        ### NRPS + PK code: Force pk/peptide backbone to be drawn straight:
+        if (is_nrp and attached_to_domain) or (is_polyketide and attached_to_domain):
+            print('THIS IS A POLYKETIDE OR NRP')
             backbone_atoms = find_central_chain_pks_nrps(self.structure)
             print(backbone_atoms)
             for atom in self.structure.graph:
@@ -1151,7 +1152,7 @@ class Drawer:
                 atom2 = backbone_atoms[i+1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
-                print(i, atom1, atom2, angle_degrees)
+                # print(i, atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
                     if angle_degrees != 90.0:
                         correct_angle_deg = 90
@@ -1225,8 +1226,8 @@ class Drawer:
                             i += 1
 
             # Force amino acid sidechains to stick out straight from each side
-            i = 0
-            backbone_atoms = backbone_atoms[1:]
+            i = 1
+            print(backbone_atoms)
             while i < (len(backbone_atoms)):
                 atom = backbone_atoms[i]
                 connected_to_sidechain = False

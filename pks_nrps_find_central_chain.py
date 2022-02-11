@@ -10,7 +10,6 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
     for atom in pks_nrps_attached.graph:
         if atom.in_ring(pks_nrps_attached):
             atom.inside_ring = True
-            print(atom)
         else:
             atom.inside_ring = False
 

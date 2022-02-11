@@ -574,6 +574,7 @@ if __name__ == "__main__":
                             ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
 
     #draw_pks_cluster(erythromycin_cluster)
+    pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
 
     bafilomycin_cluster = [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
                            ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']]]

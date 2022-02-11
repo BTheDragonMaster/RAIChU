@@ -654,8 +654,8 @@ if __name__ == "__main__":
 
 
     pks_cluster_to_structure(pks_cluster, attach_to_acp=True)
-    list = pks_cluster_to_structure(nrps_cluster, attach_to_acp=True, draw_structures_per_module=True)
-    print(len(list))
+    pks_cluster_to_structure(nrps_cluster, attach_to_acp=True)
+
 
 
 

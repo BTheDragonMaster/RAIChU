@@ -2,6 +2,7 @@ from raichu_drawer import *
 from pikachu.smiles.smiles import *
 from pikachu.chem.structure import *
 from pikachu.reactions.functional_groups import BondDefiner
+from central_atoms_pk_starter import find_central_atoms_pk_starter
 #from pikachu.drawing.drawing import *
 
 COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
@@ -129,6 +130,10 @@ def pks_elongation(pk_chain, elongation_monomer):
     the elongation step
     elongation_monomer: ['SMILES_elongation_unit', index_c_to_c, index_c_to_s']
     """
+    # If this is is the first elongation reaction on the starter unit, define
+    # central chain atoms in the starter unit
+    pk_chain = find_central_atoms_pk_starter(pk_chain)
+
     # Reset atom colours to black
     for atom in pk_chain.graph:
         atom.draw.colour = 'black'
@@ -139,15 +144,16 @@ def pks_elongation(pk_chain, elongation_monomer):
         if atom.nr == elongation_monomer[1]:
             # C0 needs to be attached to the C atom of the C-S bond in the PK chain
             c_to_pkchain = atom
-            c_to_pkchain.central_chain = True
+            c_to_pkchain.in_central_chain = True
             for atom in c_to_pkchain.neighbours:
                 if atom.type == 'H':
                     h_to_remove = atom
                     continue
+
         elif atom.nr == elongation_monomer[2]:
             # C1 needs to be attached to the S atom of the C-S bond in the PK chain
             c_to_s = atom
-            c_to_s.central_chain = True
+            c_to_s.in_central_chain = True
             for atom in c_to_s.neighbours:
                 if atom.type == 'H':
                     h_to_remove2 = atom

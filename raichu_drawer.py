@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 #New import statement, changed by Sophie
-from find_central_chain import find_central_chain
-from find_central_peptide_chain import find_central_chain_nrp
+from pks_nrps_find_central_chain import find_central_chain_pks_nrps
 import copy
 import math
 import matplotlib
@@ -988,7 +987,7 @@ class Drawer:
 
         ###NEW CODE POLYKETIDES
         if is_polyketide and attached_to_domain:
-            central_chain_carbons = find_central_chain(self.structure)
+            central_chain_carbons = find_central_chain_pks_nrps(self.structure)
             print('central chain carbons', central_chain_carbons)
             # Rotate the entire structure 180 degrees. Works
             angle = domain.draw.position.get_rotation_away_from_vector \
@@ -1117,16 +1116,18 @@ class Drawer:
 
         ### NRPS code: Force peptide backbone to be drawn straight:
         if is_nrp and attached_to_domain:
-            backbone_atoms = find_central_chain_nrp(self.structure)
-            pcp = backbone_atoms[0]
-            pcp_x = backbone_atoms[0].draw.position.x
-            pcp_y = backbone_atoms[0].draw.position.y
+            backbone_atoms = find_central_chain_pks_nrps(self.structure)
             for atom in self.structure.graph:
-                if atom == backbone_atoms[1]:
+                if hasattr(atom, 'domain_type'):
+                    pcp = atom
+            pcp_x = pcp.draw.position.x
+            pcp_y = pcp.draw.position.y
+            for atom in self.structure.graph:
+                if atom == backbone_atoms[0]:
                     atom.draw.position.x = pcp_x
                     atom.draw.position.y = pcp_y - 15
 
-            backbone_atoms.pop(0)
+
 
             #Fix position of the S and C atom and the S-C angle
             sulphur = backbone_atoms[0]

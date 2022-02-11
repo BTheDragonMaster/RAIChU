@@ -8,6 +8,8 @@ from find_central_peptide_chain import find_central_chain_nrp
 
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)CN', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
+C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
+C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 
 def condensation_nrps(amino_acid, nrp_intermediate):
     """
@@ -16,6 +18,24 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     nrp_intermediate: PIKAChU Structure object of the NRP intermediate
     amino_acid: PIKAChU Structure object of the amino acid
     """
+    # If this is the first elongation reaction, determine central peptide
+    if not any(hasattr(atom, 'in_central_chain') for atom in nrp_intermediate.graph):
+        n_atoms_aa = find_atoms(N_AMINO_ACID, nrp_intermediate)
+        c1_atoms_aa = find_atoms(C1_AMINO_ACID, nrp_intermediate)
+        c2_atoms_aa = find_atoms(C2_AMINO_ACID, nrp_intermediate)
+        assert len(n_atoms_aa) == 1
+        assert len(c1_atoms_aa) == 1
+        assert len(c2_atoms_aa) == 1
+        for atom in nrp_intermediate.graph:
+            if atom == n_atoms_aa[0]:
+                atom.in_central_chain = True
+            elif atom == c1_atoms_aa[0]:
+                atom.in_central_chain = True
+            elif atom == c2_atoms_aa[0]:
+                atom.in_central_chain = True
+            else:
+                atom.in_central_chain = False
+
     found_bonds = find_bonds(LEAVING_OH_BOND, nrp_intermediate)
     print(found_bonds, 'found bonds')
     assert len(found_bonds) == 1
@@ -30,6 +50,23 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             if neighbour.type == 'H':
                 h_bond = bond
                 break
+
+    #Determine atoms in amino acid that end up in central peptide chain
+    n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
+    c1_atoms_aa = find_atoms(C1_AMINO_ACID, amino_acid)
+    c2_atoms_aa = find_atoms(C2_AMINO_ACID, amino_acid)
+    assert len(n_atoms_aa) == 1
+    assert len(c1_atoms_aa) == 1
+    assert len(c2_atoms_aa) == 1
+    for atom in amino_acid.graph:
+        if atom == n_atoms_aa[0]:
+            atom.in_central_chain = True
+        elif atom == c1_atoms_aa[0]:
+            atom.in_central_chain = True
+        elif atom == c2_atoms_aa[0]:
+            atom.in_central_chain = True
+        else:
+            atom.in_central_chain = False
 
     # Carry out condensation reaction using build-in PIKAChU function
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
@@ -62,12 +99,44 @@ def make_nrp(list_amino_acids):
     for i in range(len(list_amino_acids)):
         list_amino_acids[i] = list_amino_acids[i].upper()
 
-    # Take amino acid Structure object from dict and add to growing NRP chain
+    # Make amino acid Structure object from dict and add to growing NRP chain
     nrp_chain_intermediate = Smiles(dict_aa_structure[list_amino_acids[0]]).smiles_to_structure()
+    # Determine cental peptide chain atoms in first amino acid
+    n_atoms_aa = find_atoms(N_AMINO_ACID, nrp_chain_intermediate)
+    c1_atoms_aa = find_atoms(C1_AMINO_ACID, nrp_chain_intermediate)
+    c2_atoms_aa = find_atoms(C2_AMINO_ACID, nrp_chain_intermediate)
+    assert len(n_atoms_aa) == 1
+    assert len(c1_atoms_aa) == 1
+    assert len(c2_atoms_aa) == 1
+    for atom in nrp_chain_intermediate.graph:
+        if atom == n_atoms_aa[0]:
+            atom.in_central_chain = True
+        elif atom == c1_atoms_aa[0]:
+            atom.in_central_chain = True
+        elif atom == c2_atoms_aa[0]:
+            atom.in_central_chain = True
+        else:
+            atom.in_central_chain = False
+
     list_amino_acids = list_amino_acids[1:]
     for amino_acid_name in list_amino_acids:
         amino_acid_struct = Smiles(dict_aa_structure[amino_acid_name]).smiles_to_structure()
         print(amino_acid_name)
+        n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid_struct)
+        c1_atoms_aa = find_atoms(C1_AMINO_ACID, amino_acid_struct)
+        c2_atoms_aa = find_atoms(C2_AMINO_ACID, amino_acid_struct)
+        assert len(n_atoms_aa) == 1
+        assert len(c1_atoms_aa) == 1
+        assert len(c2_atoms_aa) == 1
+        for atom in amino_acid_struct.graph:
+            if atom == n_atoms_aa[0]:
+                atom.in_central_chain = True
+            elif atom == c1_atoms_aa[0]:
+                atom.in_central_chain = True
+            elif atom == c2_atoms_aa[0]:
+                atom.in_central_chain = True
+            else:
+                atom.in_central_chain = False
         nrp_chain_intermediate = condensation_nrps(amino_acid_struct, nrp_chain_intermediate)
 
     # Refresh chain intermediate
@@ -86,8 +155,8 @@ if __name__ == "__main__":
     test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
     attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
     Drawer(attached_test_peptide2)
-    peptide = make_nrp(['valine','proline', 'valine'])
-    # Drawer(peptide)
+    peptide = make_nrp(['alanine', '4-methylproline', 'proline'])
+    Drawer(peptide)
     attached = attach_to_domain_nrp(peptide, 'PCP')
     print(attached.graph)
     Drawer(attached)

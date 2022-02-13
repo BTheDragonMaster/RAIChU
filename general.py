@@ -32,10 +32,20 @@ if __name__ == "__main__":
                            ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
                            ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
                            ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
-    final_product = pks_cluster_to_structure(erythromycin_cluster)
+    final_product = pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
 
     #Visualise PKS cluster
     draw_pks_cluster(erythromycin_cluster)
 
     #Visualise PKS cluster (interactive mode)
     draw_pks_cluster(erythromycin_cluster, interactive=True)
+
+    #Visualise NRPS cluster
+    nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
+                    ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+                    ['NRPS module 3', 'elongation_module_nrps', 'serine'],
+                    ['NRPS module 4', 'elongation_module_nrps', 'cysteine'],
+                    ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
+                    ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
+                    ['NRPS module 7', 'terminator_module_nrps', 'valine']]
+    draw_pks_cluster(nrps_cluster)

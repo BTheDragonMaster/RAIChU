@@ -576,21 +576,17 @@ if __name__ == "__main__":
     #draw_pks_cluster(erythromycin_cluster)
     pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
 
-    bafilomycin_cluster = [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
-                           ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']]]
+
 
     baf_cluster =          [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
                            ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
                            ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A1']],
                            ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
                            ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
-                           ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']],
-                           ['pks module 7', 'elongation_module', 'malonylcoa', ['KR', 'DH']],
-                           ['pks module 8', 'elongation_module', 'pk', ['KR_B1', 'DH']]]
+                           ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']]]
 
-    #pks_cluster_to_structure(baf_cluster, attach_to_acp=True)
-    #draw_pks_cluster(baf_cluster)
-    #draw_pks_cluster(bafilomycin_cluster)
+    pks_cluster_to_structure(baf_cluster, attach_to_acp=True)
+    draw_pks_cluster(baf_cluster)
 
     nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
               ['NRPS module 2', 'elongation_module_nrps', 'valine'],

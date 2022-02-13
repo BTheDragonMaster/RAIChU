@@ -7,6 +7,7 @@ from matplotlib.patches import FancyArrow
 from copy import copy
 from NRPS_condensation import condensation_nrps
 from copy import deepcopy
+from central_atoms_pk_starter import find_central_atoms_pk_starter
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
@@ -36,7 +37,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
             modules[-1][1] == 'starter_module_nrps' or \
             modules[-1][1] == 'terminator_module_nrps':
         last_module_nrps = True
-        print('trueeeee')
+
 
     #Construct dict to find the SMILES of all amino acids recognized by PARAS
     dict_aa_smiles = make_dict_aa_smiles()
@@ -50,6 +51,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
             assert module[1] == 'starter_module' or module[1] == 'starter_module_nrps'
             if module[1] == 'starter_module':
                 starter_unit = Smiles(module[2]).smiles_to_structure()
+                starter_unit = find_central_atoms_pk_starter(starter_unit)
                 if attach_to_acp:
                     chain_intermediate = attach_to_domain(starter_unit, 'ACP')
                 else:

@@ -42,6 +42,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
     #Construct dict to find the SMILES of all amino acids recognized by PARAS
     dict_aa_smiles = make_dict_aa_smiles()
 
+
     modules = copy(modules)
     list_drawings_per_module = []
     for module in modules:
@@ -87,6 +88,11 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
             del modules[0]
     for module in modules:
         if module[1] == 'elongation_module' or module[1] == 'terminator_module':
+            ###If last reaction was an NRPS reaction
+            locations = chain_intermediate.find_substructures(Smiles('C(=O)(O)CN').smiles_to_structure())
+            if len(locations) > 0:
+                chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
+
             module_name, module_type, elongation_unit, list_domains = module
             assert elongation_unit == 'malonylcoa' or \
                    elongation_unit == 'methylmalonylcoa' or \

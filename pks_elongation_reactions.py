@@ -132,7 +132,8 @@ def pks_elongation(pk_chain, elongation_monomer):
     """
     # If this is is the first elongation reaction on the starter unit, define
     # central chain atoms in the starter unit
-    pk_chain = find_central_atoms_pk_starter(pk_chain)
+    if not any(hasattr(atom, 'in_central_chain') for atom in pk_chain.graph):
+        pk_chain = find_central_atoms_pk_starter(pk_chain)
 
     # Reset atom colours to black
     for atom in pk_chain.graph:
@@ -180,7 +181,11 @@ def pks_elongation(pk_chain, elongation_monomer):
     elongation_monomer_struct.set_atom_neighbours()
 
     #find thioester bond in growing chain, define Cs to attach new unit
+    pk_chain.set_connectivities()
+    pk_chain.refresh_structure()
     thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
+    print('thioester bonds', thioester_bonds)
+    assert len(thioester_bonds) == 1
     for bond in thioester_bonds:
         if bond.atom_1.type == 'S':
             s_pkchain = bond.atom_1
@@ -190,6 +195,8 @@ def pks_elongation(pk_chain, elongation_monomer):
             c_pkchain = bond.atom_1
 
     #Breaking the thioester bond in the PK chain
+    for atom in pk_chain.graph:
+        atom.hybridise()
     for bond in thioester_bonds[:]:
         pk_chain.break_bond(bond)
     pk_chain.get_connectivities()

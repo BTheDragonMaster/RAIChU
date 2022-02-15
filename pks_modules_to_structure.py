@@ -252,8 +252,10 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     os.remove('1.png')
                 copy_chain_intermediate = deepcopy(chain_intermediate)
                 copy_chain_intermediate.find_cycles()
-                copy_attached = attach_to_domain_nrp(
-                    copy_chain_intermediate, 'PCP')
+                if not any(hasattr(atom, 'domain_type') for atom in copy_chain_intermediate.graph):
+                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                else:
+                    copy_attached = copy_chain_intermediate
                 Drawer(copy_attached, save_png='1.png', dpi_drawer=500)
 
 

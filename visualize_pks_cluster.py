@@ -91,6 +91,8 @@ def draw_pks_cluster(pks_cluster, interactive=False):
             if module_type == 'terminator_module':
                 module_list_domains.append('TE')
         elif module_type == 'elongation_module_nrps' or module_type == 'terminator_module_nrps':
+            elongation_modules_with_mechanisms.append([module_name, \
+            f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['C', 'A', 'PCP']
             if module_type == 'terminator_module_nrps':
                 module_list_domains.append('TE')
@@ -101,14 +103,14 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     fig, ax = plt.subplots(figsize=(20, 10))
     thismanager = plt.get_current_fig_manager()
     thismanager.window.wm_iconbitmap("raichu_r_icon.ico")
-    thismanager.set_window_title('RAIChU - Visualization PKS cluster')
+    thismanager.set_window_title('RAIChU - Visualization PKS/NRPS cluster')
     global global_figure
     global_figure = fig
 
 
 
     #Add title
-    plt.title('Visualization PKS cluster', pad=80)
+    plt.title('Visualization PKS/NRPS cluster', pad=80)
     #Draw domains per module
 
     domain_text = []
@@ -164,10 +166,10 @@ def draw_pks_cluster(pks_cluster, interactive=False):
         plt.text(x, 0, domain, ha='center', va='center', \
                  fontdict=font_domains)
     #Add text above buttons:
-    if interactive:
-        ax.text((length_line / 2), -230, \
-            'Click module name to view reaction mechanism, or view all possible products', ha = 'center', \
-            fontdict = font_modules)
+    # if interactive:
+    #     ax.text((length_line / 2), -230, \
+    #         'Click module name to view reaction mechanism, or view all possible products', ha = 'center', \
+    #         fontdict = font_modules)
 
     #Change coordinates of all atoms of all structures to match pks cluster
     list_drawings_correct_coord = []
@@ -573,28 +575,28 @@ if __name__ == "__main__":
                             ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
                             ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
 
-    #draw_pks_cluster(erythromycin_cluster)
-    pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
-
-
-
-    baf_cluster =          [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
-                           ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
-                           ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A1']],
-                           ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
-                           ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
-                           ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']]]
-
-    pks_cluster_to_structure(baf_cluster, attach_to_acp=True)
-    draw_pks_cluster(baf_cluster)
-
-    nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
-              ['NRPS module 2', 'elongation_module_nrps', 'valine'],
-              ['NRPS module 3', 'elongation_module_nrps', 'serine'],
-              ['NRPS module 4', 'elongation_module_nrps', '3-[(1R,2R)-2-Nitrocyclopropyl]-L-alanine'],
-              ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
-              ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
-              ['NRPS module 7', 'terminator_module_nrps', 'valine']]
-    draw_pks_cluster(nrps_cluster)
-    #pks_cluster_to_structure(nrps_cluster)
+    draw_pks_cluster(erythromycin_cluster, interactive=True)
+    # pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
+    #
+    #
+    #
+    # baf_cluster =          [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
+    #                        ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
+    #                        ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A1']],
+    #                        ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
+    #                        ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
+    #                        ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']]]
+    #
+    # pks_cluster_to_structure(baf_cluster, attach_to_acp=True)
+    # draw_pks_cluster(baf_cluster)
+    #
+    # nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
+    #           ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+    #           ['NRPS module 3', 'elongation_module_nrps', 'serine'],
+    #           ['NRPS module 4', 'elongation_module_nrps', '3-[(1R,2R)-2-Nitrocyclopropyl]-L-alanine'],
+    #           ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
+    #           ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
+    #           ['NRPS module 7', 'terminator_module_nrps', 'valine']]
+    # draw_pks_cluster(nrps_cluster)
+    # #pks_cluster_to_structure(nrps_cluster)
 

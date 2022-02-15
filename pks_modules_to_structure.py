@@ -245,18 +245,25 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
         #NRPS part
         elif module[1] == 'elongation_module_nrps' or module[1] == 'terminator_module_nrps':
             module_name, module_type, aa_specifity = module
+            if visualization_mechanism == True and attach_to_acp:
+                # If a previous process was stopped prematurely, make sure the
+                # image files are removed before continuing
+                if path.exists('1.png'):
+                    os.remove('1.png')
+                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate.find_cycles()
+                copy_attached = attach_to_domain_nrp(
+                    copy_chain_intermediate, 'PCP')
+                Drawer(copy_attached, save_png='1.png', dpi_drawer=500)
+
+
             print(aa_specifity)
             aa_specifity = aa_specifity.upper()
             assert aa_specifity in dict_aa_smiles
             # Reset atom colours in the first structure depicted to black
             for atom in chain_intermediate.graph:
                 atom.draw.colour = 'black'
-            if visualization_mechanism == True:
-                # If a previous process was stopped prematurely, make sure the
-                # image files are removed before continuing
-                if path.exists('1.png'):
-                    os.remove('1.png')
-                Drawer(chain_intermediate, save_png='1.png', dpi_drawer=500)
+
             aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
             if draw_structures_per_module and attach_to_acp:
@@ -265,7 +272,16 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                 drawing = Drawer(copy_attached, dont_show=True, dpi_drawer=500)
                 list_drawings_per_module.append([drawing])
-
+            elif visualization_mechanism == True and attach_to_acp:
+                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate.find_cycles()
+                copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                if path.exists('2.png'):
+                    os.remove('2.png')
+                Drawer(copy_attached, save_png='2.png', dpi_drawer=500)
+                list_domains = None
+                elongation_unit = aa_specifity.lower()
+                display_reactions(['1.png', '2.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
 
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:
@@ -309,127 +325,45 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
     elongation_unit: 'methylmalonylcoa' or 'malonylcoa'
     module_name: module name as string
     """
-    #Situation 1 when the module contains no tailoring domains:
-    if len(tailoring_domains) == 0:
+    #Situation  NRPS elongation module
+    if tailoring_domains == None:
         before_elongation, after_elongation = structures
         images = []
-        #Read in images
+        # Read in images
         img1 = mpimg.imread(before_elongation)
         img2 = mpimg.imread(after_elongation)
 
-        #Add images to list to prevent collection by the garbage collector
+        # Add images to list to prevent collection by the garbage collector
         images.append(img1)
         images.append(img2)
 
-        #Create figure
-        fig = plt.figure(constrained_layout=True, figsize=[15, 8],frameon=False, num=f"Quick reaction mechanism {module_name}")
+        # Create figure
+        fig = plt.figure(constrained_layout=True, figsize=[15, 8],
+                         frameon=False,
+                         num=f"Quick reaction mechanism {module_name}")
         ax = fig.subplots(1, 5)
         ax = fig.add_gridspec(1, 5)
 
-        #Add first structure before elongation reaction to plot
-        ax1 = fig.add_subplot(ax[0, 0:2])
-        ax1.imshow(img1)
-
-        #Add correct arrow to plot
-        ax1 = fig.add_subplot(ax[0, 2])
-        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        if elongation_unit == 'malonylcoa':
-            text = 'Malonyl-CoA'
-        elif elongation_unit == 'methylmalonylcoa':
-            text = 'Methylmalonyl-CoA'
-        elif elongation_unit == 'methoxymalonylacp':
-            text = 'Methoxymalonyl-ACP'
-        elif elongation_unit == 'ethylmalonylcoa':
-            text = 'Ethylmalonyl-CoA'
-        elif elongation_unit == 'pk':
-            text = 'Unknown elongation\nunit'
-        ax1.text(0.5, 0.55, text, ha='center',
-                 fontdict={'size': 12, 'color': 'black'})
-        ax1.set_title(f"{module_name}", pad = 90, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
-
-        #Add elongation product to plot
-        ax1 = fig.add_subplot(ax[0, 3:5])
-        ax1.imshow(img2)
-
-        #Remove all axes from the figure
-        for ax in fig.get_axes():
-            ax.axis('off')
-
-        if draw_mechanism_per_module:
-            plt.savefig(f'{module_name}_quick_mechanism.png')
-            plt.clf()
-            plt.close()
-        else:
-            plt.show()
-
-
-    #Situation 2 when the module contains only the KR tailoring domain
-    elif len(tailoring_domains) == 1:
-        assert any(domain.startswith('KR') for domain in tailoring_domains)
-        kr_domain = tailoring_domains[0]
-        before_elongation, after_elongation, after_kr = structures
-        images = []
-        #Read in images
-        img1 = mpimg.imread(before_elongation)
-        img2 = mpimg.imread(after_elongation)
-        img3 = mpimg.imread(after_kr)
-
-
-
-        # Add images to list to prevent collection by the garbage collector
-        images.append(img1)
-        images.append(img2)
-        images.append(img3)
-
-
-
-        # Create figure
-        fig = plt.figure(constrained_layout=True, figsize=[15, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
-        ax = fig.subplots(1, 8)
-        ax = fig.add_gridspec(1, 8)
-
         # Add first structure before elongation reaction to plot
         ax1 = fig.add_subplot(ax[0, 0:2])
         ax1.imshow(img1)
 
-        # Add correct arrow to plot (depending on elongation unit)
+        # Add correct arrow to plot
         ax1 = fig.add_subplot(ax[0, 2])
-        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3,  head_width=0.025, head_length=0.1, color= 'black')
+        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang=0.3, head_width=0.025,
+                           head_length=0.1, color='black')
         images.append(arrow)
         ax1.add_patch(arrow)
-        if elongation_unit == 'malonylcoa':
-            text = 'Malonyl-CoA'
-        elif elongation_unit == 'methylmalonylcoa':
-            text = 'Methylmalonyl-CoA'
-        elif elongation_unit == 'methoxymalonylacp':
-            text = 'Methoxymalonyl-ACP'
-        elif elongation_unit == 'ethylmalonylcoa':
-            text = 'Ethylmalonyl-CoA'
-        elif elongation_unit == 'pk':
-            text = 'Unknown elongation unit'
+        text = elongation_unit
         ax1.text(0.5, 0.55, text, ha='center',
                  fontdict={'size': 12, 'color': 'black'})
+        ax1.set_title(f"{module_name}", pad=90,
+                      fontdict={'size': 20, 'weight': 'bold',
+                                'color': 'darkred'})
 
         # Add elongation product to plot
         ax1 = fig.add_subplot(ax[0, 3:5])
-        ax1.set_title(f"{module_name}", pad=120, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
         ax1.imshow(img2)
-
-        # Add KR arrow to plot
-        ax1 = fig.add_subplot(ax[0, 5])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, kr_domain, ha='center',
-                 fontdict={'size': 17, 'color': 'red'})
-
-
-        # Add ketoreductase product to plot
-        ax1 = fig.add_subplot(ax[0, 6:8])
-        ax1.imshow(img3)
 
         # Remove all axes from the figure
         for ax in fig.get_axes():
@@ -441,213 +375,346 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
             plt.close()
         else:
             plt.show()
+    else:
+        # Situation 1 when the module contains no tailoring domains:
+        if len(tailoring_domains) == 0:
+            before_elongation, after_elongation = structures
+            images = []
+            #Read in images
+            img1 = mpimg.imread(before_elongation)
+            img2 = mpimg.imread(after_elongation)
+
+            #Add images to list to prevent collection by the garbage collector
+            images.append(img1)
+            images.append(img2)
+
+            #Create figure
+            fig = plt.figure(constrained_layout=True, figsize=[15, 8],frameon=False, num=f"Quick reaction mechanism {module_name}")
+            ax = fig.subplots(1, 5)
+            ax = fig.add_gridspec(1, 5)
+
+            #Add first structure before elongation reaction to plot
+            ax1 = fig.add_subplot(ax[0, 0:2])
+            ax1.imshow(img1)
+
+            #Add correct arrow to plot
+            ax1 = fig.add_subplot(ax[0, 2])
+            arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            if elongation_unit == 'malonylcoa':
+                text = 'Malonyl-CoA'
+            elif elongation_unit == 'methylmalonylcoa':
+                text = 'Methylmalonyl-CoA'
+            elif elongation_unit == 'methoxymalonylacp':
+                text = 'Methoxymalonyl-ACP'
+            elif elongation_unit == 'ethylmalonylcoa':
+                text = 'Ethylmalonyl-CoA'
+            elif elongation_unit == 'pk':
+                text = 'Unknown elongation\nunit'
+            ax1.text(0.5, 0.55, text, ha='center',
+                     fontdict={'size': 12, 'color': 'black'})
+            ax1.set_title(f"{module_name}", pad = 90, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+
+            #Add elongation product to plot
+            ax1 = fig.add_subplot(ax[0, 3:5])
+            ax1.imshow(img2)
+
+            #Remove all axes from the figure
+            for ax in fig.get_axes():
+                ax.axis('off')
+
+            if draw_mechanism_per_module:
+                plt.savefig(f'{module_name}_quick_mechanism.png')
+                plt.clf()
+                plt.close()
+            else:
+                plt.show()
 
 
-    #Situation 3 when the module has both the KR and DH tailoring domains
-    elif len(tailoring_domains) == 2:
-        assert any(domain.startswith('KR') for domain in tailoring_domains)
-        for domain in tailoring_domains:
-            if domain.startswith('KR'):
-                kr_domain = domain
-        assert 'DH' in tailoring_domains
-        before_elongation, after_elongation, after_kr, after_dh = structures
-        images = []
-        #Read in images
-        img1 = mpimg.imread(before_elongation)
-        img2 = mpimg.imread(after_elongation)
-        img3 = mpimg.imread(after_kr)
-        img4 = mpimg.imread(after_dh)
-
-
-
-        # Add images to list to prevent collection by the garbage collector
-        images.append(img1)
-        images.append(img2)
-        images.append(img3)
-        images.append(img4)
-
-
-
-        # Create figure
-        fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
-        ax = fig.subplots(1, 11)
-        ax = fig.add_gridspec(1, 11)
-
-        # Add first structure before elongation reaction to plot
-        ax1 = fig.add_subplot(ax[0, 0:2])
-        ax1.imshow(img1)
-
-        # Add correct arrow to plot (depending on elongation unit)
-        ax1 = fig.add_subplot(ax[0, 2])
-        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        if elongation_unit == 'malonylcoa':
-            text = 'Malonyl-CoA'
-        elif elongation_unit == 'methylmalonylcoa':
-            text = 'Methylmalonyl-CoA'
-        elif elongation_unit == 'methoxymalonylacp':
-            text = 'Methoxymalonyl-ACP'
-        elif elongation_unit == 'ethylmalonylcoa':
-            text = 'Ethylmalonyl-CoA'
-        elif elongation_unit == 'pk':
-            text = 'Unknown elongation unit'
-        ax1.text(0.5, 0.55, text, ha='center',
-                 fontdict={'size': 12, 'color': 'black'})
-
-
-        # Add elongation product to plot
-        ax1 = fig.add_subplot(ax[0, 3:5])
-        ax1.imshow(img2)
-
-        # Add KR arrow to plot
-        ax1 = fig.add_subplot(ax[0, 5])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, kr_domain, ha='center',
-                 fontdict={'size': 17, 'color': 'red'})
-
-        # Add ketoreductase product to plot
-        ax1 = fig.add_subplot(ax[0, 6:8])
-        ax1.imshow(img3)
-
-        # Add DH arrow to plot
-        ax1 = fig.add_subplot(ax[0, 8])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, 'DH', ha='center',
-                 fontdict={'size': 17, 'color': 'blue'})
-
-        # Add dehydratase product to plot
-        ax1 = fig.add_subplot(ax[0, 9:11])
-        ax1.imshow(img4)
-
-
-        # Remove all axes from the figure
-        for ax in fig.get_axes():
-            ax.axis('off')
-
-        if draw_mechanism_per_module:
-            plt.savefig(f'{module_name}_quick_mechanism.png')
-            plt.clf()
-            plt.close()
-        else:
-            plt.show()
-
-
-    #Situation 4 when the module has the KR, DH and ER tailoring domains
-    elif len(tailoring_domains) == 3:
-        assert any(domain.startswith('KR') for domain in tailoring_domains)
-        for domain in tailoring_domains:
-            if domain.startswith('KR'):
-                kr_domain = domain
-        assert 'DH' in tailoring_domains
-        assert 'ER' in tailoring_domains
-        before_elongation, after_elongation, after_kr, after_dh, after_er = structures
-        images = []
-        #Read in images
-        img1 = mpimg.imread(before_elongation)
-        img2 = mpimg.imread(after_elongation)
-        img3 = mpimg.imread(after_kr)
-        img4 = mpimg.imread(after_dh)
-        img5 = mpimg.imread(after_er)
+        #Situation 2 when the module contains only the KR tailoring domain
+        elif len(tailoring_domains) == 1:
+            assert any(domain.startswith('KR') for domain in tailoring_domains)
+            kr_domain = tailoring_domains[0]
+            before_elongation, after_elongation, after_kr = structures
+            images = []
+            #Read in images
+            img1 = mpimg.imread(before_elongation)
+            img2 = mpimg.imread(after_elongation)
+            img3 = mpimg.imread(after_kr)
 
 
 
-        # Add images to list to prevent collection by the garbage collector
-        images.append(img1)
-        images.append(img2)
-        images.append(img3)
-        images.append(img4)
-        images.append(img5)
+            # Add images to list to prevent collection by the garbage collector
+            images.append(img1)
+            images.append(img2)
+            images.append(img3)
 
 
 
-        # Create figure
-        fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
-        ax = fig.subplots(1, 14)
-        ax = fig.add_gridspec(1, 14)
+            # Create figure
+            fig = plt.figure(constrained_layout=True, figsize=[15, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
+            ax = fig.subplots(1, 8)
+            ax = fig.add_gridspec(1, 8)
 
-        # Add first structure before elongation reaction to plot
-        ax1 = fig.add_subplot(ax[0, 0:2])
-        ax1.imshow(img1)
+            # Add first structure before elongation reaction to plot
+            ax1 = fig.add_subplot(ax[0, 0:2])
+            ax1.imshow(img1)
 
-        # Add correct arrow to plot (depending on elongation unit)
-        ax1 = fig.add_subplot(ax[0, 2])
-        arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        if elongation_unit == 'malonylcoa':
-            text = 'Malonyl-CoA'
-        elif elongation_unit == 'methylmalonylcoa':
-            text = 'Methylmalonyl-CoA'
-        elif elongation_unit == 'methoxymalonylacp':
-            text = 'Methoxymalonyl-ACP'
-        elif elongation_unit == 'ethylmalonylcoa':
-            text = 'Ethylmalonyl-CoA'
-        elif elongation_unit == 'pk':
-            text = 'Unknown elongation unit'
-        ax1.text(0.5, 0.55, text, ha='center',
-                 fontdict={'size': 12, 'color': 'black'})
+            # Add correct arrow to plot (depending on elongation unit)
+            ax1 = fig.add_subplot(ax[0, 2])
+            arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3,  head_width=0.025, head_length=0.1, color= 'black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            if elongation_unit == 'malonylcoa':
+                text = 'Malonyl-CoA'
+            elif elongation_unit == 'methylmalonylcoa':
+                text = 'Methylmalonyl-CoA'
+            elif elongation_unit == 'methoxymalonylacp':
+                text = 'Methoxymalonyl-ACP'
+            elif elongation_unit == 'ethylmalonylcoa':
+                text = 'Ethylmalonyl-CoA'
+            elif elongation_unit == 'pk':
+                text = 'Unknown elongation unit'
+            ax1.text(0.5, 0.55, text, ha='center',
+                     fontdict={'size': 12, 'color': 'black'})
 
-        # Add elongation product to plot
-        ax1 = fig.add_subplot(ax[0, 3:5])
-        ax1.imshow(img2)
+            # Add elongation product to plot
+            ax1 = fig.add_subplot(ax[0, 3:5])
+            ax1.set_title(f"{module_name}", pad=120, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+            ax1.imshow(img2)
 
-        # Add KR arrow to plot
-        ax1 = fig.add_subplot(ax[0, 5])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, kr_domain, ha='center',
-                 fontdict={'size': 17, 'color': 'red'})
+            # Add KR arrow to plot
+            ax1 = fig.add_subplot(ax[0, 5])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, kr_domain, ha='center',
+                     fontdict={'size': 17, 'color': 'red'})
 
-        # Add ketoreductase product to plot
-        ax1 = fig.add_subplot(ax[0, 6:8])
-        ax1.imshow(img3)
-        ax1.text(100, -800, f"{module_name}",fontdict={'size': 20, 'weight': 'bold', 'color': 'darkred'})
 
-        # Add DH arrow to plot
-        ax1 = fig.add_subplot(ax[0, 8])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, 'DH', ha='center',
-                 fontdict={'size': 17, 'color': 'blue'})
+            # Add ketoreductase product to plot
+            ax1 = fig.add_subplot(ax[0, 6:8])
+            ax1.imshow(img3)
 
-        # Add dehydratase product to plot
-        ax1 = fig.add_subplot(ax[0, 9:11])
-        ax1.imshow(img4)
+            # Remove all axes from the figure
+            for ax in fig.get_axes():
+                ax.axis('off')
 
-        # Add ER arrow to plot
-        ax1 = fig.add_subplot(ax[0, 11])
-        arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
-                           color='black')
-        images.append(arrow)
-        ax1.add_patch(arrow)
-        ax1.text(0.5, 0.55, 'ER', ha='center',
-                 fontdict={'size': 17, 'color': 'lime'})
+            if draw_mechanism_per_module:
+                plt.savefig(f'{module_name}_quick_mechanism.png')
+                plt.clf()
+                plt.close()
+            else:
+                plt.show()
 
-        # Add enoylreductase product to plot
-        ax1 = fig.add_subplot(ax[0, 12:14])
-        ax1.imshow(img5)
 
-        # Remove all axes from the figure
-        for ax in fig.get_axes():
-            ax.axis('off')
+        #Situation 3 when the module has both the KR and DH tailoring domains
+        elif len(tailoring_domains) == 2:
+            assert any(domain.startswith('KR') for domain in tailoring_domains)
+            for domain in tailoring_domains:
+                if domain.startswith('KR'):
+                    kr_domain = domain
+            assert 'DH' in tailoring_domains
+            before_elongation, after_elongation, after_kr, after_dh = structures
+            images = []
+            #Read in images
+            img1 = mpimg.imread(before_elongation)
+            img2 = mpimg.imread(after_elongation)
+            img3 = mpimg.imread(after_kr)
+            img4 = mpimg.imread(after_dh)
 
-        if draw_mechanism_per_module:
-            plt.savefig(f'{module_name}_quick_mechanism.png')
-            plt.clf()
-            plt.close()
-        else:
-            plt.show()
+
+
+            # Add images to list to prevent collection by the garbage collector
+            images.append(img1)
+            images.append(img2)
+            images.append(img3)
+            images.append(img4)
+
+
+
+            # Create figure
+            fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
+            ax = fig.subplots(1, 11)
+            ax = fig.add_gridspec(1, 11)
+
+            # Add first structure before elongation reaction to plot
+            ax1 = fig.add_subplot(ax[0, 0:2])
+            ax1.imshow(img1)
+
+            # Add correct arrow to plot (depending on elongation unit)
+            ax1 = fig.add_subplot(ax[0, 2])
+            arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            if elongation_unit == 'malonylcoa':
+                text = 'Malonyl-CoA'
+            elif elongation_unit == 'methylmalonylcoa':
+                text = 'Methylmalonyl-CoA'
+            elif elongation_unit == 'methoxymalonylacp':
+                text = 'Methoxymalonyl-ACP'
+            elif elongation_unit == 'ethylmalonylcoa':
+                text = 'Ethylmalonyl-CoA'
+            elif elongation_unit == 'pk':
+                text = 'Unknown elongation unit'
+            ax1.text(0.5, 0.55, text, ha='center',
+                     fontdict={'size': 12, 'color': 'black'})
+
+
+            # Add elongation product to plot
+            ax1 = fig.add_subplot(ax[0, 3:5])
+            ax1.imshow(img2)
+
+            # Add KR arrow to plot
+            ax1 = fig.add_subplot(ax[0, 5])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, kr_domain, ha='center',
+                     fontdict={'size': 17, 'color': 'red'})
+
+            # Add ketoreductase product to plot
+            ax1 = fig.add_subplot(ax[0, 6:8])
+            ax1.imshow(img3)
+
+            # Add DH arrow to plot
+            ax1 = fig.add_subplot(ax[0, 8])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, 'DH', ha='center',
+                     fontdict={'size': 17, 'color': 'blue'})
+
+            # Add dehydratase product to plot
+            ax1 = fig.add_subplot(ax[0, 9:11])
+            ax1.imshow(img4)
+
+
+            # Remove all axes from the figure
+            for ax in fig.get_axes():
+                ax.axis('off')
+
+            if draw_mechanism_per_module:
+                plt.savefig(f'{module_name}_quick_mechanism.png')
+                plt.clf()
+                plt.close()
+            else:
+                plt.show()
+
+
+        #Situation 4 when the module has the KR, DH and ER tailoring domains
+        elif len(tailoring_domains) == 3:
+            assert any(domain.startswith('KR') for domain in tailoring_domains)
+            for domain in tailoring_domains:
+                if domain.startswith('KR'):
+                    kr_domain = domain
+            assert 'DH' in tailoring_domains
+            assert 'ER' in tailoring_domains
+            before_elongation, after_elongation, after_kr, after_dh, after_er = structures
+            images = []
+            #Read in images
+            img1 = mpimg.imread(before_elongation)
+            img2 = mpimg.imread(after_elongation)
+            img3 = mpimg.imread(after_kr)
+            img4 = mpimg.imread(after_dh)
+            img5 = mpimg.imread(after_er)
+
+
+
+            # Add images to list to prevent collection by the garbage collector
+            images.append(img1)
+            images.append(img2)
+            images.append(img3)
+            images.append(img4)
+            images.append(img5)
+
+
+
+            # Create figure
+            fig = plt.figure(constrained_layout=True, figsize=[20, 8], frameon=False, num=f"Quick reaction mechanism {module_name}")
+            ax = fig.subplots(1, 14)
+            ax = fig.add_gridspec(1, 14)
+
+            # Add first structure before elongation reaction to plot
+            ax1 = fig.add_subplot(ax[0, 0:2])
+            ax1.imshow(img1)
+
+            # Add correct arrow to plot (depending on elongation unit)
+            ax1 = fig.add_subplot(ax[0, 2])
+            arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            if elongation_unit == 'malonylcoa':
+                text = 'Malonyl-CoA'
+            elif elongation_unit == 'methylmalonylcoa':
+                text = 'Methylmalonyl-CoA'
+            elif elongation_unit == 'methoxymalonylacp':
+                text = 'Methoxymalonyl-ACP'
+            elif elongation_unit == 'ethylmalonylcoa':
+                text = 'Ethylmalonyl-CoA'
+            elif elongation_unit == 'pk':
+                text = 'Unknown elongation unit'
+            ax1.text(0.5, 0.55, text, ha='center',
+                     fontdict={'size': 12, 'color': 'black'})
+
+            # Add elongation product to plot
+            ax1 = fig.add_subplot(ax[0, 3:5])
+            ax1.imshow(img2)
+
+            # Add KR arrow to plot
+            ax1 = fig.add_subplot(ax[0, 5])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, kr_domain, ha='center',
+                     fontdict={'size': 17, 'color': 'red'})
+
+            # Add ketoreductase product to plot
+            ax1 = fig.add_subplot(ax[0, 6:8])
+            ax1.imshow(img3)
+            ax1.text(100, -800, f"{module_name}",fontdict={'size': 20, 'weight': 'bold', 'color': 'darkred'})
+
+            # Add DH arrow to plot
+            ax1 = fig.add_subplot(ax[0, 8])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, 'DH', ha='center',
+                     fontdict={'size': 17, 'color': 'blue'})
+
+            # Add dehydratase product to plot
+            ax1 = fig.add_subplot(ax[0, 9:11])
+            ax1.imshow(img4)
+
+            # Add ER arrow to plot
+            ax1 = fig.add_subplot(ax[0, 11])
+            arrow = FancyArrow(0, 0.5, 0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1,
+                               color='black')
+            images.append(arrow)
+            ax1.add_patch(arrow)
+            ax1.text(0.5, 0.55, 'ER', ha='center',
+                     fontdict={'size': 17, 'color': 'lime'})
+
+            # Add enoylreductase product to plot
+            ax1 = fig.add_subplot(ax[0, 12:14])
+            ax1.imshow(img5)
+
+            # Remove all axes from the figure
+            for ax in fig.get_axes():
+                ax.axis('off')
+
+            if draw_mechanism_per_module:
+                plt.savefig(f'{module_name}_quick_mechanism.png')
+                plt.clf()
+                plt.close()
+            else:
+                plt.show()
 
 
 def make_dict_aa_smiles():

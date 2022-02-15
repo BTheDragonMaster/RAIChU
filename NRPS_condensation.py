@@ -45,7 +45,6 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     found_bonds_thioester = find_bonds(THIOESTERBOND, nrp_intermediate)
     if len(found_bonds_thioester) > 0:
         is_thioester = True
-        print('THIS IS A THIOESTER')
         nrp_intermediate, oh_bond = sulphur_to_hydroxyl(nrp_intermediate)
 
 
@@ -151,10 +150,8 @@ def sulphur_to_hydroxyl(thioester_structure):
             atom_neighbours.append(neighbour)
         if atom.type == 'C' and len(atom_neighbours) == 2 and atom_neighbour_types.count('O') == 1 and atom_neighbour_types.count('C') == 1:
             carbon_thioester = atom
-            print('carbon', carbon_thioester)
         elif atom.type == 'O' and len(atom_neighbours) == 1 and atom_neighbour_types.count('H') == 1:
             oxygen_hydroxyl = atom
-            print('oxygne', oxygen_hydroxyl)
     next_bond_nr = combined.find_next_atom_nr()
     combined.make_bond(carbon_thioester, oxygen_hydroxyl, next_bond_nr)
 
@@ -166,8 +163,7 @@ def sulphur_to_hydroxyl(thioester_structure):
     for bond_nr, bond in combined.bonds.items():
         bond.set_bond_summary()
     oh_bond = combined.bond_lookup[oxygen_hydroxyl][carbon_thioester]
-    print('graph', combined.graph)
-    print('bond lookup', combined.bond_lookup)
+
 
 
     return combined, oh_bond

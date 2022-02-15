@@ -72,7 +72,6 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     for module in pks_cluster:
         module_name = module[0]
         module_list_domains = [module[0]]
-        print('module list domains', module_list_domains)
         module_type = module[1]
         if module_type == 'starter_module':
             module_list_domains += ['ACP']
@@ -117,7 +116,6 @@ def draw_pks_cluster(pks_cluster, interactive=False):
     x = 30
     index = 0
     for module in list_all_domains:
-        print('module', module)
         module_name = module[0]
         del module[0]
         for domain in module:

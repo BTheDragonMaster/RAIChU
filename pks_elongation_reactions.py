@@ -184,7 +184,6 @@ def pks_elongation(pk_chain, elongation_monomer):
     pk_chain.set_connectivities()
     pk_chain.refresh_structure()
     thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
-    print('thioester bonds', thioester_bonds)
     assert len(thioester_bonds) == 1
     for bond in thioester_bonds:
         if bond.atom_1.type == 'S':

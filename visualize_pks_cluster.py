@@ -273,6 +273,14 @@ def button_action_thioesterase(event):
     """
     global global_final_polyketide_Drawer_object
     final_polyketide = global_final_polyketide_Drawer_object
+    # If the last elongation module was an NRPS module, attach the product to
+    # the domain
+    for atom in final_polyketide.graph:
+        atom.hybridise()
+    final_polyketide.refresh_structure()
+    final_polyketide.set_connectivities()
+    final_polyketide.set_atom_neighbours()
+    final_polyketide.find_cycles()
     thioesterase_all_products(final_polyketide)
 
 

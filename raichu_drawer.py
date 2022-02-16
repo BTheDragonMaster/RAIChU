@@ -995,9 +995,7 @@ class Drawer:
 
         ### NRPS + PK code: Force pk/peptide backbone to be drawn straight:
         if (is_nrp and attached_to_domain) or (is_polyketide and attached_to_domain):
-            print('THIS IS A POLYKETIDE OR NRP')
             backbone_atoms = find_central_chain_pks_nrps(self.structure)
-            print(backbone_atoms)
             for atom in self.structure.graph:
                 if hasattr(atom, 'domain_type'):
                     pcp = atom
@@ -1109,7 +1107,6 @@ class Drawer:
 
             # Force pk/amino acid sidechains to stick out straight from each side
             i = 1
-            print(backbone_atoms)
             while i < (len(backbone_atoms)):
                 terminal_carboxylic_acid = False
                 atom = backbone_atoms[i]

@@ -246,6 +246,8 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
         elif module[1] == 'elongation_module_nrps' or module[1] == 'terminator_module_nrps':
             module_name, module_type, aa_specifity = module
             if visualization_mechanism == True and attach_to_acp:
+                for atom in chain_intermediate.graph:
+                    atom.draw.colour = 'black'
                 # If a previous process was stopped prematurely, make sure the
                 # image files are removed before continuing
                 if path.exists('1.png'):
@@ -284,6 +286,10 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 list_domains = None
                 elongation_unit = aa_specifity.lower()
                 display_reactions(['1.png', '2.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                # Necessary for thioesterase reactions when last module is an
+                # NRPS module
+                if module == modules[-1]:
+                    chain_intermediate = copy_attached
 
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:

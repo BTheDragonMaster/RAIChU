@@ -149,6 +149,8 @@ def thioesterase_all_products(chain_intermediate):
     """
     #Perform first thioesterase reaction, generating linear polyketide
     chain_intermediate.refresh_structure()
+    for atom in chain_intermediate.graph:
+        atom.hybridise()
     chain_intermediate_copy = deepcopy(chain_intermediate)
     Drawer(thioesterase_linear_product(chain_intermediate_copy))
 
@@ -158,6 +160,11 @@ def thioesterase_all_products(chain_intermediate):
     chain_intermediate.set_connectivities()
     chain_intermediate.set_atom_neighbours()
     o_oh_atoms = find_atoms(O_OH, chain_intermediate_copy)
+    o_oh_atoms_filtered = []
+    for atom in o_oh_atoms:
+        if atom not in o_oh_atoms_filtered and any(neighbour.type == 'H' for neighbour in atom.neighbours):
+            o_oh_atoms_filtered.append(atom)
+
 
     #Define -OH group that should not be used to carry out the thioesterase
     #reaction (distance -S and internal -OH group)
@@ -166,7 +173,7 @@ def thioesterase_all_products(chain_intermediate):
 
     #Perform all possible thioesterase reactions leading to the formation of
     #circular products, save Structure objects to list
-    for o_oh in o_oh_atoms:
+    for o_oh in o_oh_atoms_filtered:
         chain_intermediate.refresh_structure()
         chain_intermediate_copy = deepcopy(chain_intermediate)
         for atom in chain_intermediate_copy.graph:

@@ -365,7 +365,7 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
         text = elongation_unit
         ax1.text(0.5, 0.55, text, ha='center',
                  fontdict={'size': 12, 'color': 'black'})
-        ax1.set_title(f"{module_name}", pad=90,
+        ax1.set_title(f"{module_name}", pad=70,
                       fontdict={'size': 20, 'weight': 'bold',
                                 'color': 'darkred'})
 
@@ -422,7 +422,7 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
                 text = 'Unknown elongation\nunit'
             ax1.text(0.5, 0.55, text, ha='center',
                      fontdict={'size': 12, 'color': 'black'})
-            ax1.set_title(f"{module_name}", pad = 90, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+            ax1.set_title(f"{module_name}", pad = 70, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
 
             #Add elongation product to plot
             ax1 = fig.add_subplot(ax[0, 3:5])
@@ -489,7 +489,7 @@ def display_reactions(structures, tailoring_domains, elongation_unit, module_nam
 
             # Add elongation product to plot
             ax1 = fig.add_subplot(ax[0, 3:5])
-            ax1.set_title(f"{module_name}", pad=120, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+            ax1.set_title(f"{module_name}", pad=50, fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
             ax1.imshow(img2)
 
             # Add KR arrow to plot

@@ -1181,7 +1181,7 @@ class Drawer:
                             sidechain_orientation = 'right'
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
-                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
+                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring and any(bond.type == 'double' for bond in neighbour.bonds) and atom == backbone_atoms[-1]:
                         print(atom, neighbour)
                         first_atom_sidechain = neighbour
                         connected_to_sidechain = True

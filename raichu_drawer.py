@@ -1051,9 +1051,7 @@ class Drawer:
                 # Save angle last two atoms, needed later
                 if i == (len(backbone_atoms) - 2):
                     last_angle_degrees = angle_degrees
-                # print(i, atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
-                    print('inside', atom1, atom2)
                     if angle_degrees != 90.0:
                         correct_angle_deg = 90
                         delta_angle_deg = correct_angle_deg - angle_degrees
@@ -1182,14 +1180,12 @@ class Drawer:
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
                     elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring and any(bond.type == 'double' for bond in neighbour.bonds) and atom == backbone_atoms[-1]:
-                        print(atom, neighbour)
                         first_atom_sidechain = neighbour
                         connected_to_sidechain = True
                         if backbone_atoms[i-1].draw.position.x < backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'diagonal_right'
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'diagonal_left'
-                        print(sidechain_orientation)
 
                     if connected_to_sidechain:
                         angle = get_angle(atom.draw.position, first_atom_sidechain.draw.position)
@@ -1226,7 +1222,6 @@ class Drawer:
                                         self.rotate_subtree(carbonyl, atom, delta_angle_rad, atom.draw.position)
                                     terminal_carboxylic_acid = True
                         if not terminal_carboxylic_acid:
-                            print('here', first_atom_sidechain, atom, angle_degrees)
                             if sidechain_orientation == 'right':
                                 correct_angle_deg = 180
                             elif sidechain_orientation == 'left':

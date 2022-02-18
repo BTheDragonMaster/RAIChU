@@ -43,14 +43,15 @@ def generate_random_nrps_cluster():
 
 
 if __name__ == "__main__":
-    for i in range(10):
-        cluster = generate_random_nrps_cluster()
-        print(cluster)
-        draw_pks_cluster(cluster)
+    # for i in range(10):
+    #     cluster = generate_random_nrps_cluster()
+    #     print(cluster)
+    #     draw_pks_cluster(cluster)
 
     #Pick a number (how many random clusters you want to generate and draw)
     times = 100
-    for i in range(times):
+    for i in range(62, 100):
         generated_cluster = generate_random_pks_cluster()
         print(generated_cluster)
-        draw_pks_cluster(generated_cluster)
+        draw_pks_cluster(generated_cluster, save_fig=f'cluster_{i}.png')
+        plt.close('all')

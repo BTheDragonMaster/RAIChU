@@ -47,6 +47,6 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
                     end_atom = True
                 else:
                     visited.append(neighbour)
-
+    print(central_chain)
     return central_chain
 

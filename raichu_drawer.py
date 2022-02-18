@@ -1048,24 +1048,12 @@ class Drawer:
                 atom2 = backbone_atoms[i+1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
-                print(angle_degrees, atom1, atom2)
                 # Save angle last two atoms, needed later
                 if i == (len(backbone_atoms) - 2):
                     last_angle_degrees = angle_degrees
                 # print(i, atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
                     print('inside', atom1, atom2)
-                    # for neighbour_ring in atom1.neighbours:
-                    #     print(neighbour_ring)
-                    #     if neighbour_ring.type == 'C' and neighbour_ring.inside_ring and neighbour_ring not in backbone_atoms:
-                    #         angle2 = get_angle(atom1.draw.position, neighbour_ring.draw.position)
-                    #         angle_degrees2 = round(math.degrees(angle2), 3)
-                    #         if atom1.draw.position.x > backbone_atoms[i-1].draw.position.x:
-                    #             print('yas')
-                    #             correct_angle_deg = 198
-                    #             delta_angle_deg = correct_angle_deg - angle_degrees2
-                    #             delta_angle_rad = math.radians(delta_angle_deg)
-                    #             self.rotate_subtree(neighbour_ring, atom1, delta_angle_rad, atom1.draw.position)
                     if angle_degrees != 90.0:
                         correct_angle_deg = 90
                         delta_angle_deg = correct_angle_deg - angle_degrees
@@ -1199,11 +1187,35 @@ class Drawer:
                     angle_degrees = round(math.degrees(angle), 3)
                     # Check if it is a terminal carboxylic acid group
                     if atom_neighbour_types.count('O') == 2 and len(atom_neighbour_types) == 3:
-                        terminal_carboxylic_acid = True
                         for next_atom in atom_neighbours:
                             if next_atom.type == 'O':
-                                if self.structure.bond_lookup[next_atom][atom] == 'single':
+                                if self.structure.bond_lookup[next_atom][atom].type == 'single':
                                     hydroxyl = next_atom
+                                    angle2 = get_angle(atom.draw.position,
+                                                      hydroxyl.draw.position)
+                                    angle_degrees2 = round(math.degrees(angle2),
+                                                          3)
+                                    if last_angle_degrees == 120.0:
+                                        correct_angle_deg = 60.0
+                                    elif last_angle_degrees == 60.0:
+                                        correct_angle_deg = 120.0
+                                    delta_angle_deg = correct_angle_deg - angle_degrees2
+                                    delta_angle_rad = math.radians(
+                                        delta_angle_deg)
+                                    self.rotate_subtree(hydroxyl,
+                                                        atom, delta_angle_rad,
+                                                        atom.draw.position)
+                                elif self.structure.bond_lookup[next_atom][atom].type == 'double':
+                                    carbonyl = next_atom
+                                    angle2 = get_angle(atom.draw.position,
+                                                      carbonyl.draw.position)
+                                    angle_degrees2 = round(math.degrees(angle2),
+                                                          3)
+                                    correct_angle_deg = 0
+                                    delta_angle_deg = correct_angle_deg - angle_degrees2
+                                    delta_angle_rad = math.radians(delta_angle_deg)
+                                    self.rotate_subtree(carbonyl, atom, delta_angle_rad, atom.draw.position)
+                                terminal_carboxylic_acid = True
                     if not terminal_carboxylic_acid:
                         if sidechain_orientation == 'right':
                             correct_angle_deg = 180
@@ -1212,16 +1224,6 @@ class Drawer:
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
-                    if terminal_carboxylic_acid:
-                        if last_angle_degrees == 120.0:
-                            correct_angle_deg = 60.0
-                        elif last_angle_degrees == 60.0:
-                            correct_angle_deg = 120.0
-                        delta_angle_deg = correct_angle_deg - angle_degrees
-                        delta_angle_rad = math.radians(delta_angle_deg)
-                        self.rotate_subtree(first_atom_sidechain, atom, delta_angle_rad, atom.draw.position)
-
-
                 i += 1
 
             # If the drawer rotated the entire structure, correct this

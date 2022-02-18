@@ -6,7 +6,8 @@ from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
 
-O_OH = GroupDefiner('o_oh', 'CO', 1)
+N_AMINO = GroupDefiner('N_amino', 'CN', 1)
+O_OH = GroupDefiner('O_oh', 'CO', 1)
 O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
 
 
@@ -55,15 +56,16 @@ def thioesterase_linear_product(chain_intermediate):
     return chain_intermediate
 
 
-def thioesterase_circular_product(chain_intermediate, o_oh):
+def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
     """Performs the thioesterase reactions on the input chain_intermediate
      using the -OH group defined by the input O-atom participating in that
      internal -OH group, returns the circular product as PIKAChU Structure
      object.
 
      chain_intermediate: PIKAChU Structure object of a polyketide
-     o_oh: PIKAChU Atom object of the O-atom in the -OH group the function
-     should use to perform the thioesterase reaction.
+     o_oh_n_amino: PIKAChU Atom object of the O-atom in the -OH group or N-atom
+     in the amino group that the function should use to perform the
+     thioesterase reaction.
     """
     #Find S-H bond in chain intermediate and break the bond
     sh_bonds = find_cs_bond(chain_intermediate)
@@ -99,7 +101,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh):
 
     #Remove H from internal -OH group and refresh structure
     for atom in chain_intermediate.graph:
-        if atom == o_oh:
+        if atom == o_oh_n_amino:
             for neighbour in atom.neighbours:
                 if neighbour.type == 'H':
                     h_to_remove = neighbour
@@ -111,7 +113,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh):
 
     #Form bond to create circular product
     next_bond_nr = chain_intermediate.find_next_bond_nr()
-    chain_intermediate.add_bond(carbon_sh, o_oh, 'single', next_bond_nr)
+    chain_intermediate.add_bond(carbon_sh, o_oh_n_amino, 'single', next_bond_nr)
 
     return chain_intermediate
 
@@ -140,21 +142,21 @@ def find_o_betapropriolactone(polyketide):
 
 def thioesterase_all_products(chain_intermediate):
     """Performs all thioesterase reactions on the input chain_intermediate
-     using all internal -OH groups except for the -OH group that leads to the
-     formation of a beta-propriolactone compound, which does not occur in
-     polyketide synthesis. Returns a list of PIKAChU Structure objects of all
-     possible thioesterase products.
+     using all internal amino and -OH groups except for the -OH group that
+     leads to the formation of a beta-propriolactone compound, which does not
+     occur in polyketide synthesis. Returns a list of PIKAChU Structure objects
+     of all possible thioesterase products.
 
-     chain_intermediate: PIKAChU Structure object of a polyketide
+     chain_intermediate: PIKAChU Structure object of a polyketide/NRP
     """
-    #Perform first thioesterase reaction, generating linear polyketide
+    #Perform first thioesterase reaction, generating linear polyketide/NRP
     chain_intermediate.refresh_structure()
     for atom in chain_intermediate.graph:
         atom.hybridise()
     chain_intermediate_copy = deepcopy(chain_intermediate)
     Drawer(thioesterase_linear_product(chain_intermediate_copy))
 
-    #Find OH groups in polyketide, perform cyclization for each -OH group
+    #Find OH groups in polyketide/NRP, perform cyclization for each -OH group
     chain_intermediate_copy = deepcopy(chain_intermediate)
     chain_intermediate_copy.refresh_structure()
     chain_intermediate.set_connectivities()
@@ -165,6 +167,21 @@ def thioesterase_all_products(chain_intermediate):
         if atom not in o_oh_atoms_filtered and any(neighbour.type == 'H' for neighbour in atom.neighbours):
             o_oh_atoms_filtered.append(atom)
 
+    #Find amino gruops in polyketide/NRP, perform cyclization for each group
+    chain_intermediate_copy = deepcopy(chain_intermediate)
+    chain_intermediate_copy.refresh_structure()
+    chain_intermediate.set_connectivities()
+    chain_intermediate.set_atom_neighbours()
+    amino_n_atoms_filtered = []
+    for atom in chain_intermediate_copy.graph:
+            if atom.type == 'N':
+                n_neighbour_types = []
+                for neighbour in atom.neighbours:
+                    n_neighbour_types.append(neighbour.type)
+                if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
+                    amino_n_atoms_filtered.append(atom)
+
+
 
     #Define -OH group that should not be used to carry out the thioesterase
     #reaction (distance -S and internal -OH group)
@@ -172,7 +189,20 @@ def thioesterase_all_products(chain_intermediate):
     list_product_drawings = []
 
     #Perform all possible thioesterase reactions leading to the formation of
-    #circular products, save Structure objects to list
+    #circular products using the internal amino groups, save Structure objects
+    #to list
+    for n_amino in amino_n_atoms_filtered:
+        chain_intermediate.refresh_structure()
+        chain_intermediate_copy = deepcopy(chain_intermediate)
+        for atom in chain_intermediate_copy.graph:
+            if atom == n_amino:
+                atom = n_amino
+        product = thioesterase_circular_product(chain_intermediate_copy, n_amino)
+        list_product_drawings.append(product)
+
+    #Perform all possible thioesterase reactions leading to the formation of
+    #circular products using the internal -OH groups, save Structure objects
+    #to list
     for o_oh in o_oh_atoms_filtered:
         chain_intermediate.refresh_structure()
         chain_intermediate_copy = deepcopy(chain_intermediate)
@@ -183,7 +213,7 @@ def thioesterase_all_products(chain_intermediate):
             product = thioesterase_circular_product(chain_intermediate_copy, o_oh)
             list_product_drawings.append(product)
 
-    #Draw all products. REMOVE LATER!!!
+    #Draw all products
     for product in list_product_drawings:
         Drawer(product)
 

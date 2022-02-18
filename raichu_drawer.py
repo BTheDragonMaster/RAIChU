@@ -1084,11 +1084,17 @@ class Drawer:
                         elif round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 60.0:
                             correct_angle_deg = 120.0
                             first_angle_cyclic = 120.0
+                        else:
+                            print('should not happen!!!')
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
                         i = 0
                     else:
+                        if angle_degrees == 120.0:
+                            first_angle_cyclic = 120.0
+                        elif angle_degrees == 60.0:
+                            first_angle_cyclic = 60.0
                         i += 1
                 elif atom1.inside_ring and not atom2.inside_ring and backbone_atoms[i-1].inside_ring:
                     if first_angle_cyclic == 60.0:

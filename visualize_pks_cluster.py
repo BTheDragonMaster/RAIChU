@@ -24,7 +24,7 @@ global_figure = ''
 global_nr_elongation_modules = 0
 global_final_polyketide_Drawer_object = 0
 
-def draw_pks_cluster(pks_cluster, interactive=False):
+def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     """
     Displays a visualization of the module- and domain architecture of the
     input PKS cluster
@@ -46,6 +46,8 @@ def draw_pks_cluster(pks_cluster, interactive=False):
                                      visualization_mechanism=True, \
                                      draw_mechanism_per_module=True)
 
+    if save_fig:
+        filename = save_fig
 
     #Save (don't show!) drawings of the chain intermediate per module
     list_drawings_per_module = pks_cluster_to_structure(pks_cluster, \
@@ -213,7 +215,15 @@ def draw_pks_cluster(pks_cluster, interactive=False):
         buttons.append(thioesterase_button)
 
     #Show plot
-    plt.show()
+    if not save_fig:
+        plt.show()
+
+    else:
+        if filename.endswith('.png'):
+            filename = filename
+        else:
+            filename = filename + '.png'
+        plt.savefig(filename)
 
 
     # #Delete image files of quick reaction mechanisms

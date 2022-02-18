@@ -1,10 +1,17 @@
 from pks_elongation_reactions import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+from pikachu.smiles.smiles import *
+from central_atoms_pk_starter import find_central_atoms_pk_starter
 
 def find_central_chain_pks_nrps(pks_nrps_attached):
     """
 
     """
+    # If the structure is a PK starter unit, find the central carbon chain
+    if not any(hasattr(atom, 'in_central_chain') for atom in pks_nrps_attached.graph) and len(pks_nrps_attached.find_substructures(Smiles('C(=O)S').smiles_to_structure())) > 0:
+        print('polyketide starter')
+        pks_nrps_attached = find_central_atoms_pk_starter(pks_nrps_attached)
+
     # find atoms in the structure inside a cycle
     pks_nrps_attached.find_cycles()
     for atom in pks_nrps_attached.graph:

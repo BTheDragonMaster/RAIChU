@@ -156,6 +156,7 @@ if __name__ == "__main__":
         print(struct)
         struct = Smiles(struct).smiles_to_structure()
         struct = find_central_atoms_pk_starter(struct)
+        Drawer(struct)
         for atom in struct.graph:
             if atom.in_central_chain:
                 print(atom)

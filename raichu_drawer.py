@@ -1049,19 +1049,33 @@ class Drawer:
                 atom2 = backbone_atoms[i+1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
+                print(angle_degrees, atom1, atom2)
                 # Save angle last two atoms, needed later
                 if i == (len(backbone_atoms) - 2):
                     last_angle_degrees = angle_degrees
                 # print(i, atom1, atom2, angle_degrees)
                 if atom1.inside_ring and atom2.inside_ring:
+                    print('inside', atom1, atom2)
+                    # for neighbour_ring in atom1.neighbours:
+                    #     print(neighbour_ring)
+                    #     if neighbour_ring.type == 'C' and neighbour_ring.inside_ring and neighbour_ring not in backbone_atoms:
+                    #         angle2 = get_angle(atom1.draw.position, neighbour_ring.draw.position)
+                    #         angle_degrees2 = round(math.degrees(angle2), 3)
+                    #         if atom1.draw.position.x > backbone_atoms[i-1].draw.position.x:
+                    #             print('yas')
+                    #             correct_angle_deg = 198
+                    #             delta_angle_deg = correct_angle_deg - angle_degrees2
+                    #             delta_angle_rad = math.radians(delta_angle_deg)
+                    #             self.rotate_subtree(neighbour_ring, atom1, delta_angle_rad, atom1.draw.position)
                     if angle_degrees != 90.0:
                         correct_angle_deg = 90
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad, atom1.draw.position)
-                        i = 0
+                        i += 1
                     else:
                         i += 1
+
                 elif atom2.inside_ring and not atom1.inside_ring and backbone_atoms[i+2].inside_ring:
                     if angle_degrees != 120.0 and angle_degrees != 60.0:
                         if round(math.degrees(get_angle(backbone_atoms[i-1].draw.position, backbone_atoms[i].draw.position)), 3) == 120.0:
@@ -1135,32 +1149,18 @@ class Drawer:
             #     for neighbour in atom.neighbours:
             #         if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
             #             if atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-            #                 # if neighbour.draw.position.x < atom.draw.position.x:
-            #                     # diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-            #                     # delta_x_coord = 2 * diff_central_sidechain
-            #                     # neighbour.draw.position.x += delta_x_coord
-            #                     # print('YES')
-            #                 print(atom, neighbour)
-            #                 angle = get_angle(atom.draw.position,
-            #                                   neighbour.draw.position)
-            #                 angle_degrees = round(math.degrees(angle), 3)
-            #                 print(angle_degrees)
-            #                 delta_angle_deg = 198 - angle_degrees
-            #                 delta_angle_rad = math.radians(delta_angle_deg)
-            #                 self.rotate_subtree(neighbour, atom,
-            #                                     delta_angle_rad,
-            #                                     atom.draw.position)
+            #                 if neighbour.draw.position.x < atom.draw.position.x:
+            #                     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+            #                     delta_x_coord = 2 * diff_central_sidechain
+            #                     neighbour.draw.position.x += delta_x_coord
+            #                     print('YES')
             #             elif atom.draw.position.x > backbone_atoms[i+1].draw.position.x:
-            #                 # print('yes')
-            #                 # if neighbour.draw.position.x < atom.draw.position.x:
-            #                 #     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-            #                 #     delta_x_coord = 2 * diff_central_sidechain
-            #                 #     neighbour.draw.position.x += delta_x_coord
-            #                 print(atom, neighbour)
-            #                 angle = get_angle(atom.draw.position,
-            #                                   neighbour.draw.position)
-            #                 angle_degrees = round(math.degrees(angle), 3)
-            #                 print(angle_degrees)
+            #                 print('yes')
+            #                 if neighbour.draw.position.x < atom.draw.position.x:
+            #                     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+            #                     delta_x_coord = 2 * diff_central_sidechain
+            #                     neighbour.draw.position.x += delta_x_coord
+            #
             #     i += 1
             # Force pk/amino acid sidechains to stick out straight from each side
             i = 1
@@ -1187,18 +1187,8 @@ class Drawer:
                             sidechain_orientation = 'right'
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
-                    # elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
-                    #     if atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-                    #         if neighbour.draw.position.x < atom.draw.position.x:
-                    #             diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-                    #             delta_x_coord = 2 * diff_central_sidechain
-                    #             neighbour.draw.position.x += delta_x_coord
-                    #     elif atom.draw.position.x > backbone_atoms[i+1].draw.position.x:
-                    #         print('yes')
-                    #         if neighbour.draw.position.x < atom.draw.position.x:
-                    #             diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-                    #             delta_x_coord = 2 * diff_central_sidechain
-                    #             neighbour.draw.position.x += delta_x_coord
+                    elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
+                        pass
                 if connected_to_sidechain:
                     angle = get_angle(atom.draw.position, first_atom_sidechain.draw.position)
                     angle_degrees = round(math.degrees(angle), 3)

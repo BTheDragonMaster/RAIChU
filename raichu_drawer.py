@@ -571,10 +571,9 @@ class Drawer:
             self.plot_line(halfline, ax, color=halfline.atom.draw.colour)
 
     def plot_line_dashed(self, line, ax, color='grey'):
-        with matplotlib.rc_context({'path.sketch': (5, 12, 1)}):
-            ax.plot([line.point_1.x, line.point_2.x],
-                    [line.point_1.y, line.point_2.y], color=color,
-                    linewidth=self.line_width/1.5)
+        ax.plot([line.point_1.x, line.point_2.x],
+                [line.point_1.y, line.point_2.y], color=color,
+                linewidth=self.line_width/1.5, linestyle = 'dashed')
         # time = np.arange(line.point_1.x, line.point_2.x, 0.1)
         # amplitude =
 

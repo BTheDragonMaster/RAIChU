@@ -307,12 +307,12 @@ def set_domain_to_origin(drawer_object):
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y
             atom.draw.position.x = 0
-            atom.draw.position.y = -10
+            atom.draw.position.y = -11
     for atom in drawer_object.structure.graph:
         if atom != domain:
             atom.draw.position.x -= domain_x
             atom.draw.position.y -= domain_y
-            atom.draw.position.y -= 10
+            atom.draw.position.y -= 11
     new_drawer_object = drawer_object
     return new_drawer_object
 
@@ -377,7 +377,11 @@ def draw_structures(drawer_objects, fig, ax, height):
                                                        chiral_center, line,
                                                        ax, midpoint)
                     else:
-                        drawer_object.plot_halflines(line, ax, midpoint)
+                        if (bond.atom_1.type == 'S' and hasattr(bond.atom_2, 'domain_type') or (bond.atom_2.type == 'S' and hasattr(bond.atom_1, 'domain_type'))):
+                            drawer_object.plot_halflines_s_domain(line, ax, midpoint)
+                        else:
+                            drawer_object.plot_halflines(line, ax, midpoint)
+
                 elif bond.type == 'double':
                     if not drawer_object.is_terminal(
                             bond.atom_1) and not drawer_object.is_terminal(

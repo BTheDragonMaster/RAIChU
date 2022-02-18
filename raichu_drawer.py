@@ -4,6 +4,7 @@ from pks_nrps_find_central_chain import find_central_chain_pks_nrps
 import copy
 import math
 import matplotlib
+import numpy as np
 
 
 from matplotlib import pyplot as plt
@@ -556,10 +557,26 @@ class Drawer:
                 self.options.short_bond_length)
             self.plot_line(truncated_line, ax, color=halfline.atom.draw.colour)
 
+    def plot_halflines_s_domain(self, line, ax, midpoint):
+        # print(line.atom_1, line.atom_2, midpoint, line.point_1, line.point_2)
+        halflines = line.divide_in_two(midpoint)
+        for halfline in halflines:
+            truncated_line = halfline.get_truncated_line(
+                self.options.short_bond_length)
+            self.plot_line_dashed(truncated_line, ax, color='#a6a6a6')
+
     def plot_halflines_double(self, line, ax, midpoint):
         halflines = line.divide_in_two(midpoint)
         for halfline in halflines:
             self.plot_line(halfline, ax, color=halfline.atom.draw.colour)
+
+    def plot_line_dashed(self, line, ax, color='grey'):
+        with matplotlib.rc_context({'path.sketch': (5, 12, 1)}):
+            ax.plot([line.point_1.x, line.point_2.x],
+                    [line.point_1.y, line.point_2.y], color=color,
+                    linewidth=self.line_width/1.5)
+        # time = np.arange(line.point_1.x, line.point_2.x, 0.1)
+        # amplitude =
 
     def plot_line(self, line, ax, color='black'):
         ax.plot([line.point_1.x, line.point_2.x],
@@ -667,7 +684,10 @@ class Drawer:
                         self.plot_chiral_bond(orientation, chiral_center, line,
                                               ax, midpoint)
                     else:
-                        self.plot_halflines(line, ax, midpoint)
+                        if (bond.atom_1.type == 'S' and hasattr(bond.atom_2, 'domain_type') or (bond.atom_2.type == 'S' and hasattr(bond.atom_1, 'domain_type'))):
+                            self.plot_halflines_s_domain(line, ax, midpoint)
+                        else:
+                            self.plot_halflines(line, ax, midpoint)
                 elif bond.type == 'double':
                     if not self.is_terminal(
                             bond.atom_1) and not self.is_terminal(bond.atom_2):
@@ -1104,7 +1124,44 @@ class Drawer:
                                     i += 1
                         else:
                             i += 1
-
+            ###Test piece flipping cyclic amino acids
+            # i = 1
+            # while i < (len(backbone_atoms)):
+            #     terminal_carboxylic_acid = False
+            #     atom = backbone_atoms[i]
+            #     atom_neighbours = []
+            #     atom_neighbour_types = []
+            #     connected_to_sidechain = False
+            #     for neighbour in atom.neighbours:
+            #         if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
+            #             if atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
+            #                 # if neighbour.draw.position.x < atom.draw.position.x:
+            #                     # diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+            #                     # delta_x_coord = 2 * diff_central_sidechain
+            #                     # neighbour.draw.position.x += delta_x_coord
+            #                     # print('YES')
+            #                 print(atom, neighbour)
+            #                 angle = get_angle(atom.draw.position,
+            #                                   neighbour.draw.position)
+            #                 angle_degrees = round(math.degrees(angle), 3)
+            #                 print(angle_degrees)
+            #                 delta_angle_deg = 198 - angle_degrees
+            #                 delta_angle_rad = math.radians(delta_angle_deg)
+            #                 self.rotate_subtree(neighbour, atom,
+            #                                     delta_angle_rad,
+            #                                     atom.draw.position)
+            #             elif atom.draw.position.x > backbone_atoms[i+1].draw.position.x:
+            #                 # print('yes')
+            #                 # if neighbour.draw.position.x < atom.draw.position.x:
+            #                 #     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+            #                 #     delta_x_coord = 2 * diff_central_sidechain
+            #                 #     neighbour.draw.position.x += delta_x_coord
+            #                 print(atom, neighbour)
+            #                 angle = get_angle(atom.draw.position,
+            #                                   neighbour.draw.position)
+            #                 angle_degrees = round(math.degrees(angle), 3)
+            #                 print(angle_degrees)
+            #     i += 1
             # Force pk/amino acid sidechains to stick out straight from each side
             i = 1
             while i < (len(backbone_atoms)):
@@ -1130,6 +1187,18 @@ class Drawer:
                             sidechain_orientation = 'right'
                         elif backbone_atoms[i-1].draw.position.x > backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
+                    # elif neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
+                    #     if atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
+                    #         if neighbour.draw.position.x < atom.draw.position.x:
+                    #             diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+                    #             delta_x_coord = 2 * diff_central_sidechain
+                    #             neighbour.draw.position.x += delta_x_coord
+                    #     elif atom.draw.position.x > backbone_atoms[i+1].draw.position.x:
+                    #         print('yes')
+                    #         if neighbour.draw.position.x < atom.draw.position.x:
+                    #             diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
+                    #             delta_x_coord = 2 * diff_central_sidechain
+                    #             neighbour.draw.position.x += delta_x_coord
                 if connected_to_sidechain:
                     angle = get_angle(atom.draw.position, first_atom_sidechain.draw.position)
                     angle_degrees = round(math.degrees(angle), 3)

@@ -192,6 +192,12 @@ def make_nrp(list_amino_acids):
 
     # Make amino acid Structure object from dict and add to growing NRP chain
     nrp_chain_intermediate = Smiles(dict_aa_structure[list_amino_acids[0]]).smiles_to_structure()
+
+    # Check if it is a amino acid
+    if not (len(nrp_chain_intermediate.find_substructures(Smiles('CN').smiles_to_structure())) > 0\
+            and len(nrp_chain_intermediate.find_substructures(Smiles('C(O)=O').smiles_to_structure())) > 0):
+        raise ValueError(f'The starter structure: {list_amino_acids[0]}, is not an amino acid')
+
     # Determine cental peptide chain atoms in first amino acid
     n_atoms_aa = find_atoms(N_AMINO_ACID, nrp_chain_intermediate)
     c1_atoms_aa = find_atoms(C1_AMINO_ACID, nrp_chain_intermediate)
@@ -212,6 +218,12 @@ def make_nrp(list_amino_acids):
     list_amino_acids = list_amino_acids[1:]
     for amino_acid_name in list_amino_acids:
         amino_acid_struct = Smiles(dict_aa_structure[amino_acid_name]).smiles_to_structure()
+        if not (len(amino_acid_struct.find_substructures(
+                Smiles('CN').smiles_to_structure())) > 0 \
+                and len(amino_acid_struct.find_substructures(
+                    Smiles('C(O)=O').smiles_to_structure())) > 0):
+            raise ValueError(
+                f'The structure: {list_amino_acids[0]}, is not an amino acid')
         print(amino_acid_name)
         n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid_struct)
         c1_atoms_aa = find_atoms(C1_AMINO_ACID, amino_acid_struct)
@@ -249,7 +261,7 @@ if __name__ == "__main__":
     # test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
     # attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
     # Drawer(attached_test_peptide2)
-    peptide = make_nrp(['alanine', '4-methylproline', 'proline'])
+    peptide = make_nrp(['alanine', 'glycolicacid', 'proline'])
     # Drawer(peptide)
     attached = attach_to_domain_nrp(peptide, 'PCP')
     print(attached.graph)

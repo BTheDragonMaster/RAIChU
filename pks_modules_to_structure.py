@@ -269,6 +269,12 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 atom.draw.colour = 'black'
 
             aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
+            if not (len(aa_structure.find_substructures(
+                    Smiles('CN').smiles_to_structure())) > 0 \
+                    and len(aa_structure.find_substructures(
+                        Smiles('C(O)=O').smiles_to_structure())) > 0):
+                raise ValueError(
+                    f'The starter structure: {aa_specifity}, is not an amino acid')
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
             if draw_structures_per_module and attach_to_acp:
                 copy_chain_intermediate = deepcopy(chain_intermediate)

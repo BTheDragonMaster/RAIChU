@@ -219,7 +219,7 @@ def make_nrp(list_amino_acids):
     for amino_acid_name in list_amino_acids:
         amino_acid_struct = Smiles(dict_aa_structure[amino_acid_name]).smiles_to_structure()
         if not (len(amino_acid_struct.find_substructures(
-                Smiles('CN').smiles_to_structure())) > 0 \
+                Smiles('CN').smiles_to_structure())) > 0
                 and len(amino_acid_struct.find_substructures(
                     Smiles('C(O)=O').smiles_to_structure())) > 0):
             raise ValueError(

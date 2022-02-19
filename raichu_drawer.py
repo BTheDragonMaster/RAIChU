@@ -573,7 +573,7 @@ class Drawer:
     def plot_line_dashed(self, line, ax, color='grey'):
         ax.plot([line.point_1.x, line.point_2.x],
                 [line.point_1.y, line.point_2.y], color=color,
-                linewidth=self.line_width/1.5, linestyle = 'dashed')
+                linewidth=self.line_width/1.5, linestyle = ':')
         # time = np.arange(line.point_1.x, line.point_2.x, 0.1)
         # amplitude =
 

@@ -274,7 +274,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                     and len(aa_structure.find_substructures(
                         Smiles('C(O)=O').smiles_to_structure())) > 0):
                 raise ValueError(
-                    f'The starter structure: {aa_specifity}, is not an amino acid')
+                    f'The structure: {aa_specifity}, is not an amino acid')
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
             if draw_structures_per_module and attach_to_acp:
                 copy_chain_intermediate = deepcopy(chain_intermediate)
@@ -756,7 +756,7 @@ if __name__ == "__main__":
 
 
     nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
-              ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+              ['NRPS module 2', 'elongation_module_nrps', 'glycolicacid'],
               ['NRPS module 3', 'elongation_module_nrps', 'tryptophan']]
 
 

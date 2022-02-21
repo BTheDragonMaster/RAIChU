@@ -3,6 +3,7 @@ from matplotlib.widgets import Button
 from pks_thioesterase_reactions import *
 import matplotlib.lines as lines
 import matplotlib.image as mpimg
+from copy import deepcopy
 
 #Colour dicts to match antiSMASH domain colouring
 colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781', \
@@ -99,9 +100,42 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 module_list_domains.append('TE')
         list_all_domains += [module_list_domains]
 
+    #Define height of window
+    last_drawing = list_drawings_per_module[-1][0]
+    min_x = 100000000
+    max_x = -100000000
+    for atom in last_drawing.structure.graph:
+        if atom.draw.position.x < min_x:
+            min_x = atom.draw.position.x
+        if atom.draw.position.x > max_x:
+            max_x = atom.draw.position.x
+    delta_x = max_x - min_x
+
+    #Find line length to define the width of the window
+    x = 30
+    index = 0
+    list_all_domains_copy = deepcopy(list_all_domains)
+    for module in list_all_domains_copy:
+        del module[0]
+        for domain in module:
+            if domain == 'ACP':
+                index += 1
+            if domain == 'PCP':
+                index += 1
+            if domain == module[0]:
+                x_min = x
+            if domain == module[-1]:
+                x_max = x
+                if domain == module[-1]:
+                    length_line = x_max + 30
+            x += 30
+        x += 30
 
     #Make fig
-    fig, ax = plt.subplots(figsize=(20, 10))
+    fig, ax = plt.subplots(figsize=((length_line / 50), (delta_x / 8) + (delta_x * 0.075)))
+    ax.set_aspect('equal', adjustable='box')
+
+
     thismanager = plt.get_current_fig_manager()
     thismanager.window.wm_iconbitmap("raichu_r_icon.ico")
     thismanager.set_window_title('RAIChU - Visualization PKS/NRPS cluster')
@@ -110,10 +144,8 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
 
 
 
-    #Add title
-    plt.title('Visualization PKS/NRPS cluster', pad=80)
-    #Draw domains per module
 
+    #Draw domains per module
     domain_text = []
     x = 30
     index = 0
@@ -159,7 +191,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
     #Write module names
-    domain_txt_size = (481.91 * ((length_line)**(-0.531)))
+    domain_txt_size = (16)
     for domain_x in domain_text:
         domain, x = domain_x
         font_domains = {'family': 'verdana', 'size': domain_txt_size}
@@ -197,7 +229,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             global filenames_list
             filenames_list.append(mechanism_filename)
             rel_width_buttons = 1 / (nr_elongation_modules + 1)
-            ax_button = plt.axes([x_bottomleft, 0.1, rel_width_buttons,\
+            ax_button = plt.axes([x_bottomleft, 0, rel_width_buttons,\
             0.075], anchor = 'C')
             module_button = Button(ax_button, label = module_name, \
             color='#b3d8fa', hovercolor='#74abde')
@@ -207,7 +239,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             buttons.append(module_button)
             x_bottomleft += (1 / (nr_elongation_modules + 1))
         #Button for thioesterase reaction products
-        ax_button_thioesterase = plt.axes([x_bottomleft, 0.1, rel_width_buttons, 0.075], anchor='C')
+        ax_button_thioesterase = plt.axes([x_bottomleft, 0, rel_width_buttons, 0.075], anchor='C')
         thioesterase_button = Button(ax_button_thioesterase, label='View thioesterase\nreaction products', color='#b3d8fa', hovercolor='#74abde')
         thioesterase_button.label.set_fontsize(15)
         thioesterase_button.label.set_family('verdana')

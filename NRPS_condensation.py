@@ -261,7 +261,7 @@ if __name__ == "__main__":
     # test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
     # attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
     # Drawer(attached_test_peptide2)
-    peptide = make_nrp(['alanine', 'glycolicacid', 'proline'])
+    peptide = make_nrp(['valine', 'isoleucine', 'proline', 'leucine', 'cysteine'])
     # Drawer(peptide)
     attached = attach_to_domain_nrp(peptide, 'PCP')
     print(attached.graph)

@@ -1060,6 +1060,27 @@ class Drawer:
                         i += 1
                     else:
                         i += 1
+                    #Flip cyclic backbone amino acid if necessary
+                    if atom1.draw.position.x > backbone_atoms[i-2].draw.position.x:
+                        for next_atom in atom1.neighbours:
+                            if next_atom.type != 'H' and next_atom not in backbone_atoms:
+                                first_atom_cycle = next_atom
+                        if atom1.draw.position.x > first_atom_cycle.draw.position.x:
+                            masked = set([atom1, atom2])
+                            for atom in self.traverse_substructure(first_atom_cycle, masked):
+                                delta_x = 2 * (atom1.draw.position.x - atom.draw.position.x)
+                                atom.draw.position.x += delta_x
+                    if atom1.draw.position.x < backbone_atoms[i-2].draw.position.x:
+                        for next_atom in atom1.neighbours:
+                            if next_atom.type != 'H' and next_atom not in backbone_atoms:
+                                first_atom_cycle = next_atom
+                        if atom1.draw.position.x < first_atom_cycle.draw.position.x:
+                            masked = set([atom1, atom2])
+                            for atom in self.traverse_substructure(first_atom_cycle, masked):
+                                delta_x = 2 * (atom.draw.position.x - atom1.draw.position.x)
+                                atom.draw.position.x -= delta_x
+
+
 
                 elif atom2.inside_ring and not atom1.inside_ring and backbone_atoms[i+2].inside_ring:
                     if angle_degrees != 120.0 and angle_degrees != 60.0:

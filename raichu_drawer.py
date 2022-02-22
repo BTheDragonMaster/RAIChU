@@ -559,11 +559,8 @@ class Drawer:
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
         # print(line.atom_1, line.atom_2, midpoint, line.point_1, line.point_2)
-        halflines = line.divide_in_two(midpoint)
-        for halfline in halflines:
-            truncated_line = halfline.get_truncated_line(
-                self.options.short_bond_length)
-            self.plot_line_dashed(truncated_line, ax, color='#a6a6a6')
+        truncated_line = line.get_truncated_line(self.options.short_bond_length)
+        self.plot_line_dashed(truncated_line, ax, color='#a6a6a6')
 
     def plot_halflines_double(self, line, ax, midpoint):
         halflines = line.divide_in_two(midpoint)
@@ -571,11 +568,12 @@ class Drawer:
             self.plot_line(halfline, ax, color=halfline.atom.draw.colour)
 
     def plot_line_dashed(self, line, ax, color='grey'):
-        ax.plot([line.point_1.x, line.point_2.x],
-                [line.point_1.y, line.point_2.y], color=color,
-                linewidth=self.line_width/1.5, linestyle = ':')
-        # time = np.arange(line.point_1.x, line.point_2.x, 0.1)
-        # amplitude =
+        with matplotlib.rc_context({'path.sketch': (5, 10, 1)}):
+            ax.plot([line.point_1.x, line.point_2.x],
+                    [line.point_1.y, line.point_2.y], color=color,
+                    linewidth=self.line_width/1.5)
+            # time = np.arange(line.point_1.x, line.point_2.x, 0.1)
+            # amplitude =
 
     def plot_line(self, line, ax, color='black'):
         ax.plot([line.point_1.x, line.point_2.x],

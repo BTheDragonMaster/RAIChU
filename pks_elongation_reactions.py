@@ -146,6 +146,7 @@ def pks_elongation(pk_chain, elongation_monomer):
             # C0 needs to be attached to the C atom of the C-S bond in the PK chain
             c_to_pkchain = atom
             c_to_pkchain.in_central_chain = True
+            c_to_pkchain.chiral = 'clockwise'
             for atom in c_to_pkchain.neighbours:
                 if atom.type == 'H':
                     h_to_remove = atom

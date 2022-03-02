@@ -153,7 +153,7 @@ def ketoreductase(chain_intermediate, kr_type = None):
                 raise ValueError('This type of KR domain is not supported by RAIChU or does not exist')
     if chiral_c and not kr_type:
         for atom in chiral_c:
-            atom.chiral = None
+            atom.chiral = 'clockwise'
 
     # Refresh structure :)
     chain_intermediate.set_atom_neighbours()

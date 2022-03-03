@@ -128,11 +128,11 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 x_max = x
                 if domain == module[-1]:
                     length_line = x_max + 30
-            x += 30
+            x += 50
         x += 30
 
     #Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 50), (delta_x / 8) + (delta_x * 0.075)))
+    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_x / 10) + (delta_x * 0.075)))
     ax.set_aspect('equal', adjustable='box')
 
 
@@ -182,7 +182,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         font_modules = {'family': 'verdana', 'size': module_txt_size}
         plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
-        x += 30
+        x += 50
     plt.axis('equal')
     plt.axis('off')
     fig.tight_layout()
@@ -191,7 +191,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
     #Write module names
-    domain_txt_size = (16)
+    domain_txt_size = (13)
     for domain_x in domain_text:
         domain, x = domain_x
         font_domains = {'family': 'verdana', 'size': domain_txt_size}
@@ -619,13 +619,13 @@ def draw_structures(drawer_objects, fig, ax, height):
 
 
 if __name__ == "__main__":
-    erythromycin_cluster = [['module_1', 'starter_module', 'SC(=O)CC'],
-                            ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
-                            ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                            ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']],
-                            ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                            ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                            ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
+    erythromycin_cluster = [['module 1', 'starter_module', 'SC(=O)CC'],
+                            ['module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
+                            ['module 3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                            ['module 4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']],
+                            ['module 5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
+                            ['module 6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
+                            ['module 7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
 
     draw_pks_cluster(erythromycin_cluster, interactive=True)
     # pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
@@ -651,4 +651,3 @@ if __name__ == "__main__":
     #           ['NRPS module 7', 'terminator_module_nrps', 'valine']]
     # draw_pks_cluster(nrps_cluster)
     # #pks_cluster_to_structure(nrps_cluster)
-

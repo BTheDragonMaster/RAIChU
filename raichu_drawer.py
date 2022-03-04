@@ -1148,30 +1148,7 @@ class Drawer:
                                     i += 1
                         else:
                             i += 1
-            ###Test piece flipping cyclic amino acids
-            # i = 1
-            # while i < (len(backbone_atoms)):
-            #     terminal_carboxylic_acid = False
-            #     atom = backbone_atoms[i]
-            #     atom_neighbours = []
-            #     atom_neighbour_types = []
-            #     connected_to_sidechain = False
-            #     for neighbour in atom.neighbours:
-            #         if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and neighbour.inside_ring:
-            #             if atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-            #                 if neighbour.draw.position.x < atom.draw.position.x:
-            #                     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-            #                     delta_x_coord = 2 * diff_central_sidechain
-            #                     neighbour.draw.position.x += delta_x_coord
-            #                     print('YES')
-            #             elif atom.draw.position.x > backbone_atoms[i+1].draw.position.x:
-            #                 print('yes')
-            #                 if neighbour.draw.position.x < atom.draw.position.x:
-            #                     diff_central_sidechain = atom.draw.position.x - neighbour.draw.position.x
-            #                     delta_x_coord = 2 * diff_central_sidechain
-            #                     neighbour.draw.position.x += delta_x_coord
-            #
-            #     i += 1
+
 
             # Force pk/amino acid sidechains to stick out straight from each side
             i = 1
@@ -1265,7 +1242,42 @@ class Drawer:
                 self.rotate_subtree(sulphur, pcp, delta_angle_rad,
                                     pcp.draw.position)
 
-
+        #Fix rotation bulky sidechains so carboxyl groups dont need to move
+        i = 1
+        while i < (len(backbone_atoms)):
+            atom = backbone_atoms[i]
+            atom_neighbours = []
+            atom_neighbour_types = []
+            for neighbour in atom.neighbours:
+                atom_neighbours.append(neighbour)
+                atom_neighbour_types.append(neighbour.type)
+                if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and not neighbour.inside_ring:
+                    first_atom_sidechain = neighbour
+                    for further_atom in first_atom_sidechain.neighbours:
+                        types = []
+                        for further_atom_neighbour in further_atom.neighbours:
+                            types.append(further_atom_neighbour.type)
+                        if further_atom.type == 'C' and further_atom not in backbone_atoms and types.count(
+                                'C') == 3:
+                            angle_bulky_sidechain = get_angle(
+                                first_atom_sidechain.draw.position,
+                                further_atom.draw.position)
+                            angle_bulky_sidechain = round(
+                                math.degrees(angle_bulky_sidechain), 3)
+                            if atom.draw.position.x < first_atom_sidechain.draw.position.x:
+                                correct_angle_deg = 160
+                            elif further_atom.draw.position.x < first_atom_sidechain.draw.position.x:
+                                correct_angle_deg = 20
+                            delta_angle_deg = correct_angle_deg - angle_bulky_sidechain
+                            delta_angle_rad = math.radians(
+                                delta_angle_deg)
+                            self.rotate_subtree(further_atom,
+                                                first_atom_sidechain,
+                                                delta_angle_rad,
+                                                first_atom_sidechain.draw.position)
+            i += 1
+        self.resolve_primary_overlaps()
+        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     ### End NRPS rotation code
@@ -1808,6 +1820,7 @@ class Drawer:
                     atom.draw.position.rotate_away_from_vector(
                         closest_position, atom_previous_position,
                         math.radians(20))
+
 
     def get_atom_nr_to_atom(self):
         self.atom_nr_to_atom = {}
@@ -2410,7 +2423,7 @@ class Options:
         self.kk_max_iteration = 2000
         self.kk_max_inner_iteration = 50
         self.kk_max_energy = 1e9
-        self.overlap_sensitivity = 0.10
+        self.overlap_sensitivity = 0.1
         self.overlap_resolution_iterations = 5
         self.background_color = 'white'
         self.draw_hydrogens = False

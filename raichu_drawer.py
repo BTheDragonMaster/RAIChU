@@ -1257,8 +1257,15 @@ class Drawer:
                         types = []
                         for further_atom_neighbour in further_atom.neighbours:
                             types.append(further_atom_neighbour.type)
-                        if further_atom.type == 'C' and further_atom not in backbone_atoms and types.count(
-                                'C') == 3:
+                        if further_atom.type == 'C' and further_atom not in backbone_atoms and ((types.count(
+                                'C') == 3) or (types.count('O') == 2 and
+                                               types.count('H') == 0) or
+                                               (types.count('N') == 1 and
+                                                types.count('O') == 1 and
+                                                types.count('H') == 0) or
+                                                (types.count('C') == 2 and
+                                                 types.count('N') == 1 and
+                                                 types.count('H') == 0)):
                             angle_bulky_sidechain = get_angle(
                                 first_atom_sidechain.draw.position,
                                 further_atom.draw.position)

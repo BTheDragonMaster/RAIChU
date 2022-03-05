@@ -1282,7 +1282,32 @@ class Drawer:
                                                     first_atom_sidechain,
                                                     delta_angle_rad,
                                                     first_atom_sidechain.draw.position)
+                    #Fix incorrect rotation carbonyl groups
+                    if neighbour.type == 'O' and self.structure.bond_lookup[atom][neighbour].type == 'O':
+                        correctly_rotated = True
+                        if neighbour.draw.position.x > atom.draw.position.x and atom.draw.position.x < backbone_atoms[i-1].draw.position.x:
+                            correct_angle_deg = 180
+                            correctly_rotated = False
+                        elif neighbour.draw.position.y != atom.draw.position.y and atom.draw.position.x < backbone_atoms[i-1].draw.position.x:
+                            correct_angle_deg = 180
+                            correctly_rotated = False
+                        elif neighbour.draw.position.x < atom.draw.position.x and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
+                            correct_angle_deg = 0
+                            correctly_rotated = False
+                        elif neighbour.draw.position.y != atom.draw.position.y and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
+                            correct_angle_deg = 0
+                            correctly_rotated = False
+                        if not correctly_rotated:
+                            angle = get_angle(atom.draw.position, neighbour.draw.position)
+                            angle_degrees = round(math.degrees(angle),3)
+                            delta_angle_deg = correct_angle_deg - angle_degrees
+                            delta_angle_rad = math.radians(delta_angle_deg)
+                            self.rotate_subtree(neighbour,
+                                                atom, delta_angle_rad,
+                                                atom.draw.position)
                 i += 1
+
+
             self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
             self.resolve_secondary_overlaps(sorted_overlap_scores)

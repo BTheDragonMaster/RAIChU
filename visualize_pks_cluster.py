@@ -131,8 +131,9 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             x += 60
         x += 30
 
+
     #Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 28)))
+    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27)))
     ax.set_aspect('equal', adjustable='box')
 
 
@@ -183,6 +184,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
         x += 60
+
     plt.axis('equal')
     plt.axis('off')
     fig.tight_layout()

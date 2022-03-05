@@ -7,6 +7,7 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
     """
 
     """
+
     # If the structure is a PK starter unit, find the central carbon chain
     if not any(hasattr(atom, 'in_central_chain') for atom in pks_nrps_attached.graph) and len(pks_nrps_attached.find_substructures(Smiles('C(=O)S').smiles_to_structure())) > 0:
         print('polyketide starter')
@@ -22,10 +23,11 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
 
     #Identify starting point central chain attached NRP/PK
     for atom in pks_nrps_attached.graph:
-        if atom.type == 'S':
+        if atom.type == 'S' and any(hasattr(neighbour, 'domain_type') for neighbour in atom.neighbours):
             sulphur = atom
         if not hasattr(atom, 'in_central_chain'):
             atom.in_central_chain = False
+
 
     central_chain = [sulphur]
     visited = [sulphur]

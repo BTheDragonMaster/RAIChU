@@ -280,6 +280,9 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 copy_chain_intermediate = deepcopy(chain_intermediate)
                 copy_chain_intermediate.find_cycles()
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                copy_attached.refresh_structure()
+                copy_attached.set_connectivities()
+                copy_attached.find_cycles()
                 drawing = Drawer(copy_attached, dont_show=True, dpi_drawer=500)
                 list_drawings_per_module.append([drawing])
             elif visualization_mechanism == True and attach_to_acp:

@@ -128,11 +128,11 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 x_max = x
                 if domain == module[-1]:
                     length_line = x_max + 30
-            x += 50
+            x += 60
         x += 30
 
     #Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_x / 10) + (delta_x * 0.075)))
+    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_x / 20)))
     ax.set_aspect('equal', adjustable='box')
 
 
@@ -182,7 +182,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         font_modules = {'family': 'verdana', 'size': module_txt_size}
         plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
-        x += 50
+        x += 60
     plt.axis('equal')
     plt.axis('off')
     fig.tight_layout()

@@ -40,6 +40,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             else:
                 atom.in_central_chain = False
 
+    #IT DISAPPEARS IN THIS FUNCTION!!!
     # Check if the intermediate is a thioester intermediate, if so: convert
     is_thioester = False
     found_bonds_thioester = find_bonds(THIOESTERBOND, nrp_intermediate)
@@ -53,6 +54,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
         found_bonds = find_bonds(LEAVING_OH_BOND, nrp_intermediate)
         assert len(found_bonds) == 1
         oh_bond = found_bonds[0]
+
 
     # Define the bond attached to the -H leaving group
     n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
@@ -82,6 +84,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             atom.in_central_chain = False
 
     # Carry out condensation reaction using build-in PIKAChU function
+
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
     condensation_product.refresh_structure()
     condensation_product.set_connectivities()
@@ -100,13 +103,16 @@ def sulphur_to_hydroxyl(thioester_structure):
 
     thioester_structure: PIKAChU Structure object of a thioester (R-C(S)=O)
     """
+
     found_bonds_thioester = find_bonds(THIOESTERBOND, thioester_structure)
     found_carbon_thioester = find_atoms(THIOESTER_CARBON, thioester_structure)
     assert len(found_carbon_thioester)
     assert len(found_bonds_thioester) == 1
+
     carbon_thioester = found_carbon_thioester[0]
     sh_bond = found_bonds_thioester[0]
     thioester_structure.break_bond(sh_bond)
+
     one, two = thioester_structure.split_disconnected_structures()
     if len(one.graph) < 3:
         residual = one
@@ -118,6 +124,7 @@ def sulphur_to_hydroxyl(thioester_structure):
 
 
 
+
     methanol = Smiles('CO').smiles_to_structure()
     for atom in methanol.graph:
         if atom.type == 'C':
@@ -125,8 +132,10 @@ def sulphur_to_hydroxyl(thioester_structure):
             for neighbour in carbon_methanol.neighbours:
                 if neighbour.type == 'O':
                     oxygen_hydroxyl = neighbour
+
     methanol.break_bond(methanol.bond_lookup[carbon_methanol][oxygen_hydroxyl])
     one, two = methanol.split_disconnected_structures()
+
     if len(one.graph) == 4:
         residual = one
         hydroxyl = two
@@ -142,6 +151,8 @@ def sulphur_to_hydroxyl(thioester_structure):
     combined.set_connectivities()
     combined.set_atom_neighbours()
     combined.make_bond_lookup()
+    next_bond_nr = combined.find_next_bond_nr()
+    #it goes wrong in this piece below
     for atom in combined.graph:
         atom_neighbours = []
         atom_neighbour_types = []
@@ -152,8 +163,8 @@ def sulphur_to_hydroxyl(thioester_structure):
             carbon_thioester = atom
         elif atom.type == 'O' and len(atom_neighbours) == 1 and atom_neighbour_types.count('H') == 1:
             oxygen_hydroxyl = atom
-    next_bond_nr = combined.find_next_atom_nr()
     combined.make_bond(carbon_thioester, oxygen_hydroxyl, next_bond_nr)
+    #here wrong
 
     combined.set_atoms()
     combined.make_bond_lookup()

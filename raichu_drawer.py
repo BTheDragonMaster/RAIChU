@@ -1242,50 +1242,50 @@ class Drawer:
                 self.rotate_subtree(sulphur, pcp, delta_angle_rad,
                                     pcp.draw.position)
 
-        #Fix rotation bulky sidechains so carboxyl groups dont need to move
-        i = 1
-        while i < (len(backbone_atoms)):
-            atom = backbone_atoms[i]
-            atom_neighbours = []
-            atom_neighbour_types = []
-            for neighbour in atom.neighbours:
-                atom_neighbours.append(neighbour)
-                atom_neighbour_types.append(neighbour.type)
-                if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and not neighbour.inside_ring:
-                    first_atom_sidechain = neighbour
-                    for further_atom in first_atom_sidechain.neighbours:
-                        types = []
-                        for further_atom_neighbour in further_atom.neighbours:
-                            types.append(further_atom_neighbour.type)
-                        if further_atom.type == 'C' and further_atom not in backbone_atoms and ((types.count(
-                                'C') == 3) or (types.count('O') == 2 and
-                                               types.count('H') == 0) or
-                                               (types.count('N') == 1 and
-                                                types.count('O') == 1 and
-                                                types.count('H') == 0) or
-                                                (types.count('C') == 2 and
-                                                 types.count('N') == 1 and
-                                                 types.count('H') == 0)):
-                            angle_bulky_sidechain = get_angle(
-                                first_atom_sidechain.draw.position,
-                                further_atom.draw.position)
-                            angle_bulky_sidechain = round(
-                                math.degrees(angle_bulky_sidechain), 3)
-                            if atom.draw.position.x < first_atom_sidechain.draw.position.x:
-                                correct_angle_deg = 160
-                            elif further_atom.draw.position.x < first_atom_sidechain.draw.position.x:
-                                correct_angle_deg = 20
-                            delta_angle_deg = correct_angle_deg - angle_bulky_sidechain
-                            delta_angle_rad = math.radians(
-                                delta_angle_deg)
-                            self.rotate_subtree(further_atom,
-                                                first_atom_sidechain,
-                                                delta_angle_rad,
-                                                first_atom_sidechain.draw.position)
-            i += 1
-        self.resolve_primary_overlaps()
-        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
-        self.resolve_secondary_overlaps(sorted_overlap_scores)
+            #Fix rotation bulky sidechains so carboxyl groups dont need to move
+            i = 1
+            while i < (len(backbone_atoms)):
+                atom = backbone_atoms[i]
+                atom_neighbours = []
+                atom_neighbour_types = []
+                for neighbour in atom.neighbours:
+                    atom_neighbours.append(neighbour)
+                    atom_neighbour_types.append(neighbour.type)
+                    if neighbour not in backbone_atoms and neighbour.type != 'H' and neighbour.type != 'S' and not neighbour.inside_ring:
+                        first_atom_sidechain = neighbour
+                        for further_atom in first_atom_sidechain.neighbours:
+                            types = []
+                            for further_atom_neighbour in further_atom.neighbours:
+                                types.append(further_atom_neighbour.type)
+                            if further_atom.type == 'C' and further_atom not in backbone_atoms and ((types.count(
+                                    'C') == 3) or (types.count('O') == 2 and
+                                                   types.count('H') == 0) or
+                                                   (types.count('N') == 1 and
+                                                    types.count('O') == 1 and
+                                                    types.count('H') == 0) or
+                                                    (types.count('C') == 2 and
+                                                     types.count('N') == 1 and
+                                                     types.count('H') == 0)):
+                                angle_bulky_sidechain = get_angle(
+                                    first_atom_sidechain.draw.position,
+                                    further_atom.draw.position)
+                                angle_bulky_sidechain = round(
+                                    math.degrees(angle_bulky_sidechain), 3)
+                                if atom.draw.position.x < first_atom_sidechain.draw.position.x:
+                                    correct_angle_deg = 160
+                                elif further_atom.draw.position.x < first_atom_sidechain.draw.position.x:
+                                    correct_angle_deg = 20
+                                delta_angle_deg = correct_angle_deg - angle_bulky_sidechain
+                                delta_angle_rad = math.radians(
+                                    delta_angle_deg)
+                                self.rotate_subtree(further_atom,
+                                                    first_atom_sidechain,
+                                                    delta_angle_rad,
+                                                    first_atom_sidechain.draw.position)
+                i += 1
+            self.resolve_primary_overlaps()
+            self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+            self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     ### End NRPS rotation code
 

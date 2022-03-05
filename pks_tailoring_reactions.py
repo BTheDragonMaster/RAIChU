@@ -269,7 +269,6 @@ def dehydratase(chain_intermediate):
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
-
     return chain_intermediate
 
 

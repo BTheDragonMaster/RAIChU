@@ -102,14 +102,14 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
 
     #Define height of window
     last_drawing = list_drawings_per_module[-1][0]
-    min_x = 100000000
-    max_x = -100000000
+    min_y = 100000000
+    max_y = -100000000
     for atom in last_drawing.structure.graph:
-        if atom.draw.position.x < min_x:
-            min_x = atom.draw.position.x
-        if atom.draw.position.x > max_x:
-            max_x = atom.draw.position.x
-    delta_x = max_x - min_x
+        if atom.draw.position.y < min_y:
+            min_y = atom.draw.position.y
+        if atom.draw.position.y > max_y:
+            max_y = atom.draw.position.y
+    delta_y = max_y - min_y
 
     #Find line length to define the width of the window
     x = 30
@@ -132,7 +132,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         x += 30
 
     #Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_x / 20)))
+    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 28)))
     ax.set_aspect('equal', adjustable='box')
 
 

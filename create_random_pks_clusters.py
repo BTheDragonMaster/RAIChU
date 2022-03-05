@@ -73,24 +73,25 @@ def generate_random_hybrid_cluster():
     return cluster
 
 if __name__ == "__main__":
-    # for i in range(472, 501):
-    #     cluster = generate_random_nrps_cluster()
-    #     print(cluster)
-    #     #draw_pks_cluster(cluster, save_fig=f'NRPS_cluster_{i}.png')
-    #     draw_pks_cluster(cluster)
-    #     plt.close('all')
+    for i in range(0, 3):
+        cluster = generate_random_nrps_cluster()
+        print(cluster)
+        #draw_pks_cluster(cluster, save_fig=f'NRPS_cluster_{i}.png')
+        draw_pks_cluster(cluster)
+        plt.close('all')
 
 
-    # for i in range(1, 501):
-    #     generated_cluster = generate_random_pks_cluster()
-    #     print(generated_cluster)
-    #     draw_pks_cluster(generated_cluster, save_fig=f'cluster_{i}.png')
-    #     plt.close('all')
+    for i in range(0, 3):
+        generated_cluster = generate_random_pks_cluster()
+        print(generated_cluster)
+        draw_pks_cluster(generated_cluster)
+        #draw_pks_cluster(generated_cluster, save_fig=f'cluster_{i}.png')
+        plt.close('all')
 
-    for i in range(1, 501):
+    for i in range(0, 3):
         generated_cluster = generate_random_hybrid_cluster()
         print(generated_cluster)
-        #draw_pks_cluster(generated_cluster)
-        draw_pks_cluster(generated_cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
+        draw_pks_cluster(generated_cluster)
+        #draw_pks_cluster(generated_cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         plt.close('all')
 

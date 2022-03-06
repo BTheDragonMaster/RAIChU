@@ -1,12 +1,8 @@
 from pikachu.reactions.basic_reactions import condensation
 from pikachu.reactions.functional_groups import find_bonds, BondDefiner, GroupDefiner, find_atoms
-from pikachu.general import draw_structure
 from pikachu.smiles.smiles import Smiles
-from pk_attach_to_domain import attach_to_domain_nrp
 from pikachu.reactions.basic_reactions import combine_structures
-from raichu_drawer import Drawer
-from random import randint
-from pikachu.chem.structure import Structure
+
 
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 THIOESTER_CARBON = GroupDefiner('thioester carbon', 'SC(C)=O', 1)
@@ -40,7 +36,6 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             else:
                 atom.in_central_chain = False
 
-    #IT DISAPPEARS IN THIS FUNCTION!!!
     # Check if the intermediate is a thioester intermediate, if so: convert
     is_thioester = False
     found_bonds_thioester = find_bonds(THIOESTERBOND, nrp_intermediate)
@@ -84,8 +79,9 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             atom.in_central_chain = False
 
     # Carry out condensation reaction using build-in PIKAChU function
-
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
+
+    # Refresh condensation product
     condensation_product.refresh_structure()
     condensation_product.set_connectivities()
     condensation_product.set_atom_neighbours()
@@ -103,7 +99,7 @@ def sulphur_to_hydroxyl(thioester_structure):
 
     thioester_structure: PIKAChU Structure object of a thioester (R-C(S)=O)
     """
-
+    # Find thioester bond in the input structure
     found_bonds_thioester = find_bonds(THIOESTERBOND, thioester_structure)
     found_carbon_thioester = find_atoms(THIOESTER_CARBON, thioester_structure)
     assert len(found_carbon_thioester)
@@ -113,6 +109,7 @@ def sulphur_to_hydroxyl(thioester_structure):
     sh_bond = found_bonds_thioester[0]
     thioester_structure.break_bond(sh_bond)
 
+    # Break S-C bond in thioester
     one, two = thioester_structure.split_disconnected_structures()
     if len(one.graph) < 3:
         residual = one
@@ -121,10 +118,7 @@ def sulphur_to_hydroxyl(thioester_structure):
         residual = two
         thioester_structure = one
 
-
-
-
-
+    # Create Structure object hydroxyl group
     methanol = Smiles('CO').smiles_to_structure()
     for atom in methanol.graph:
         if atom.type == 'C':
@@ -147,24 +141,31 @@ def sulphur_to_hydroxyl(thioester_structure):
     # Add hydroxyl group to the carbon atom of the intermediate to create a
     # carboxylic acid group
     combined = combine_structures((hydroxyl, thioester_structure))
+
+    # Refresh combined Structure object (no new bond yet)
     combined.get_connectivities()
     combined.set_connectivities()
     combined.set_atom_neighbours()
     combined.make_bond_lookup()
     next_bond_nr = combined.find_next_bond_nr()
-    #it goes wrong in this piece below
+
+    # Define carbon and oxygen atom of the new hydroxyl group, make bond
+    # between these atoms
     for atom in combined.graph:
         atom_neighbours = []
         atom_neighbour_types = []
         for neighbour in atom.neighbours:
             atom_neighbour_types.append(neighbour.type)
             atom_neighbours.append(neighbour)
-        if atom.type == 'C' and len(atom_neighbours) == 2 and atom_neighbour_types.count('O') == 1 and atom_neighbour_types.count('C') == 1:
+        if atom.type == 'C' and len(atom_neighbours) == 2 and\
+                atom_neighbour_types.count('O') == 1 and\
+                atom_neighbour_types.count('C') == 1:
             carbon_thioester = atom
-        elif atom.type == 'O' and len(atom_neighbours) == 1 and atom_neighbour_types.count('H') == 1:
+        elif atom.type == 'O' and len(atom_neighbours) == 1 and\
+                atom_neighbour_types.count('H') == 1:
             oxygen_hydroxyl = atom
     combined.make_bond(carbon_thioester, oxygen_hydroxyl, next_bond_nr)
-    #here wrong
+
 
     combined.set_atoms()
     combined.make_bond_lookup()
@@ -193,8 +194,6 @@ def make_nrp(list_amino_acids):
         line = line.strip()
         name, smiles = line.split()
         name = name.upper()
-        # structure_aa = Smiles(smiles).smiles_to_structure()
-        # structure_aa.find_cycles()
         dict_aa_structure[name] = smiles
 
     # Make every name in amino acid list all caps
@@ -204,7 +203,7 @@ def make_nrp(list_amino_acids):
     # Make amino acid Structure object from dict and add to growing NRP chain
     nrp_chain_intermediate = Smiles(dict_aa_structure[list_amino_acids[0]]).smiles_to_structure()
 
-    # Check if it is a amino acid
+    # Check if it is an amino acid
     if not (len(nrp_chain_intermediate.find_substructures(Smiles('CN').smiles_to_structure())) > 0\
             and len(nrp_chain_intermediate.find_substructures(Smiles('C(O)=O').smiles_to_structure())) > 0):
         raise ValueError(f'The starter structure: {list_amino_acids[0]}, is not an amino acid')
@@ -262,21 +261,7 @@ def make_nrp(list_amino_acids):
     return nrp_chain_intermediate
 
 
-if __name__ == "__main__":
-    # nrp = make_nrp(['valine', 'glycine', 'cysteine'])
-    # att = attach_to_domain_nrp(nrp, 'PCP')
-    # Drawer(att)
-    # test_peptide = make_nrp(['alanine', 'valine', 'tyrosine', 'citrulline',  'threonine', 'cysteine', 'norcoronamicacid', '(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate'])
-    # attached_test_peptide = attach_to_domain_nrp(test_peptide, 'PCP')
-    # Drawer(attached_test_peptide)
-    # test_peptide2 = make_nrp(['d-threonine', 'valine', 'cysteine'])
-    # attached_test_peptide2 = attach_to_domain_nrp(test_peptide2, 'PCP')
-    # Drawer(attached_test_peptide2)
-    peptide = make_nrp(['valine', 'isoleucine', 'proline', 'leucine', 'cysteine'])
-    # Drawer(peptide)
-    attached = attach_to_domain_nrp(peptide, 'PCP')
-    print(attached.graph)
-    Drawer(attached)
+
 
 
 

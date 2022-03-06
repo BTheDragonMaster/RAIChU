@@ -44,20 +44,6 @@ def make_domain(domain_type, next_atom_nr):
     domain.set_domain_type(domain_type)
     return domain
 
-if __name__ == "__main__":
-    example_atom = Atom('H', 2, None, 0, False)
-    print(example_atom)
-
-    exampledomain = Domain('H', 1, None, 0, False)
-    exampledomain.print_domaintype()
-    exampledomain.set_domain_type('ACP')
-    exampledomain.print_domaintype()
-    print(exampledomain, exampledomain.type)
-
-    new_domain = make_domain('TE', 2)
-    print(new_domain)
-
-    print(new_domain.type)
 
 
 

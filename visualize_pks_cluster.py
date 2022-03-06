@@ -5,7 +5,7 @@ import matplotlib.lines as lines
 import matplotlib.image as mpimg
 from copy import deepcopy
 
-#Colour dicts to match antiSMASH domain colouring
+# Colour dicts to match antiSMASH domain colouring
 colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781', \
                     'KR':'#80f680', 'DH':'#f7be81', 'ER':'#81f7f3', \
                     'TE':'#f5c4f2', 'KR*':'#80f680', 'C':'#8181f7', \
@@ -17,8 +17,8 @@ colour_outline_dict = {'ACP':'#3d79d6', 'AT':'#df5d5d', 'KS':'#5fc65f', \
 
 
 
-#Define some global variables that I had to use because matplotlib is not
-#necessarily the greatest package to make a GUI
+# Define some global variables that I had to use because matplotlib is not
+# necessarily the greatest package to make a GUI
 images = []
 filenames_list = []
 global_figure = ''
@@ -43,24 +43,23 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     #Draw (don't show!) and save png's of quick reaction mechanisms per module
     global global_final_polyketide_Drawer_object
     if interactive:
-        global_final_polyketide_Drawer_object = pks_cluster_to_structure(pks_cluster, attach_to_acp=True, \
-                                     visualization_mechanism=True, \
+        global_final_polyketide_Drawer_object = \
+            pks_cluster_to_structure(pks_cluster, attach_to_acp=True,
+                                     visualization_mechanism=True,
                                      draw_mechanism_per_module=True)
 
     if save_fig:
         filename = save_fig
 
-    #Save (don't show!) drawings of the chain intermediate per module
-    list_drawings_per_module = pks_cluster_to_structure(pks_cluster, \
+    # Save (don't show!) drawings of the chain intermediate per module
+    list_drawings_per_module = pks_cluster_to_structure(pks_cluster,
     attach_to_acp=True, draw_structures_per_module=True)
 
-
-    #Close all matplotlib windows that were still open when generating
-    #the chain intermediate Drawer objects
+    # Close all matplotlib windows that were still open when generating
+    # the chain intermediate Drawer objects
     plt.close('all')
 
-
-    #Reset colour of all atoms to black and remove 'ACP' from drawing
+    # Reset colour of all atoms to black and remove 'ACP' from drawing
     for drawing_list in list_drawings_per_module:
         for drawing in drawing_list:
             for atom in drawing.structure.graph:
@@ -68,8 +67,8 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 if hasattr(atom, 'domain_type'):
                     atom.domain_type = ''
 
-
-    nr_modules = len(pks_cluster)
+    # Build list of all modules comprised in the cluster, used to draw
+    # module/domain architecture later
     list_all_domains = []
     elongation_modules_with_mechanisms = []
     for module in pks_cluster:
@@ -80,19 +79,22 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             module_list_domains += ['ACP']
         elif module_type == 'starter_module_nrps':
             module_list_domains += ['A', 'PCP']
-        elif module_type == 'elongation_module' or module_type == 'terminator_module':
+        elif module_type == 'elongation_module' or \
+                module_type == 'terminator_module':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
             for tailoring_domain in module[3]:
-                if tailoring_domain.startswith('KR') and tailoring_domain != 'KR_inactive':
+                if tailoring_domain.startswith('KR') and \
+                        tailoring_domain != 'KR_inactive':
                     tailoring_domain = 'KR'
                 elif tailoring_domain == 'KR_inactive':
                     tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)
             if module_type == 'terminator_module':
                 module_list_domains.append('TE')
-        elif module_type == 'elongation_module_nrps' or module_type == 'terminator_module_nrps':
+        elif module_type == 'elongation_module_nrps' or\
+                module_type == 'terminator_module_nrps':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['C', 'A', 'PCP']
@@ -100,7 +102,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 module_list_domains.append('TE')
         list_all_domains += [module_list_domains]
 
-    #Define height of window
+    # Define height of window, based on max y coordinates largest structure
     last_drawing = list_drawings_per_module[-1][0]
     min_y = 100000000
     max_y = -100000000
@@ -111,7 +113,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             max_y = atom.draw.position.y
     delta_y = max_y - min_y
 
-    #Find line length to define the width of the window
+    # Find line length to define the width of the window
     x = 30
     index = 0
     list_all_domains_copy = deepcopy(list_all_domains)
@@ -131,20 +133,14 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             x += 60
         x += 30
 
-
-    #Make fig
+    # Make fig
     fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27)))
     ax.set_aspect('equal', adjustable='box')
-
-
     thismanager = plt.get_current_fig_manager()
     thismanager.window.wm_iconbitmap("raichu_r_icon.ico")
     thismanager.set_window_title('RAIChU - Visualization PKS/NRPS cluster')
     global global_figure
     global_figure = fig
-
-
-
 
     #Draw domains per module
     domain_text = []
@@ -159,9 +155,14 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             domain_txt = domain
             if domain == 'KR*':
                 domain_txt = 'KR'
-                #If the KR domain is inactive, draw cross through domain in interactive mode
-                first_line = lines.Line2D([x-9.899494937, x+9.899494937], [-9.899494937, 9.899494937], axes = ax, color = 'mediumseagreen')
-                second_line = lines.Line2D([x - 9.899494937, x + 9.899494937], [9.899494937, -9.899494937], axes = ax, color = 'mediumseagreen')
+                # If the KR domain is inactive, draw cross through domain
+                # in interactive mode
+                first_line = lines.Line2D([x-9.899494937, x+9.899494937],
+                                          [-9.899494937, 9.899494937],
+                                          axes = ax, color = 'mediumseagreen')
+                second_line = lines.Line2D([x - 9.899494937, x + 9.899494937],
+                                           [9.899494937, -9.899494937],
+                                           axes = ax, color = 'mediumseagreen')
                 ax.add_line(first_line)
                 ax.add_line(second_line)
             domain_text.append([domain_txt, x])
@@ -192,20 +193,15 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     # Draw horizontal line
     ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
-    #Write module names
+    # Add module names
     domain_txt_size = (13)
     for domain_x in domain_text:
         domain, x = domain_x
         font_domains = {'family': 'verdana', 'size': domain_txt_size}
         plt.text(x, 0, domain, ha='center', va='center', \
                  fontdict=font_domains)
-    #Add text above buttons:
-    # if interactive:
-    #     ax.text((length_line / 2), -230, \
-    #         'Click module name to view reaction mechanism, or view all possible products', ha = 'center', \
-    #         fontdict = font_modules)
 
-    #Change coordinates of all atoms of all structures to match pks cluster
+    # Change coordinates of all atoms of all structures to match cluster drawing
     list_drawings_correct_coord = []
     for drawing_coord in list_drawings_per_module:
         drawer_obj, x_coord = drawing_coord
@@ -213,11 +209,11 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         push_drawing_to_right(drawer_obj, x_coord)
         list_drawings_correct_coord.append(drawer_obj)
 
-    #Add molecules to pks cluster visualization
+    # Add molecules to pks cluster visualization
     height = 400
     draw_structures(list_drawings_correct_coord, fig, ax, height)
 
-    #Add buttons to view reaction mechanisms per module if interactive
+    # Add buttons to view reaction mechanisms per module if interactive
     if interactive:
         buttons = []
         nr_elongation_modules = len(elongation_modules_with_mechanisms)
@@ -240,7 +236,8 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             module_button.on_clicked(button_action)
             buttons.append(module_button)
             x_bottomleft += (1 / (nr_elongation_modules + 1))
-        #Button for thioesterase reaction products
+
+        # Button for thioesterase reaction products
         ax_button_thioesterase = plt.axes([x_bottomleft, 0, rel_width_buttons, 0.075], anchor='C')
         thioesterase_button = Button(ax_button_thioesterase, label='View thioesterase\nreaction products', color='#b3d8fa', hovercolor='#74abde')
         thioesterase_button.label.set_fontsize(15)
@@ -248,10 +245,9 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         thioesterase_button.on_clicked(button_action_thioesterase)
         buttons.append(thioesterase_button)
 
-    #Show plot
+    # Show plot, or directly save drawing if save_fig argument is given
     if not save_fig:
         plt.show()
-
     else:
         if filename.endswith('.png'):
             filename = filename
@@ -259,8 +255,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             filename = filename + '.png'
         plt.savefig(filename)
 
-
-    # #Delete image files of quick reaction mechanisms
+    # Delete image files of quick reaction mechanisms
     for module in pks_cluster:
         module_name = module[0]
         if path.exists(f'{module_name}_quick_mechanism.png'):
@@ -275,7 +270,7 @@ def button_action(event):
     This function cannot take any arguments, so I had to go use a lot of global
     variables to circumvent that
     """
-    #Get the max x-coordinate of each button, add to list
+    # Get the max x-coordinate of each button, add to list
     global global_figure
     size = global_figure.get_size_inches() * global_figure.dpi  #size in pixels
     list_max_x_button = []
@@ -284,18 +279,21 @@ def button_action(event):
     for i in range(global_nr_elongation_modules):
         max_x += ((1/(global_nr_elongation_modules + 1)) * (size[0]))
         list_max_x_button.append(max_x)
-    #If the mouse clicks the button within the x-coordinates of the button,
-    #That means that particular button is being pressed
+
+    # If the mouse clicks the button within the x-coordinates of the button,
+    # that means that particular button is being pressed
     for i in range(len(list_max_x_button)):
         if event.x < list_max_x_button[i]:
             module_nr = i
             break
-    #Connect the module nr to the right filename of the quick reactio mechanism
-    #and open that image
+
+    # Connect the module nr to the right filename of the quick reaction
+    # mechanism and open that image
     global filenames_list
     img = mpimg.imread(filenames_list[module_nr])
     images.append(img)
-    #Open a new matplotlib window and display the quick reaction mechanism
+
+    # Open a new matplotlib window and display the quick reaction mechanism
     fig2, ax2 = plt.subplots(figsize=(20, 10))
     ax2.imshow(img)
     plt.axis('equal')
@@ -315,8 +313,10 @@ def button_action_thioesterase(event):
     This function cannot take any arguments, so I had to go use a  global
     variable to circumvent that
     """
+    # Fetch the structure of the molecule tethered to the last ACP/PCP domain
     global global_final_polyketide_Drawer_object
     final_polyketide = global_final_polyketide_Drawer_object
+
     # If the last elongation module was an NRPS module, attach the product to
     # the domain
     for atom in final_polyketide.graph:
@@ -325,9 +325,10 @@ def button_action_thioesterase(event):
     final_polyketide.set_connectivities()
     final_polyketide.set_atom_neighbours()
     final_polyketide.find_cycles()
+
+    # Pass Structure to the thioesterase function, this function will open
+    # a separate window for each TE product
     thioesterase_all_products(final_polyketide)
-
-
 
 def make_circle(x_coord, domain_type):
     """Easy function to draw circle for the domain visualization. Returns
@@ -340,11 +341,14 @@ def make_circle(x_coord, domain_type):
     , edgecolor = colour_outline_dict[domain_type], zorder = 2)
     return circle
 
-
-
-################################################################################
-
 def set_domain_to_origin(drawer_object):
+    """Accessory function that alters the coordinates of all atoms in the input
+    Drawer object as such that the ACP/PCP domain has coordinates [0,0], after
+    which it will return the Drawer object
+
+    drawer_object: PIKAChU Drawer object, structure that needs to be moved as
+    such that the ACP/PCP domain is located in the origin of the canvas
+    """
     for atom in drawer_object.structure.graph:
         if hasattr(atom, 'domain_type'):
             domain = atom
@@ -358,16 +362,32 @@ def set_domain_to_origin(drawer_object):
             atom.draw.position.y -= domain_y
             atom.draw.position.y -= 11
     new_drawer_object = drawer_object
+
     return new_drawer_object
 
 def push_drawing_to_right(drawer_object, shift_to_right):
+    """Accessory function that pushes the input Drawer object to the right by
+    changing the x coordinate of each atom according to the shift_to_right
+    argument
+
+    drawer_object: PIKAChU Drawer object, structure that needs to be moved to
+    the right
+    shift_to_right: float, magnitude of the shift to the right
+    """
     for atom in drawer_object.structure.graph:
         atom.draw.position.x += shift_to_right
     return drawer_object
 
 
-###########################################################################
+
 def draw_structures(drawer_objects, fig, ax, height):
+    """Copied from the PIKAChU drawing.py script, used to draw the reaction
+    intermediates in the canvas
+
+    drawer_objects: list of PIKAChU Drawer objects
+    fig, ax: matplotlib canvas to draw structures in
+    height: height of the canvas
+    """
     min_x = 100000000
     max_x = -100000000
     min_y = 100000000
@@ -616,40 +636,3 @@ def draw_structures(drawer_objects, fig, ax, height):
                          verticalalignment='center',
                          color=atom.draw.colour, zorder = 1)
 
-
-
-
-
-if __name__ == "__main__":
-    erythromycin_cluster = [['module 1', 'starter_module', 'SC(=O)CC'],
-                            ['module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
-                            ['module 3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                            ['module 4', 'elongation_module', 'methylmalonylcoa', ['KR_C2']],
-                            ['module 5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                            ['module 6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                            ['module 7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
-
-    draw_pks_cluster(erythromycin_cluster, interactive=True)
-    # pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
-    #
-    #
-    #
-    # baf_cluster =          [['pks module 1', 'starter_module', 'SC(CC(O)=O)=O'],
-    #                        ['pks module 2', 'elongation_module', 'methylmalonylcoa', ['KR_B1']],
-    #                        ['pks module 3', 'elongation_module', 'malonylcoa', ['KR_A1']],
-    #                        ['pks module 4', 'elongation_module', 'methylmalonylcoa', []],
-    #                        ['pks module 5', 'elongation_module', 'methylmalonylcoa', ['KR_A2']],
-    #                        ['pks module 6', 'elongation_module', 'ethylmalonylcoa', ['KR_B1']]]
-    #
-    # pks_cluster_to_structure(baf_cluster, attach_to_acp=True)
-    # draw_pks_cluster(baf_cluster)
-    #
-    # nrps_cluster = [['NRPS module 1', 'starter_module_nrps', 'd-threonine'],
-    #           ['NRPS module 2', 'elongation_module_nrps', 'valine'],
-    #           ['NRPS module 3', 'elongation_module_nrps', 'serine'],
-    #           ['NRPS module 4', 'elongation_module_nrps', '3-[(1R,2R)-2-Nitrocyclopropyl]-L-alanine'],
-    #           ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
-    #           ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
-    #           ['NRPS module 7', 'terminator_module_nrps', 'valine']]
-    # draw_pks_cluster(nrps_cluster)
-    # #pks_cluster_to_structure(nrps_cluster)

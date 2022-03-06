@@ -2,10 +2,8 @@ from pks_modules_to_structure import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 
 
-
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
-
 N_AMINO = GroupDefiner('N_amino', 'CN', 1)
 O_OH = GroupDefiner('O_oh', 'CO', 1)
 O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
@@ -14,12 +12,13 @@ O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
 
 def thioesterase_linear_product(chain_intermediate):
     """Carries out the thioesterase reaction on the polyketide chain
-    intermediate, returning the free acid linear polyketide product
+    intermediate, returning the free acid linear polyketide product as a
+    PIKAChU Structure object
 
     chain_intermediate: PIKAChU Structure object of the polyketide chain
     intermediate, either attached to a PKS domain or not
     """
-    #Find S-H bond in chain intermediate and break the bond and define atoms
+    # Find S-H bond in chain intermediate and break the bond and define atoms
     sh_bonds = find_cs_bond(chain_intermediate)
     for sh_bond in sh_bonds:
         for atom in sh_bond.neighbours:
@@ -29,7 +28,7 @@ def thioesterase_linear_product(chain_intermediate):
                 carbon_sh = atom
         chain_intermediate.break_bond(sh_bond)
 
-    #Remove the sulphur and atoms/domains attached from the Structure
+    # Remove the sulphur and atoms/domains attached from the Structure
     first_part, second_part = chain_intermediate.split_disconnected_structures()
     for atom in chain_intermediate.graph:
         if atom == carbon_sh:
@@ -41,7 +40,7 @@ def thioesterase_linear_product(chain_intermediate):
         sh = second_part
         chain_intermediate = first_part
 
-    #Add a negatively charged oxygen atom to the carbon atom
+    # Add a negatively charged oxygen atom to the carbon atom
     chain_intermediate.add_atom('O', [carbon_sh])
     for atom in chain_intermediate.graph[carbon_sh]:
         if atom.type == 'O' and \
@@ -49,7 +48,7 @@ def thioesterase_linear_product(chain_intermediate):
             new_oxygen = atom
             chain_intermediate.add_atom('H', [new_oxygen])
 
-    #Refresh structure
+    # Refresh structure
     chain_intermediate.find_cycles()
     chain_intermediate.refresh_structure()
 
@@ -67,7 +66,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
      in the amino group that the function should use to perform the
      thioesterase reaction.
     """
-    #Find S-H bond in chain intermediate and break the bond
+    # Find S-H bond in chain intermediate and break the bond
     sh_bonds = find_cs_bond(chain_intermediate)
     for sh_bond in sh_bonds:
         for atom in sh_bond.neighbours:
@@ -77,7 +76,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
                 carbon_sh = atom
         chain_intermediate.break_bond(sh_bond)
 
-    #Remove the sulphur and atoms/domains attached from the Structure
+    # Remove the sulphur and atoms/domains attached from the Structure
     first_part, second_part = chain_intermediate.split_disconnected_structures()
     for atom in chain_intermediate.graph:
         if atom == carbon_sh:
@@ -89,8 +88,8 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
         sh = second_part
         chain_intermediate = first_part
 
-    #Refresh structure and set orbitals for all electrons in the structure
-    #that got lost in the deepcopy
+    # Refresh structure and set orbitals for all electrons in the structure
+    # that got lost in the deepcopy
     chain_intermediate.refresh_structure()
     for atom in chain_intermediate.graph:
         for orbital_name in atom.valence_shell.orbitals:
@@ -99,7 +98,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
                 electron.set_orbital(orbital)
     chain_intermediate.find_cycles()
 
-    #Remove H from internal -OH group and refresh structure
+    # Remove H from internal -OH group and refresh structure
     for atom in chain_intermediate.graph:
         if atom == o_oh_n_amino:
             for neighbour in atom.neighbours:
@@ -111,12 +110,11 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
-    #Form bond to create circular product
+    # Form bond to create circular product
     next_bond_nr = chain_intermediate.find_next_bond_nr()
     chain_intermediate.add_bond(carbon_sh, o_oh_n_amino, 'single', next_bond_nr)
 
     return chain_intermediate
-
 
 
 def find_o_betapropriolactone(polyketide):
@@ -149,14 +147,14 @@ def thioesterase_all_products(chain_intermediate):
 
      chain_intermediate: PIKAChU Structure object of a polyketide/NRP
     """
-    #Perform first thioesterase reaction, generating linear polyketide/NRP
+    # Perform first thioesterase reaction, generating linear polyketide/NRP
     chain_intermediate.refresh_structure()
     for atom in chain_intermediate.graph:
         atom.hybridise()
     chain_intermediate_copy = deepcopy(chain_intermediate)
     Drawer(thioesterase_linear_product(chain_intermediate_copy))
 
-    #Find OH groups in polyketide/NRP, perform cyclization for each -OH group
+    # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
     chain_intermediate_copy = deepcopy(chain_intermediate)
     chain_intermediate_copy.refresh_structure()
     chain_intermediate.set_connectivities()
@@ -167,7 +165,7 @@ def thioesterase_all_products(chain_intermediate):
         if atom not in o_oh_atoms_filtered and any(neighbour.type == 'H' for neighbour in atom.neighbours):
             o_oh_atoms_filtered.append(atom)
 
-    #Find amino gruops in polyketide/NRP, perform cyclization for each group
+    # Find amino gruops in polyketide/NRP, perform cyclization for each group
     chain_intermediate_copy = deepcopy(chain_intermediate)
     chain_intermediate_copy.refresh_structure()
     chain_intermediate.set_connectivities()
@@ -181,16 +179,14 @@ def thioesterase_all_products(chain_intermediate):
                 if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
                     amino_n_atoms_filtered.append(atom)
 
-
-
-    #Define -OH group that should not be used to carry out the thioesterase
-    #reaction (distance -S and internal -OH group)
+    # Define -OH group that should not be used to carry out the thioesterase
+    # reaction (distance -S and internal -OH group)
     o_not_to_use = find_o_betapropriolactone(chain_intermediate)
     list_product_drawings = []
 
-    #Perform all possible thioesterase reactions leading to the formation of
-    #circular products using the internal amino groups, save Structure objects
-    #to list
+    # Perform all possible thioesterase reactions leading to the formation of
+    # circular products using the internal amino groups, save Structure objects
+    # to list
     for n_amino in amino_n_atoms_filtered:
         chain_intermediate.refresh_structure()
         chain_intermediate_copy = deepcopy(chain_intermediate)
@@ -200,9 +196,9 @@ def thioesterase_all_products(chain_intermediate):
         product = thioesterase_circular_product(chain_intermediate_copy, n_amino)
         list_product_drawings.append(product)
 
-    #Perform all possible thioesterase reactions leading to the formation of
-    #circular products using the internal -OH groups, save Structure objects
-    #to list
+    # Perform all possible thioesterase reactions leading to the formation of
+    # circular products using the internal -OH groups, save Structure objects
+    # to list
     for o_oh in o_oh_atoms_filtered:
         chain_intermediate.refresh_structure()
         chain_intermediate_copy = deepcopy(chain_intermediate)
@@ -213,7 +209,7 @@ def thioesterase_all_products(chain_intermediate):
             product = thioesterase_circular_product(chain_intermediate_copy, o_oh)
             list_product_drawings.append(product)
 
-    #Draw all products
+    # Draw all products
     for product in list_product_drawings:
         Drawer(product)
 
@@ -237,17 +233,6 @@ def find_cs_bond(structure):
     return bonds
 
 
-if __name__ == "__main__":
-    erythromycin_cluster = [['module_1', 'starter_module', 'SC(=O)CC'],
-                       ['module_2', 'elongation_module', 'methylmalonylcoa', ['KR_B2']],
-                    ['module_3', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                    ['module_4', 'elongation_module', 'methylmalonylcoa', ['KR_inactive']],
-                    ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-                    ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
-                    ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
-    erythromycin = pks_cluster_to_structure(erythromycin_cluster)
-    print(type(erythromycin))
-    thioesterase_all_products(erythromycin)
 
 
 

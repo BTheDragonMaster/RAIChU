@@ -4,16 +4,17 @@ from pikachu.smiles.smiles import *
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
 def find_central_chain_pks_nrps(pks_nrps_attached):
-    """
+    """Identifies the central chain atoms in the input structure from the
+    in_central_chain Atom attribute, and returns these Atom objects as a list
 
+    pks_nrps_attached: PIKAChU Structure object, input (hybrid) PK/NRP structure
     """
-
     # If the structure is a PK starter unit, find the central carbon chain
-    if not any(hasattr(atom, 'in_central_chain') for atom in pks_nrps_attached.graph) and len(pks_nrps_attached.find_substructures(Smiles('C(=O)S').smiles_to_structure())) > 0:
-        print('polyketide starter')
+    if not any(hasattr(atom, 'in_central_chain') for atom in pks_nrps_attached.graph) and\
+            len(pks_nrps_attached.find_substructures(Smiles('C(=O)S').smiles_to_structure())) > 0:
         pks_nrps_attached = find_central_atoms_pk_starter(pks_nrps_attached)
 
-    # find atoms in the structure inside a cycle
+    # Find atoms in the structure inside a cycle
     pks_nrps_attached.find_cycles()
     for atom in pks_nrps_attached.graph:
         if atom.in_ring(pks_nrps_attached):
@@ -21,9 +22,10 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
         else:
             atom.inside_ring = False
 
-    #Identify starting point central chain attached NRP/PK
+    # Identify starting point central chain attached NRP/PK
     for atom in pks_nrps_attached.graph:
-        if atom.type == 'S' and any(hasattr(neighbour, 'domain_type') for neighbour in atom.neighbours):
+        if atom.type == 'S' and any(hasattr(neighbour, 'domain_type')
+                                    for neighbour in atom.neighbours):
             sulphur = atom
         if not hasattr(atom, 'in_central_chain'):
             atom.in_central_chain = False
@@ -34,7 +36,7 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
     atom_central_chain = sulphur
     end_atom = False
 
-    #Identify complete central chain from in_central_chain Atom attributes
+    # Identify complete central chain from in_central_chain Atom attributes
     while not end_atom:
         for neighbour in atom_central_chain.neighbours:
             if neighbour.in_central_chain and neighbour not in visited:
@@ -50,5 +52,6 @@ def find_central_chain_pks_nrps(pks_nrps_attached):
                 else:
                     visited.append(neighbour)
     print(central_chain)
+
     return central_chain
 

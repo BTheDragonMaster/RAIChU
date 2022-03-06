@@ -7,9 +7,11 @@ NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 
 def attach_to_domain(polyketide, domain_type):
     """
-    Attaches the sulphur atom in the input polyketide to a PKS domain
+    Attaches the sulphur atom in the input polyketide to a PKS domain and
+    returns the attached structure as a PIKAChU Structure object
 
     domain_type: Str, domain type
+    polyketide: PIKAChU Structure object, to-be attached structure
     """
     #Create domain
     next_atom_nr = polyketide.find_next_atom_nr()
@@ -46,16 +48,18 @@ def attach_to_domain(polyketide, domain_type):
 
 def attach_to_domain_nrp(nrp, domain_type):
     """
-    Attaches the NRP to a PCP domain
+    Attaches the input NRP to a PCP domain and returns the product as a
+    PIKAChU Structure object
 
     domain_type: Str, domain type
+    nrp: PIKAChU Structure object, to-be attached NRP
     """
-    #Create domain
+    # Create domain
     next_atom_nr = nrp.find_next_atom_nr()
     domain = make_domain(domain_type, next_atom_nr)
     domain.add_shell_layout()
 
-    #Remove H atom from S in polyketide, to allow attachment to domain
+    # Remove H atom from S in polyketide, to allow attachment to domain
     locations_c_to_domain = find_atoms(NRP_C, nrp)
     assert len(locations_c_to_domain) == 1
     c_atom_to_domain = locations_c_to_domain[0]
@@ -84,7 +88,7 @@ def attach_to_domain_nrp(nrp, domain_type):
                 if neighbour == c_atom_to_domain:
                     sulphur_to_pcp = atom
 
-    #Make new bond between S in NRP and domain
+    # Make new bond between S in NRP and domain
     for i, neighbour in enumerate([sulphur_to_pcp]):
         next_bond_nr = structure.find_next_bond_nr()
         structure.make_bond(domain, neighbour, next_bond_nr)
@@ -94,7 +98,3 @@ def attach_to_domain_nrp(nrp, domain_type):
 
     return structure
 
-if __name__ == "__main__":
-    peptide = Smiles('C(C(NC(C(NC(C(=O)[o])C)=O)C(C)=O)=O)(N)CCC').smiles_to_structure()
-    attached_peptide = attach_to_domain_nrp(peptide, 'PCP')
-    Drawer(attached_peptide)

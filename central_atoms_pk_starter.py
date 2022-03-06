@@ -1,13 +1,13 @@
-from pikachu.smiles.smiles import *
-from pikachu.chem.structure import *
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms
-from raichu_drawer import *
-from pk_attach_to_domain import attach_to_domain
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
-def find_central_atoms_pk_starter(pk_starter_unit):
-    """
 
+def find_central_atoms_pk_starter(pk_starter_unit):
+    """Finds the the atoms in the central chain of the polyketide starter unit,
+    sets the in_central_chain Atom object attribute to True/False accordingly,
+    after which the pk_starter_unit Structure object is returned.
+
+    pk_starter_unit: PIKAChU Structure object of the PK starter unit
     """
     pk_starter_unit.find_cycles()
     central_chain = []
@@ -57,8 +57,8 @@ def find_central_atoms_pk_starter(pk_starter_unit):
                                     ethyl_branch = False
                             visited.append(chain_carbon)
 
-                        # Carbon of terminal carboxylic acid group is the final
-                        # carbon in the central chain
+                        # Carbon in a terminal carboxylic acid group is the
+                        # final carbon in the central chain
                         if next_atom_neighbour_types.count('O') == 2:
                             central_chain.append(next_atom)
                             end_carbon = True
@@ -66,24 +66,27 @@ def find_central_atoms_pk_starter(pk_starter_unit):
 
                         # Confirm carbon is not part of cycle
                         if len(c_neighbours) == 2:
-                            if all(atom.in_ring(pk_starter_unit) for atom in c_neighbours):
+                            if all(atom.in_ring(pk_starter_unit)
+                                   for atom in c_neighbours):
                                 visited.append(next_atom)
                                 inside_cycle = True
 
                         # Case if carbon is part of a benzene ring
-                        if len (c_neighbours) == 3 and len(next_atom_neighbour_types) == 3:
+                        if len (c_neighbours) == 3 and \
+                                len(next_atom_neighbour_types) == 3:
                             visited.append(next_atom)
                             inside_cycle = True
                             end_carbon = True
 
-                        # Case where the polyketide ends in two methyl branches!
+                        # Case where the PK starter ends in two methyl branches
                         if next_atom_neighbour_types.count(
-                                'C') == 3 and next_atom_neighbour_types.count(
-                                'H') == 1:
+                                'C') == 3 and \
+                                next_atom_neighbour_types.count('H') == 1:
                             nr_methyl_brances = 0
                             for c_neighbour in c_neighbours:
                                 c_neighbour_neighbour_types = []
-                                for c_neighbour_neighbour in c_neighbour.neighbours:
+                                for c_neighbour_neighbour \
+                                        in c_neighbour.neighbours:
                                     c_neighbour_neighbour_types.append(
                                         c_neighbour_neighbour.type)
                                 if c_neighbour_neighbour_types.count('H') == 3:
@@ -97,8 +100,6 @@ def find_central_atoms_pk_starter(pk_starter_unit):
                                 central_chain.append(methyl_carbon)
                                 end_carbon = True
 
-
-
                         # Confirm carbon doesn't belong to methyl sidebranch
                         if next_atom_neighbour_types.count('H') == 3 or (
                                 next_atom_neighbour_types.count(
@@ -106,8 +107,7 @@ def find_central_atoms_pk_starter(pk_starter_unit):
                                 '*') == 1):
                             methyl_group = True
 
-
-                            # If the methylgroup is terminal, it is not a sidebranch!!!
+                            # Terminal methylgroup is not a sidebranch:
                             count_c_neighbours_not_visited = 0
                             for neighbouring_atom in chain_carbon.neighbours:
                                 if neighbouring_atom.type == 'C' and neighbouring_atom not in visited:
@@ -139,23 +139,14 @@ def find_central_atoms_pk_starter(pk_starter_unit):
                             chain_carbon = next_atom
                             visited.append(chain_carbon)
 
+    # Set in_central_chain Atom attribute
     for atom in pk_starter_unit.graph:
         if atom in central_chain:
             atom.in_central_chain = True
         else:
             atom.in_central_chain = False
+
     return pk_starter_unit
 
-if __name__ == "__main__":
-    starter_units_antismash = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
-                     'SC(C(C(O)=O)CC)=O', 'SC(C(C(O)=O)OC)=O', 'SC(C*)=O',
-                     'SC(C(C)CC)=O', 'SC(C1C(CCC1)C(=O)O)=O', 'SC(C)=O',
-                     'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O',
-                     'SC(C(C(=O)O)CC[Cl])=O']
-    for struct in starter_units_antismash:
-        print(struct)
-        struct = Smiles(struct).smiles_to_structure()
-        struct = find_central_atoms_pk_starter(struct)
-        struct = attach_to_domain(struct, 'ACP')
-        Drawer(struct)
+
 

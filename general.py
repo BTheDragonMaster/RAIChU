@@ -2,20 +2,17 @@
 This script contains examples of the general functionalities of RAIChU
 """
 from visualize_pks_cluster import *
-#this script contains all import statements
-#for the necessary functions
+
 
 if __name__ == "__main__":
-    #Simple elongation reaction. Input should be a PIKAChU Structure object of a
-    #thioester.
+    # Simple elongation reaction
     input_polyketide_intermediate = read_smiles('SC(CC)=O')
     Drawer(input_polyketide_intermediate)
     product = add_malonylunit(input_polyketide_intermediate)
-    #Or: add_methylmalonylunit, add_ethylmalonylunit, add_methoxymalonylunit
+    # Or: add_methylmalonylunit, add_ethylmalonylunit, add_methoxymalonylunit
     Drawer(product)
 
-    #Simple tailoring reaction. Input should be polyketide intermediate just
-    #after an elongation reaction
+    # Simple tailoring reactions
     product2 = ketoreductase(product)
     Drawer(product2)
     product3 = dehydratase(product2)
@@ -47,5 +44,15 @@ if __name__ == "__main__":
                     ['NRPS module 4', 'elongation_module_nrps', 'cysteine'],
                     ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
                     ['NRPS module 6', 'elongation_module_nrps', 'alanine'],
+                    ['NRPS module 7', 'terminator_module_nrps', 'valine']]
+    draw_pks_cluster(nrps_cluster)
+
+    #Visualise hybrid PKS/NRPS cluster
+    nrps_cluster = [['PKS module 1', 'starter_module', 'SC(=O)CC'],
+                    ['NRPS module 2', 'elongation_module_nrps', 'valine'],
+                    ['NRPS module 3', 'elongation_module_nrps', 'serine'],
+                    ['PKS module 4', 'elongation_module', 'malonylcoa', ['KR','DH']],
+                    ['NRPS module 5', 'elongation_module_nrps', 'glutamicacid'],
+                    ['PKS module 6', 'elongation_module', 'methoxymalonylacp', ['KR','DH','ER']],
                     ['NRPS module 7', 'terminator_module_nrps', 'valine']]
     draw_pks_cluster(nrps_cluster)

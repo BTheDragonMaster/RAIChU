@@ -3,7 +3,7 @@ from pikachu.smiles.smiles import *
 from pikachu.chem.structure import *
 from pikachu.reactions.functional_groups import BondDefiner
 from central_atoms_pk_starter import find_central_atoms_pk_starter
-#from pikachu.drawing.drawing import *
+
 
 COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
@@ -22,7 +22,7 @@ def combine_structures(structures):
     bonds2 = struct2.bonds
     new_bonds_1 = {}
 
-    #make sure you dont add atoms with the same atom.nr
+    # Make sure you dont add atoms with the same atom.nr
     atom_nrs = []
     for atom in struct2.graph:
         atom_nrs.append(atom.nr)
@@ -41,11 +41,11 @@ def combine_structures(structures):
             atom_nrs.append(index)
             index += 1
 
-    #refresh bond_lookup and structure
+    # Refresh bond_lookup and structure
     struct1.make_bond_lookup()
     struct1.refresh_structure()
 
-    # make sure you add no double bond nrs
+    # Make sure you add no double bond nrs
     start = 0
     bonds = []
     bond_nrs = []
@@ -55,9 +55,9 @@ def combine_structures(structures):
                 bond_nrs.append(bond.nr)
     new_nrs = []
 
-    #Bond objects are identified only by Bond.nr, reset each Bond.nr first to
-    #nr that is not used in both to-be combined structures, to make sure
-    #no bonds are skipped in the loop
+    # Bond objects are identified only by Bond.nr, reset each Bond.nr first to
+    # nr that is not used in both to-be combined structures, to make sure
+    # no bonds are skipped in the loop
     for atom in struct1.graph:
         for bond in atom.bonds[:]:
             bond.nr = 9999999
@@ -86,15 +86,15 @@ def combine_structures(structures):
     struct2.set_atom_neighbours()
     struct2.make_bond_lookup()
 
-    #added 29-11-21: bond nrs are not refreshed as keys in structure.bonds dict
+    # Added 29-11-21: bond nrs are not refreshed as keys in structure.bonds dict
     struct1.bonds = {}
     for bond_nr, bond in bonds1.items():
         updated_bond_nr = bond.nr
         struct1.bonds[updated_bond_nr] = bond
     bonds1 = struct1.bonds
 
-    #In order to prevent aliasing issues, make all bonds new Bond instances for
-    #the bonds in structure 1:
+    # In order to prevent aliasing issues, make all bonds new Bond instances for
+    # the bonds in structure 1:
     for nr, bond in bonds1.items():
         atom1 = bond.atom_1
         atom2 = bond.atom_2
@@ -107,7 +107,7 @@ def combine_structures(structures):
         new_bonds_1[bond_nr] = new_bond
         new_bond.electrons = bond_electrons
 
-    #Make new structure object of the combined structure
+    # Make new structure object of the combined structure
     bonds2.update(new_bonds_1)
     for structure in structures:
         new_graph.update(structure.graph)
@@ -119,6 +119,7 @@ def combine_structures(structures):
     new_structure.find_cycles()
     for bond_nr, bond in new_structure.bonds.items():
         bond.set_bond_summary()
+
     return new_structure
 
 def pks_elongation(pk_chain, elongation_monomer):
@@ -161,8 +162,8 @@ def pks_elongation(pk_chain, elongation_monomer):
                     h_to_remove2 = atom
                     continue
 
-    #If the elongation unit contains an unknown moiety, add a number to the
-    #'*' atom to display in the structure drawing
+    # If the elongation unit contains an unknown moiety, add a number to the
+    # '*' atom to display in the structure drawing
     pk_chain_atom_types = []
     for atom in pk_chain.graph:
         pk_chain_atom_types.append(atom.type)
@@ -173,7 +174,7 @@ def pks_elongation(pk_chain, elongation_monomer):
                 atom.unknown_index = nr_unknown_atoms + 1
 
 
-    #Remove the Hs in the malonylunit in order to add it to the pk chain
+    # Remove the Hs in the malonylunit in order to add it to the pk chain
     elongation_monomer_struct.remove_atom(h_to_remove)
     elongation_monomer_struct.set_atom_neighbours()
     elongation_monomer_struct.remove_atom(h_to_remove2)
@@ -181,7 +182,7 @@ def pks_elongation(pk_chain, elongation_monomer):
         atom.set_connectivity()
     elongation_monomer_struct.set_atom_neighbours()
 
-    #find thioester bond in growing chain, define Cs to attach new unit
+    # Find thioester bond in growing chain, define Cs to attach new unit
     pk_chain.set_connectivities()
     pk_chain.refresh_structure()
     thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
@@ -194,7 +195,7 @@ def pks_elongation(pk_chain, elongation_monomer):
             s_pkchain = bond.atom_2
             c_pkchain = bond.atom_1
 
-    #Breaking the thioester bond in the PK chain
+    # Breaking the thioester bond in the PK chain
     for atom in pk_chain.graph:
         atom.hybridise()
     for bond in thioester_bonds[:]:
@@ -204,7 +205,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     pk_chain.set_atom_neighbours()
     pk_chain.make_bond_lookup()
 
-    #refresh malonylunit
+    # Refresh malonylunit
     elongation_monomer_struct.refresh_structure()
 
     # Combining structures PK chain and elongation unit into one Structure object
@@ -215,7 +216,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     combined.set_atom_neighbours()
     combined.make_bond_lookup()
 
-    #Adding the bonds to form the new molecule after the single elongation step
+    # Adding the bonds to form the new molecule after the single elongation step
     new_bond_nr = combined.find_next_bond_nr()
     combined.make_bond(c_to_pkchain, c_pkchain, new_bond_nr)
     new_bond_nr = combined.find_next_bond_nr()
@@ -248,6 +249,7 @@ def find_bonds(structure, bond_type):
         atom_2 = match.atoms[bond_type.atom_2]
         bond = structure.bond_lookup[atom_1][atom_2]
         bonds.append(bond)
+
     return bonds
 
 
@@ -264,6 +266,7 @@ def remove_coa(structure_with_coa):
         structure_with_coa.break_bond(bond)
     split = structure_with_coa.split_disconnected_structures()
     coa, remainder = split
+
     return remainder
 
 
@@ -329,23 +332,4 @@ def add_pkunit(pk_chain):
     return elongation_product
 
 
-def repeat_elongations(pk_chain, times):
-    for i in range(times-1):
-        pk_chain = add_methylmalonylunit(pk_chain)
-    return pk_chain
-
-if __name__ == "__main__":
-    #Load structure starter unit malonyl-CoA
-    #malonylcoa = Smiles('CC(C)(COP(=O)(O)OP(=O)(O)OCC1C(C(C(O1)N2C=NC3=C(N=CN=C32)N)O)OP(=O)(O)O)C(C(=O)NCCC(=O)NCCSC(=O)CC(=O)O)O').smiles_to_structure()
-    #Drawer(malonylcoa)
-    #Remove CoA-group from malonyl-CoA
-    #malonyl = remove_coa(malonylcoa)
-
-
-    malonyl = Smiles('SC(CC)=O').smiles_to_structure()
-    #Drawer(malonyl)
-
-    #Performing a single elongation step on the malonyl using a malonyl-CoA
-    new_chain = add_malonylunit(malonyl)
-    Drawer(new_chain)
 

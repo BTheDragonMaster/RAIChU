@@ -35,7 +35,8 @@ if __name__ == "__main__":
         generated_cluster = generate_random_hybrid_cluster()
         print(generated_cluster)
         start = time.time()
-        draw_pks_cluster(generated_cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
+        draw_pks_cluster(generated_cluster,
+                         save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         end = time.time()
         delta_time = end - start
         print(len(generated_cluster), ' modules,', delta_time, ' seconds')

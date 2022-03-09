@@ -1294,7 +1294,6 @@ class Drawer:
                             correct_angle_deg = 0
                             correctly_rotated = False
                         elif neighbour.draw.position.x < atom.draw.position.x and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-                            print('found it')
                             correct_angle_deg = 180
                             correctly_rotated = False
                         elif neighbour.draw.position.y != atom.draw.position.y and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:

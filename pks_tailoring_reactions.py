@@ -8,7 +8,8 @@ RECENT_REDUCTION_MMAL_CHIRAL_C = GroupDefiner('recent_reduction_mmal_chiral_c', 
 RECENT_REDUCTION_CC = BondDefiner('recent_reduction_C-C', 'OCCC(=O)S', 1, 2)
 RECENT_DEHYDRATION = BondDefiner('recent_dehydration', 'SC(C=CC)=O', 2, 3)
 KR_DOMAIN_TYPES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
-
+C2_KR = GroupDefiner('C2 atom before KR reaction', 'SC(C)=O', 2)
+C1_KR = GroupDefiner('C1 atom before KR reaction', 'SC(C)=O', 1)
 
 def carbonyl_to_hydroxyl(double_bond):
     """Alters the double bond in a carbonyl group to a single bond and returns
@@ -103,6 +104,18 @@ def ketoreductase(chain_intermediate, kr_type = None):
         bond.set_bond_summary()
 
     # Identify beta-ketone bond, identify O- and C-atom participating in bond
+    if kr_type == 'C2':
+        beta_ketone_bond = find_betaketon(chain_intermediate)
+        for bond in beta_ketone_bond:
+            for atom in bond.neighbours:
+                if atom.type == 'O':
+                    carbonyl_oxygen = atom
+                elif atom.type == 'C':
+                    carbonyl_carbon = atom
+                else:
+                    raise Exception('Cannot find atoms in beta ketone bond')
+
+    # Identify beta-ketone bond, identify O- and C-atom participating in bond
     if kr_type == None or kr_type.startswith('A') or kr_type.startswith('B'):
         beta_ketone_bond = find_betaketon(chain_intermediate)
         for bond in beta_ketone_bond:
@@ -121,6 +134,7 @@ def ketoreductase(chain_intermediate, kr_type = None):
         # Add H atom to form hydroxyl group and another H to the C
         chain_intermediate.add_atom('H', [carbonyl_oxygen])
         chain_intermediate.add_atom('H', [carbonyl_carbon])
+
         if kr_type != None:
             if kr_type.startswith('A'):
                 carbonyl_carbon.chiral = 'clockwise'
@@ -157,6 +171,66 @@ def ketoreductase(chain_intermediate, kr_type = None):
     if chiral_c and not kr_type:
         for atom in chiral_c:
             atom.chiral = 'clockwise'
+
+    # Fix order atom neighbours for chiral methyl centre
+    c_2 = find_atoms(C2_KR, chain_intermediate)
+    c_1 = find_atoms(C1_KR, chain_intermediate)
+    assert len(c_2) == 1 and len(c_1) == 1
+    c_2 = c_2[0]
+    c_1 = c_1[0]
+    if chiral_c:
+        for chiral_c_atom in chiral_c:
+            atom_chiral_c = chiral_c_atom
+            chiral_c_neighbours = []
+            chiral_c_neighbours_types = []
+            for neighbour in atom_chiral_c.neighbours:
+                chiral_c_neighbours_types.append(neighbour.type)
+                chiral_c_neighbours_in_cc = []
+                chiral_c_neighbours.append(neighbour)
+                chiral_c_neighbour_neighbours_types = []
+                for next_atom in neighbour.neighbours:
+                    chiral_c_neighbour_neighbours_types.append(next_atom.type)
+                    if hasattr(next_atom, 'in_central_chain'):
+                        if next_atom.in_central_chain:
+                            chiral_c_neighbours_in_cc.append(next_atom)
+
+                if not chiral_c_neighbours_types.count('H') == 2:
+                    if neighbour.type != 'H' and len(chiral_c_neighbours_in_cc) == 1:
+                        first_sidechain_atom = neighbour
+                    elif neighbour == c_1:
+                        c_1 = neighbour
+                    elif neighbour.type == 'C' and \
+                            not chiral_c_neighbour_neighbours_types.count('H') == 3 and\
+                            neighbour != c_1:
+                        c_3 = neighbour
+                    elif neighbour.type == 'H':
+                        hydrogen = neighbour
+
+            new_neighbours = [first_sidechain_atom, c_1, c_3, hydrogen]
+            chain_intermediate.graph[chiral_c_atom] = new_neighbours
+
+
+    if kr_type != None:
+        new_neighbours = []
+        if kr_type.startswith('A') or kr_type.startswith('B'):
+            for atom in chain_intermediate.graph[carbonyl_carbon]:
+                if atom.type == 'O' and atom not in new_neighbours:
+                    new_neighbours.append(atom)
+            for atom in chain_intermediate.graph[carbonyl_carbon]:
+                if atom.type == 'C' and atom == c_2 and atom not in new_neighbours:
+                    c_2 = atom
+                    new_neighbours.append(c_2)
+                elif atom.type == 'C' and atom != c_2 and atom not in new_neighbours:
+                    c_4 = atom
+                    new_neighbours.append(c_4)
+            for atom in chain_intermediate.graph[carbonyl_carbon]:
+                if atom.type == 'H' and atom not in new_neighbours:
+                    new_neighbours.append(atom)
+            for atom in chain_intermediate.graph[carbonyl_carbon]:
+                if atom not in new_neighbours:
+                    new_neighbours.append(atom)
+            chain_intermediate.graph[carbonyl_carbon] = new_neighbours
+
 
     # Refresh structure :)
     chain_intermediate.set_atom_neighbours()
@@ -440,7 +514,7 @@ def enoylreductase(chain_intermediate):
             if neighbour.type == 'C':
                 carbon_neighbours += 1
         if carbon_neighbours == 3:
-            atom.chiral = 'clockwise'
+            atom.chiral = 'counterclockwise'
 
     # add colouring to highlight tailoring reaction
     for atom in chain_intermediate.graph:

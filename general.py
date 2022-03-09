@@ -6,7 +6,7 @@ from visualize_pks_cluster import *
 
 if __name__ == "__main__":
     # Simple elongation reaction
-    input_polyketide_intermediate = read_smiles('SC(CC)=O')
+    input_polyketide_intermediate = read_smiles('SC(=O)CC')
     Drawer(input_polyketide_intermediate)
     product = add_malonylunit(input_polyketide_intermediate)
     # Or: add_methylmalonylunit, add_ethylmalonylunit, add_methoxymalonylunit

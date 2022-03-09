@@ -50,6 +50,15 @@ def condensation_nrps(amino_acid, nrp_intermediate):
         assert len(found_bonds) == 1
         oh_bond = found_bonds[0]
 
+    # If the amino acid unit contains an unknown moiety, add a number to the
+    # '*' atom to display in the structure drawing
+    pk_chain_atom_types = []
+    for atom in nrp_intermediate.graph:
+        pk_chain_atom_types.append(atom.type)
+    nr_unknown_atoms = pk_chain_atom_types.count('*')
+    for atom in amino_acid.graph:
+        if atom.type == '*':
+            atom.unknown_index = nr_unknown_atoms + 1
 
     # Define the bond attached to the -H leaving group
     n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)

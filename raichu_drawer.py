@@ -343,6 +343,8 @@ class Drawer:
             dpi_drawer = 100
         else:
             dpi_drawer = dpi_drawer
+
+
         self.structure = structure.kekulise()
         self.rings = []
         self.ring_overlaps = []
@@ -1283,19 +1285,20 @@ class Drawer:
                                                     delta_angle_rad,
                                                     first_atom_sidechain.draw.position)
                     #Fix incorrect rotation carbonyl groups
-                    if neighbour.type == 'O' and self.structure.bond_lookup[atom][neighbour].type == 'O':
+                    if neighbour.type == 'O' and self.structure.bond_lookup[atom][neighbour].type == 'double':
                         correctly_rotated = True
                         if neighbour.draw.position.x > atom.draw.position.x and atom.draw.position.x < backbone_atoms[i-1].draw.position.x:
-                            correct_angle_deg = 180
+                            correct_angle_deg = 0
                             correctly_rotated = False
                         elif neighbour.draw.position.y != atom.draw.position.y and atom.draw.position.x < backbone_atoms[i-1].draw.position.x:
-                            correct_angle_deg = 180
+                            correct_angle_deg = 0
                             correctly_rotated = False
                         elif neighbour.draw.position.x < atom.draw.position.x and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-                            correct_angle_deg = 0
+                            print('found it')
+                            correct_angle_deg = 180
                             correctly_rotated = False
                         elif neighbour.draw.position.y != atom.draw.position.y and atom.draw.position.x > backbone_atoms[i-1].draw.position.x:
-                            correct_angle_deg = 0
+                            correct_angle_deg = 180
                             correctly_rotated = False
                         if not correctly_rotated:
                             angle = get_angle(atom.draw.position, neighbour.draw.position)

@@ -5,7 +5,7 @@ from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 
-def attach_to_domain(polyketide, domain_type):
+def attach_to_domain_pk(polyketide, domain_type):
     """
     Attaches the sulphur atom in the input polyketide to a PKS domain and
     returns the attached structure as a PIKAChU Structure object

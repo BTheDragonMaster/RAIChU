@@ -76,7 +76,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         module_list_domains = [module[0]]
         module_type = module[1]
         if module_type == 'starter_module':
-            module_list_domains += ['ACP']
+            module_list_domains += ['AT', 'ACP']
         elif module_type == 'starter_module_nrps':
             module_list_domains += ['A', 'PCP']
         elif module_type == 'elongation_module' or \

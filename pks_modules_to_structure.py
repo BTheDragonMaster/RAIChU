@@ -63,7 +63,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
                 starter_unit = Smiles(module[2]).smiles_to_structure()
                 starter_unit = find_central_atoms_pk_starter(starter_unit)
                 if attach_to_acp:
-                    chain_intermediate = attach_to_domain(starter_unit, 'ACP')
+                    chain_intermediate = attach_to_domain_pk(starter_unit, 'ACP')
                 else:
                     chain_intermediate = starter_unit
                 if draw_structures_per_module:

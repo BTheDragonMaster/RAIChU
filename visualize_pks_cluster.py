@@ -85,9 +85,12 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
             for tailoring_domain in module[3]:
-                if tailoring_domain.startswith('KR') and \
+                if tailoring_domain == 'KR_C1':
+                    tailoring_domain = 'KR*'
+                elif tailoring_domain.startswith('KR') and \
                         tailoring_domain != 'KR_inactive':
                     tailoring_domain = 'KR'
+
                 elif tailoring_domain == 'KR_inactive':
                     tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)

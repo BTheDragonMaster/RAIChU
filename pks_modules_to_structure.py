@@ -14,7 +14,7 @@ N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
 C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
 C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 
-def pks_cluster_to_structure(modules, visualization_mechanism = False, \
+def cluster_to_structure(modules, visualization_mechanism = False, \
     draw_structures_per_module = False, attach_to_acp = False, \
     draw_mechanism_per_module = False):
     """If visualization_mechanism == False: returns the final polyketide
@@ -390,7 +390,7 @@ def pks_cluster_to_structure(modules, visualization_mechanism = False, \
 
 def display_reactions(structures, tailoring_domains, elongation_unit,
                       module_name, draw_mechanism_per_module):
-    """Helper function pks_cluster_to structure. Returns the visualization of
+    """Helper function cluster_to structure. Returns the visualization of
     the quick reaction mechanism per module, based on four types of situation:
     1) NRPS elongation module, 2) PKS module that catalyzes only elongation
     3) PKS module that catalyzes elongation and KR reaction

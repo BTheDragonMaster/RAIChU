@@ -44,7 +44,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
     global global_final_polyketide_Drawer_object
     if interactive:
         global_final_polyketide_Drawer_object = \
-            pks_cluster_to_structure(pks_cluster, attach_to_acp=True,
+            cluster_to_structure(pks_cluster, attach_to_acp=True,
                                      visualization_mechanism=True,
                                      draw_mechanism_per_module=True)
 
@@ -52,7 +52,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         filename = save_fig
 
     # Save (don't show!) drawings of the chain intermediate per module
-    list_drawings_per_module = pks_cluster_to_structure(pks_cluster,
+    list_drawings_per_module = cluster_to_structure(pks_cluster,
     attach_to_acp=True, draw_structures_per_module=True)
 
     # Close all matplotlib windows that were still open when generating

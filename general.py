@@ -29,7 +29,7 @@ if __name__ == "__main__":
                            ['module_5', 'elongation_module', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
                            ['module_6', 'elongation_module', 'methylmalonylcoa', ['KR_A1']],
                            ['module_7', 'terminator_module', 'methylmalonylcoa', ['KR_A1']]]
-    final_product = pks_cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
+    final_product = cluster_to_structure(erythromycin_cluster, attach_to_acp=True)
 
     #Visualise PKS cluster
     draw_pks_cluster(erythromycin_cluster)

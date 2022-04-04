@@ -58,7 +58,7 @@ def attach_to_domain_nrp(nrp, domain_type):
     # Create domain
     next_atom_nr = nrp.find_next_atom_nr()
     domain = make_domain(domain_type, next_atom_nr)
-    domain.add_shell_layout()
+    domain.add_electron_shells()
 
     # Remove H atom from S in polyketide, to allow attachment to domain
     locations_c_to_domain = find_atoms(NRP_C, nrp)
@@ -97,6 +97,11 @@ def attach_to_domain_nrp(nrp, domain_type):
 
     structure.find_cycles()
     structure.set_atoms()
+
+    for atom in structure.graph:
+        if not hasattr(atom.annotations, 'in_central_chain'):
+            for attribute in ATTRIBUTES:
+                atom.annotations.add_annotation(attribute, False)
 
     return structure
 

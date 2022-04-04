@@ -47,6 +47,11 @@ def thioesterase_linear_product(chain_intermediate):
         chain_intermediate.bond_lookup[atom][carbon_sh].type == 'single':
             new_oxygen = atom
             chain_intermediate.add_atom('H', [new_oxygen])
+    # Make sure this new oxygen atom has all required atom annotations
+    for atom in chain_intermediate.graph:
+        if not hasattr(atom.annotations, 'in_central_chain'):
+            for attribute in ATTRIBUTES:
+                atom.annotations.add_annotation(attribute, False)
 
     # Refresh structure
     chain_intermediate.find_cycles()
@@ -92,8 +97,7 @@ def thioesterase_circular_product(chain_intermediate, o_oh_n_amino):
     # that got lost in the deepcopy
     chain_intermediate.refresh_structure()
     for atom in chain_intermediate.graph:
-        for orbital_name in atom.valence_shell.orbitals:
-            orbital = atom.valence_shell.orbitals[orbital_name]
+        for orbital in atom.valence_shell.orbitals:
             for electron in orbital.electrons:
                 electron.set_orbital(orbital)
     chain_intermediate.find_cycles()
@@ -152,7 +156,7 @@ def thioesterase_all_products(chain_intermediate):
     for atom in chain_intermediate.graph:
         atom.hybridise()
     chain_intermediate_copy = chain_intermediate.deepcopy()
-    Drawer(thioesterase_linear_product(chain_intermediate_copy))
+    Raichu_drawer(thioesterase_linear_product(chain_intermediate_copy))
 
     # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
     chain_intermediate_copy = chain_intermediate.deepcopy()
@@ -211,7 +215,7 @@ def thioesterase_all_products(chain_intermediate):
 
     # Draw all products
     for product in list_product_drawings:
-        Drawer(product)
+        Raichu_drawer(product)
 
     return list_product_drawings
 

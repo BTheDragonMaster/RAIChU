@@ -1,4 +1,3 @@
-from raichu_drawer import *
 from pikachu.smiles.smiles import *
 from pikachu.chem.structure import *
 from pikachu.reactions.functional_groups import BondDefiner

@@ -16,7 +16,7 @@ def attach_to_domain_pk(polyketide, domain_type):
     #Create domain
     next_atom_nr = polyketide.find_next_atom_nr()
     domain = make_domain(domain_type, next_atom_nr)
-    domain.add_shell_layout()
+    domain.add_electron_shells()
 
     #Remove H atom from S in polyketide, to allow attachment to domain
     locations_sulphur = find_atoms(POLYKETIDE_S, polyketide)
@@ -43,6 +43,7 @@ def attach_to_domain_pk(polyketide, domain_type):
         structure.make_bond(domain, neighbour, next_bond_nr)
 
     structure.set_connectivities()
+    structure.set_atoms()
 
     return structure
 
@@ -95,6 +96,7 @@ def attach_to_domain_nrp(nrp, domain_type):
 
 
     structure.find_cycles()
+    structure.set_atoms()
 
     return structure
 

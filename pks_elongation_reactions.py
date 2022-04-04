@@ -4,7 +4,9 @@ from pikachu.chem.structure import *
 from pikachu.reactions.functional_groups import BondDefiner
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
-
+ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
+              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
+              'ER_target', 'domain_type']
 COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 
@@ -80,6 +82,7 @@ def combine_structures(structures):
                         new_nrs.append(start)
                         start += 1
 
+
     # Refresh second structure
     struct2.get_connectivities()
     struct2.set_connectivities()
@@ -120,6 +123,8 @@ def combine_structures(structures):
     for bond_nr, bond in new_structure.bonds.items():
         bond.set_bond_summary()
 
+
+
     return new_structure
 
 def pks_elongation(pk_chain, elongation_monomer):
@@ -131,9 +136,10 @@ def pks_elongation(pk_chain, elongation_monomer):
     the elongation step
     elongation_monomer: ['SMILES_elongation_unit', index_c_to_c, index_c_to_s']
     """
+
     # If this is is the first elongation reaction on the starter unit, define
     # central chain atoms in the starter unit
-    if not any(hasattr(atom, 'in_central_chain') for atom in pk_chain.graph):
+    if not any(atom.annotations.in_central_chain for atom in pk_chain.graph):
         pk_chain = find_central_atoms_pk_starter(pk_chain)
 
     # Reset atom colours to black
@@ -142,11 +148,15 @@ def pks_elongation(pk_chain, elongation_monomer):
 
     # Defining the structure of the elongation units
     elongation_monomer_struct = Smiles(elongation_monomer[0]).smiles_to_structure()
+
+    # Add annotation attributes to elongation monomer
+    elongation_monomer_struct.add_attributes(ATTRIBUTES, boolean=True)
+
     for atom in elongation_monomer_struct.graph:
         if atom.nr == elongation_monomer[1]:
             # C0 needs to be attached to the C atom of the C-S bond in the PK chain
             c_to_pkchain = atom
-            c_to_pkchain.in_central_chain = True
+            c_to_pkchain.annotations.in_central_chain = True
             if elongation_monomer[0] == 'O=CCC':
                 c_to_pkchain.chiral = 'clockwise'
             for atom in c_to_pkchain.neighbours:
@@ -157,7 +167,7 @@ def pks_elongation(pk_chain, elongation_monomer):
         elif atom.nr == elongation_monomer[2]:
             # C1 needs to be attached to the S atom of the C-S bond in the PK chain
             c_to_s = atom
-            c_to_s.in_central_chain = True
+            c_to_s.annotations.in_central_chain = True
             for atom in c_to_s.neighbours:
                 if atom.type == 'H':
                     h_to_remove2 = atom

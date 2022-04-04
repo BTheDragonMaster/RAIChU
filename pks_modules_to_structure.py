@@ -6,8 +6,11 @@ import matplotlib.image as mpimg
 from matplotlib.patches import FancyArrow
 from copy import copy
 from NRPS_condensation import condensation_nrps
-from copy import deepcopy
 from central_atoms_pk_starter import find_central_atoms_pk_starter
+
+ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
+              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
+              'ER_target', 'domain_type']
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
@@ -27,12 +30,12 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
     as 'module_name'.png, doesn't display any visualisations
 
     modules: [Starter module, elongation module, ..., terminator_module] with
-    Starter module: ['module name','starter_module','SMILES starter unit'] or
-    ['module name','starter_module_nrps','SMILES starter amino acid'],
-    elongation modules: ['module name', 'elongation_module',
+    Starter module: ['module name','starter_module_pks','SMILES starter unit']
+    or ['module name','starter_module_nrps','SMILES starter amino acid'],
+    elongation modules: ['module name', 'elongation_module_pks',
     'elongation_monomer', ['KR', 'DH', 'ER']] or ['module name',
     'elongation_module_nrps', 'amino acid'],
-    terminator module: ['module name', 'terminator_module',
+    terminator module: ['module name', 'terminator_module_pks',
     'elongation_monomer', ['KR', 'DH', 'ER']] or ['module name',
     'terminator_module_nrps', 'amino acid'],
     """
@@ -54,13 +57,14 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
         # Find starting unit SMILES, convert to structure
         if module == modules[0]:
             assert len(module) == 3
-            assert module[1] == 'starter_module' or\
+            assert module[1] == 'starter_module_pks' or\
                    module[1] == 'starter_module_nrps'
 
             # If starter module = PKS module: construct starter unit from
             # supplied SMILES string
-            if module[1] == 'starter_module':
+            if module[1] == 'starter_module_pks':
                 starter_unit = Smiles(module[2]).smiles_to_structure()
+                starter_unit.add_attributes(ATTRIBUTES, boolean=True)
                 starter_unit = find_central_atoms_pk_starter(starter_unit)
                 if attach_to_acp:
                     chain_intermediate = attach_to_domain_pk(starter_unit, 'ACP')
@@ -75,6 +79,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             elif module[1] == 'starter_module_nrps':
                 starter_unit = Smiles(dict_aa_smiles[module[2].upper()])\
                     .smiles_to_structure()
+                starter_unit.add_attributes(ATTRIBUTES, boolean=True)
                 n_atoms_aa = find_atoms(N_AMINO_ACID, starter_unit)
                 c1_atoms_aa = find_atoms(C1_AMINO_ACID, starter_unit)
                 c2_atoms_aa = find_atoms(C2_AMINO_ACID, starter_unit)
@@ -94,7 +99,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                 # If attached, attach
                 chain_intermediate = starter_unit
                 if draw_structures_per_module and attach_to_acp:
-                    copy_chain_intermediate = deepcopy(chain_intermediate)
+                    copy_chain_intermediate = chain_intermediate.deepcopy()
                     copy_chain_intermediate.find_cycles()
                     copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                     copy_attached.find_cycles()
@@ -106,7 +111,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
     for module in modules:
 
         #If module is a PKS module:
-        if module[1] == 'elongation_module' or module[1] == 'terminator_module':
+        if module[1] == 'elongation_module_pks' or module[1] == 'terminator_module_pks':
             # If last reaction was an NRPS reaction
             locations = chain_intermediate.find_substructures(Smiles('C(=O)(O)CN').smiles_to_structure())
             if len(locations) > 0:
@@ -301,9 +306,9 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                 # image files are removed before continuing
                 if path.exists('1.png'):
                     os.remove('1.png')
-                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate = chain_intermediate.deepcopy()
                 copy_chain_intermediate.find_cycles()
-                if not any(hasattr(atom, 'domain_type') for
+                if not any(atom.annotations.domain_type for
                            atom in copy_chain_intermediate.graph):
                     copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                 else:
@@ -332,7 +337,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
 
             # Save drawings if necessary
             if draw_structures_per_module and attach_to_acp:
-                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate = chain_intermediate.deepcopy()
                 copy_chain_intermediate.find_cycles()
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                 copy_attached.refresh_structure()
@@ -341,7 +346,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                 drawing = Drawer(copy_attached, dont_show=True, dpi_drawer=500)
                 list_drawings_per_module.append([drawing])
             elif visualization_mechanism == True and attach_to_acp:
-                copy_chain_intermediate = deepcopy(chain_intermediate)
+                copy_chain_intermediate = chain_intermediate.deepcopy()
                 copy_chain_intermediate.find_cycles()
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                 if path.exists('2.png'):

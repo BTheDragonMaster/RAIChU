@@ -151,11 +151,11 @@ def thioesterase_all_products(chain_intermediate):
     chain_intermediate.refresh_structure()
     for atom in chain_intermediate.graph:
         atom.hybridise()
-    chain_intermediate_copy = deepcopy(chain_intermediate)
+    chain_intermediate_copy = chain_intermediate.deepcopy()
     Drawer(thioesterase_linear_product(chain_intermediate_copy))
 
     # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
-    chain_intermediate_copy = deepcopy(chain_intermediate)
+    chain_intermediate_copy = chain_intermediate.deepcopy()
     chain_intermediate_copy.refresh_structure()
     chain_intermediate.set_connectivities()
     chain_intermediate.set_atom_neighbours()
@@ -166,7 +166,7 @@ def thioesterase_all_products(chain_intermediate):
             o_oh_atoms_filtered.append(atom)
 
     # Find amino gruops in polyketide/NRP, perform cyclization for each group
-    chain_intermediate_copy = deepcopy(chain_intermediate)
+    chain_intermediate_copy = chain_intermediate.deepcopy()
     chain_intermediate_copy.refresh_structure()
     chain_intermediate.set_connectivities()
     chain_intermediate.set_atom_neighbours()
@@ -189,7 +189,7 @@ def thioesterase_all_products(chain_intermediate):
     # to list
     for n_amino in amino_n_atoms_filtered:
         chain_intermediate.refresh_structure()
-        chain_intermediate_copy = deepcopy(chain_intermediate)
+        chain_intermediate_copy = chain_intermediate.deepcopy()
         for atom in chain_intermediate_copy.graph:
             if atom == n_amino:
                 atom = n_amino
@@ -201,7 +201,7 @@ def thioesterase_all_products(chain_intermediate):
     # to list
     for o_oh in o_oh_atoms_filtered:
         chain_intermediate.refresh_structure()
-        chain_intermediate_copy = deepcopy(chain_intermediate)
+        chain_intermediate_copy = chain_intermediate.deepcopy()
         for atom in chain_intermediate_copy.graph:
             if atom == o_oh:
                 atom = o_oh

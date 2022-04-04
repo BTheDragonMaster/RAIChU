@@ -1,5 +1,8 @@
 from pikachu.chem.structure import *
-
+from pikachu.chem.atom import AtomAnnotations
+ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
+              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
+              'ER_target', 'domain_type']
 
 class Domain(Atom):
     def __init__(self, atom_type, atom_nr, chiral, charge, aromatic):
@@ -7,6 +10,9 @@ class Domain(Atom):
         self.type = atom_type
         self.domain_type = None
         self.domain_nr = atom_nr
+        self.annotations = AtomAnnotations()
+        for annotation in ATTRIBUTES:
+            self.annotations.add_annotation(annotation, default=False)
 
 
     def __repr__(self):
@@ -21,15 +27,19 @@ class Domain(Atom):
         else:
             return False
 
+
+
     def print_domaintype(self):
         print(self.domain_type)
+
 
     def set_domain_type(self, domain_type):
         assert domain_type == 'ACP' or domain_type == 'AT' or\
                domain_type == 'KS' or domain_type == 'KR' or\
                domain_type == 'DH' or domain_type == 'ER' or\
                domain_type == 'TE' or domain_type == 'PCP'
-        self.domain_type = domain_type
+        # self.domain_type = domain_type
+        self.annotations.set_annotation('domain_type', domain_type)
 
 
 def make_domain(domain_type, next_atom_nr):

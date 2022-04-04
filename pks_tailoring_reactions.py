@@ -131,9 +131,15 @@ def ketoreductase(chain_intermediate, kr_type = None):
         for bond in beta_ketone_bond:
             new_single_bond = carbonyl_to_hydroxyl(bond)
 
+
         # Add H atom to form hydroxyl group and another H to the C
         chain_intermediate.add_atom('H', [carbonyl_oxygen])
         chain_intermediate.add_atom('H', [carbonyl_carbon])
+        for atom in chain_intermediate.graph:
+            if not hasattr(atom.annotations, 'in_central_chain'):
+                for attribute in ATTRIBUTES:
+                    atom.annotations.add_annotation(attribute, False)
+
 
         if kr_type != None:
             if kr_type.startswith('A'):
@@ -155,6 +161,8 @@ def ketoreductase(chain_intermediate, kr_type = None):
                         if neighbour.type == 'O':
                             the_bond = bond
         the_bond.set_bond_summary()
+
+
 
     # See if the previous elongation step was performed using methylmalonyl-CoA,
     # perform epimerization if required
@@ -190,8 +198,8 @@ def ketoreductase(chain_intermediate, kr_type = None):
                 chiral_c_neighbour_neighbours_types = []
                 for next_atom in neighbour.neighbours:
                     chiral_c_neighbour_neighbours_types.append(next_atom.type)
-                    if hasattr(next_atom, 'in_central_chain'):
-                        if next_atom.in_central_chain:
+                    if next_atom.annotations.in_central_chain:
+                        if next_atom.annotations.in_central_chain:
                             chiral_c_neighbours_in_cc.append(next_atom)
 
                 if not chiral_c_neighbours_types.count('H') == 2:
@@ -316,8 +324,7 @@ def dehydratase(chain_intermediate):
             atom.chiral = None
         elif atom == c2:
             atom.chiral = None
-    for orbital_name in c1.valence_shell.orbitals:
-        orbital = c1.valence_shell.orbitals[orbital_name]
+
 
     # Add colouring
     for atom in chain_intermediate.graph:
@@ -358,13 +365,11 @@ def form_double_bond(atom1, atom2, bond):
     bond: Bond object of the bond between atom1 and atom2
     """
     # Select the bonding electron in the first atom valence shell
-    for orbital_name in atom2.valence_shell.orbitals:
-        orbital = atom2.valence_shell.orbitals[orbital_name]
+    for orbital in atom2.valence_shell.orbitals:
         if len(orbital.electrons) == 1:
             orbital_2 = orbital
             electron_2 = orbital.electrons[0]
-    for orbital_name in atom1.valence_shell.orbitals:
-        orbital = atom1.valence_shell.orbitals[orbital_name]
+    for orbital in atom1.valence_shell.orbitals:
         if len(orbital.electrons) == 1:
             orbital_1 = orbital
             electron_1 = orbital.electrons[0]
@@ -386,15 +391,13 @@ def form_double_bond(atom1, atom2, bond):
     # instead of sp2
     if not orbital_1.orbital_type == 'p':
         electrons_in_sp2 = orbital_1.electrons
-        for orbital_name in atom1.valence_shell.orbitals:
-            orbital = atom1.valence_shell.orbitals[orbital_name]
+        for orbital in atom1.valence_shell.orbitals:
             if orbital.orbital_type == 'p':
                 p_orbital_1 = orbital
                 electrons_in_p = orbital.electrons
     if not orbital_2.orbital_type == 'p':
         electrons_in_sp2_2 = orbital_1.electrons
-        for orbital_name in atom2.valence_shell.orbitals:
-            orbital = atom2.valence_shell.orbitals[orbital_name]
+        for orbital in atom2.valence_shell.orbitals:
             if orbital.orbital_type == 'p':
                 p_orbital_2 = orbital
                 electrons_in_p_2 = orbital.electrons
@@ -408,13 +411,11 @@ def form_double_bond(atom1, atom2, bond):
         p_orbital_2.electrons = electrons_in_sp2_2
 
     # Set right orbital name for all electrons in all orbitals
-    for orbital_name in atom1.valence_shell.orbitals:
-        orbital = atom1.valence_shell.orbitals[orbital_name]
+    for orbital in atom1.valence_shell.orbitals:
         for electron in orbital.electrons:
             if atom1.valence_shell.atom == electron.atom:
                 electron.set_orbital(orbital)
-    for orbital_name in atom2.valence_shell.orbitals:
-        orbital = atom2.valence_shell.orbitals[orbital_name]
+    for orbital in atom2.valence_shell.orbitals:
         for electron in orbital.electrons:
             if atom2.valence_shell.atom == electron.atom:
                 electron.set_orbital(orbital)
@@ -424,14 +425,12 @@ def form_double_bond(atom1, atom2, bond):
         for neighbour in bond.neighbours:
             if neighbour == atom2:
                 newly_double_bond = bond
-    for orbital_name in atom1.valence_shell.orbitals:
-        orbital = atom1.valence_shell.orbitals[orbital_name]
+    for orbital in atom1.valence_shell.orbitals:
         if orbital.orbital_type == 'p':
             for electron in orbital.electrons:
                 if electron not in newly_double_bond.electrons:
                     newly_double_bond.electrons.append(electron)
-    for orbital_name in atom2.valence_shell.orbitals:
-        orbital = atom2.valence_shell.orbitals[orbital_name]
+    for orbital in atom2.valence_shell.orbitals:
         if orbital.orbital_type == 'p':
             for electron in orbital.electrons:
                 if electron not in newly_double_bond.electrons:
@@ -506,6 +505,12 @@ def enoylreductase(chain_intermediate):
     for neighbour in bond.neighbours:
         chain_intermediate.add_atom('H', [neighbour])
 
+    # Give annotation to added H-atom
+    for atom in chain_intermediate.graph:
+        if not hasattr(atom.annotations, 'in_central_chain'):
+            for attribute in ATTRIBUTES:
+                atom.annotations.add_annotation(attribute, False)
+
     # Return chirality C atom in the case that the previous elongation reaction
     # was performed using methylmalonyl-CoA
     for atom in atoms_in_double_bond:
@@ -570,13 +575,11 @@ def double_to_single(double_bond, structure):
             pi_electrons.append(electron)
 
     # Remove electrons that participate in the pi bond from each atom in the bond
-    for orbital_name in c1.valence_shell.orbitals:
-        orbital = c1.valence_shell.orbitals[orbital_name]
+    for orbital in c1.valence_shell.orbitals:
         for electron in orbital.electrons:
             if electron in pi_electrons:
                 orbital.remove_electron(electron)
-    for orbital_name in c2.valence_shell.orbitals:
-        orbital = c2.valence_shell.orbitals[orbital_name]
+    for orbital in c2.valence_shell.orbitals:
         for electron in orbital.electrons:
             if electron in pi_electrons:
                 orbital.remove_electron(electron)

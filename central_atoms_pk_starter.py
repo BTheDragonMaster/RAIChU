@@ -142,11 +142,20 @@ def find_central_atoms_pk_starter(pk_starter_unit):
     # Set in_central_chain Atom attribute
     for atom in pk_starter_unit.graph:
         if atom in central_chain:
-            atom.in_central_chain = True
+            atom.annotations.in_central_chain = True
         else:
-            atom.in_central_chain = False
+            atom.annotations.in_central_chain = False
 
     return pk_starter_unit
+
+if __name__ == "__main__":
+    starter_units_antismash = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
+                               'SC(C(C(O)=O)CC)=O', 'SC(C(C(O)=O)OC)=O',
+                               'SC(C*)=O',
+                               'SC(C(C)CC)=O', 'SC(C1C(CCC1)C(=O)O)=O',
+                               'SC(C)=O',
+                               'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O',
+                               'SC(C(C(=O)O)CC[Cl])=O']
 
 
 

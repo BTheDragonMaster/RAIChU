@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 #New import statement, changed by Sophie
 from pks_nrps_find_central_chain import find_central_chain_pks_nrps
+from class_domain import Domain
 import copy
 import math
 import matplotlib
@@ -683,7 +684,7 @@ class Drawer:
                         self.plot_chiral_bond(orientation, chiral_center, line,
                                               ax, midpoint)
                     else:
-                        if (bond.atom_1.type == 'S' and hasattr(bond.atom_2, 'domain_type') or (bond.atom_2.type == 'S' and hasattr(bond.atom_1, 'domain_type'))):
+                        if (bond.atom_1.type == 'S' and bond.atom_2.annotations.domain_type or (bond.atom_2.type == 'S' and bond.atom1.annotations.domain_type)):
                             self.plot_halflines_s_domain(line, ax, midpoint)
                         else:
                             self.plot_halflines(line, ax, midpoint)
@@ -817,8 +818,8 @@ class Drawer:
         for atom in self.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
-                if hasattr(atom, 'domain_type'):
-                    text = atom.domain_type
+                if atom.annotations.domain_type:
+                    text = atom.annotations.domain_type
                 horizontal_alignment = 'center'
                 if atom.type == '*':
                     for neighbour in atom.neighbours:
@@ -999,9 +1000,10 @@ class Drawer:
             if atom.type == 'S':
                 sulphur = atom
                 for neighbour in sulphur.neighbours:
-                    if hasattr(neighbour, 'domain_type'):
+                    if neighbour.annotations.domain_type:
                         attached_to_domain = True
                         domain = neighbour
+
 
 
 
@@ -1016,7 +1018,7 @@ class Drawer:
         if (is_nrp and attached_to_domain) or (is_polyketide and attached_to_domain):
             backbone_atoms = find_central_chain_pks_nrps(self.structure)
             for atom in self.structure.graph:
-                if hasattr(atom, 'domain_type'):
+                if atom.annotations.domain_type:
                     pcp = atom
             pcp_x = pcp.draw.position.x
             pcp_y = pcp.draw.position.y

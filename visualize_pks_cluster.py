@@ -25,7 +25,7 @@ global_figure = ''
 global_nr_elongation_modules = 0
 global_final_polyketide_Drawer_object = 0
 
-def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
+def draw_pks_nrps_cluster(pks_cluster, interactive=False, save_fig = False):
     """
     Displays a visualization of the module- and domain architecture of the
     input PKS cluster
@@ -64,8 +64,8 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         for drawing in drawing_list:
             for atom in drawing.structure.graph:
                 atom.draw.colour = 'black'
-                if hasattr(atom, 'domain_type'):
-                    atom.domain_type = ''
+                if atom.annotations.domain_type:
+                    atom.annotations.set_annotation('domain_type', ' ')
 
     # Build list of all modules comprised in the cluster, used to draw
     # module/domain architecture later
@@ -75,12 +75,12 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
         module_name = module[0]
         module_list_domains = [module[0]]
         module_type = module[1]
-        if module_type == 'starter_module':
+        if module_type == 'starter_module_pks':
             module_list_domains += ['AT', 'ACP']
         elif module_type == 'starter_module_nrps':
             module_list_domains += ['A', 'PCP']
-        elif module_type == 'elongation_module' or \
-                module_type == 'terminator_module':
+        elif module_type == 'elongation_module_pks' or \
+                module_type == 'terminator_module_pks':
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
@@ -94,7 +94,7 @@ def draw_pks_cluster(pks_cluster, interactive=False, save_fig = False):
                 elif tailoring_domain == 'KR_inactive':
                     tailoring_domain = 'KR*'
                 module_list_domains.insert(-1, tailoring_domain)
-            if module_type == 'terminator_module':
+            if module_type == 'terminator_module_pks':
                 module_list_domains.append('TE')
         elif module_type == 'elongation_module_nrps' or\
                 module_type == 'terminator_module_nrps':
@@ -353,7 +353,7 @@ def set_domain_to_origin(drawer_object):
     such that the ACP/PCP domain is located in the origin of the canvas
     """
     for atom in drawer_object.structure.graph:
-        if hasattr(atom, 'domain_type'):
+        if atom.annotations.domain_type:
             domain = atom
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y
@@ -444,7 +444,7 @@ def draw_structures(drawer_objects, fig, ax, height):
                                                        chiral_center, line,
                                                        ax, midpoint)
                     else:
-                        if (bond.atom_1.type == 'S' and hasattr(bond.atom_2, 'domain_type') or (bond.atom_2.type == 'S' and hasattr(bond.atom_1, 'domain_type'))):
+                        if (bond.atom_1.type == 'S' and bond.atom_2.annotations.domain_type or (bond.atom_2.type == 'S' and bond.atom_1.annotations.domain_type)):
                             drawer_object.plot_halflines_s_domain(line, ax, midpoint)
                         else:
                             drawer_object.plot_halflines(line, ax, midpoint)
@@ -585,8 +585,8 @@ def draw_structures(drawer_objects, fig, ax, height):
         for atom in drawer_object.structure.graph:
             if atom.type != 'C' and atom.draw.positioned:
                 text = atom.type
-                if hasattr(atom, 'domain_type'):
-                    text = atom.domain_type
+                if atom.annotations.domain_type:
+                    text = atom.annotations.domain_type
                 horizontal_alignment = 'center'
                 if atom.type == '*':
                     for neighbour in atom.neighbours:

@@ -1,6 +1,9 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms
-
+from visualize_pks_cluster import *
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
+ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
+              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
+              'ER_target', 'domain_type']
 
 def find_central_atoms_pk_starter(pk_starter_unit):
     """Finds the the atoms in the central chain of the polyketide starter unit,
@@ -156,6 +159,10 @@ if __name__ == "__main__":
                                'SC(C)=O',
                                'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O',
                                'SC(C(C(=O)O)CC[Cl])=O']
+    for starter_unit in starter_units_antismash:
+        struct = Smiles(starter_unit).smiles_to_structure()
+        struct.add_attributes(ATTRIBUTES, boolean=True)
+        RaichuDrawer(struct)
 
 
 

@@ -8,7 +8,7 @@ ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'ER_target', 'domain_type']
 
 
-class Raichu_drawer(Drawer):
+class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
                  coords_only=False, dpi=100):
         self.dont_show = dont_show
@@ -802,6 +802,24 @@ class Raichu_drawer(Drawer):
             ax.plot([line.point_1.x, line.point_2.x],
                     [line.point_1.y, line.point_2.y], color=color,
                     linewidth=self.line_width/1.5)
+
+    def get_delta_x_sidechain(self, sidechain_atom, neighbouring_carbon):
+        """Returns the change tot the x-position of the sidegroup symbol in
+        the structure drawing as float
+        sidechain_atom: Atom object of the unknown sidechain group
+        neighoburin_carbon: Atom object of the carbon in the central chain
+        bound to the unknown sidechain group
+        """
+        sidechainatom_x = sidechain_atom.draw.position.x
+        carbon_x = neighbouring_carbon.draw.position.x
+        if (carbon_x - sidechainatom_x) < -10:
+            delta_x = 1.5
+        elif (carbon_x - sidechainatom_x) > 10:
+            delta_x = -1.5
+        else:
+            delta_x = 0.0
+
+        return delta_x
 
 def get_angle(vector1, vector2):
     difference = Vector.subtract_vectors(vector1, vector2)

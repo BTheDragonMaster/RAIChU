@@ -1,5 +1,5 @@
 from matplotlib.patches import Circle
-from RAIChU_drawing import *
+from RaichuDrawer import *
 from matplotlib.widgets import Button
 from pks_thioesterase_reactions import *
 import matplotlib.lines as lines

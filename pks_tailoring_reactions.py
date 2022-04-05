@@ -1,5 +1,5 @@
 from pks_elongation_reactions import *
-from pk_attach_to_domain import *
+from attach_to_domain import *
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, BondDefiner
 
 RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)

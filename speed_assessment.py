@@ -1,4 +1,4 @@
-from create_random_pks_clusters import *
+from create_random_clusters import *
 import time
 
 if __name__ == "__main__":
@@ -7,7 +7,7 @@ if __name__ == "__main__":
         cluster = generate_random_nrps_cluster()
         print(cluster)
         start = time.time()
-        draw_pks_cluster(cluster, save_fig=f'NRPS_cluster_{i}.png')
+        RaichuDrawer(cluster, save_fig=f'NRPS_cluster_{i}.png')
         end = time.time()
         delta_time = end - start
         print(len(cluster), ' modules,', delta_time, ' seconds')
@@ -21,7 +21,7 @@ if __name__ == "__main__":
         generated_cluster = generate_random_pks_cluster()
         print(generated_cluster)
         start = time.time()
-        draw_pks_cluster(generated_cluster, save_fig=f'PKS_cluster_{i}.png')
+        RaichuDrawer(generated_cluster, save_fig=f'PKS_cluster_{i}.png')
         end = time.time()
         delta_time = end - start
         print(len(generated_cluster), ' modules,', delta_time, ' seconds')
@@ -35,7 +35,7 @@ if __name__ == "__main__":
         generated_cluster = generate_random_hybrid_cluster()
         print(generated_cluster)
         start = time.time()
-        draw_pks_cluster(generated_cluster,
+        RaichuDrawer(generated_cluster,
                          save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         end = time.time()
         delta_time = end - start

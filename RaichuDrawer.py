@@ -1,7 +1,7 @@
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
-from pks_nrps_find_central_chain import find_central_chain_pks_nrps
+from find_central_chain import find_central_chain
 
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
@@ -413,7 +413,7 @@ class RaichuDrawer(Drawer):
         # If struct=PK/NRP, find central chain and attached domain
         if (is_nrp and attached_to_domain) or (
                 is_polyketide and attached_to_domain):
-            backbone_atoms = find_central_chain_pks_nrps(self.structure)
+            backbone_atoms = find_central_chain(self.structure)
             for atom in self.structure.graph:
                 if atom.annotations.domain_type:
                     pcp = atom

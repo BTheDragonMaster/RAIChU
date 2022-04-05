@@ -1,5 +1,5 @@
 import random
-from visualize_pks_cluster import *
+from visualize_cluster import *
 
 
 starter_units = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',

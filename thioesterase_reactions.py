@@ -1,4 +1,4 @@
-from pks_modules_to_structure import *
+from modules_to_structure import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 
 

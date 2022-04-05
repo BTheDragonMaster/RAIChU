@@ -1,5 +1,5 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms
-from visualize_pks_cluster import *
+from visualize_cluster import *
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',

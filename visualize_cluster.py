@@ -56,6 +56,7 @@ def draw_pks_nrps_cluster(pks_cluster, interactive=False, save_fig = False):
     list_drawings_per_module = cluster_to_structure(pks_cluster,
     attach_to_acp=True, draw_structures_per_module=True)
 
+
     # Close all matplotlib windows that were still open when generating
     # the chain intermediate Drawer objects
     plt.close('all')

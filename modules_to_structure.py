@@ -89,13 +89,13 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                 assert len(c2_atoms_aa) == 1
                 for atom in starter_unit.graph:
                     if atom == n_atoms_aa[0]:
-                        atom.in_central_chain = True
+                        atom.annotations.in_central_chain = True
                     elif atom == c1_atoms_aa[0]:
-                        atom.in_central_chain = True
+                        atom.annotations.in_central_chain = True
                     elif atom == c2_atoms_aa[0]:
-                        atom.in_central_chain = True
+                        atom.annotations.in_central_chain = True
                     else:
-                        atom.in_central_chain = False
+                        atom.annotations.in_central_chain = False
 
                 # If attached, attach
                 chain_intermediate = starter_unit

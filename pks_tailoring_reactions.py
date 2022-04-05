@@ -293,7 +293,7 @@ def dehydratase(chain_intermediate):
     split = chain_intermediate.split_disconnected_structures()
     chain_intermediate, oh = split
 
-    # Remove proton from c1
+    # Remove H-atom from c1
     for atom in chain_intermediate.graph:
         if atom == c1:
             for neighbour in atom.neighbours:
@@ -305,7 +305,7 @@ def dehydratase(chain_intermediate):
     split = chain_intermediate.split_disconnected_structures()
     for structure in split:
         if len(structure.graph) == 1:
-            proton = structure
+            h_atom = structure
         else:
             chain_intermediate = structure
 

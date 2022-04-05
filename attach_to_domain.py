@@ -31,10 +31,10 @@ def attach_to_domain_pk(polyketide, domain_type):
     split = polyketide.split_disconnected_structures()
     one, two = split
     if len(one.graph) == 1:
-        proton = one
+        h_atom = one
         structure = two
     else:
-        proton = two
+        h_atom = two
         structure = one
 
     #Make new bond between S in polyketide and domain

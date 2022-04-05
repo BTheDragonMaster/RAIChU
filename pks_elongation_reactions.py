@@ -146,7 +146,7 @@ def pks_elongation(pk_chain, elongation_monomer):
         atom.draw.colour = 'black'
 
     # Defining the structure of the elongation units
-    elongation_monomer_struct = Smiles(elongation_monomer[0]).smiles_to_structure()
+    elongation_monomer_struct = read_smiles(elongation_monomer[0])
 
     # Add annotation attributes to elongation monomer
     elongation_monomer_struct.add_attributes(ATTRIBUTES, boolean=True)

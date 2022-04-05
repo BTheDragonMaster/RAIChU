@@ -3,6 +3,7 @@ from pikachu.reactions.functional_groups import find_bonds, BondDefiner, GroupDe
 from pikachu.smiles.smiles import Smiles
 from pikachu.reactions.basic_reactions import combine_structures
 from class_domain import ATTRIBUTES
+from pikachu.general import read_smiles
 
 
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
@@ -145,7 +146,7 @@ def sulphur_to_hydroxyl(thioester_structure):
         thioester_structure = one
 
     # Create Structure object hydroxyl group
-    methanol = Smiles('CO').smiles_to_structure()
+    methanol = read_smiles('CO')
     for atom in methanol.graph:
         if atom.type == 'C':
             carbon_methanol = atom

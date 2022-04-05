@@ -4,6 +4,7 @@ import os
 from os import path
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
+from pikachu.general import read_smiles
 from matplotlib.patches import FancyArrow
 from copy import copy
 from NRPS_condensation import condensation_nrps
@@ -64,7 +65,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             # If starter module = PKS module: construct starter unit from
             # supplied SMILES string
             if module[1] == 'starter_module_pks':
-                starter_unit = Smiles(module[2]).smiles_to_structure()
+                starter_unit = read_smiles(module[2])
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)
                 starter_unit = find_central_atoms_pk_starter(starter_unit)
                 if attach_to_acp:
@@ -78,8 +79,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             # If starter module = NRPS module: find SMILES in PARAS.txt and
             # build starter unit
             elif module[1] == 'starter_module_nrps':
-                starter_unit = Smiles(dict_aa_smiles[module[2].upper()])\
-                    .smiles_to_structure()
+                starter_unit = read_smiles(dict_aa_smiles[module[2].upper()])
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)
                 n_atoms_aa = find_atoms(N_AMINO_ACID, starter_unit)
                 c1_atoms_aa = find_atoms(C1_AMINO_ACID, starter_unit)
@@ -114,7 +114,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
         #If module is a PKS module:
         if module[1] == 'elongation_module_pks' or module[1] == 'terminator_module_pks':
             # If last reaction was an NRPS reaction
-            locations = chain_intermediate.find_substructures(Smiles('C(=O)(O)CN').smiles_to_structure())
+            locations = chain_intermediate.find_substructures(read_smiles('C(=O)(O)CN'))
             if len(locations) > 0:
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
 
@@ -323,13 +323,13 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             # Build amino acid structure from dict containig PARAS SMILES
             aa_specifity = aa_specifity.upper()
             assert aa_specifity in dict_aa_smiles
-            aa_structure = Smiles(dict_aa_smiles[aa_specifity]).smiles_to_structure()
+            aa_structure = read_smiles(dict_aa_smiles[aa_specifity])
 
             # Check that the structure is an amino acid
             if not (len(aa_structure.find_substructures(
-                    Smiles('CN').smiles_to_structure())) > 0 \
+                    read_smiles('CN'))) > 0
                     and len(aa_structure.find_substructures(
-                        Smiles('C(O)=O').smiles_to_structure())) > 0):
+                        read_smiles('C(O)=O'))) > 0):
                 raise ValueError(
                     f'The structure: {aa_specifity}, is not an amino acid')
 

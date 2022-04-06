@@ -5,13 +5,13 @@ from pikachu.reactions.basic_reactions import combine_structures
 from class_domain import ATTRIBUTES
 from pikachu.general import read_smiles
 
-
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 THIOESTER_CARBON = GroupDefiner('thioester carbon', 'SC(C)=O', 1)
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)CN', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
 C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
 C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
+
 
 def condensation_nrps(amino_acid, nrp_intermediate):
     """
@@ -103,10 +103,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
 
     # Refresh condensation product
-    condensation_product.refresh_structure()
-    condensation_product.set_connectivities()
-    condensation_product.set_atom_neighbours()
-    condensation_product.find_cycles()
+    condensation_product.refresh_structure(find_cycles=True)
 
     # Initialize annotations for atoms that don't have any yet
     for atom in condensation_product.graph:

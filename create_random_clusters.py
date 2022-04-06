@@ -1,7 +1,6 @@
 import random
 from visualize_cluster import *
 
-
 starter_units = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
                  'SC(C(C(O)=O)CC)=O', 'SC(C(C(O)=O)OC)=O', 'SC(C*)=O',
                  'SC(C(C)CC)=O', 'SC(C1C(CCC1)C(=O)O)=O', 'SC(C)=O',
@@ -9,6 +8,7 @@ starter_units = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
 tailoring_domain_combinations = [[], ['KR'], ['KR', 'DH'], ['KR', 'DH', 'ER']]
 elongation_units = ['malonylcoa', 'methylmalonylcoa', 'pk',
                     'methoxymalonylacp', 'ethylmalonylcoa']
+
 
 def generate_random_pks_cluster():
     """Generates and returns a pure PKS cluster in the standard RAIChU format,
@@ -64,7 +64,7 @@ def generate_random_hybrid_cluster():
                'tyrosine', 'valine', 'glycine']
     # Choose between NPRS or PKS starter module
     if random.randint(0,1) == 1:
-        starter_module = ['module 1', 'starter_module',
+        starter_module = ['module 1', 'starter_module_pks',
                           random.choice(starter_units)]
     else:
         starter_module = ['module 1', 'starter_module_nrps',
@@ -74,7 +74,7 @@ def generate_random_hybrid_cluster():
     # For each elongation module, choose between PKS or NRPS module
     for i in range(2, last_elongation_domain_nr):
         if random.randint(0,1) == 1:
-            elongation_module = [f'module {i}', 'elongation_module',
+            elongation_module = [f'module {i}', 'elongation_module_pks',
                                  random.choice(elongation_units),
                                  random.choice(tailoring_domain_combinations)]
         else:
@@ -84,7 +84,7 @@ def generate_random_hybrid_cluster():
     # Choose between PKS or NRPS terminator module
     if random.randint(0,1) == 1:
         terminator_module =  [f'module {last_elongation_domain_nr}',
-                              'terminator_module',
+                              'terminator_module_pks',
                               random.choice(elongation_units),
                               random.choice(tailoring_domain_combinations)]
     else:
@@ -98,20 +98,22 @@ if __name__ == "__main__":
     # Draw and save 500 pure NRPS clusters
     # for i in range(1, 501):
     #     cluster = generate_random_nrps_cluster()
-    #     draw_pks_cluster(cluster, save_fig=f'NRPS_cluster_{i}.png')
+    #     print(cluster)
+    #     draw_cluster(cluster, save_fig=f'NRPS_cluster_{i}.png')
     #     plt.close('all')
-
-    # Draw and save 500 pure PKS clusters
-    for i in range(1, 501):
-        cluster = generate_random_pks_cluster()
-        print(cluster)
-        draw_pks_cluster(cluster, save_fig=f'PKS_cluster_{i}.png')
-        plt.close('all')
+    #
+    # # Draw and save 500 pure PKS clusters
+    # for i in range(1, 501):
+    #     cluster = generate_random_pks_cluster()
+    #     print(cluster)
+    #     draw_cluster(cluster, save_fig=f'PKS_cluster_{i}.png')
+    #     plt.close('all')
 
     # Draw and save 500 hybrid PKS/NRPS clusters
     for i in range(1, 501):
         cluster = generate_random_hybrid_cluster()
-        draw_pks_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
+        print(cluster)
+        draw_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         plt.close('all')
 
 

@@ -6,6 +6,7 @@ import matplotlib.lines as lines
 import matplotlib.image as mpimg
 from copy import deepcopy
 
+
 # Colour dicts to match antiSMASH domain colouring
 colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781', \
                     'KR':'#80f680', 'DH':'#f7be81', 'ER':'#81f7f3', \
@@ -26,7 +27,7 @@ global_figure = ''
 global_nr_elongation_modules = 0
 global_final_polyketide_Drawer_object = 0
 
-def draw_pks_nrps_cluster(pks_cluster, interactive=False, save_fig = False):
+def draw_cluster(pks_cluster, interactive=False, save_fig = False):
     """
     Displays a visualization of the module- and domain architecture of the
     input PKS cluster
@@ -122,6 +123,8 @@ def draw_pks_nrps_cluster(pks_cluster, interactive=False, save_fig = False):
     x = 30
     index = 0
     list_all_domains_copy = deepcopy(list_all_domains)
+
+    #deepcopy(list_all_domains)
     for module in list_all_domains_copy:
         del module[0]
         for domain in module:

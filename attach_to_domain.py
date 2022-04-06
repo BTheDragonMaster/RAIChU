@@ -42,7 +42,6 @@ def attach_to_domain_pk(polyketide, domain_type):
         next_bond_nr = structure.find_next_bond_nr()
         structure.make_bond(domain, neighbour, next_bond_nr)
 
-    structure.set_connectivities()
     structure.set_atoms()
 
     return structure
@@ -60,7 +59,8 @@ def attach_to_domain_nrp(nrp, domain_type):
     domain = make_domain(domain_type, next_atom_nr)
     domain.add_electron_shells()
 
-    # Remove H atom from S in polyketide, to allow attachment to domain
+    # Remove OH group from carboxylic acid in NRP, to allow attachment
+    # to domain
     locations_c_to_domain = find_atoms(NRP_C, nrp)
     assert len(locations_c_to_domain) == 1
     c_atom_to_domain = locations_c_to_domain[0]
@@ -69,6 +69,7 @@ def attach_to_domain_nrp(nrp, domain_type):
             if nrp.bond_lookup[c_atom_to_domain][neighbour].type == 'single':
                 remove_o = neighbour
                 bond_to_break = nrp.bond_lookup[c_atom_to_domain][neighbour]
+
 
     nrp.break_bond(bond_to_break)
     split = nrp.split_disconnected_structures()
@@ -94,8 +95,6 @@ def attach_to_domain_nrp(nrp, domain_type):
         next_bond_nr = structure.find_next_bond_nr()
         structure.make_bond(domain, neighbour, next_bond_nr)
 
-
-    structure.find_cycles()
     structure.set_atoms()
 
     for atom in structure.graph:

@@ -50,8 +50,11 @@ def carbonyl_to_hydroxyl(double_bond):
 
     # Remove pi electrons from the Bond between the C and O atom
     for electron in double_bond.electrons[:]:
-        if electron == electron_1 or electron == electron_2:
+        if electron == electron_1 and electron.orbital_type == 'p':
             double_bond.electrons.remove(electron)
+        elif electron == electron_2 and electron.orbital_type == 'p':
+            double_bond.electrons.remove(electron)
+
 
     # Change hybridisation of both C and O atoms to sp3
     atom_1, atom_2 = double_bond.neighbours
@@ -130,6 +133,7 @@ def ketoreductase(chain_intermediate, kr_type = None):
         # Change carbonyl bond to single bond
         for bond in beta_ketone_bond:
             new_single_bond = carbonyl_to_hydroxyl(bond)
+
 
 
         # Add H atom to form hydroxyl group and another H to the C

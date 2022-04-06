@@ -14,9 +14,8 @@ class Domain(Atom):
         for annotation in ATTRIBUTES:
             self.annotations.add_annotation(annotation, default=False)
 
-
     def __repr__(self):
-        return f'{self.domain_type}_{self.domain_nr}'
+        return f'{self.annotations.domain_type}_{self.domain_nr}'
 
     def __hash__(self):
         return self.nr
@@ -27,11 +26,8 @@ class Domain(Atom):
         else:
             return False
 
-
-
     def print_domaintype(self):
         print(self.domain_type)
-
 
     def set_domain_type(self, domain_type):
         assert domain_type == 'ACP' or domain_type == 'AT' or\

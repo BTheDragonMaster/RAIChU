@@ -51,7 +51,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
     # Construct dict to find the SMILES of all amino acids recognized by PARAS
     dict_aa_smiles = make_dict_aa_smiles()
 
-    modules = copy(modules)
+    modules = modules[::]
     list_drawings_per_module = []
 
     for module in modules:
@@ -103,7 +103,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                     copy_chain_intermediate = chain_intermediate.deepcopy()
                     copy_chain_intermediate.find_cycles()
                     copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
-                    copy_attached.find_cycles()
+                    copy_attached.refresh_structure(find_cycles=True)
                     drawing = RaichuDrawer(copy_attached, dont_show=True)
                     list_drawings_per_module.append([drawing])
 

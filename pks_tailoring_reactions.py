@@ -1,5 +1,6 @@
 from pks_elongation_reactions import *
 from attach_to_domain import *
+from copy import copy, deepcopy
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, BondDefiner
 
 RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)
@@ -291,27 +292,29 @@ def dehydratase(chain_intermediate):
             else:
                 c1 = neighbour
 
+
     # Remove hydroxyl group from c2
     for bond in co_bond[:]:
         chain_intermediate.break_bond(bond)
-    split = chain_intermediate.split_disconnected_structures()
-    chain_intermediate, oh = split
+    # split = chain_intermediate.split_disconnected_structures()
+    # chain_intermediate, oh = split
 
     # Remove H-atom from c1
     for atom in chain_intermediate.graph:
         if atom == c1:
             for neighbour in atom.neighbours:
                 if neighbour.type == 'H':
+                    hydrogen = neighbour
                     for bond in neighbour.bonds:
                         bond_to_break = bond
                     break
     chain_intermediate.break_bond(bond_to_break)
-    split = chain_intermediate.split_disconnected_structures()
-    for structure in split:
-        if len(structure.graph) == 1:
-            h_atom = structure
-        else:
-            chain_intermediate = structure
+    # split = chain_intermediate.split_disconnected_structures()
+    # for structure in split:
+    #     if len(structure.graph) == 1:
+    #         h_atom = structure
+    #     else:
+    #         chain_intermediate = structure
 
     # Patch. When the bond is broken, the electron is not removed from
     # the orbitals of the C atom.
@@ -322,12 +325,26 @@ def dehydratase(chain_intermediate):
     # Make double c1=c2 bond
     form_double_bond(c1, c2, chain_intermediate.bond_lookup[c1][c2])
 
+    # Make bond between removed hydroxyl group and hydrogen atom to form water
+    next_bond_nr = chain_intermediate.find_next_bond_nr()
+    chain_intermediate.make_bond(hydrogen, o_oh, next_bond_nr)
+
+    # Remove separate water structure from the Structure object
+    one, two = chain_intermediate.split_disconnected_structures()
+    if len(one.graph) == 3:
+        water = one
+        chain_intermediate = two
+    else:
+        water = two
+        chain_intermediate = one
+
     # After double bond formation, remove chirality c1 and c2
     for atom in chain_intermediate.graph:
         if atom == c1:
             atom.chiral = None
         elif atom == c2:
             atom.chiral = None
+
 
 
     # Add colouring
@@ -498,16 +515,26 @@ def enoylreductase(chain_intermediate):
     # Find double bond, change to single bond
     double_cc_bond = find_double_cc(chain_intermediate)
     atoms_in_double_bond = []
-    for bond in double_cc_bond:
-        atom_1 = bond.neighbours[0]
-        atom_2 = bond.neighbours[1]
-        atoms_in_double_bond.append(atom_1)
-        atoms_in_double_bond.append(atom_2)
-        double_to_single(bond, chain_intermediate)
+    double_cc_bond[0].make_single()
+    # for bond in double_cc_bond:
+    #     atom_1 = bond.neighbours[0]
+    #     atom_2 = bond.neighbours[1]
+    #     atoms_in_double_bond.append(atom_1)
+    #     atoms_in_double_bond.append(atom_2)
+    #     double_to_single(bond, chain_intermediate)
+
+
 
     # Add H-atom to the C atoms participating in the new single bond
     for neighbour in bond.neighbours:
         chain_intermediate.add_atom('H', [neighbour])
+
+
+    # Change hybridisation from sp2 to sp3
+    atom_1.valence_shell.dehybridise()
+    atom_1.valence_shell.hybridise('sp3')
+    atom_2.valence_shell.dehybridise()
+    atom_2.valence_shell.hybridise('sp3')
 
     # Give annotation to added H-atom
     for atom in chain_intermediate.graph:
@@ -569,6 +596,7 @@ def double_to_single(double_bond, structure):
     double_bond: PIKAChU Bond object, double bond
     """
 
+
     c1 = double_bond.atom_1
     c2 = double_bond.atom_2
 
@@ -578,21 +606,41 @@ def double_to_single(double_bond, structure):
         if electron.orbital_type == 'p':
             pi_electrons.append(electron)
 
-    # Remove electrons that participate in the pi bond from each atom in the bond
-    for orbital in c1.valence_shell.orbitals:
-        for electron in orbital.electrons:
-            if electron in pi_electrons:
-                orbital.remove_electron(electron)
-    for orbital in c2.valence_shell.orbitals:
-        for electron in orbital.electrons:
-            if electron in pi_electrons:
-                orbital.remove_electron(electron)
 
-    # Change hybridisation from sp2 to sp3
-    c1.valence_shell.dehybridise()
-    c1.valence_shell.hybridise('sp3')
-    c2.valence_shell.dehybridise()
-    c2.valence_shell.hybridise('sp3')
+    # Remove electrons that participate in the pi bond from each atom in the bond
+    for orbital in c1.valence_shell.orbitals[:]:
+        if orbital.orbital_type == 'p':
+            p_orbital_nr = orbital.orbital_nr
+            orbital_copy = deepcopy(orbital)
+            for electron in orbital_copy.electrons[:]:
+                if electron.orbital_type == 'p' and electron.atom == c2:
+                    orbital_copy.remove_electron(electron)
+    for orbital in c1.valence_shell.orbitals[:]:
+        if orbital.orbital_nr == p_orbital_nr:
+            orbital = orbital_copy
+
+    for orbital in c2.valence_shell.orbitals[:]:
+        if orbital.orbital_type == 'p':
+            p_orbital2 = orbital
+            orbital_copy2 = deepcopy(orbital)
+            for electron in orbital_copy2.electrons[:]:
+                if electron.orbital_type == 'p' and electron.atom == c1:
+                    orbital_copy2.remove_electron(electron)
+    for orbital in c2.valence_shell.orbitals[:]:
+        if orbital == p_orbital2:
+            orbital = orbital_copy2
+    print('copy 1  electrons', orbital_copy.electrons)
+    print('copy 2 electrons', orbital_copy2.electrons)
+    print('print c1')
+    c1.valence_shell.print_shell()
+    print('end')
+    print('print c2')
+    c2.valence_shell.print_shell()
+    print('end')
+
+
+
+
 
     # Remove pi electrons from bond
     for electron in double_bond.electrons[:]:
@@ -601,6 +649,7 @@ def double_to_single(double_bond, structure):
 
     # Change bondtype to single
     double_bond.type = 'single'
+
 
 
 

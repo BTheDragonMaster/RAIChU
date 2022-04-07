@@ -516,19 +516,21 @@ def enoylreductase(chain_intermediate):
     double_cc_bond = find_double_cc(chain_intermediate)
     atoms_in_double_bond = []
     double_cc_bond[0].make_single()
-    # for bond in double_cc_bond:
-    #     atom_1 = bond.neighbours[0]
-    #     atom_2 = bond.neighbours[1]
-    #     atoms_in_double_bond.append(atom_1)
-    #     atoms_in_double_bond.append(atom_2)
-    #     double_to_single(bond, chain_intermediate)
 
+    atom_1 = None
+    atom_2 = None
 
+    for bond in double_cc_bond:
+        atom_1 = bond.neighbours[0]
+        atom_2 = bond.neighbours[1]
+        atoms_in_double_bond.append(atom_1)
+        atoms_in_double_bond.append(atom_2)
+
+    assert atom_1 and atom_2
 
     # Add H-atom to the C atoms participating in the new single bond
-    for neighbour in bond.neighbours:
+    for neighbour in double_cc_bond[0].neighbours:
         chain_intermediate.add_atom('H', [neighbour])
-
 
     # Change hybridisation from sp2 to sp3
     atom_1.valence_shell.dehybridise()

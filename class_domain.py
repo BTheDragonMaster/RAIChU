@@ -1,8 +1,9 @@
 from pikachu.chem.structure import *
-from pikachu.chem.atom import AtomAnnotations
+from pikachu.chem.atom import AtomAnnotations, AtomDrawProperties
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
               'ER_target', 'domain_type']
+
 
 class Domain(Atom):
     def __init__(self, atom_type, atom_nr, chiral, charge, aromatic):
@@ -28,6 +29,32 @@ class Domain(Atom):
 
     def print_domaintype(self):
         print(self.domain_type)
+
+    def copy(self):
+        domain_copy = Domain(self.type, self.nr, self.chiral, self.charge, self.aromatic)
+        domain_copy.hybridisation = self.hybridisation
+        domain_copy.pyrrole = self.pyrrole
+        domain_copy.furan = self.furan
+        domain_copy.thiophene = self.thiophene
+        domain_copy.draw = AtomDrawProperties()
+        domain_copy.draw.colour = self.draw.colour
+        domain_copy.annotations = self.annotations.copy()
+        domain_copy.domain_nr = domain_copy.nr
+        domain_copy.domain_type = self.domain_type
+        connectivity = []
+
+        for connection in self.connectivity:
+            connectivity.append(connection)
+
+        domain_copy.connectivity = tuple(connectivity)
+
+        for neighbour in self.neighbours:
+            domain_copy.neighbours.append(neighbour)
+
+        # Note: when copying a structure, neighbours need to be refreshed again
+        # after all atoms have been changed!
+
+        return domain_copy
 
     def set_domain_type(self, domain_type):
         assert domain_type == 'ACP' or domain_type == 'AT' or\

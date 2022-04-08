@@ -871,7 +871,12 @@ class RaichuDrawer(Drawer):
 
             # self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
-            self.finetune_overlap_resolution()
+            central_chain_bonds = set()
+            for bond in self.structure.bonds.values():
+                if bond.atom_1.annotations.in_central_chain or\
+                        bond.atom_2.annotations.in_central_chain:
+                    central_chain_bonds.add(bond)
+            self.finetune_overlap_resolution(masked_bonds=central_chain_bonds)
 
     ### End NRPS rotation code
 

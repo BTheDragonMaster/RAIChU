@@ -1,4 +1,4 @@
-from pikachu.reactions.basic_reactions import condensation
+from pikachu.reactions.basic_reactions import condensation, hydrolysis
 from pikachu.reactions.functional_groups import find_bonds, BondDefiner, GroupDefiner, find_atoms
 from pikachu.smiles.smiles import Smiles
 from pikachu.reactions.basic_reactions import combine_structures
@@ -100,6 +100,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             atom.annotations.in_central_chain = False
 
     # Carry out condensation reaction using build-in PIKAChU function
+
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]
 
     # Refresh condensation product
@@ -126,85 +127,107 @@ def sulphur_to_hydroxyl(thioester_structure):
     # Find thioester bond in the input structure
     found_bonds_thioester = find_bonds(THIOESTERBOND, thioester_structure)
     found_carbon_thioester = find_atoms(THIOESTER_CARBON, thioester_structure)
+
     assert len(found_carbon_thioester)
     assert len(found_bonds_thioester) == 1
 
     carbon_thioester = found_carbon_thioester[0]
     sh_bond = found_bonds_thioester[0]
-    thioester_structure.break_bond(sh_bond)
+
+    structures = hydrolysis(thioester_structure, sh_bond)
+    combined = None
+    for structure in structures:
+        if carbon_thioester in structure.graph:
+            combined = structure
+            break
+
+    assert combined
+
+    # thioester_structure.break_bond(sh_bond)
 
     # Break S-C bond in thioester
-    one, two = thioester_structure.split_disconnected_structures()
-    if len(one.graph) < 3:
-        residual = one
-        thioester_structure = two
-    else:
-        residual = two
-        thioester_structure = one
+    # one, two = thioester_structure.split_disconnected_structures()
+    # if len(one.graph) < 3:
+    #     residual = one
+    #     thioester_structure = two
+    # else:
+    #     residual = two
+    #     thioester_structure = one
 
     # Create Structure object hydroxyl group
-    methanol = read_smiles('CO')
-    for atom in methanol.graph:
-        if atom.type == 'C':
-            carbon_methanol = atom
-            for neighbour in carbon_methanol.neighbours:
-                if neighbour.type == 'O':
-                    oxygen_hydroxyl = neighbour
-
-    methanol.break_bond(methanol.bond_lookup[carbon_methanol][oxygen_hydroxyl])
-    one, two = methanol.split_disconnected_structures()
-
-    if len(one.graph) == 4:
-        residual = one
-        hydroxyl = two
-    else:
-        residual = two
-        hydroxyl = one
+    # methanol = read_smiles('CO')
+    # for atom in methanol.graph:
+    #     if atom.type == 'C':
+    #         carbon_methanol = atom
+    #         for neighbour in carbon_methanol.neighbours:
+    #             if neighbour.type == 'O':
+    #                 oxygen_hydroxyl = neighbour
+    #
+    # methanol.break_bond(methanol.bond_lookup[carbon_methanol][oxygen_hydroxyl])
+    # one, two = methanol.split_disconnected_structures()
+    #
+    # if len(one.graph) == 4:
+    #     residual = one
+    #     hydroxyl = two
+    # else:
+    #     residual = two
+    #     hydroxyl = one
 
 
     # Add hydroxyl group to the carbon atom of the intermediate to create a
     # carboxylic acid group
-    combined = combine_structures((hydroxyl, thioester_structure))
+    # combined = combine_structures((hydroxyl, thioester_structure))
 
     # Refresh combined Structure object (no new bond yet)
-    combined.get_connectivities()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.make_bond_lookup()
-    next_bond_nr = combined.find_next_bond_nr()
+    # combined.get_connectivities()
+    # combined.set_connectivities()
+    # combined.set_atom_neighbours()
+    # combined.make_bond_lookup()
+    # next_bond_nr = combined.find_next_bond_nr()
 
     # Define carbon and oxygen atom of the new hydroxyl group, make bond
     # between these atoms
-    for atom in combined.graph:
-        atom_neighbours = []
-        atom_neighbour_types = []
-        for neighbour in atom.neighbours:
-            atom_neighbour_types.append(neighbour.type)
-            atom_neighbours.append(neighbour)
-        if atom.type == 'C' and len(atom_neighbours) == 2 and\
-                atom_neighbour_types.count('O') == 1 and\
-                atom_neighbour_types.count('C') == 1:
-            carbon_thioester = atom
-        elif atom.type == 'O' and len(atom_neighbours) == 1 and\
-                atom_neighbour_types.count('H') == 1:
-            oxygen_hydroxyl = atom
-    combined.make_bond(carbon_thioester, oxygen_hydroxyl, next_bond_nr)
+    # for atom in combined.graph:
+    #     atom_neighbours = []
+    #     atom_neighbour_types = []
+    #     for neighbour in atom.neighbours:
+    #         atom_neighbour_types.append(neighbour.type)
+    #         atom_neighbours.append(neighbour)
+    #     if atom.type == 'C' and len(atom_neighbours) == 2 and\
+    #             atom_neighbour_types.count('O') == 1 and\
+    #             atom_neighbour_types.count('C') == 1:
+    #         carbon_thioester = atom
+    #     elif atom.type == 'O' and len(atom_neighbours) == 1 and\
+    #             atom_neighbour_types.count('H') == 1:
+    #         oxygen_hydroxyl = atom
+    # combined.make_bond(carbon_thioester, oxygen_hydroxyl, next_bond_nr)
+    #
+    #
+    # combined.set_atoms()
+    # combined.make_bond_lookup()
+    # combined.set_connectivities()
+    # combined.set_atom_neighbours()
+    # combined.find_cycles()
+    # for bond_nr, bond in combined.bonds.items():
+    #     bond.set_bond_summary()
 
+    oxygens = carbon_thioester.get_neighbours('O')
 
-    combined.set_atoms()
-    combined.make_bond_lookup()
-    combined.set_connectivities()
-    combined.set_atom_neighbours()
-    combined.find_cycles()
-    for bond_nr, bond in combined.bonds.items():
-        bond.set_bond_summary()
+    oxygen_hydroxyl = None
+
+    for oxygen in oxygens:
+        if oxygen.get_bond(carbon_thioester).type == 'single' and oxygen.has_neighbour('H'):
+            oxygen_hydroxyl = oxygen
+            break
+
+    assert oxygen_hydroxyl
+
     oh_bond = combined.bond_lookup[oxygen_hydroxyl][carbon_thioester]
 
     for atom in combined.graph:
         if not hasattr(atom.annotations, 'in_central_chain'):
             for attribute in ATTRIBUTES:
                 atom.annotations.add_annotation(attribute, False)
-
 
     return combined, oh_bond
 

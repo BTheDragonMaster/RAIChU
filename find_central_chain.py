@@ -4,6 +4,7 @@ from pikachu.smiles.smiles import *
 from pikachu.general import read_smiles
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
+
 def find_central_chain(pks_nrps_attached):
     """Identifies the central chain atoms in the input structure from the
     in_central_chain Atom attribute, and returns these Atom objects as a list

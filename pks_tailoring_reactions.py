@@ -12,6 +12,7 @@ KR_DOMAIN_TYPES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
 C2_KR = GroupDefiner('C2 atom before KR reaction', 'SC(C)=O', 2)
 C1_KR = GroupDefiner('C1 atom before KR reaction', 'SC(C)=O', 1)
 
+
 def carbonyl_to_hydroxyl(double_bond):
     """Alters the double bond in a carbonyl group to a single bond and returns
     this as a PIKAChU Bond object
@@ -98,6 +99,7 @@ def ketoreductase(chain_intermediate, kr_type = None):
     chain_intermediate: PIKAChU Structure object, PKS chain intermediate just
     after a PKS elongation step
     """
+
     if kr_type:
         assert kr_type in KR_DOMAIN_TYPES
 
@@ -292,7 +294,6 @@ def dehydratase(chain_intermediate):
             else:
                 c1 = neighbour
 
-
     # Remove hydroxyl group from c2
     for bond in co_bond[:]:
         chain_intermediate.break_bond(bond)
@@ -344,8 +345,6 @@ def dehydratase(chain_intermediate):
             atom.chiral = None
         elif atom == c2:
             atom.chiral = None
-
-
 
     # Add colouring
     for atom in chain_intermediate.graph:

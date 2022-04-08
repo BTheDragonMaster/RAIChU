@@ -1,6 +1,6 @@
 from pikachu.smiles.smiles import *
 from pikachu.chem.structure import *
-from pikachu.reactions.functional_groups import BondDefiner
+from pikachu.reactions.functional_groups import BondDefiner, combine_structures
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
@@ -10,121 +10,119 @@ COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 
 
-def combine_structures(structures):
-    """
-    Returns a single combined Structure object from multiple input Structures
-
-    Structures: tuple of to be combined Structure objects
-    """
-    new_graph = {}
-    new_bonds = {}
-    struct1, struct2 = structures
-    bonds1 = struct1.bonds
-    bonds2 = struct2.bonds
-    new_bonds_1 = {}
-
-    # Make sure you dont add atoms with the same atom.nr
-    atom_nrs = []
-    for atom in struct2.graph:
-        atom_nrs.append(atom.nr)
-    index = 0
-    for atom in struct1.graph:
-        while index in atom_nrs:
-            if index not in atom_nrs:
-                atom.nr = index
-                break
-            index += 1
-        else:
-            atom.nr = index
-            for other_atom in struct1.graph:
-                if atom in other_atom.neighbours:
-                    atom.nr = index
-            atom_nrs.append(index)
-            index += 1
-
-    # Refresh bond_lookup and structure
-    struct1.make_bond_lookup()
-    struct1.refresh_structure()
-
-    # Make sure you add no double bond nrs
-    start = 0
-    bonds = []
-    bond_nrs = []
-    for atom in struct2.graph:
-        for bond in atom.bonds:
-            if bond.nr not in bond_nrs:
-                bond_nrs.append(bond.nr)
-    new_nrs = []
-
-    # Bond objects are identified only by Bond.nr, reset each Bond.nr first to
-    # nr that is not used in both to-be combined structures, to make sure
-    # no bonds are skipped in the loop
-    for atom in struct1.graph:
-        for bond in atom.bonds[:]:
-            bond.nr = 9999999
-    for atom in struct1.graph:
-        for bond in atom.bonds[:]:
-            if bond not in bonds:
-                while start in bond_nrs:
-                    if start not in bond_nrs and start not in new_nrs:
-                        bond.nr = start
-                        bonds.append(bond)
-                        bond_nrs.append(start)
-                        new_nrs.append(start)
-                        break
-                    start += 1
-                else:
-                    if start not in new_nrs:
-                        bond.nr = start
-                        bonds.append(bond)
-                        bond_nrs.append(start)
-                        new_nrs.append(start)
-                        start += 1
-
-
-    # Refresh second structure
-    struct2.get_connectivities()
-    struct2.set_connectivities()
-    struct2.set_atom_neighbours()
-    struct2.make_bond_lookup()
-
-    # Added 29-11-21: bond nrs are not refreshed as keys in structure.bonds dict
-    struct1.bonds = {}
-    for bond_nr, bond in bonds1.items():
-        updated_bond_nr = bond.nr
-        struct1.bonds[updated_bond_nr] = bond
-    bonds1 = struct1.bonds
-
-    # In order to prevent aliasing issues, make all bonds new Bond instances for
-    # the bonds in structure 1:
-    for nr, bond in bonds1.items():
-        atom1 = bond.atom_1
-        atom2 = bond.atom_2
-        bond_type = bond.type
-        bond_summary = bond.bond_summary
-        bond_electrons = bond.electrons
-        bond_nr = bond.nr
-        new_bond = Bond(atom1, atom2, bond_type, bond_nr)
-        new_bond.bond_summary = bond_summary
-        new_bonds_1[bond_nr] = new_bond
-        new_bond.electrons = bond_electrons
-
-    # Make new structure object of the combined structure
-    bonds2.update(new_bonds_1)
-    for structure in structures:
-        new_graph.update(structure.graph)
-        new_bonds.update(structure.bonds)
-    new_structure = Structure(new_graph, bonds2)
-    new_structure.make_bond_lookup()
-    new_structure.set_connectivities()
-    new_structure.refresh_structure()
-    new_structure.find_cycles()
-    for bond_nr, bond in new_structure.bonds.items():
-        bond.set_bond_summary()
-
-
-
-    return new_structure
+# def combine_structures_3(structures):
+#     """
+#     Returns a single combined Structure object from multiple input Structures
+#
+#     Structures: tuple of to be combined Structure objects
+#     """
+#     new_graph = {}
+#     new_bonds = {}
+#     struct1, struct2 = structures
+#     bonds1 = struct1.bonds
+#     bonds2 = struct2.bonds
+#     new_bonds_1 = {}
+#
+#     # Make sure you dont add atoms with the same atom.nr
+#     atom_nrs = []
+#     for atom in struct2.graph:
+#         atom_nrs.append(atom.nr)
+#     index = 0
+#     for atom in struct1.graph:
+#         while index in atom_nrs:
+#             if index not in atom_nrs:
+#                 atom.nr = index
+#                 break
+#             index += 1
+#         else:
+#             atom.nr = index
+#             for other_atom in struct1.graph:
+#                 if atom in other_atom.neighbours:
+#                     atom.nr = index
+#             atom_nrs.append(index)
+#             index += 1
+#
+#     # Refresh bond_lookup and structure
+#     struct1.make_bond_lookup()
+#     struct1.refresh_structure()
+#
+#     # Make sure you add no double bond nrs
+#     start = 0
+#     bonds = []
+#     bond_nrs = []
+#     for atom in struct2.graph:
+#         for bond in atom.bonds:
+#             if bond.nr not in bond_nrs:
+#                 bond_nrs.append(bond.nr)
+#     new_nrs = []
+#
+#     # Bond objects are identified only by Bond.nr, reset each Bond.nr first to
+#     # nr that is not used in both to-be combined structures, to make sure
+#     # no bonds are skipped in the loop
+#     for atom in struct1.graph:
+#         for bond in atom.bonds[:]:
+#             bond.nr = 9999999
+#     for atom in struct1.graph:
+#         for bond in atom.bonds[:]:
+#             if bond not in bonds:
+#                 while start in bond_nrs:
+#                     if start not in bond_nrs and start not in new_nrs:
+#                         bond.nr = start
+#                         bonds.append(bond)
+#                         bond_nrs.append(start)
+#                         new_nrs.append(start)
+#                         break
+#                     start += 1
+#                 else:
+#                     if start not in new_nrs:
+#                         bond.nr = start
+#                         bonds.append(bond)
+#                         bond_nrs.append(start)
+#                         new_nrs.append(start)
+#                         start += 1
+#
+#
+#     # Refresh second structure
+#     struct2.get_connectivities()
+#     struct2.set_connectivities()
+#     struct2.set_atom_neighbours()
+#     struct2.make_bond_lookup()
+#
+#     # Added 29-11-21: bond nrs are not refreshed as keys in structure.bonds dict
+#     struct1.bonds = {}
+#     for bond_nr, bond in bonds1.items():
+#         updated_bond_nr = bond.nr
+#         struct1.bonds[updated_bond_nr] = bond
+#     bonds1 = struct1.bonds
+#
+#     # In order to prevent aliasing issues, make all bonds new Bond instances for
+#     # the bonds in structure 1:
+#     for nr, bond in bonds1.items():
+#         atom1 = bond.atom_1
+#         atom2 = bond.atom_2
+#         bond_type = bond.type
+#         bond_summary = bond.bond_summary
+#         bond_electrons = bond.electrons
+#         bond_nr = bond.nr
+#         new_bond = Bond(atom1, atom2, bond_type, bond_nr)
+#         new_bond.bond_summary = bond_summary
+#         new_bonds_1[bond_nr] = new_bond
+#         new_bond.electrons = bond_electrons
+#
+#     # Make new structure object of the combined structure
+#     bonds2.update(new_bonds_1)
+#     for structure in structures:
+#         new_graph.update(structure.graph)
+#         new_bonds.update(structure.bonds)
+#     new_structure = Structure(new_graph, bonds2)
+#     new_structure.make_bond_lookup()
+#     new_structure.set_connectivities()
+#     new_structure.refresh_structure()
+#     new_structure.find_cycles()
+#     for bond_nr, bond in new_structure.bonds.items():
+#         bond.set_bond_summary()
+#
+#     return new_structure
 
 def pks_elongation(pk_chain, elongation_monomer):
     """
@@ -136,7 +134,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     elongation_monomer: ['SMILES_elongation_unit', index_c_to_c, index_c_to_s']
     """
 
-    # If this is is the first elongation reaction on the starter unit, define
+    # If this is the first elongation reaction on the starter unit, define
     # central chain atoms in the starter unit
     if not any(atom.annotations.in_central_chain for atom in pk_chain.graph):
         pk_chain = find_central_atoms_pk_starter(pk_chain)
@@ -216,11 +214,14 @@ def pks_elongation(pk_chain, elongation_monomer):
     pk_chain.make_bond_lookup()
 
     # Refresh malonylunit
+
     elongation_monomer_struct.refresh_structure()
 
     # Combining structures PK chain and elongation unit into one Structure object
     pk_chain_and_malonyl = (elongation_monomer_struct, pk_chain)
+
     combined = combine_structures(pk_chain_and_malonyl)
+
     combined.get_connectivities()
     combined.set_connectivities()
     combined.set_atom_neighbours()
@@ -263,23 +264,6 @@ def find_bonds(structure, bond_type):
     return bonds
 
 
-def remove_coa(structure_with_coa):
-    """
-    Returns a Pikachu.structure object of the molecule where the CoA has been
-    removed
-
-    structure_with_coa: Pikachu.structure object of the molecule with CoA
-    still attached
-    """
-    coa_bonds = find_bonds(structure_with_coa, COABOND)
-    for bond in coa_bonds[:]:
-        structure_with_coa.break_bond(bond)
-    split = structure_with_coa.split_disconnected_structures()
-    coa, remainder = split
-
-    return remainder
-
-
 def add_malonylunit(pk_chain):
     """
     Returns a Structure object of the PK chain after a single malonyl-CoA
@@ -291,6 +275,7 @@ def add_malonylunit(pk_chain):
     elongation_product = pks_elongation(pk_chain, ['CC=O', 0, 1])
 
     return elongation_product
+
 
 def add_methylmalonylunit(pk_chain):
     """
@@ -316,6 +301,7 @@ def add_methoxymalonylunit(pk_chain):
     elongation_product = pks_elongation(pk_chain, ['O=CCOC', 2, 1])
 
     return elongation_product
+
 
 def add_ethylmalonylunit(pk_chain):
     """

@@ -109,9 +109,11 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
 
             # Delete starter module and iterate over remaining modules
             del modules[0]
+
     for module in modules:
 
         #If module is a PKS module:
+
         if module[1] == 'elongation_module_pks' or module[1] == 'terminator_module_pks':
             # If last reaction was an NRPS reaction
             locations = chain_intermediate.find_substructures(read_smiles('C(=O)(O)CN'))
@@ -128,6 +130,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             # Reset atom colours in the first structure depicted to black
             for atom in chain_intermediate.graph:
                 atom.draw.colour = 'black'
+
             if elongation_unit == 'malonylcoa':
                 if visualization_mechanism == True:
                     # If a previous process was stopped prematurely, make sure the

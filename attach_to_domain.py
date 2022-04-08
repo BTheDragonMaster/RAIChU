@@ -1,9 +1,11 @@
 from class_domain import *
-from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+from pikachu.reactions.functional_groups import find_atoms, GroupDefiner, combine_structures
+from pikachu.reactions.basic_reactions import condensation
 
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
+
 
 def attach_to_domain_pk(polyketide, domain_type):
     """
@@ -14,37 +16,38 @@ def attach_to_domain_pk(polyketide, domain_type):
     polyketide: PIKAChU Structure object, to-be attached structure
     """
     #Create domain
-    next_atom_nr = polyketide.find_next_atom_nr()
-    domain = make_domain(domain_type, next_atom_nr)
-    domain.add_electron_shells()
 
-    #Remove H atom from S in polyketide, to allow attachment to domain
+    domain = make_scaffold_domain(domain_type)
+    sh_bond = domain.bond_lookup[domain.atoms[1]][domain.atoms[2]]
+    hydrogen = domain.atoms[2]
+    sulphur_1 = domain.atoms[1]
+
     locations_sulphur = find_atoms(POLYKETIDE_S, polyketide)
     assert len(locations_sulphur) == 1
-    s_atom = locations_sulphur[0]
-    for neighbour in s_atom.neighbours:
-        if neighbour.type == 'H':
-            h_to_remove = neighbour
-            break
-    sh_bond = polyketide.bond_lookup[s_atom][h_to_remove]
-    polyketide.break_bond(sh_bond)
+    sulphur_2 = locations_sulphur[0]
+    carbon = sulphur_2.get_neighbour('C')
+    sc_bond = sulphur_2.get_bond(carbon)
+
+    structure = combine_structures([domain, polyketide])
+    structure.break_bond(sh_bond)
+    structure.break_bond(sc_bond)
+
+    structure.make_bond(hydrogen, sulphur_2, structure.find_next_bond_nr())
+    structure.make_bond(carbon, sulphur_1, structure.find_next_bond_nr())
+
     split = polyketide.split_disconnected_structures()
-    one, two = split
-    if len(one.graph) == 1:
-        h_atom = one
-        structure = two
-    else:
-        h_atom = two
-        structure = one
 
-    #Make new bond between S in polyketide and domain
-    for i, neighbour in enumerate([s_atom]):
-        next_bond_nr = structure.find_next_bond_nr()
-        structure.make_bond(domain, neighbour, next_bond_nr)
+    tethered_polyketide = None
 
-    structure.set_atoms()
+    for structure in split:
+        if carbon in structure.graph:
+            tethered_polyketide = structure
+            break
 
-    return structure
+    assert tethered_polyketide
+
+    return tethered_polyketide
+
 
 def attach_to_domain_nrp(nrp, domain_type):
     """
@@ -55,47 +58,34 @@ def attach_to_domain_nrp(nrp, domain_type):
     nrp: PIKAChU Structure object, to-be attached NRP
     """
     # Create domain
-    next_atom_nr = nrp.find_next_atom_nr()
-    domain = make_domain(domain_type, next_atom_nr)
-    domain.add_electron_shells()
+
+    domain = make_scaffold_domain(domain_type)
 
     # Remove OH group from carboxylic acid in NRP, to allow attachment
     # to domain
     locations_c_to_domain = find_atoms(NRP_C, nrp)
     assert len(locations_c_to_domain) == 1
     c_atom_to_domain = locations_c_to_domain[0]
-    for neighbour in c_atom_to_domain.neighbours:
-        if neighbour.type == 'O':
-            if nrp.bond_lookup[c_atom_to_domain][neighbour].type == 'single':
-                remove_o = neighbour
-                bond_to_break = nrp.bond_lookup[c_atom_to_domain][neighbour]
+    oxygens = c_atom_to_domain.get_neighbours('O')
 
+    hydroxyl_oxygen = None
+    hydroxyl_bond = None
 
-    nrp.break_bond(bond_to_break)
-    split = nrp.split_disconnected_structures()
-    one, two = split
-    if len(one.graph) == 2:
-        hydroxyl = one
-        structure = two
-    else:
-        hydroxyl = two
-        structure = one
+    hydrogen_bond = domain.bond_lookup[domain.atoms[1]][domain.atoms[2]]
 
-    # Add S atom to C in NRP
-    structure.add_atom('S', [c_atom_to_domain])
-    structure.set_atom_neighbours()
-    for atom in structure.graph:
-        if atom.type == 'S':
-            for neighbour in atom.neighbours:
-                if neighbour == c_atom_to_domain:
-                    sulphur_to_pcp = atom
+    assert hydrogen_bond.has_neighbour('S')
+    assert hydrogen_bond.has_neighbour('H')
 
-    # Make new bond between S in NRP and domain
-    for i, neighbour in enumerate([sulphur_to_pcp]):
-        next_bond_nr = structure.find_next_bond_nr()
-        structure.make_bond(domain, neighbour, next_bond_nr)
+    for oxygen in oxygens:
+        bond = c_atom_to_domain.get_bond(oxygen)
+        if bond.type == 'single' and oxygen.has_neighbour('H'):
+            hydroxyl_oxygen = oxygen
+            hydroxyl_bond = bond
+            break
 
-    structure.set_atoms()
+    assert hydroxyl_oxygen and hydroxyl_bond
+
+    structure = condensation(nrp, domain, hydroxyl_bond, hydrogen_bond)[0]
 
     for atom in structure.graph:
         if not hasattr(atom.annotations, 'in_central_chain'):

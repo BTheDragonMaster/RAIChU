@@ -1,5 +1,5 @@
 from pikachu.chem.structure import *
-from pikachu.chem.atom import AtomAnnotations, AtomDrawProperties
+from pikachu.chem.atom import AtomAnnotations, AtomDrawProperties, Atom
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
               'ER_target', 'domain_type']
@@ -76,6 +76,28 @@ def make_domain(domain_type, next_atom_nr):
     domain = Domain('I', next_atom_nr, None, 0, False)
     domain.set_domain_type(domain_type)
     return domain
+
+
+def make_scaffold_domain(domain_type):
+    """
+    Returns a Domain of the input type containing the appropriate nr in the
+    Structure object
+
+    domain_type: Str, domain type
+    next_atom_nr: Int, 'atom nr' of the domain in the structure
+    """
+    structure = Structure()
+
+    domain = Domain('I', 0, None, 0, False)
+    domain.set_domain_type(domain_type)
+
+    structure.add_disconnected_atom(domain)
+
+    sulphur = Atom('S', 1, None, 0, False)
+    structure.add_bond(domain, sulphur, 'single', 0)
+    structure.refine_structure()
+
+    return structure
 
 
 

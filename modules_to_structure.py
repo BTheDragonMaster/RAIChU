@@ -7,7 +7,7 @@ import matplotlib.image as mpimg
 from pikachu.general import read_smiles
 from matplotlib.patches import FancyArrow
 from copy import copy
-from NRPS_condensation import condensation_nrps
+from NRPS_condensation import condensation_nrps, set_nrps_central_chain
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
 ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
@@ -15,13 +15,12 @@ ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'ER_target', 'domain_type']
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
-N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
-C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
-C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 
-def cluster_to_structure(modules, visualization_mechanism = False, \
-    draw_structures_per_module = False, attach_to_acp = False, \
-    draw_mechanism_per_module = False):
+
+def cluster_to_structure(modules, visualization_mechanism=False,
+                         draw_structures_per_module=False,
+                         attach_to_acp=False,
+                         draw_mechanism_per_module=False):
     """If visualization_mechanism == False: returns the final polyketide
     structure resulting from the input PKS cluster
     If visualization_mechanism == True: returns a visualization of the elong-
@@ -54,65 +53,55 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
     modules = modules[::]
     list_drawings_per_module = []
 
-    for module in modules:
+    # Retrieve and remove starter module
 
-        # Find starting unit SMILES, convert to structure
-        if module == modules[0]:
-            assert len(module) == 3
-            assert module[1] == 'starter_module_pks' or\
-                   module[1] == 'starter_module_nrps'
+    starter_module = modules.pop(0)
 
-            # If starter module = PKS module: construct starter unit from
-            # supplied SMILES string
-            if module[1] == 'starter_module_pks':
-                starter_unit = read_smiles(module[2])
-                starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-                starter_unit = find_central_atoms_pk_starter(starter_unit)
-                if attach_to_acp:
-                    chain_intermediate = attach_to_domain_pk(starter_unit, 'ACP')
-                else:
-                    chain_intermediate = starter_unit
-                if draw_structures_per_module:
-                    drawing = RaichuDrawer(chain_intermediate, dont_show=True)
-                    list_drawings_per_module.append([drawing])
+    assert len(starter_module) == 3
 
-            # If starter module = NRPS module: find SMILES in PARAS.txt and
-            # build starter unit
-            elif module[1] == 'starter_module_nrps':
-                starter_unit = read_smiles(dict_aa_smiles[module[2].upper()])
-                starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-                n_atoms_aa = find_atoms(N_AMINO_ACID, starter_unit)
-                c1_atoms_aa = find_atoms(C1_AMINO_ACID, starter_unit)
-                c2_atoms_aa = find_atoms(C2_AMINO_ACID, starter_unit)
-                assert len(n_atoms_aa) == 1
-                assert len(c1_atoms_aa) == 1
-                assert len(c2_atoms_aa) == 1
-                for atom in starter_unit.graph:
-                    if atom == n_atoms_aa[0]:
-                        atom.annotations.in_central_chain = True
-                    elif atom == c1_atoms_aa[0]:
-                        atom.annotations.in_central_chain = True
-                    elif atom == c2_atoms_aa[0]:
-                        atom.annotations.in_central_chain = True
-                    else:
-                        atom.annotations.in_central_chain = False
+    starter_module_type = starter_module[1]
+    starter_module_smiles = starter_module[2]
 
-                # If attached, attach
-                chain_intermediate = starter_unit
-                if draw_structures_per_module and attach_to_acp:
-                    copy_chain_intermediate = chain_intermediate.deepcopy()
-                    copy_chain_intermediate.find_cycles()
-                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
-                    copy_attached.refresh_structure(find_cycles=True)
-                    drawing = RaichuDrawer(copy_attached, dont_show=True)
-                    list_drawings_per_module.append([drawing])
+    assert starter_module_type == 'starter_module_pks' or starter_module_type == 'starter_module_nrps'
 
-            # Delete starter module and iterate over remaining modules
-            del modules[0]
+    # If starter module = PKS module: construct starter unit from
+    # supplied SMILES string
+    if starter_module_type == 'starter_module_pks':
+        starter_unit = read_smiles(starter_module_smiles)
+        starter_unit.add_attributes(ATTRIBUTES, boolean=True)
+        starter_unit = find_central_atoms_pk_starter(starter_unit)
+
+        if attach_to_acp:
+            chain_intermediate = attach_to_domain_pk(starter_unit, 'ACP')
+        else:
+            chain_intermediate = starter_unit
+        if draw_structures_per_module:
+            drawing = RaichuDrawer(chain_intermediate, dont_show=True)
+            list_drawings_per_module.append([drawing])
+
+    # If starter module = NRPS module: find SMILES in PARAS.txt and
+    # build starter unit
+    elif starter_module_type == 'starter_module_nrps':
+
+        starter_unit = read_smiles(dict_aa_smiles[starter_module_smiles.upper()])
+        starter_unit.add_attributes(ATTRIBUTES, boolean=True)
+        set_nrps_central_chain(starter_unit)
+
+        # If attached, attach
+        chain_intermediate = starter_unit
+        if draw_structures_per_module and attach_to_acp:
+            copy_chain_intermediate = chain_intermediate.deepcopy()
+            copy_chain_intermediate.find_cycles()
+            copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+            copy_attached.refresh_structure(find_cycles=True)
+            drawing = RaichuDrawer(copy_attached, dont_show=True)
+            list_drawings_per_module.append([drawing])
+
+    # Iterate over remaining modules
 
     for module in modules:
 
-        #If module is a PKS module:
+        # If module is a PKS module:
 
         if module[1] == 'elongation_module_pks' or module[1] == 'terminator_module_pks':
             # If last reaction was an NRPS reaction
@@ -131,88 +120,30 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
             for atom in chain_intermediate.graph:
                 atom.draw.colour = 'black'
 
-            if elongation_unit == 'malonylcoa':
-                if visualization_mechanism == True:
-                    # If a previous process was stopped prematurely, make sure the
-                    # image files are removed before continuing
-                    if path.exists('1.png'):
-                        os.remove('1.png')
-                    RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
-                new_chain_intermediate = add_malonylunit(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('2.png'):
-                        os.remove('2.png')
-                    RaichuDrawer(chain_intermediate, save_png='2.png', dpi = 500)
-            elif elongation_unit == 'methylmalonylcoa':
-                if visualization_mechanism == True:
-                    if path.exists('1.png'):
-                        os.remove('1.png')
-                    RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
-                new_chain_intermediate = add_methylmalonylunit(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('2.png'):
-                        os.remove('2.png')
-                    RaichuDrawer(chain_intermediate, save_png='2.png', dpi=500)
-            elif elongation_unit == 'methoxymalonylacp':
-                if visualization_mechanism == True:
-                    if path.exists('1.png'):
-                        os.remove('1.png')
-                    RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
-                new_chain_intermediate = add_methoxymalonylunit(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('2.png'):
-                        os.remove('2.png')
-                    RaichuDrawer(chain_intermediate, save_png='2.png', dpi=500)
-            elif elongation_unit == 'ethylmalonylcoa':
-                if visualization_mechanism == True:
-                    if path.exists('1.png'):
-                        os.remove('1.png')
-                    RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
-                new_chain_intermediate = add_ethylmalonylunit(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('2.png'):
-                        os.remove('2.png')
-                    RaichuDrawer(chain_intermediate, save_png='2.png', dpi=500)
-            elif elongation_unit == 'pk':
-                if visualization_mechanism == True:
-                    if path.exists('1.png'):
-                        os.remove('1.png')
-                    RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
-                new_chain_intermediate = add_pkunit(chain_intermediate)
-                chain_intermediate = new_chain_intermediate
-                if visualization_mechanism == True:
-                    if path.exists('2.png'):
-                        os.remove('2.png')
-                    RaichuDrawer(chain_intermediate, save_png='2.png', dpi=500)
+            elongation_monomer = PKS_SUBUNIT_TO_MONOMER[elongation_unit]
+
+            if visualization_mechanism:
+                # If a previous process was stopped prematurely, make sure the
+                # image files are removed before continuing
+                if path.exists('1.png'):
+                    os.remove('1.png')
+                RaichuDrawer(chain_intermediate, save_png='1.png', dpi=500)
+
+            new_chain_intermediate = pks_elongation(chain_intermediate, elongation_monomer)
+            chain_intermediate = new_chain_intermediate
+
+            if visualization_mechanism:
+                if path.exists('2.png'):
+                    os.remove('2.png')
+                RaichuDrawer(chain_intermediate, save_png='2.png', dpi=500)
 
             # If the module does not contain any tailoring domains:
             if len(list_domains) == 0:
-                if visualization_mechanism == True:
-                    if elongation_unit == 'methylmalonylcoa':
-                        display_reactions(['1.png', '2.png'],
-                                          list_domains,'methylmalonylcoa',
-                                          module_name,
-                                          draw_mechanism_per_module)
-                    elif elongation_unit == 'malonylcoa':
-                        display_reactions(['1.png', '2.png'],list_domains,
-                                          'malonylcoa', module_name,
-                                          draw_mechanism_per_module)
-                    elif elongation_unit == 'methoxymalonylacp':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'methoxymalonylacp', module_name,
-                                          draw_mechanism_per_module)
-                    elif elongation_unit == 'ethylmalonylcoa':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'ethylmalonylcoa', module_name,
-                                          draw_mechanism_per_module)
-                    elif elongation_unit == 'pk':
-                        display_reactions(['1.png', '2.png'], list_domains,
-                                          'pk', module_name,
-                                          draw_mechanism_per_module)
+                if visualization_mechanism:
+                    display_reactions(['1.png', '2.png'],
+                                      list_domains, elongation_unit,
+                                      module_name,
+                                      draw_mechanism_per_module)
 
             # If module contains tailoring domains, perform tailoring reactions
             for domain in list_domains:
@@ -229,7 +160,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                         new_chain_intermediate = \
                             ketoreductase(chain_intermediate, kr_type = kr_type)
                         chain_intermediate = new_chain_intermediate
-                    if visualization_mechanism == True and inactive_kr_domain == False:
+                    if visualization_mechanism and not inactive_kr_domain:
                         if path.exists('3.png'):
                             os.remove('3.png')
                         RaichuDrawer(chain_intermediate, save_png='3.png', dpi=500)
@@ -239,24 +170,12 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                                               list_domains, elongation_unit,
                                               module_name,
                                               draw_mechanism_per_module)
-                    elif inactive_kr_domain == True and visualization_mechanism == True:
+                    elif inactive_kr_domain and visualization_mechanism:
                         list_domains = []
-                        if elongation_unit == 'methylmalonylcoa':
-                            display_reactions(['1.png', '2.png'], list_domains,
-                                              'methylmalonylcoa', module_name,
-                                              draw_mechanism_per_module)
-                        elif elongation_unit == 'malonylcoa':
-                            display_reactions(['1.png', '2.png'], list_domains,
-                                              'malonylcoa', module_name,
-                                              draw_mechanism_per_module)
-                        elif elongation_unit == 'methoxymalonylacp':
-                            display_reactions(['1.png', '2.png'], list_domains,
-                                              'methoxymalonylacp', module_name,
-                                              draw_mechanism_per_module)
-                        elif elongation_unit == 'ethylmalonylcoa':
-                            display_reactions(['1.png', '2.png'], list_domains,
-                                              'ethylmalonylcoa', module_name,
-                                              draw_mechanism_per_module)
+
+                        display_reactions(['1.png', '2.png'], list_domains,
+                                          elongation_unit, module_name,
+                                          draw_mechanism_per_module)
 
                 if domain == 'DH':
                     assert any(domain.startswith('KR') for domain in list_domains)
@@ -267,7 +186,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                     if executable:
                         new_chain_intermediate = dehydratase(chain_intermediate)
                         chain_intermediate = new_chain_intermediate
-                        if visualization_mechanism == True:
+                        if visualization_mechanism:
                             if path.exists('4.png'):
                                 os.remove('4.png')
                             RaichuDrawer(chain_intermediate, save_png='4.png', dpi=500)
@@ -286,7 +205,7 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                     if executable:
                         new_chain_intermediate = enoylreductase(chain_intermediate)
                         chain_intermediate = new_chain_intermediate
-                        if visualization_mechanism == True:
+                        if visualization_mechanism:
                             if path.exists('5.png'):
                                 os.remove('5.png')
                             RaichuDrawer(chain_intermediate, save_png='5.png', dpi=500)
@@ -302,8 +221,9 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
         # If the module is an NRPS module:
         elif module[1] == 'elongation_module_nrps' or \
                 module[1] == 'terminator_module_nrps':
+
             module_name, module_type, aa_specifity = module
-            if visualization_mechanism == True and attach_to_acp:
+            if visualization_mechanism and attach_to_acp:
                 for atom in chain_intermediate.graph:
                     atom.draw.colour = 'black'
                 # If a previous process was stopped prematurely, make sure the
@@ -337,19 +257,20 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
                     f'The structure: {aa_specifity}, is not an amino acid')
 
             # Perform condensation reaction
+
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
 
             # Save drawings if necessary
             if draw_structures_per_module and attach_to_acp:
                 copy_chain_intermediate = chain_intermediate.deepcopy()
-                copy_chain_intermediate.find_cycles()
+                # copy_chain_intermediate.find_cycles()
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
                 copy_attached.refresh_structure()
                 copy_attached.set_connectivities()
                 copy_attached.find_cycles()
                 drawing = RaichuDrawer(copy_attached, dont_show=True)
                 list_drawings_per_module.append([drawing])
-            elif visualization_mechanism == True and attach_to_acp:
+            elif visualization_mechanism and attach_to_acp:
                 copy_chain_intermediate = chain_intermediate.deepcopy()
                 copy_chain_intermediate.find_cycles()
                 copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
@@ -370,12 +291,12 @@ def cluster_to_structure(modules, visualization_mechanism = False, \
 
     if not visualization_mechanism and not draw_structures_per_module:
         if last_module_nrps and attach_to_acp:
-            chain_intermediate.find_cycles()
+            # chain_intermediate.find_cycles()
             chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'PCP')
             chain_intermediate.find_cycles()
             RaichuDrawer(chain_intermediate)
         else:
-            chain_intermediate.find_cycles()
+            # chain_intermediate.find_cycles()
             RaichuDrawer(chain_intermediate)
 
     # Remove all intermediate structure files

@@ -5,6 +5,7 @@ ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
               'ER_target', 'domain_type']
 
+
 def find_central_atoms_pk_starter(pk_starter_unit):
     """Finds the the atoms in the central chain of the polyketide starter unit,
     sets the in_central_chain Atom object attribute to True/False accordingly,

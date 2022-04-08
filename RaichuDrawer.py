@@ -25,6 +25,86 @@ class RaichuDrawer(Drawer):
             self.save_png = save_png
         super().__init__(structure, options=None, coords_only=False)
 
+    def finetune_overlap_resolution(self, masked_bonds=None):
+
+        if not masked_bonds:
+            masked_bonds = set()
+
+        else:
+            masked_bonds = set(masked_bonds)
+
+        if self.total_overlap_score > self.options.overlap_sensitivity:
+            clashing_atoms = self.find_clashing_atoms()
+
+            best_bonds = []
+            for atom_1, atom_2 in clashing_atoms:
+                shortest_path = self.find_shortest_path(atom_1, atom_2)
+                rotatable_bonds = []
+                distances = []
+
+                for i, bond in enumerate(shortest_path):
+                    distance_1 = i
+                    distance_2 = len(shortest_path) - i
+
+                    average_distance = len(shortest_path) / 2
+
+                    distance_metric = abs(average_distance - distance_1) + abs(average_distance - distance_2)
+
+                    if self.bond_is_rotatable(bond) and bond not in masked_bonds:
+                        rotatable_bonds.append(bond)
+                        distances.append(distance_metric)
+
+                best_bond = None
+                optimal_distance = float('inf')
+                for i, distance in enumerate(distances):
+                    if distance < optimal_distance:
+                        best_bond = rotatable_bonds[i]
+                        optimal_distance = distance
+
+                if best_bond:
+                    best_bonds.append(best_bond)
+
+            best_bonds = list(set(best_bonds))
+
+            for best_bond in best_bonds:
+                if self.total_overlap_score > self.options.overlap_sensitivity:
+
+                    subtree_size_1 = self.get_subgraph_size(best_bond.atom_1, {best_bond.atom_2})
+                    subtree_size_2 = self.get_subgraph_size(best_bond.atom_2, {best_bond.atom_1})
+
+                    if subtree_size_1 < subtree_size_2:
+                        rotating_atom = best_bond.atom_1
+                        parent_atom = best_bond.atom_2
+                    else:
+                        rotating_atom = best_bond.atom_2
+                        parent_atom = best_bond.atom_1
+
+                    overlap_score, _, _ = self.get_overlap_score()
+
+                    scores = [overlap_score]
+
+                    for i in range(12):
+                        self.rotate_subtree(rotating_atom, parent_atom, math.radians(30), parent_atom.draw.position)
+                        new_overlap_score, _, _ = self.get_overlap_score()
+                        scores.append(new_overlap_score)
+
+                    assert len(scores) == 13
+
+                    scores = scores[:12]
+
+                    best_i = 0
+                    best_score = scores[0]
+
+                    for i, score in enumerate(scores):
+                        if score < best_score:
+                            best_score = score
+                            best_i = i
+
+                    self.total_overlap_score = best_score
+
+                    self.rotate_subtree(rotating_atom, parent_atom, math.radians(30 * best_i + 1), parent_atom.draw.position)
+
+
 
 
     def draw_structure(self):

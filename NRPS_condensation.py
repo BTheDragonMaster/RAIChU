@@ -29,9 +29,15 @@ def condensation_nrps(amino_acid, nrp_intermediate):
         n_atoms_aa = find_atoms(N_AMINO_ACID, nrp_intermediate)
         c1_atoms_aa = find_atoms(C1_AMINO_ACID, nrp_intermediate)
         c2_atoms_aa = find_atoms(C2_AMINO_ACID, nrp_intermediate)
+
         assert len(n_atoms_aa) == 1
         assert len(c1_atoms_aa) == 1
         assert len(c2_atoms_aa) == 1
+        # print(n_atoms_aa[0].annotations.in_central_chain)
+        # n_atoms_aa[0].annotations.in_central_chain = True
+        # c1_atoms_aa[0].annotations.in_central_chain = True
+        # c2_atoms_aa[0].annotations.in_central_chain = True
+
         for atom in nrp_intermediate.graph:
             if atom == n_atoms_aa[0]:
                 atom.annotations.in_central_chain = True
@@ -45,6 +51,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     # Check if the intermediate is a thioester intermediate, if so: convert
     is_thioester = False
     found_bonds_thioester = find_bonds(THIOESTERBOND, nrp_intermediate)
+    oh_bond = None
     if len(found_bonds_thioester) > 0:
         is_thioester = True
         nrp_intermediate, oh_bond = sulphur_to_hydroxyl(nrp_intermediate)
@@ -54,7 +61,7 @@ def condensation_nrps(amino_acid, nrp_intermediate):
                     atom.annotations.add_annotation(attribute, False)
 
     # Define reaction targets
-    oh_bond = None
+
     if not is_thioester:
         found_bonds = find_bonds(LEAVING_OH_BOND, nrp_intermediate)
         assert len(found_bonds) == 1

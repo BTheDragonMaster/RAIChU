@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from pikachu.general import read_smiles
 from matplotlib.patches import FancyArrow
-from copy import copy
+
 from NRPS_condensation import condensation_nrps, set_nrps_central_chain
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
@@ -15,6 +15,12 @@ ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'ER_target', 'domain_type']
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
+
+ELONGATION_UNIT_TO_TEXT = {'malonylcoa': 'Malonyl-CoA',
+                           'methylmalonylcoa': 'Methylmalonyl-CoA',
+                           'methoxymalonylacp': 'Methoxymalonyl-ACP',
+                           'ethylmalonylcoa': 'Ethylmalonyl-CoA',
+                           'pk': 'Unknown elongation unit'}
 
 
 def cluster_to_structure(modules, visualization_mechanism=False,
@@ -300,22 +306,14 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             RaichuDrawer(chain_intermediate)
 
     # Remove all intermediate structure files
-    if path.exists('1.png'):
-        os.remove('1.png')
-    if path.exists('2.png'):
-        os.remove('2.png')
-    if path.exists('3.png'):
-        os.remove('3.png')
-    if path.exists('4.png'):
-        os.remove('4.png')
-    if path.exists('5.png'):
-        os.remove('5.png')
+    for i in range(1, 6):
+        if path.exists(f"{i}.png"):
+            os.remove(f"{i}.png")
 
     if draw_structures_per_module:
         return(list_drawings_per_module)
 
     return chain_intermediate
-
 
 
 def display_reactions(structures, tailoring_domains, elongation_unit,
@@ -415,20 +413,15 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
                                color= 'black')
             images.append(arrow)
             ax1.add_patch(arrow)
-            if elongation_unit == 'malonylcoa':
-                text = 'Malonyl-CoA'
-            elif elongation_unit == 'methylmalonylcoa':
-                text = 'Methylmalonyl-CoA'
-            elif elongation_unit == 'methoxymalonylacp':
-                text = 'Methoxymalonyl-ACP'
-            elif elongation_unit == 'ethylmalonylcoa':
-                text = 'Ethylmalonyl-CoA'
-            elif elongation_unit == 'pk':
+            text = ELONGATION_UNIT_TO_TEXT[elongation_unit]
+
+            if elongation_unit == 'pk':
                 text = 'Unknown elongation\nunit'
+
             ax1.text(0.5, 0.55, text, ha='center',
                      fontdict={'size': 12, 'color': 'black'})
-            ax1.set_title(f"{module_name}", pad = 70,
-                          fontdict={'size' : 20, 'weight': 'bold', 'color':'darkred'})
+            ax1.set_title(f"{module_name}", pad=70,
+                          fontdict={'size': 20, 'weight': 'bold', 'color': 'darkred'})
 
             # Add elongation product to plot
             ax1 = fig.add_subplot(ax[0, 3:5])
@@ -451,7 +444,7 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
             kr_domain = tailoring_domains[0]
             before_elongation, after_elongation, after_kr = structures
             images = []
-            #Read in images
+            # Read in images
             img1 = mpimg.imread(before_elongation)
             img2 = mpimg.imread(after_elongation)
             img3 = mpimg.imread(after_kr)
@@ -477,16 +470,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
                                head_width=0.025, head_length=0.1, color= 'black')
             images.append(arrow)
             ax1.add_patch(arrow)
-            if elongation_unit == 'malonylcoa':
-                text = 'Malonyl-CoA'
-            elif elongation_unit == 'methylmalonylcoa':
-                text = 'Methylmalonyl-CoA'
-            elif elongation_unit == 'methoxymalonylacp':
-                text = 'Methoxymalonyl-ACP'
-            elif elongation_unit == 'ethylmalonylcoa':
-                text = 'Ethylmalonyl-CoA'
-            elif elongation_unit == 'pk':
-                text = 'Unknown elongation unit'
+            text = ELONGATION_UNIT_TO_TEXT[elongation_unit]
+
             ax1.text(0.5, 0.55, text, ha='center',
                      fontdict={'size': 12, 'color': 'black'})
 
@@ -521,10 +506,15 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
 
         # Situation 4: PKS module has both the KR and DH tailoring domains
         elif len(tailoring_domains) == 2:
-            assert any(domain.startswith('KR') for domain in tailoring_domains)
+
+            kr_domain = None
+
             for domain in tailoring_domains:
                 if domain.startswith('KR'):
                     kr_domain = domain
+                    break
+
+            assert kr_domain
             assert 'DH' in tailoring_domains
             before_elongation, after_elongation, after_kr, after_dh = structures
             images = []
@@ -554,16 +544,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
             arrow = FancyArrow(0, 0.5,0.89, 0, overhang = 0.3, head_width=0.025, head_length=0.1, color= 'black')
             images.append(arrow)
             ax1.add_patch(arrow)
-            if elongation_unit == 'malonylcoa':
-                text = 'Malonyl-CoA'
-            elif elongation_unit == 'methylmalonylcoa':
-                text = 'Methylmalonyl-CoA'
-            elif elongation_unit == 'methoxymalonylacp':
-                text = 'Methoxymalonyl-ACP'
-            elif elongation_unit == 'ethylmalonylcoa':
-                text = 'Ethylmalonyl-CoA'
-            elif elongation_unit == 'pk':
-                text = 'Unknown elongation unit'
+            text = ELONGATION_UNIT_TO_TEXT[elongation_unit]
+
             ax1.text(0.5, 0.55, text, ha='center',
                      fontdict={'size': 12, 'color': 'black'})
 
@@ -612,10 +594,15 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
 
         # Situation 5: PKS module has the KR, DH and ER tailoring domains
         elif len(tailoring_domains) == 3:
-            assert any(domain.startswith('KR') for domain in tailoring_domains)
+
+            kr_domain = None
+
             for domain in tailoring_domains:
                 if domain.startswith('KR'):
                     kr_domain = domain
+                    break
+
+            assert kr_domain
             assert 'DH' in tailoring_domains
             assert 'ER' in tailoring_domains
             before_elongation, after_elongation, after_kr, after_dh, after_er = structures
@@ -650,16 +637,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
                                head_width=0.025, head_length=0.1, color= 'black')
             images.append(arrow)
             ax1.add_patch(arrow)
-            if elongation_unit == 'malonylcoa':
-                text = 'Malonyl-CoA'
-            elif elongation_unit == 'methylmalonylcoa':
-                text = 'Methylmalonyl-CoA'
-            elif elongation_unit == 'methoxymalonylacp':
-                text = 'Methoxymalonyl-ACP'
-            elif elongation_unit == 'ethylmalonylcoa':
-                text = 'Ethylmalonyl-CoA'
-            elif elongation_unit == 'pk':
-                text = 'Unknown elongation unit'
+            text = ELONGATION_UNIT_TO_TEXT[elongation_unit]
+
             ax1.text(0.5, 0.55, text, ha='center',
                      fontdict={'size': 12, 'color': 'black'})
 

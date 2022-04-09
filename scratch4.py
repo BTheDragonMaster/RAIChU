@@ -4,13 +4,21 @@ clust = [['module 1', 'starter_module_nrps', 'threonine'],
          ['module 2', 'elongation_module_nrps', 'glycine'],
          ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR']],
          ['module 4', 'elongation_module_pks', 'pk', []]]
-
+#
 # clust = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
-#          ['module 2', 'elongation_module_nrps', 'glycine'],
-#          ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR']],
-#          ['module 4', 'elongation_module_pks', 'pk', []]]
+#          ['module 2', 'elongation_module_pks', 'ethylmalonylcoa', ['KR']],
+#          ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
+#          ['module 4', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
+#          ['module 5', 'elongation_module_pks', 'pk', []]]
 
-
+clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
+         ['module 2', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
+         ['module 3', 'elongation_module_nrps', 'glutamine'],
+         ['module 4', 'elongation_module_pks', 'ethylmalonylcoa', ['KR']],
+         ['module 5', 'elongation_module_nrps', 'glutamine'],
+         ['module 6', 'elongation_module_pks', 'malonylcoa', ['KR', 'DH']],
+         ['module 7', 'elongation_module_nrps', 'glycine'],
+         ['module 8', 'terminator_module_nrps', 'serine']]
 
 intermediate = cluster_to_structure(clust, attach_to_acp=True)
 

@@ -1,3 +1,10 @@
+import matplotlib
+
+from sys import platform
+if platform == 'darwin':
+    matplotlib.use('TkAgg')
+
+
 from matplotlib.patches import Circle
 from RaichuDrawer import *
 from matplotlib.widgets import Button
@@ -357,21 +364,27 @@ def set_domain_to_origin(drawer_object):
     drawer_object: PIKAChU Drawer object, structure that needs to be moved as
     such that the ACP/PCP domain is located in the origin of the canvas
     """
+    domain = None
     for atom in drawer_object.structure.graph:
-        if atom.annotations.domain_type:
+        if type(atom) == Domain:
+        # if atom.annotations.domain_type:
             domain = atom
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y
             atom.draw.position.x = 0
             atom.draw.position.y = -11
-    for atom in drawer_object.structure.graph:
-        if atom != domain:
-            atom.draw.position.x -= domain_x
-            atom.draw.position.y -= domain_y
-            atom.draw.position.y -= 11
-    new_drawer_object = drawer_object
 
-    return new_drawer_object
+    if domain:
+        for atom in drawer_object.structure.graph:
+            if atom != domain:
+                atom.draw.position.x -= domain_x
+                atom.draw.position.y -= domain_y
+                atom.draw.position.y -= 11
+        new_drawer_object = drawer_object
+
+        return new_drawer_object
+    else:
+        raise Exception("Can't draw cluster, couldn't find domain.")
 
 def push_drawing_to_right(drawer_object, shift_to_right):
     """Accessory function that pushes the input Drawer object to the right by

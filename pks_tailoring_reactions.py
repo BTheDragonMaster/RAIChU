@@ -2,6 +2,7 @@ from pks_elongation_reactions import *
 from attach_to_domain import *
 from copy import copy, deepcopy
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, BondDefiner
+from pikachu.general import draw_structure
 
 RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)
 RECENT_REDUCTION_COH = BondDefiner('recent_reduction_C-OH', 'OCCC(=O)S', 0, 1)
@@ -193,24 +194,33 @@ def ketoreductase(chain_intermediate, kr_type = None):
     assert len(c_2) == 1 and len(c_1) == 1
     c_2 = c_2[0]
     c_1 = c_1[0]
+    print(c_1, c_2)
     if chiral_c:
+        for atom in chain_intermediate.graph:
+            print(atom, atom.annotations.in_central_chain)
+        chain_intermediate.print_graph()
+        draw_structure(chain_intermediate)
         for chiral_c_atom in chiral_c:
+            print(chiral_c_atom)
             atom_chiral_c = chiral_c_atom
             chiral_c_neighbours = []
             chiral_c_neighbours_types = []
             for neighbour in atom_chiral_c.neighbours:
+                print(neighbour)
                 chiral_c_neighbours_types.append(neighbour.type)
                 chiral_c_neighbours_in_cc = []
                 chiral_c_neighbours.append(neighbour)
                 chiral_c_neighbour_neighbours_types = []
+
                 for next_atom in neighbour.neighbours:
                     chiral_c_neighbour_neighbours_types.append(next_atom.type)
                     if next_atom.annotations.in_central_chain:
-                        if next_atom.annotations.in_central_chain:
-                            chiral_c_neighbours_in_cc.append(next_atom)
+                        print(f"{next_atom} in chiral neighbours")
+                        chiral_c_neighbours_in_cc.append(next_atom)
 
                 if not chiral_c_neighbours_types.count('H') == 2:
                     if neighbour.type != 'H' and len(chiral_c_neighbours_in_cc) == 1:
+                        print('pop')
                         first_sidechain_atom = neighbour
                     elif neighbour == c_1:
                         c_1 = neighbour

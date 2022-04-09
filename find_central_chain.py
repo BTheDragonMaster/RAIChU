@@ -32,7 +32,6 @@ def find_central_chain(pks_nrps_attached):
         if not atom.annotations.in_central_chain:
             atom.annotations.in_central_chain = False
 
-
     central_chain = [sulphur]
     visited = [sulphur]
     atom_central_chain = sulphur
@@ -53,6 +52,8 @@ def find_central_chain(pks_nrps_attached):
                     end_atom = True
                 else:
                     visited.append(neighbour)
+
+    print(central_chain)
 
     return central_chain
 

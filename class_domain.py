@@ -61,7 +61,7 @@ class Domain(Atom):
                domain_type == 'KS' or domain_type == 'KR' or\
                domain_type == 'DH' or domain_type == 'ER' or\
                domain_type == 'TE' or domain_type == 'PCP'
-        # self.domain_type = domain_type
+        self.domain_type = domain_type
         self.annotations.set_annotation('domain_type', domain_type)
 
 

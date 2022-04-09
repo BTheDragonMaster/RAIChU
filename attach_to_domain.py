@@ -35,7 +35,7 @@ def attach_to_domain_pk(polyketide, domain_type):
     structure.make_bond(hydrogen, sulphur_2, structure.find_next_bond_nr())
     structure.make_bond(carbon, sulphur_1, structure.find_next_bond_nr())
 
-    split = polyketide.split_disconnected_structures()
+    split = structure.split_disconnected_structures()
 
     tethered_polyketide = None
 

@@ -570,7 +570,7 @@ class RaichuDrawer(Drawer):
 
                 # Fix bond angle backbone atoms if second backbone atom (one
                 # with larger position.x) is inside ring, and the first is not
-                elif atom2.inside_ring and not atom1.inside_ring and \
+                elif atom2 != backbone_atoms[-1] and atom2.inside_ring and not atom1.inside_ring and \
                         backbone_atoms[i + 2].inside_ring:
                     if angle_degrees != 120.0 and angle_degrees != 60.0:
                         if round(math.degrees(get_angle(
@@ -869,7 +869,7 @@ class RaichuDrawer(Drawer):
                                                 atom.draw.position)
                 i += 1
 
-            # self.resolve_primary_overlaps()
+            self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
             central_chain_bonds = set()
             for bond in self.structure.bonds.values():

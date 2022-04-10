@@ -869,7 +869,7 @@ class RaichuDrawer(Drawer):
                                                 atom.draw.position)
                 i += 1
 
-            self.resolve_primary_overlaps()
+            # self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
             central_chain_bonds = set()
             for bond in self.structure.bonds.values():

@@ -616,7 +616,7 @@ def draw_structures(drawer_objects, fig, ax, height):
                     delta_x_r = drawer_object.get_delta_x_sidechain(atom,
                                                            neighbouring_c)
                     atom.draw.position.x += delta_x_r
-                    text = fr'$R_{atom.unknown_index}$'
+                    text = fr'$R_{atom.annotations.unknown_index}$'
                 if atom.draw.has_hydrogen:
                     # if len(atom.drawn_neighbours) == 1 and atom.draw.has_hydrogen:
                     hydrogen_count = 0

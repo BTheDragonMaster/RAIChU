@@ -70,7 +70,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     if elongation_monomer[0] == 'O=CC*':
         for atom in elongation_monomer_struct.graph:
             if atom.type == '*':
-                atom.unknown_index = nr_unknown_atoms + 1
+                atom.annotations.unknown_index = nr_unknown_atoms + 1
 
 
     # Remove the Hs in the malonylunit in order to add it to the pk chain

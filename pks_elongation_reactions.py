@@ -1,10 +1,8 @@
 from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import BondDefiner, combine_structures
 from central_atoms_pk_starter import find_central_atoms_pk_starter
+from attributes import ATTRIBUTES
 
-ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
-              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
-              'ER_target', 'domain_type']
 COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 

@@ -1,9 +1,6 @@
 from pikachu.chem.structure import *
 from pikachu.chem.atom import AtomAnnotations, AtomDrawProperties, Atom
-ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
-              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
-              'ER_target', 'domain_type']
-
+from attributes import ATTRIBUTES
 
 class Domain(Atom):
     def __init__(self, atom_type, atom_nr, chiral, charge, aromatic):

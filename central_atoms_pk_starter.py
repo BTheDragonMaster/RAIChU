@@ -1,12 +1,10 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms
 from pikachu.general import read_smiles
-from class_domain import ATTRIBUTES
+from attributes import ATTRIBUTES
 from attach_to_domain import attach_to_domain_pk
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
-ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
-              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
-              'ER_target', 'domain_type']
+
 
 
 def find_central_atoms_pk_starter(pk_starter_unit):

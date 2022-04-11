@@ -6,13 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from pikachu.general import read_smiles
 from matplotlib.patches import FancyArrow
-
+from attributes import ATTRIBUTES
 from NRPS_condensation import condensation_nrps, set_nrps_central_chain
 from central_atoms_pk_starter import find_central_atoms_pk_starter
 
-ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
-              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
-              'ER_target', 'domain_type']
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
 

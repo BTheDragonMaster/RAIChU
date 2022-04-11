@@ -113,7 +113,8 @@ if __name__ == "__main__":
     for i in range(1, 501):
         cluster = generate_random_hybrid_cluster()
         print(cluster)
-        draw_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
+        draw_cluster(cluster)
+        #draw_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         plt.close('all')
 
 

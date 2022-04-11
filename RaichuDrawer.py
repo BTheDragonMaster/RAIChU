@@ -2,10 +2,7 @@ from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
 from find_central_chain import find_central_chain
-
-ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
-              'latest_elongation_o', 'latest_elongation_methyl', 'DH_target',
-              'ER_target', 'domain_type']
+from attributes import ATTRIBUTES
 
 
 class RaichuDrawer(Drawer):

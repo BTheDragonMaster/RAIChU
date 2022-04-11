@@ -9,6 +9,7 @@ from matplotlib.patches import FancyArrow
 from attributes import ATTRIBUTES
 from NRPS_condensation import condensation_nrps, set_nrps_central_chain
 from central_atoms_pk_starter import find_central_atoms_pk_starter
+from attributes import ALL_PKS_ELONGATION_UNITS
 
 
 KR_NO_KETOREDUCTASE_ACTIVITY = ['KR_C1', 'KR_C2', 'KR_inactive']
@@ -113,11 +114,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
 
             module_name, module_type, elongation_unit, list_domains = module
-            assert elongation_unit == 'malonylcoa' or \
-                   elongation_unit == 'methylmalonylcoa' or \
-                   elongation_unit == 'methoxymalonylacp' or \
-                   elongation_unit == 'ethylmalonylcoa' or \
-                   elongation_unit == 'pk'
+            assert elongation_unit in ALL_PKS_ELONGATION_UNITS
 
             # Reset atom colours in the first structure depicted to black
             for atom in chain_intermediate.graph:

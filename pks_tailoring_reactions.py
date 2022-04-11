@@ -548,7 +548,7 @@ def enoylreductase(chain_intermediate):
             if neighbour.type == 'C':
                 carbon_neighbours += 1
         if carbon_neighbours == 3:
-            atom.chiral = 'counterclockwise'
+            atom.chiral = None
 
     # add colouring to highlight tailoring reaction
     for atom in chain_intermediate.graph:

@@ -2,6 +2,8 @@ from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures
 
 
+
+
 def epimerization(chiral_centre):
     new_chirality = None
     if chiral_centre.chiral == 'clockwise':
@@ -10,6 +12,23 @@ def epimerization(chiral_centre):
         new_chirality = 'clockwise'
 
     chiral_centre.chiral = new_chirality
+
+def nrps_epimerization(nrp):
+    """
+
+    """
+    # Define epimerization reaction target
+    chiral_c_ep_atoms = []
+    for atom in nrp.graph:
+        if atom.annotations.chiral_c_ep:
+            chiral_c_ep_atoms.append(atom)
+    assert len(chiral_c_ep_atoms) == 1
+    chiral_c = chiral_c_ep_atoms[0]
+
+    # Carry out epimerization
+    epimerization(chiral_c)
+
+    return nrp
 
 
 def methylation(target_atom, structure):

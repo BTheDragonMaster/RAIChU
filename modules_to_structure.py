@@ -222,7 +222,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
         elif module[1] == 'elongation_module_nrps' or \
                 module[1] == 'terminator_module_nrps':
 
-            module_name, module_type, aa_specifity = module
+            module_name, module_type, aa_specifity, list_tailoring_domains = module
             if visualization_mechanism and attach_to_acp:
                 for atom in chain_intermediate.graph:
                     atom.draw.colour = 'black'
@@ -259,7 +259,12 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             # Perform condensation reaction
 
             chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
-
+            # if len(list_domains) == 0:
+            #     if visualization_mechanism:
+            #         display_reactions(['1.png', '2.png'],
+            #                           list_domains, elongation_unit,
+            #                           module_name,
+            #                           draw_mechanism_per_module)
             # Save drawings if necessary
             if draw_structures_per_module and attach_to_acp:
                 copy_chain_intermediate = chain_intermediate.deepcopy()
@@ -270,20 +275,24 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 copy_attached.find_cycles()
                 drawing = RaichuDrawer(copy_attached, dont_show=True)
                 list_drawings_per_module.append([drawing])
+
             elif visualization_mechanism and attach_to_acp:
-                copy_chain_intermediate = chain_intermediate.deepcopy()
-                copy_chain_intermediate.find_cycles()
-                copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
-                if path.exists('2.png'):
-                    os.remove('2.png')
-                RaichuDrawer(copy_attached, save_png='2.png', dpi=500)
-                list_domains = None
-                elongation_unit = aa_specifity.lower()
-                display_reactions(['1.png', '2.png'], list_domains, elongation_unit, module_name, draw_mechanism_per_module)
-                # Necessary for thioesterase reactions when last module is an
-                # NRPS module
-                if module == modules[-1]:
-                    chain_intermediate = copy_attached
+                    copy_chain_intermediate = chain_intermediate.deepcopy()
+                    copy_chain_intermediate.find_cycles()
+                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                    if path.exists('2.png'):
+                        os.remove('2.png')
+                    RaichuDrawer(copy_attached, save_png='2.png', dpi=500)
+                    if len(list_tailoring_domains) == 0:
+                        list_tailoring_domains = None
+                        elongation_unit = aa_specifity.lower()
+                        display_reactions(['1.png', '2.png'], list_tailoring_domains, elongation_unit, module_name, draw_mechanism_per_module)
+                        # Necessary for thioesterase reactions when last module is an
+                        # NRPS module
+                        if module == modules[-1]:
+                            chain_intermediate = copy_attached
+                    else:
+                        pass
 
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:

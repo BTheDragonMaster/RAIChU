@@ -45,10 +45,10 @@ def generate_random_nrps_cluster():
     last_elongation_domain_nr = random.randint(2, 8)
     for i in range(2, last_elongation_domain_nr):
         elongation_module = [f'module {i}', 'elongation_module_nrps',
-                             random.choice(list_aa)]
+                             random.choice(list_aa), []]
         cluster.append(elongation_module)
     terminator_module = [f'module {last_elongation_domain_nr}',
-                         'terminator_module_nrps', random.choice(list_aa)]
+                         'terminator_module_nrps', random.choice(list_aa), []]
     cluster.append(terminator_module)
 
     return cluster
@@ -79,7 +79,7 @@ def generate_random_hybrid_cluster():
                                  random.choice(tailoring_domain_combinations)]
         else:
             elongation_module = [f'module {i}', 'elongation_module_nrps',
-                                 random.choice(list_aa)]
+                                 random.choice(list_aa), []]
         cluster.append(elongation_module)
     # Choose between PKS or NRPS terminator module
     if random.randint(0,1) == 1:
@@ -89,7 +89,7 @@ def generate_random_hybrid_cluster():
                               random.choice(tailoring_domain_combinations)]
     else:
         terminator_module = [f'module {last_elongation_domain_nr}',
-                             'terminator_module_nrps', random.choice(list_aa)]
+                             'terminator_module_nrps', random.choice(list_aa), []]
     cluster.append(terminator_module)
 
     return cluster

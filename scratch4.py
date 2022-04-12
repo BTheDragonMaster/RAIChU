@@ -24,7 +24,7 @@ clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
           ['module 2', 'terminator_module_nrps', 'serine', []],
           ['module 3', 'terminator_module_nrps', 'asparagine', ['E']],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
-draw_cluster(clust2)
+draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:
 #     print(atom, atom.annotations.chiral_c_ep)

@@ -18,11 +18,11 @@ from copy import deepcopy
 colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781', \
                     'KR':'#80f680', 'DH':'#f7be81', 'ER':'#81f7f3', \
                     'TE':'#f5c4f2', 'KR*':'#80f680', 'C':'#8181f7', \
-                    'A':'#bc7ff5', 'PCP':'#81bef7'}
+                    'A':'#bc7ff5', 'PCP':'#81bef7', 'E':'#8181f7'}
 colour_outline_dict = {'ACP':'#3d79d6', 'AT':'#df5d5d', 'KS':'#5fc65f', \
                        'KR':'#5fbb87', 'DH':'#ca9862', 'ER':'#61bbad',  \
                        'TE':'#a25ba0', 'KR*':'#5fbb87', 'C':'#5858b6',\
-                       'A':'#74399b', 'PCP':'#306dd2'}
+                       'A':'#74399b', 'PCP':'#306dd2', 'E':'#5858b6'}
 
 
 
@@ -111,6 +111,8 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['C', 'A', 'PCP']
+            for tailoring_domain in module[3]:
+                module_list_domains.insert(-1, tailoring_domain)
             if module_type == 'terminator_module_nrps':
                 module_list_domains.append('TE')
         list_all_domains += [module_list_domains]

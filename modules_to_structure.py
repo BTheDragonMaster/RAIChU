@@ -977,6 +977,8 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
                 plt.show()
 
 
+
+
 def make_dict_aa_smiles():
     """
     Returns a dict as {name_aa : SMILES_aa} from the amino acids in the

@@ -96,7 +96,8 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             elongation_modules_with_mechanisms.append([module_name, \
             f'{module_name}_quick_mechanism.png'])
             module_list_domains += ['KS', 'AT', 'ACP']
-            for tailoring_domain in module[3]:
+            domains_sorted = sort_domains(module[3])
+            for tailoring_domain in domains_sorted:
                 if tailoring_domain == 'KR_C1':
                     tailoring_domain = 'KR*'
                 elif tailoring_domain.startswith('KR') and \
@@ -279,6 +280,19 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         module_name = module[0]
         if path.exists(f'{module_name}_quick_mechanism.png'):
             os.remove(f'{module_name}_quick_mechanism.png')
+
+def sort_domains(unsorted_list_domains):
+    """
+
+    """
+    sorted_list_domains = []
+    order = ['DH', 'ER', 'KR', 'KR*', 'KR_inactive', 'KR_A1', 'KR_A2', 'KR_B1',
+             'KR_B2', 'KR_C1', 'KR_C2']
+    for domain in order:
+        if domain in unsorted_list_domains:
+            sorted_list_domains.append(domain)
+
+    return sorted_list_domains
 
 
 def button_action(event):

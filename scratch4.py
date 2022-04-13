@@ -15,20 +15,19 @@ clust = [['module 1', 'starter_module_nrps', 'threonine'],
 #          ['module 5', 'elongation_module_pks', 'pk', []]]
 
 clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
-         ['module 2', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-         ['module 3', 'elongation_module_pks', 'methylmalonylcoa', []],
-         ['module 4', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-         ['module 5', 'elongation_module_nrps', 'glutamine', []],
-         ['module 6', 'elongation_module_pks', 'malonylcoa', ['KR', 'DH']],
-         ['module 7', 'elongation_module_nrps', 'glycine', []],
-         ['module 8', 'terminator_module_nrps', 'serine', []]]
+         ['module 2', 'elongation_module_pks', 'methylmalonylcoa', []],
+         ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
+         ['module 4', 'elongation_module_nrps', 'glutamine', ['E']],
+         ['module 5', 'elongation_module_pks', 'malonylcoa', ['KR', 'DH']],
+         ['module 6', 'elongation_module_nrps', 'valine', ['E', 'nMT']],
+         ['module 7', 'terminator_module_nrps', 'serine', []]]
 
 clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
           ['module 2', 'terminator_module_nrps', 'serine', ['E']],
           ['module 3', 'terminator_module_nrps', 'asparagine', ['nMT', 'E']],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
 
-draw_cluster(clust2, interactive=True)
+draw_cluster(clust)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:

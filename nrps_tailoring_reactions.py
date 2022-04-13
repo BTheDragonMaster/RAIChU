@@ -1,6 +1,6 @@
 from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures
-
+from attributes import ATTRIBUTES
 
 
 
@@ -34,6 +34,7 @@ def nrps_epimerization(nrp):
 def methylation(target_atom, structure):
 
     methyl_group = read_smiles('C')
+    methyl_group.add_attributes(ATTRIBUTES, boolean=True)
     carbon = methyl_group.atoms[0]
     hydrogen_1 = methyl_group.atoms[1]
     bond_1 = carbon.get_bond(hydrogen_1)

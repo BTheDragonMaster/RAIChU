@@ -24,15 +24,11 @@ clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
          ['module 8', 'terminator_module_nrps', 'serine', []]]
 
 clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
-          ['module 2', 'terminator_module_nrps', 'serine', []],
-          ['module 3', 'terminator_module_nrps', 'asparagine', []],
+          ['module 2', 'terminator_module_nrps', 'serine', ['E']],
+          ['module 3', 'terminator_module_nrps', 'asparagine', ['E', 'nMT']],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
 
-struct = cluster_to_structure(clust2)
-product = nrps_methylation(struct)
-draw_structure(product)
-RaichuDrawer(product)
-
+draw_cluster(clust2)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:

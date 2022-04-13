@@ -27,7 +27,7 @@ clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
           ['module 3', 'terminator_module_nrps', 'asparagine', ['nMT', 'E']],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
 
-draw_cluster(clust)
+draw_cluster(clust, interactive=True)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:

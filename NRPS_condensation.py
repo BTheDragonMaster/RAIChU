@@ -21,6 +21,7 @@ def set_nrps_central_chain(peptide):
     assert len(c2_atoms_aa) == 1
 
     n_atoms_aa[0].annotations.in_central_chain = True
+    n_atoms_aa[0].annotations.n_atom_nmeth = True
     c1_atoms_aa[0].annotations.in_central_chain = True
     c1_atoms_aa[0].annotations.chiral_c_ep = True
     c2_atoms_aa[0].annotations.in_central_chain = True
@@ -95,9 +96,11 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     # Determine atoms in amino acid that end up in central peptide chain
     set_nrps_central_chain(amino_acid)
 
-    # Reset chiral_c_ep AtomAnnotations attribute for all atoms in the NRP
+    # Reset chiral_c_ep and n_atom_nmeth AtomAnnotations attribute for all
+    # atoms in the NRP
     for atom in nrp_intermediate.graph:
         atom.annotations.chiral_c_ep = False
+        atom.annotations.n_atom_nmeth = False
 
     # Carry out condensation reaction using build-in PIKAChU function
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]

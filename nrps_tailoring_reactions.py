@@ -58,6 +58,22 @@ def methylation(target_atom, structure):
         if carbon.nr in s.atoms:
             return s
 
+def nrps_methylation(nrp):
+    """
+
+    """
+    # Define N-methylation reaction target
+    n_meth_locations = []
+    for atom in nrp.graph:
+        if atom.annotations.n_atom_nmeth:
+            n_meth_locations.append(atom)
+    assert len(n_meth_locations) == 1
+    n_meth = n_meth_locations[0]
+
+    # Carry out N-methylation
+    product = methylation(n_meth, nrp)
+
+    return product
 
 if __name__ == "__main__":
     s = read_smiles(r"NCC(=O)NCC(=O)O")

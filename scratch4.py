@@ -1,5 +1,8 @@
 from visualize_cluster import *
-from nrps_tailoring_reactions import nrps_epimerization
+from nrps_tailoring_reactions import nrps_epimerization, nrps_methylation
+from pikachu.general import draw_structure
+
+
 clust = [['module 1', 'starter_module_nrps', 'threonine'],
          ['module 2', 'elongation_module_nrps', 'glycine'],
          ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR']],
@@ -22,9 +25,15 @@ clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
 
 clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
           ['module 2', 'terminator_module_nrps', 'serine', []],
-          ['module 3', 'terminator_module_nrps', 'asparagine', ['E']],
+          ['module 3', 'terminator_module_nrps', 'asparagine', []],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
-draw_cluster(clust2, interactive=True)
+
+struct = cluster_to_structure(clust2)
+product = nrps_methylation(struct)
+draw_structure(product)
+RaichuDrawer(product)
+
+# draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:
 #     print(atom, atom.annotations.chiral_c_ep)

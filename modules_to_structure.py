@@ -21,7 +21,7 @@ ELONGATION_UNIT_TO_TEXT = {'malonylcoa': 'Malonyl-CoA',
                            'ethylmalonylcoa': 'Ethylmalonyl-CoA',
                            'pk': 'Unknown elongation unit'}
 
-TAILOR_DOMAIN_SHORT_TO_LONG = {'E': 'Epimerization'}
+TAILOR_DOMAIN_SHORT_TO_LONG = {'E': 'Epimerization', 'nMT' : 'N-methylation'}
 
 
 def cluster_to_structure(modules, visualization_mechanism=False,
@@ -48,7 +48,6 @@ def cluster_to_structure(modules, visualization_mechanism=False,
     'terminator_module_nrps', 'amino acid'],
     """
     last_module_nrps = False
-    list_filenames = []
     # Check if last module is an NRPS module:
     if modules[-1][1] == 'elongation_module_nrps' or \
             modules[-1][1] == 'starter_module_nrps' or \
@@ -108,6 +107,8 @@ def cluster_to_structure(modules, visualization_mechanism=False,
     # Iterate over remaining modules
 
     for module in modules:
+        print(module)
+        list_filenames = []
 
         # If module is a PKS module:
 
@@ -326,14 +327,15 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             if domain == list_tailoring_domains[0]:
                                 before_reaction_filename = '2.png'
                                 after_reaction_filename = '3.png'
+                                if path.exists(before_reaction_filename):
+                                    os.remove(before_reaction_filename)
+                                RaichuDrawer(copy_attached,
+                                             save_png=before_reaction_filename,
+                                             dpi=500)
+                                list_filenames.append(before_reaction_filename)
                             elif len(list_tailoring_domains) == 2 and domain == list_tailoring_domains[1]:
-                                before_reaction_filename = '3.png'
                                 after_reaction_filename = '4.png'
-                            if path.exists(before_reaction_filename):
-                                os.remove(before_reaction_filename)
-                            RaichuDrawer(copy_attached, save_png=before_reaction_filename,
-                                         dpi=500)
-                            list_filenames.append(before_reaction_filename)
+
                             chain_intermediate = nrps_epimerization(
                                 chain_intermediate)
                             copy_chain_intermediate = chain_intermediate.deepcopy()
@@ -378,16 +380,16 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             if domain == list_tailoring_domains[0]:
                                 before_reaction_filename = '2.png'
                                 after_reaction_filename = '3.png'
+                                if path.exists(before_reaction_filename):
+                                    os.remove(before_reaction_filename)
+                                RaichuDrawer(copy_attached,
+                                             save_png=before_reaction_filename,
+                                             dpi=500)
+                                list_filenames.append(before_reaction_filename)
                             elif len(list_tailoring_domains) == 2 and domain == \
                                     list_tailoring_domains[1]:
-                                before_reaction_filename = '3.png'
                                 after_reaction_filename = '4.png'
-                            if path.exists(before_reaction_filename):
-                                os.remove(before_reaction_filename)
-                            RaichuDrawer(copy_attached,
-                                         save_png=before_reaction_filename,
-                                         dpi=500)
-                            list_filenames.append(before_reaction_filename)
+
                             chain_intermediate = nrps_methylation(
                                 chain_intermediate)
                             copy_chain_intermediate = chain_intermediate.deepcopy()
@@ -561,6 +563,87 @@ def display_reactions(structures, tailoring_domains, elongation_unit,
                 # Add ketoreductase product to plot
                 ax1 = fig.add_subplot(ax[0, 6:8])
                 ax1.imshow(img3)
+
+                # Remove all axes from the figure
+                for ax in fig.get_axes():
+                    ax.axis('off')
+
+                if draw_mechanism_per_module:
+                    plt.savefig(f'{module_name}_quick_mechanism.png')
+                    plt.clf()
+                    plt.close()
+                else:
+                    plt.show()
+            elif len(tailoring_domains) == 2:
+                print(len(structures), structures)
+                before_elongation, after_elongation, after_first_tailoring, after_second_tailoring = structures
+                images = []
+                # Read in images
+                img1 = mpimg.imread(before_elongation)
+                img2 = mpimg.imread(after_elongation)
+                img3 = mpimg.imread(after_first_tailoring)
+                img4 = mpimg.imread(after_second_tailoring)
+
+                # Add images to list to prevent collection by the garbage collector
+                images.append(img1)
+                images.append(img2)
+                images.append(img3)
+                images.append(img4)
+
+                # Create figure
+                fig = plt.figure(constrained_layout=True, figsize=[20, 8],
+                                 frameon=False,
+                                 num=f"Quick reaction mechanism {module_name}")
+                ax = fig.subplots(1, 11)
+                ax = fig.add_gridspec(1, 11)
+
+                # Add first structure before elongation reaction to plot
+                ax1 = fig.add_subplot(ax[0, 0:2])
+                ax1.imshow(img1)
+
+                # Add correct arrow to plot (depending on elongation unit)
+                ax1 = fig.add_subplot(ax[0, 2])
+                arrow = FancyArrow(0, 0.5, 0.89, 0, overhang=0.3,
+                                   head_width=0.025, head_length=0.1,
+                                   color='black')
+                images.append(arrow)
+                ax1.add_patch(arrow)
+                text = elongation_unit
+
+                ax1.text(0.5, 0.55, text, ha='center',
+                         fontdict={'size': 12, 'color': 'black'})
+
+                # Add elongation product to plot
+                ax1 = fig.add_subplot(ax[0, 3:5])
+                ax1.imshow(img2)
+
+                # Add KR arrow to plot
+                ax1 = fig.add_subplot(ax[0, 5])
+                arrow = FancyArrow(0, 0.5, 0.89, 0, overhang=0.3,
+                                   head_width=0.025, head_length=0.1,
+                                   color='black')
+                images.append(arrow)
+                ax1.add_patch(arrow)
+                ax1.text(0.5, 0.55, TAILOR_DOMAIN_SHORT_TO_LONG[tailoring_domains[0]], ha='center',
+                         fontdict={'size': 12})
+
+                # Add ketoreductase product to plot
+                ax1 = fig.add_subplot(ax[0, 6:8])
+                ax1.imshow(img3)
+
+                # Add DH arrow to plot
+                ax1 = fig.add_subplot(ax[0, 8])
+                arrow = FancyArrow(0, 0.5, 0.89, 0, overhang=0.3,
+                                   head_width=0.025, head_length=0.1,
+                                   color='black')
+                images.append(arrow)
+                ax1.add_patch(arrow)
+                ax1.text(0.5, 0.55, TAILOR_DOMAIN_SHORT_TO_LONG[tailoring_domains[1]], ha='center',
+                         fontdict={'size': 12})
+
+                # Add dehydratase product to plot
+                ax1 = fig.add_subplot(ax[0, 9:11])
+                ax1.imshow(img4)
 
                 # Remove all axes from the figure
                 for ax in fig.get_axes():

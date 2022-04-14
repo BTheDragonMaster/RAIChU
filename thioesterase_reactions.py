@@ -1,6 +1,6 @@
 from modules_to_structure import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
-
+from pikachu.general import draw_structure
 
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
@@ -156,7 +156,7 @@ def thioesterase_all_products(chain_intermediate):
     for atom in chain_intermediate.graph:
         atom.hybridise()
     chain_intermediate_copy = chain_intermediate.deepcopy()
-    Raichu_drawer(thioesterase_linear_product(chain_intermediate_copy))
+    RaichuDrawer(thioesterase_linear_product(chain_intermediate_copy))
 
     # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
     chain_intermediate_copy = chain_intermediate.deepcopy()
@@ -215,7 +215,7 @@ def thioesterase_all_products(chain_intermediate):
 
     # Draw all products
     for product in list_product_drawings:
-        Raichu_drawer(product)
+        RaichuDrawer(product)
 
     return list_product_drawings
 

@@ -71,8 +71,16 @@ def nrps_methylation(nrp):
     assert len(n_meth_locations) == 1
     n_meth = n_meth_locations[0]
 
+    # Check if the N atom has a hydrogen group necessary for the reaction, and
+    # not a cyclic amiono acid such as proline
+    executable = True
+    if not n_meth.has_neighbour('H'):
+        executable = False
+        product = nrp
+
     # Carry out N-methylation
-    product = methylation(n_meth, nrp)
+    if executable:
+        product = methylation(n_meth, nrp)
 
     return product
 

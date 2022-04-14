@@ -8,7 +8,7 @@ starter_units = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
 tailoring_domain_combinations = [[], ['KR'], ['KR', 'DH'], ['KR', 'DH', 'ER']]
 elongation_units = ['malonylcoa', 'methylmalonylcoa', 'pk',
                     'methoxymalonylacp', 'ethylmalonylcoa']
-
+nrps_tailoring_domain_combinations = [[], ['E'], ['nMT'], ['E', 'nMT'], ['nMT', 'E']]
 
 def generate_random_pks_cluster():
     """Generates and returns a pure PKS cluster in the standard RAIChU format,
@@ -45,10 +45,12 @@ def generate_random_nrps_cluster():
     last_elongation_domain_nr = random.randint(2, 8)
     for i in range(2, last_elongation_domain_nr):
         elongation_module = [f'module {i}', 'elongation_module_nrps',
-                             random.choice(list_aa), []]
+                             random.choice(list_aa),
+                             random.choice(nrps_tailoring_domain_combinations)]
         cluster.append(elongation_module)
     terminator_module = [f'module {last_elongation_domain_nr}',
-                         'terminator_module_nrps', random.choice(list_aa), []]
+                         'terminator_module_nrps', random.choice(list_aa),
+                         random.choice(nrps_tailoring_domain_combinations)]
     cluster.append(terminator_module)
 
     return cluster
@@ -79,7 +81,8 @@ def generate_random_hybrid_cluster():
                                  random.choice(tailoring_domain_combinations)]
         else:
             elongation_module = [f'module {i}', 'elongation_module_nrps',
-                                 random.choice(list_aa), []]
+                                 random.choice(list_aa),
+                                 random.choice(nrps_tailoring_domain_combinations)]
         cluster.append(elongation_module)
     # Choose between PKS or NRPS terminator module
     if random.randint(0,1) == 1:
@@ -89,7 +92,8 @@ def generate_random_hybrid_cluster():
                               random.choice(tailoring_domain_combinations)]
     else:
         terminator_module = [f'module {last_elongation_domain_nr}',
-                             'terminator_module_nrps', random.choice(list_aa), []]
+                             'terminator_module_nrps', random.choice(list_aa),
+                             random.choice(nrps_tailoring_domain_combinations)]
     cluster.append(terminator_module)
 
     return cluster
@@ -113,8 +117,7 @@ if __name__ == "__main__":
     for i in range(1, 501):
         cluster = generate_random_hybrid_cluster()
         print(cluster)
-        draw_cluster(cluster)
-        #draw_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
+        draw_cluster(cluster, save_fig=f'hybrid_PKS_NRPS_cluster_{i}.png')
         plt.close('all')
 
 

@@ -1,0 +1,63 @@
+#!/usr/bin/env python
+import os
+import sys
+import importlib.resources as pkg_resources
+from pathlib import Path
+
+import pygame
+from pygame.locals import *
+from interactive.run_raichu import RaichuManager
+from interactive.buttons import draw_buttons
+import interactive.images
+from interactive.style import SIZE, WHITE
+from interactive.background import ButtonPanel
+
+IMAGE_DIR = os.path.dirname(interactive.images.__file__)
+
+size = SIZE
+width, height = size
+
+pygame.init()
+screen = pygame.display.set_mode(size)
+screen.fill(WHITE)
+
+button_panel = ButtonPanel(screen)
+button_panel.draw()
+
+raichu_icon = pygame.image.load(os.path.join(IMAGE_DIR, 'icon.png'))
+
+pygame.display.set_caption('RAIChU')
+pygame.display.set_icon(raichu_icon)
+
+running = True
+
+manager = RaichuManager(screen)
+
+while running:
+    for event in pygame.event.get():
+        if event.type == QUIT:
+            running = False
+
+        if event.type == MOUSEBUTTONDOWN:
+            mouse = pygame.mouse.get_pos()
+            manager.do_click_action(mouse)
+
+        if event.type == pygame.KEYDOWN:
+            if manager.text_box:
+                if event.key == pygame.K_RETURN:
+                    pass
+                elif event.key == pygame.K_BACKSPACE:
+                    manager.text_box.remove_character()
+                else:
+                    manager.text_box.add_character(event.unicode)
+
+    if manager.text_box:
+        manager.text_box.draw(screen)
+
+    mouse = pygame.mouse.get_pos()
+    draw_buttons(manager.active_buttons, screen, mouse)
+    for gene in manager.genes:
+        gene.draw(mouse)
+    pygame.display.update()
+
+pygame.quit()

@@ -1,6 +1,6 @@
 from modules_to_structure import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
-from pikachu.general import draw_structure
+
 
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)

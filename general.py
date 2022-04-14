@@ -1,5 +1,5 @@
 """
-This script contains examples of the general functionalities of RAIChU
+This script contains examples of the general functionalities of RAIChU.
 """
 from visualize_cluster import *
 

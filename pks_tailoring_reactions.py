@@ -171,11 +171,10 @@ def ketoreductase(chain_intermediate, kr_type = None):
     if chiral_c_locations:
         chiral_c = chiral_c_locations[0]
     if chiral_c and kr_type:
-        for atom in chiral_c:
             if kr_type.endswith('1'):
-                atom.chiral = 'clockwise'
+                chiral_c.chiral = 'clockwise'
             elif kr_type.endswith('2'):
-                atom.chiral = 'counterclockwise'
+                chiral_c.chiral = 'counterclockwise'
             else:
                 raise ValueError('This type of KR domain is not supported\
                                  by RAIChU or does not exist')

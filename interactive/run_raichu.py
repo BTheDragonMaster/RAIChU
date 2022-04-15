@@ -1,9 +1,10 @@
 from interactive.buttons import make_buttons, get_mouse_button, Button, DomainButton, hide_button, \
-    hide_domain_buttons, AddGeneButton, CreateGeneButton, show_buttons, ADD_MODULE_BUTTON, show_button, \
+    AddGeneButton, CreateGeneButton, show_buttons, ADD_MODULE_BUTTON, show_button, \
     AddModuleButton, NRPSModuleButton, NRPS_MODULE_BUTTON, PKSModuleButton, PKS_MODULE_BUTTON, \
-    show_domain_buttons, reset_buttons, AddDomainButton, ADD_DOMAIN_BUTTON, REMOVE_DOMAIN_BUTTON, \
+    show_domain_buttons, reset_buttons, AddDomainButton, ADD_DOMAIN_BUTTON, \
     REMOVE_MODULE_BUTTON, REMOVE_DOMAIN_BUTTON, RemoveDomainButton, RemoveModuleButton, RemoveGeneButton, \
-    REMOVE_GENE_BUTTON
+    REMOVE_GENE_BUTTON, SELECT_SUBSTRATE_BUTTON, SelectSubstrateButton, SELECT_DOMAIN_TYPE_BUTTON, \
+    SelectDomainTypeButton, SET_DOMAIN_INACTIVE_BUTTON, SetDomainInactiveButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
@@ -126,6 +127,10 @@ class RaichuManager:
         elif type(button) == RemoveDomainButton:
             button.do_action(self.selected_domain, self.screen, self.active_buttons, mouse)
             self.reset_selections()
+        elif type(button) == SelectDomainTypeButton:
+            pass
+        elif type(button) == SelectSubstrateButton:
+            pass
 
     def do_click_action(self, mouse):
 
@@ -153,7 +158,9 @@ class RaichuManager:
                 show_buttons([REMOVE_DOMAIN_BUTTON], self.screen, self.active_buttons)
 
                 if selected_entity.type == 'A' or selected_entity.type == 'AT':
-                    show_button()
+                    show_button(SELECT_SUBSTRATE_BUTTON, self.screen, self.active_buttons)
+                elif selected_entity.type == 'KR':
+                    show_button(SELECT_DOMAIN_TYPE_BUTTON, self.screen, self.active_buttons)
         else:
             self.random_click(mouse)
 

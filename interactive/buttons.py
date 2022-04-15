@@ -2,12 +2,19 @@ import pygame
 import os
 
 from interactive.style import BUTTON_TEXT_COLOUR, FONT, BUTTON_HIGHLIGHT_COLOUR, BLACK, BUTTON_COLOUR, \
-    BUTTON_PANEL_COLOUR, HEIGHT, WIDTH, DOMAIN_BUTTON_SIZE
+    BUTTON_PANEL_COLOUR, HEIGHT, WIDTH, DOMAIN_BUTTON_SIZE, SUBSTRATE_GROUP_BUTTONS_PER_LINE, \
+    SUBSTRATE_GROUP_BUTTON_PADDING, SUBSTRATE_GROUP_BUTTON_SIZE, SUBSTRATE_BUTTON_SIZE
 import interactive.images.domains
+import interactive.flatfiles
 from interactive.gene import Gene
 from interactive.textbox import TextBox
+from interactive.parsers import parse_smiles
+from interactive.substrate import Substrate, SubstrateGroup, \
+    PROTEINOGENIC_SUBSTRATES, NONPROTEINOGENIC_SUBSTRATES, FATTY_ACIDS, NON_AMINO_ACIDS
 
 DOMAIN_IMAGE_DIR = os.path.dirname(interactive.images.domains.__file__)
+FLATFILES = os.path.dirname(interactive.flatfiles.__file__)
+PARAS_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
 
 class Button:
@@ -301,7 +308,7 @@ class RemoveDomainButton(Button):
 
 class SelectSubstrateButton(Button):
     def __init__(self):
-        position = (int(0.7 * WIDTH), int(0.85 * HEIGHT))
+        position = (int(0.75 * WIDTH), int(0.77 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Select substrate", position, dimensions)
@@ -309,18 +316,83 @@ class SelectSubstrateButton(Button):
 
 class SelectDomainTypeButton(Button):
     def __init__(self):
-        position = (int(0.7 * WIDTH), int(0.85 * HEIGHT))
+        position = (int(0.75 * WIDTH), int(0.82 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
-        super().__init__("Select type", position, dimensions)
+        super().__init__("Select subtype", position, dimensions)
+
+
+class SetDomainInactiveButton(Button):
+
+    def __init__(self):
+        position = (int(0.75 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Set to inactive", position, dimensions)
 
 
 class SubstrateButton(Button):
-    def __init__(self, substrate):
-        position = (int(0.7 * HEIGHT), int(0.85 * HEIGHT))
-        dimensions = (int(0.2 * HEIGHT), int(HEIGHT / 25))
+    def __init__(self, substrate, position, dimensions):
 
         super().__init__(substrate, position, dimensions)
+        self.substrate = substrate
+        self.image = substrate.image
+        self.highlight_image = substrate.highlight_image
+
+    def draw(self, screen):
+        substrate_image = pygame.image.load(self.image)
+        substrate_image_scaled = pygame.transform.smoothscale(substrate_image, (SUBSTRATE_BUTTON_SIZE,
+                                                                                SUBSTRATE_BUTTON_SIZE))
+        screen.blit(substrate_image_scaled, self.rectangle)
+
+    def highlight(self, screen):
+        substrate_image = pygame.image.load(self.highlight_image)
+        substrate_image_scaled = pygame.transform.smoothscale(substrate_image, (SUBSTRATE_BUTTON_SIZE,
+                                                                                SUBSTRATE_BUTTON_SIZE))
+        screen.blit(substrate_image_scaled, self.rectangle)
+
+    def do_action(self):
+        pass
+
+
+class SubstrateSupergroupButton(Button):
+    def __init__(self, text, position, group):
+        dimensions = (int(0.2 * HEIGHT), int(HEIGHT / 25))
+        self.group = group
+
+        super().__init__(text, position, dimensions)
+
+
+class ProteinogenicButton(SubstrateSupergroupButton):
+    def __init__(self):
+        position = (int(0.30 * WIDTH), int(0.77 * HEIGHT))
+
+        super().__init__("Proteinogenic", position,
+                         PROTEINOGENIC_SUBSTRATES)
+
+
+class NonProteinogenicButton(SubstrateSupergroupButton):
+    def __init__(self):
+        position = (int(0.30 * WIDTH), int(0.82 * HEIGHT))
+
+        super().__init__("Non-proteinogenic", position,
+                         NONPROTEINOGENIC_SUBSTRATES)
+
+
+class NonAminoAcidButton(SubstrateSupergroupButton):
+    def __init__(self):
+        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+
+        super().__init__("Non-amino acids", position,
+                         NON_AMINO_ACIDS)
+
+
+class FattyAcidButton(SubstrateSupergroupButton):
+    def __init__(self):
+        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+
+        super().__init__("Fatty acids", position,
+                         FATTY_ACIDS)
 
 
 CREATE_GENE_BUTTON = CreateGeneButton()
@@ -338,6 +410,8 @@ REMOVE_DOMAIN_BUTTON = RemoveDomainButton()
 
 SELECT_SUBSTRATE_BUTTON = SelectSubstrateButton()
 SELECT_DOMAIN_TYPE_BUTTON = SelectDomainTypeButton()
+SET_DOMAIN_INACTIVE_BUTTON = SetDomainInactiveButton()
+
 
 KS_DOMAIN_BUTTON = KSDomainButton()
 AT_DOMAIN_BUTTON = ATDomainButton()
@@ -363,9 +437,12 @@ NRPS_DOMAIN_TO_BUTTON = {'C': C_DOMAIN_BUTTON,
                          'A': A_DOMAIN_BUTTON,
                          'nMT': NMT_DOMAIN_BUTTON,
                          'PCP': PCP_DOMAIN_BUTTON,
-                         'E': E_DOMAIN_BUTTON,
-                         }
+                         'E': E_DOMAIN_BUTTON}
 
+PROTEINOGENIC_BUTTON = ProteinogenicButton
+NON_PROTEINOGENIC_BUTTON = NonProteinogenicButton
+NON_AMINO_ACID_BUTTON = NonAminoAcidButton
+FATTY_ACID_BUTTON = FattyAcidButton
 
 ALL_BUTTONS = [CREATE_GENE_BUTTON,
                ADD_GENE_BUTTON,
@@ -387,7 +464,13 @@ ALL_BUTTONS = [CREATE_GENE_BUTTON,
                REMOVE_DOMAIN_BUTTON,
                REMOVE_MODULE_BUTTON,
                REMOVE_GENE_BUTTON,
-               SELECT_SUBSTRATE_BUTTON]
+               SELECT_SUBSTRATE_BUTTON,
+               SELECT_DOMAIN_TYPE_BUTTON,
+               SET_DOMAIN_INACTIVE_BUTTON,
+               PROTEINOGENIC_BUTTON,
+               NON_PROTEINOGENIC_BUTTON,
+               NON_AMINO_ACID_BUTTON,
+               FATTY_ACID_BUTTON]
 
 
 def show_domain_buttons(module, screen, active_buttons):
@@ -477,9 +560,55 @@ def show_buttons(buttons, screen, active_buttons):
         show_button(button, screen, active_buttons)
 
 
+def make_raster(substrate_groups, buttons):
+    x_coord = int(0.25 * WIDTH)
+    y_coord = int(0.77 * HEIGHT)
+
+    for i, group in enumerate(substrate_groups):
+        if i % SUBSTRATE_GROUP_BUTTONS_PER_LINE == 0:
+            if i != 0:
+                y_coord += int(0.05 * HEIGHT)
+            x_coord = int(0.25 * WIDTH)
+        else:
+            x_coord += SUBSTRATE_GROUP_BUTTON_SIZE + SUBSTRATE_GROUP_BUTTON_PADDING
+
+        button = Button(group, (x_coord, y_coord), SUBSTRATE_GROUP_BUTTON_SIZE)
+        buttons.add(button)
 
 
+def make_nrps_substrate_group_buttons():
+    buttons = set()
+
+    make_raster(PROTEINOGENIC_SUBSTRATES, buttons)
+    make_raster(NONPROTEINOGENIC_SUBSTRATES, buttons)
+    make_raster(FATTY_ACIDS, buttons)
+    make_raster(NON_AMINO_ACIDS, buttons)
+
+    return buttons
 
 
+def make_nrps_substrate_buttons():
+    buttons = set()
 
+    name_to_smiles = parse_smiles(PARAS_SMILES)
+    for group, substrate_names in PROTEINOGENIC_SUBSTRATES.items():
+        substrates = []
 
+        for substrate_name in substrate_names:
+            smiles = name_to_smiles[substrate_name]
+            substrate = Substrate(substrate_name, smiles)
+            substrates.append(substrate)
+
+        substrate_group = SubstrateGroup(group, substrates)
+        for substrate in substrate_group.substrates:
+            buttons.add(SubstrateButton(substrate.name,
+                                        (substrate.x, substrate.y),
+                                        (substrate.width, substrate.height)))
+
+    return buttons
+
+NRPS_SUBSTRATE_BUTTONS = make_nrps_substrate_buttons()
+NRPS_SUBSTRATE_GROUP_BUTTONS = make_nrps_substrate_group_buttons()
+
+ALL_BUTTONS += NRPS_SUBSTRATE_BUTTONS
+ALL_BUTTONS += NRPS_SUBSTRATE_GROUP_BUTTONS

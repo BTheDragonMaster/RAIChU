@@ -169,15 +169,21 @@ class RaichuManager:
             image_width = cluster_image.get_width()
             image_height = cluster_image.get_height()
 
+            print(image_width, image_height)
+
             if image_width <= RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                print('1')
                 ratio = RENDER_WINDOW_SIZE[1] / image_height
-                image_width = RENDER_WINDOW_SIZE[0] * ratio
+                image_width *= ratio
                 image_height = RENDER_WINDOW_SIZE[1]
             elif image_width > RENDER_WINDOW_SIZE[0] and image_height <= RENDER_WINDOW_SIZE[1]:
+                print("2")
                 ratio = RENDER_WINDOW_SIZE[0] / image_width
-                image_height = RENDER_WINDOW_SIZE[1] * ratio
+                print(ratio)
+                image_height *= ratio
                 image_width = RENDER_WINDOW_SIZE[0]
             elif image_width > RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                print('3')
                 ratio_1 = RENDER_WINDOW_SIZE[0] / image_width
                 ratio_2 = RENDER_WINDOW_SIZE[1] / image_height
                 if ratio_1 <= ratio_2:
@@ -187,6 +193,8 @@ class RaichuManager:
 
                 image_height *= ratio
                 image_width *= ratio
+
+            print(image_width, image_height)
 
             render_window_size = (image_width, image_height)
 

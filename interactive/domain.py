@@ -39,6 +39,11 @@ class Domain:
         self.y = self.module.y
         self.rectangle = pygame.Rect(self.x, self.y, self.width, self.height)
 
+    def draw_domain_subtype(self):
+        rendered_text = self.font.render(self.subtype, False, BLACK)
+        text_rectangle = rendered_text.get_rect(center=(self.x + self.width / 2, self.y - 10))
+        self.screen.blit(rendered_text, text_rectangle)
+
     def draw_substrate_text(self):
 
         rendered_text = self.font.render(self.substrate.abbr, False, BLACK)
@@ -60,6 +65,8 @@ class Domain:
         self.screen.blit(domain_image_scaled, self.rectangle)
         if self.substrate:
             self.draw_substrate_text()
+        if self.subtype:
+            self.draw_domain_subtype()
 
 
 

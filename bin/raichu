@@ -9,7 +9,7 @@ from pygame.locals import *
 from interactive.run_raichu import RaichuManager
 from interactive.buttons import draw_buttons
 import interactive.images
-from interactive.style import SIZE, WHITE
+from interactive.style import SIZE, WHITE, BLACK
 from interactive.background import ButtonPanel
 
 IMAGE_DIR = os.path.dirname(interactive.images.__file__)
@@ -54,10 +54,22 @@ while running:
     if manager.text_box:
         manager.text_box.draw(screen)
 
-    mouse = pygame.mouse.get_pos()
-    draw_buttons(manager.active_buttons, screen, mouse)
-    for gene in manager.genes:
-        gene.draw(mouse)
+    if not manager.cluster_image:
+        button_panel.draw()
+        mouse = pygame.mouse.get_pos()
+        draw_buttons(manager.active_buttons, screen, mouse)
+        for gene in manager.genes:
+            gene.draw(mouse)
+    else:
+        width = manager.cluster_image.get_width()
+        height = manager.cluster_image.get_height()
+        x = SIZE[0] - width
+        y = 0
+        rectangle = pygame.Rect(x, y, width, height)
+
+        screen.blit(manager.cluster_image, rectangle)
+        pygame.draw.rect(screen, BLACK, rectangle, 2)
+
     pygame.display.update()
 
 pygame.quit()

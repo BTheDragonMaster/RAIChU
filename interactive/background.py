@@ -8,6 +8,6 @@ class ButtonPanel:
         self.screen = screen
 
     def draw(self):
-        pygame.draw.rect(self.screen, BUTTON_PANEL_COLOUR, BUTTON_PANEL)
+        # pygame.draw.rect(self.screen, BUTTON_PANEL_COLOUR, BUTTON_PANEL)
         pygame.draw.line(self.screen, BLACK, (BUTTON_PANEL.x, BUTTON_PANEL.y),
                          (BUTTON_PANEL.x + BUTTON_PANEL.width, BUTTON_PANEL.y))

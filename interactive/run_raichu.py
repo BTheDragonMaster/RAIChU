@@ -1,3 +1,7 @@
+import os
+
+import pygame
+
 from interactive.buttons import make_buttons, get_mouse_button, Button, DomainButton, hide_button, \
     AddGeneButton, CreateGeneButton, show_buttons, ADD_MODULE_BUTTON, show_button, \
     AddModuleButton, NRPSModuleButton, NRPS_MODULE_BUTTON, PKSModuleButton, PKS_MODULE_BUTTON, \
@@ -9,11 +13,14 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS, \
     ProteinogenicButton, NonProteinogenicButton, FattyAcidButton, NonAminoAcidButton, \
     PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
-    NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton
+    NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton, RenderClusterButton, \
+    KR_BUTTONS, KRSubtypeButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
 from interactive.insertion_point import InsertionPoint
+from interactive.render_cluster import render_cluster
+from interactive.style import RENDER_WINDOW_SIZE, WHITE
 
 
 class RaichuManager:
@@ -40,6 +47,7 @@ class RaichuManager:
 
         self.text_box = None
         self.insertion_point = None
+        self.cluster_image = None
 
     def get_mouse_domain(self, mouse):
         for gene in self.genes:
@@ -153,9 +161,39 @@ class RaichuManager:
         elif type(button) == RemoveDomainButton:
             button.do_action(self.selected_domain, self.screen, self.active_buttons, mouse)
             self.reset_selections()
-        elif type(button) == SelectDomainTypeButton:
-            pass
+        elif type(button) == RenderClusterButton:
+            render_cluster(self.genes)
+            reset_buttons(self.screen, self.active_buttons)
+            self.reset_selections()
+            cluster_image = pygame.image.load(os.path.join(os.getcwd(), 'cluster_test.png'))
+            image_width = cluster_image.get_width()
+            image_height = cluster_image.get_height()
 
+            if image_width <= RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                ratio = RENDER_WINDOW_SIZE[1] / image_height
+                image_width = RENDER_WINDOW_SIZE[0] * ratio
+                image_height = RENDER_WINDOW_SIZE[1]
+            elif image_width > RENDER_WINDOW_SIZE[0] and image_height <= RENDER_WINDOW_SIZE[1]:
+                ratio = RENDER_WINDOW_SIZE[0] / image_width
+                image_height = RENDER_WINDOW_SIZE[1] * ratio
+                image_width = RENDER_WINDOW_SIZE[0]
+            elif image_width > RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                ratio_1 = RENDER_WINDOW_SIZE[0] / image_width
+                ratio_2 = RENDER_WINDOW_SIZE[1] / image_height
+                if ratio_1 <= ratio_2:
+                    ratio = ratio_1
+                else:
+                    ratio = ratio_2
+
+                image_height *= ratio
+                image_width *= ratio
+
+            render_window_size = (image_width, image_height)
+
+            self.cluster_image = pygame.transform.smoothscale(cluster_image, render_window_size)
+        elif type(button) == SelectDomainTypeButton:
+            reset_buttons(self.screen, self.active_buttons)
+            show_buttons(KR_BUTTONS, self.screen, self.active_buttons)
         elif type(button) == SelectSubstrateButton:
             if self.selected_domain.type == 'A':
                 reset_buttons(self.screen, self.active_buttons)
@@ -163,6 +201,9 @@ class RaichuManager:
             elif self.selected_domain.type == 'AT':
                 reset_buttons(self.screen, self.active_buttons)
                 show_buttons(PKS_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
+        elif type(button) == KRSubtypeButton:
+            button.do_action(self.selected_domain, mouse, self.screen, self.active_buttons)
+            self.reset_selections()
 
         elif type(button) == SubstrateButton:
             self.selected_domain.substrate = button.substrate
@@ -200,10 +241,12 @@ class RaichuManager:
                     show_button(SELECT_SUBSTRATE_BUTTON, self.screen, self.active_buttons)
                 elif selected_entity.type == 'KR':
                     show_button(SELECT_DOMAIN_TYPE_BUTTON, self.screen, self.active_buttons)
+
         else:
             self.random_click(mouse)
 
     def random_click(self, mouse):
+        self.screen.fill(WHITE)
 
         reset_buttons(self.screen, self.active_buttons)
         for gene in self.genes:
@@ -220,6 +263,8 @@ class RaichuManager:
         self.selected_gene = None
         self.selected_module = None
         self.selected_domain = None
+        self.selected_substrate_group = None
+        self.cluster_image = False
 
 
 

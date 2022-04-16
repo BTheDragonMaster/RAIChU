@@ -3,9 +3,10 @@ import os
 
 from interactive.style import BUTTON_TEXT_COLOUR, FONT, BUTTON_HIGHLIGHT_COLOUR, BLACK, BUTTON_COLOUR, \
     BUTTON_PANEL_COLOUR, HEIGHT, WIDTH, DOMAIN_BUTTON_SIZE, SUBSTRATE_GROUP_BUTTONS_PER_LINE, \
-    SUBSTRATE_GROUP_BUTTON_PADDING, SUBSTRATE_GROUP_BUTTON_SIZE, SUBSTRATE_BUTTON_SIZE
+    SUBSTRATE_GROUP_BUTTON_PADDING, SUBSTRATE_GROUP_BUTTON_SIZE, SUBSTRATE_BUTTON_SIZE, KR_BUTTON_SIZE
 import interactive.images.domains
 import interactive.flatfiles
+import interactive.images.kr_subtypes
 from interactive.gene import Gene
 from interactive.textbox import TextBox
 from interactive.parsers import parse_smiles
@@ -13,6 +14,7 @@ from interactive.substrate import Substrate, SubstrateGroup, \
     PROTEINOGENIC_SUBSTRATES, NONPROTEINOGENIC_SUBSTRATES, FATTY_ACIDS, NON_AMINO_ACIDS
 
 DOMAIN_IMAGE_DIR = os.path.dirname(interactive.images.domains.__file__)
+KR_IMAGE_DIR = os.path.dirname(interactive.images.kr_subtypes.__file__)
 FLATFILES = os.path.dirname(interactive.flatfiles.__file__)
 PARAS_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
@@ -64,6 +66,52 @@ class Button:
 
     def set_font(self):
         self.font = pygame.font.SysFont(FONT, self.font_size, bold=True)
+
+
+class RenderClusterButton(Button):
+
+    def __init__(self):
+        position = (int(0.77 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Render cluster", position, dimensions)
+
+
+class KRSubtypeButton(Button):
+    def __init__(self, position, kr_subtype):
+        self.kr_subtype = kr_subtype
+        dimensions = (KR_BUTTON_SIZE, KR_BUTTON_SIZE)
+
+        super().__init__(kr_subtype, position, dimensions)
+
+        if kr_subtype:
+
+            self.image = os.path.join(KR_IMAGE_DIR, f"KR_{kr_subtype}.png")
+            self.highlight_image = os.path.join(KR_IMAGE_DIR, f"KR_{kr_subtype}_highlight.png")
+        else:
+            self.image = os.path.join(KR_IMAGE_DIR, f"KR.png")
+            self.highlight_image = os.path.join(KR_IMAGE_DIR, f"KR_highlight.png")
+
+
+    def draw(self, screen):
+        kr_image = pygame.image.load(self.image)
+        kr_image_scaled = pygame.transform.smoothscale(kr_image, (KR_BUTTON_SIZE, KR_BUTTON_SIZE))
+        screen.blit(kr_image_scaled, self.rectangle)
+
+    def highlight(self, screen):
+        kr_image = pygame.image.load(self.highlight_image)
+        kr_image_scaled = pygame.transform.smoothscale(kr_image, (KR_BUTTON_SIZE, KR_BUTTON_SIZE))
+        screen.blit(kr_image_scaled, self.rectangle)
+
+    def do_action(self, domain, mouse, screen, active_buttons):
+        if self.kr_subtype:
+            domain.subtype = self.kr_subtype
+        else:
+            domain.subtype = None
+
+        domain.module.gene.erase()
+        domain.module.gene.draw(mouse)
+        reset_buttons(screen, active_buttons)
 
 
 class DomainButton(Button):
@@ -398,6 +446,8 @@ class FattyAcidButton(SubstrateSupergroupButton):
                          FATTY_ACIDS)
 
 
+RENDER_CLUSTER_BUTTON = RenderClusterButton()
+
 CREATE_GENE_BUTTON = CreateGeneButton()
 ADD_GENE_BUTTON = AddGeneButton()
 REMOVE_GENE_BUTTON = RemoveGeneButton()
@@ -452,7 +502,8 @@ NRPS_SUPERGROUP_BUTTONS = [PROTEINOGENIC_BUTTON,
                            NON_AMINO_ACID_BUTTON,
                            FATTY_ACID_BUTTON]
 
-ALL_BUTTONS = [CREATE_GENE_BUTTON,
+ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
+               CREATE_GENE_BUTTON,
                ADD_GENE_BUTTON,
                ADD_MODULE_BUTTON,
                NRPS_MODULE_BUTTON,
@@ -528,6 +579,9 @@ def make_buttons(screen):
     buttons.add(CREATE_GENE_BUTTON)
     CREATE_GENE_BUTTON.draw(screen)
 
+    buttons.add(RENDER_CLUSTER_BUTTON)
+    RENDER_CLUSTER_BUTTON.draw(screen)
+
     return buttons
 
 
@@ -542,6 +596,7 @@ def draw_buttons(active_buttons, screen, mouse):
 def reset_buttons(screen, active_buttons):
     hide_buttons(ALL_BUTTONS, screen, active_buttons)
     show_button(CREATE_GENE_BUTTON, screen, active_buttons)
+    show_button(RENDER_CLUSTER_BUTTON, screen, active_buttons)
 
 
 def hide_button(button, screen, active_buttons):
@@ -639,11 +694,11 @@ def make_nrps_substrate_buttons():
 def make_pks_substrate_buttons():
     buttons = set()
 
-    name_to_smiles = {'malonylcoa': "OC(=O)CC(=O)SI",
-                      'methylmalonylcoa': "OC(=O)C(C)C(=O)SI",
-                      'methoxymalonylcoa': "OC(=O)C(OC)C(=O)SI",
-                      'ethylmalonylcoa': "OC(=O)C(CC)C(=O)SI",
-                      'wildcard': "OC(=O)C(*)C(=O)SI"}
+    name_to_smiles = {'malonylcoa': "CC(=O)S",
+                      'methylmalonylcoa': "CCC(=O)S",
+                      'methoxymalonylcoa': "COCC(=O)S",
+                      'ethylmalonylcoa': "CCCC(=O)S",
+                      'wildcard': "[*]CC(=O)S"}
 
     substrates = []
 
@@ -661,6 +716,20 @@ def make_pks_substrate_buttons():
 
     return buttons
 
+KR_SUBTYPES = ['', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+
+
+def make_kr_buttons():
+    buttons = set()
+    x_coord = int(0.25 * WIDTH)
+    y_coord = int(0.52 * HEIGHT)
+    for kr_subtype in KR_SUBTYPES:
+
+        buttons.add(KRSubtypeButton((x_coord, y_coord), kr_subtype))
+        x_coord += 10 + KR_BUTTON_SIZE
+
+    return buttons
+
 
 PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS = \
     make_nrps_substrate_group_buttons()
@@ -669,11 +738,14 @@ PKS_SUBSTRATE_BUTTONS = make_pks_substrate_buttons()
 PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
            NON_AMINOACID_GROUP_TO_BUTTONS = make_nrps_substrate_buttons()
 
+KR_BUTTONS = make_kr_buttons()
+
 ALL_BUTTONS += PROTEINOGENIC_BUTTONS
 ALL_BUTTONS += NON_PROTEINOGENIC_BUTTONS
 ALL_BUTTONS += FATTY_ACID_BUTTONS
 ALL_BUTTONS += NON_AMINO_ACID_BUTTONS
 ALL_BUTTONS += PKS_SUBSTRATE_BUTTONS
+ALL_BUTTONS += KR_BUTTONS
 
 for buttons in PROTEINOGENIC_GROUP_TO_BUTTONS.values():
     ALL_BUTTONS += buttons

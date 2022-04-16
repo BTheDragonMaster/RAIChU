@@ -1,7 +1,4 @@
-from visualize_cluster import *
-from nrps_tailoring_reactions import nrps_epimerization, nrps_methylation
-from pikachu.general import draw_structure
-
+from raichu.visualize_cluster import *
 
 clust = [['module 1', 'starter_module_nrps', 'threonine'],
          ['module 2', 'elongation_module_nrps', 'glycine'],

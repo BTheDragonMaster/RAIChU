@@ -1,6 +1,6 @@
 import os
 import interactive.images.domains
-from interactive.style import DOMAIN_SIZE, MODULE_SPACING
+from interactive.style import DOMAIN_SIZE, MODULE_SPACING, FONT, BLACK
 
 import pygame
 
@@ -17,6 +17,8 @@ class Domain:
         self.subtype = None
         self.id = domain_id
         self.rectangle = None
+        self.substrate_rectangle = None
+        self.substrate = None
 
         self.x = 0
         self.y = 0
@@ -24,15 +26,24 @@ class Domain:
         self.width = DOMAIN_SIZE
         self.height = DOMAIN_SIZE
 
+        self.font_size = self.height - 16
+        self.font = pygame.font.SysFont(FONT, self.font_size, bold=False)
+
         self.set_rectangle()
 
         self.selected = False
 
     def set_rectangle(self):
 
-        x = self.module.x + MODULE_SPACING / 2 + self.id * DOMAIN_SIZE
-        y = self.module.y
-        self.rectangle = pygame.Rect(x, y, self.width, self.height)
+        self.x = self.module.x + MODULE_SPACING / 2 + self.id * DOMAIN_SIZE
+        self.y = self.module.y
+        self.rectangle = pygame.Rect(self.x, self.y, self.width, self.height)
+
+    def draw_substrate_text(self):
+
+        rendered_text = self.font.render(self.substrate.abbr, False, BLACK)
+        text_rectangle = rendered_text.get_rect(center=(self.x + self.width/2, self.y - 10))
+        self.screen.blit(rendered_text, text_rectangle)
 
     def set_domain_subtype(self, subtype):
         self.subtype = subtype
@@ -47,6 +58,8 @@ class Domain:
 
         domain_image_scaled = pygame.transform.smoothscale(domain_image, (DOMAIN_SIZE, DOMAIN_SIZE))
         self.screen.blit(domain_image_scaled, self.rectangle)
+        if self.substrate:
+            self.draw_substrate_text()
 
 
 

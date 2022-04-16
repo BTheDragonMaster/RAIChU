@@ -74,9 +74,9 @@ class Gene:
 
     def erase(self):
         height_difference = DOMAIN_SIZE - self.height
-        rectangle = pygame.Rect(self.x, self.y - height_difference / 2, self.width, self.height + height_difference)
+        rectangle = pygame.Rect(self.x, self.y - height_difference / 2 - 20, self.width, self.height + height_difference + 20)
         pygame.draw.rect(self.screen, BACKGROUND_COLOUR, rectangle)
-        pygame.draw.rect(self.screen, BACKGROUND_COLOUR, rectangle, 5)
+        #pygame.draw.rect(self.screen, BACKGROUND_COLOUR, rectangle, 5)
 
     def adjust_module_indices(self, insertion_point):
         for module in self.modules:

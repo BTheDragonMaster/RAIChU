@@ -11,6 +11,7 @@ from interactive.style import SUBSTRATE_BUTTON_SIZE, SUBSTRATE_BUTTON_PADDING, \
 SUBSTRATE_DIR = os.path.dirname(interactive.flatfiles.__file__)
 NRPS_SUBSTRATE_IMG = os.path.dirname(interactive.images.nrps_substrates.__file__)
 PKS_SUBSTRATE_IMG = os.path.dirname(interactive.images.pks_substrates.__file__)
+SUBSTRATE_TO_ABBREVIATION_FILE = os.path.join(SUBSTRATE_DIR, 'substrate_to_abbreviation.txt')
 
 PROTEINOGENIC_SUBSTRATES = {"Ala": ['Alanine',
                                     'D-Alanine',
@@ -19,7 +20,7 @@ PROTEINOGENIC_SUBSTRATES = {"Ala": ['Alanine',
                                     '2-methyl-beta-alanine'],
                             "Arg": ["Arginine",
                                     "D-Arginine",
-                                    "4,5-dehydroarginine,"
+                                    "4,5-dehydroarginine",
                                     "homoarginine"],
                             "Asn": ["Asparagine",
                                     "D-Asparagine"],
@@ -34,7 +35,7 @@ PROTEINOGENIC_SUBSTRATES = {"Ala": ['Alanine',
                                     "D-alpha-methylcysteine"],
                             "Gln": ["Glutamine",
                                     "D-Glutamine",
-                                    "3-hydroxyglutamine"],
+                                    "3-Hydroxyglutamine"],
                             "Glu": ["GlutamicAcid",
                                     "D-GlutamicAcid",
                                     "4-methylglutamicacid"],
@@ -89,7 +90,7 @@ PROTEINOGENIC_SUBSTRATES = {"Ala": ['Alanine',
                             "Val": ["Valine",
                                     "D-Valine",
                                     "4-Hydroxyvaline",
-                                    "Isovaline",
+                                    "isovaline",
                                     "D-isovaline",
                                     "alpha-ethylnorvaline",
                                     "D-alpha-ethylnorvaline",
@@ -170,6 +171,22 @@ FATTY_ACIDS = {'Amino group': ['2-Amino-9,10-epoxy-8-oxodecanoidacid',
                                
                'No amino group': []}
 
+
+def parse_substrate_to_abbr():
+    substrate_to_abbreviation = {}
+    with open(SUBSTRATE_TO_ABBREVIATION_FILE, 'r') as abbreviation_file:
+        for line in abbreviation_file:
+            line = line.strip()
+            if line:
+                substrate, abbreviation = line.split()
+                substrate_to_abbreviation[substrate] = abbreviation
+
+    return substrate_to_abbreviation
+
+
+SUBSTRATE_TO_ABBREVIATION = parse_substrate_to_abbr()
+
+
 class SubstrateGroup:
     def __init__(self, name, substrates):
         self.name = name
@@ -180,14 +197,14 @@ class SubstrateGroup:
 
     def create_raster(self):
 
-        x_coord = int(0.25 * WIDTH)
-        y_coord = int(0.77 * HEIGHT)
+        x_coord = int(0.23 * WIDTH)
+        y_coord = int(0.52 * HEIGHT)
 
         for i, substrate in enumerate(self.substrates):
             if i % SUBSTRATE_BUTTONS_PER_LINE == 0:
                 if i != 0:
                     y_coord += SUBSTRATE_BUTTON_SIZE + SUBSTRATE_BUTTON_PADDING
-                x_coord = int(0.25 * WIDTH)
+                x_coord = int(0.23 * WIDTH)
             else:
                 x_coord += SUBSTRATE_BUTTON_SIZE + SUBSTRATE_BUTTON_PADDING
 
@@ -203,11 +220,18 @@ class SubstrateGroup:
 
 
 class Substrate:
-    def __init__(self, name, smiles):
+    def __init__(self, name, smiles, module_type):
         self.name = name
+        self.abbr = SUBSTRATE_TO_ABBREVIATION[self.name]
         self.smiles = smiles
-        self.image = os.path.join(NRPS_SUBSTRATE_IMG, f'{name}.png')
-        self.highlight_image = (NRPS_SUBSTRATE_IMG, f'{name}_highlight.png')
+        self.image = None
+        self.highlight_image = None
+        if module_type == 'NRPS':
+            self.image = os.path.join(NRPS_SUBSTRATE_IMG, f'{name}.png')
+            self.highlight_image = os.path.join(NRPS_SUBSTRATE_IMG, f'{name}_highlight.png')
+        if module_type == 'PKS':
+            self.image = os.path.join(PKS_SUBSTRATE_IMG, f'{name}.png')
+            self.highlight_image = os.path.join(PKS_SUBSTRATE_IMG, f'{name}_highlight.png')
         self.rectangle = None
         self.x = 0
         self.y = 0

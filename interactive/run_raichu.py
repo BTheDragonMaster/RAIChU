@@ -4,7 +4,12 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     show_domain_buttons, reset_buttons, AddDomainButton, ADD_DOMAIN_BUTTON, \
     REMOVE_MODULE_BUTTON, REMOVE_DOMAIN_BUTTON, RemoveDomainButton, RemoveModuleButton, RemoveGeneButton, \
     REMOVE_GENE_BUTTON, SELECT_SUBSTRATE_BUTTON, SelectSubstrateButton, SELECT_DOMAIN_TYPE_BUTTON, \
-    SelectDomainTypeButton, SET_DOMAIN_INACTIVE_BUTTON, SetDomainInactiveButton
+    SelectDomainTypeButton, SET_DOMAIN_INACTIVE_BUTTON, SetDomainInactiveButton, \
+    PKS_SUBSTRATE_BUTTONS, NRPS_SUPERGROUP_BUTTONS, SubstrateSupergroupButton,\
+    PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS, \
+    ProteinogenicButton, NonProteinogenicButton, FattyAcidButton, NonAminoAcidButton, \
+    PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
+    NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
@@ -31,6 +36,7 @@ class RaichuManager:
         self.selected_module = None
         self.selected_gene = None
         self.selected_domain = None
+        self.selected_substrate_group = None
 
         self.text_box = None
         self.insertion_point = None
@@ -97,6 +103,7 @@ class RaichuManager:
         if self.selected_domain:
             self.selected_domain.selected = False
             self.selected_domain = None
+        self.selected_substrate_group = None
 
     def do_button_action(self, button, mouse):
         if type(button) == DomainButton or issubclass(type(button), DomainButton):
@@ -104,6 +111,25 @@ class RaichuManager:
             self.selected_module.selected = False
             self.selected_module = None
             hide_button(button, self.screen, self.active_buttons)
+        elif issubclass(type(button), SubstrateSupergroupButton):
+            reset_buttons(self.screen, self.active_buttons)
+            if type(button) == ProteinogenicButton:
+                show_buttons(PROTEINOGENIC_BUTTONS, self.screen, self.active_buttons)
+                self.selected_substrate_group = PROTEINOGENIC_GROUP_TO_BUTTONS
+            elif type(button) == NonProteinogenicButton:
+                show_buttons(NON_PROTEINOGENIC_BUTTONS, self.screen, self.active_buttons)
+                self.selected_substrate_group = NONPROTEINOGENIC_GROUP_TO_BUTTONS
+            elif type(button) == FattyAcidButton:
+                show_buttons(FATTY_ACID_BUTTONS, self.screen, self.active_buttons)
+                self.selected_substrate_group = FATTY_ACID_GROUP_TO_BUTTONS
+            elif type(button) == NonAminoAcidButton:
+                show_buttons(NON_AMINO_ACID_BUTTONS, self.screen, self.active_buttons)
+                self.selected_substrate_group = NON_AMINOACID_GROUP_TO_BUTTONS
+        elif type(button) == SubstrateGroupButton:
+            reset_buttons(self.screen, self.active_buttons)
+            show_buttons(self.selected_substrate_group[button.text], self.screen, self.active_buttons)
+            self.selected_substrate_group = None
+
         elif type(button) == AddGeneButton:
             button.do_action(self.screen, self.genes, self.text_box, self.active_buttons, mouse)
             self.text_box = None
@@ -129,8 +155,21 @@ class RaichuManager:
             self.reset_selections()
         elif type(button) == SelectDomainTypeButton:
             pass
+
         elif type(button) == SelectSubstrateButton:
-            pass
+            if self.selected_domain.type == 'A':
+                reset_buttons(self.screen, self.active_buttons)
+                show_buttons(NRPS_SUPERGROUP_BUTTONS, self.screen, self.active_buttons)
+            elif self.selected_domain.type == 'AT':
+                reset_buttons(self.screen, self.active_buttons)
+                show_buttons(PKS_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
+
+        elif type(button) == SubstrateButton:
+            self.selected_domain.substrate = button.substrate
+            self.selected_domain.module.gene.erase()
+            self.selected_domain.module.gene.draw(mouse)
+            reset_buttons(self.screen, self.active_buttons)
+            self.reset_selections()
 
     def do_click_action(self, mouse):
 

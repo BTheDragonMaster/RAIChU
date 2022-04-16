@@ -96,7 +96,7 @@ class DomainButton(Button):
 
 class AddGeneButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.57 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Add gene", position, dimensions)
@@ -114,7 +114,7 @@ class AddGeneButton(Button):
 class RemoveModuleButton(Button):
 
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.57 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Remove module", position, dimensions)
@@ -131,7 +131,7 @@ class RemoveModuleButton(Button):
 
 class RemoveGeneButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.57 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Remove gene", position, dimensions)
@@ -155,17 +155,15 @@ class RemoveGeneButton(Button):
         reset_buttons(screen, active_buttons)
 
 
-
-
 class CreateGeneButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.52 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Create gene", position, dimensions)
 
     def do_action(self, screen, active_buttons):
-        position = (int(0.02 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.52 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
         text_box = TextBox(position, dimensions)
         text_box.draw(screen)
@@ -174,9 +172,14 @@ class CreateGeneButton(Button):
         return text_box
 
 
+class SubstrateGroupButton(Button):
+    def __init__(self, text, position, dimensions):
+        super().__init__(text, position, dimensions)
+
+
 class AddModuleButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.62 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Add module", position, dimensions)
@@ -184,7 +187,7 @@ class AddModuleButton(Button):
 
 class NRPSModuleButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.92 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.67 * HEIGHT))
         dimensions = (int(0.09 * WIDTH), int(HEIGHT / 25))
 
         super().__init__('NRPS', position, dimensions)
@@ -201,7 +204,7 @@ class NRPSModuleButton(Button):
 
 class PKSModuleButton(Button):
     def __init__(self):
-        position = (int(0.13 * WIDTH), int(0.92 * HEIGHT))
+        position = (int(0.13 * WIDTH), int(0.67 * HEIGHT))
         dimensions = (int(0.09 * WIDTH), int(HEIGHT / 25))
 
         super().__init__('PKS', position, dimensions)
@@ -218,7 +221,7 @@ class PKSModuleButton(Button):
 
 class AddDomainButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.62 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Add domain", position, dimensions)
@@ -226,74 +229,74 @@ class AddDomainButton(Button):
 
 class ACPDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.35 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.35 * WIDTH), int(0.52 * HEIGHT))
 
         super().__init__(position, 'ACP')
 
 
 class PCPDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.35 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.35 * WIDTH), int(0.52 * HEIGHT))
         super().__init__(position, 'PCP')
 
 
 class ADomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.52 * HEIGHT))
         super().__init__(position, 'A')
 
 
 class CDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.25 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.52 * HEIGHT))
         super().__init__(position, 'C')
 
 
 class KSDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.25 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.52 * HEIGHT))
         super().__init__(position, 'KS')
 
 
 class KRDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.25 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.62 * HEIGHT))
         super().__init__(position, 'KR')
 
 
 class DHDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.62 * HEIGHT))
         super().__init__(position, 'DH')
 
 
 class ERDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.35 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.35 * WIDTH), int(0.62 * HEIGHT))
         super().__init__(position, 'ER')
 
 
 class EDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.25 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.62 * HEIGHT))
         super().__init__(position, 'E')
 
 
 class NMTDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.62 * HEIGHT))
         super().__init__(position, 'nMT')
 
 
 class ATDomainButton(DomainButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.52 * HEIGHT))
         super().__init__(position, 'AT')
 
 
 class RemoveDomainButton(Button):
     def __init__(self):
-        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.57 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Remove domain", position, dimensions)
@@ -308,7 +311,7 @@ class RemoveDomainButton(Button):
 
 class SelectSubstrateButton(Button):
     def __init__(self):
-        position = (int(0.75 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.75 * WIDTH), int(0.52 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Select substrate", position, dimensions)
@@ -316,7 +319,7 @@ class SelectSubstrateButton(Button):
 
 class SelectDomainTypeButton(Button):
     def __init__(self):
-        position = (int(0.75 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.75 * WIDTH), int(0.57 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Select subtype", position, dimensions)
@@ -325,7 +328,7 @@ class SelectDomainTypeButton(Button):
 class SetDomainInactiveButton(Button):
 
     def __init__(self):
-        position = (int(0.75 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.75 * WIDTH), int(0.62 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Set to inactive", position, dimensions)
@@ -334,7 +337,7 @@ class SetDomainInactiveButton(Button):
 class SubstrateButton(Button):
     def __init__(self, substrate, position, dimensions):
 
-        super().__init__(substrate, position, dimensions)
+        super().__init__(substrate.name, position, dimensions)
         self.substrate = substrate
         self.image = substrate.image
         self.highlight_image = substrate.highlight_image
@@ -357,7 +360,7 @@ class SubstrateButton(Button):
 
 class SubstrateSupergroupButton(Button):
     def __init__(self, text, position, group):
-        dimensions = (int(0.2 * HEIGHT), int(HEIGHT / 25))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
         self.group = group
 
         super().__init__(text, position, dimensions)
@@ -365,7 +368,7 @@ class SubstrateSupergroupButton(Button):
 
 class ProteinogenicButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.77 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.52 * HEIGHT))
 
         super().__init__("Proteinogenic", position,
                          PROTEINOGENIC_SUBSTRATES)
@@ -373,7 +376,7 @@ class ProteinogenicButton(SubstrateSupergroupButton):
 
 class NonProteinogenicButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.82 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.57 * HEIGHT))
 
         super().__init__("Non-proteinogenic", position,
                          NONPROTEINOGENIC_SUBSTRATES)
@@ -381,7 +384,7 @@ class NonProteinogenicButton(SubstrateSupergroupButton):
 
 class NonAminoAcidButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.62 * HEIGHT))
 
         super().__init__("Non-amino acids", position,
                          NON_AMINO_ACIDS)
@@ -389,7 +392,7 @@ class NonAminoAcidButton(SubstrateSupergroupButton):
 
 class FattyAcidButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.30 * WIDTH), int(0.67 * HEIGHT))
 
         super().__init__("Fatty acids", position,
                          FATTY_ACIDS)
@@ -439,10 +442,15 @@ NRPS_DOMAIN_TO_BUTTON = {'C': C_DOMAIN_BUTTON,
                          'PCP': PCP_DOMAIN_BUTTON,
                          'E': E_DOMAIN_BUTTON}
 
-PROTEINOGENIC_BUTTON = ProteinogenicButton
-NON_PROTEINOGENIC_BUTTON = NonProteinogenicButton
-NON_AMINO_ACID_BUTTON = NonAminoAcidButton
-FATTY_ACID_BUTTON = FattyAcidButton
+PROTEINOGENIC_BUTTON = ProteinogenicButton()
+NON_PROTEINOGENIC_BUTTON = NonProteinogenicButton()
+NON_AMINO_ACID_BUTTON = NonAminoAcidButton()
+FATTY_ACID_BUTTON = FattyAcidButton()
+
+NRPS_SUPERGROUP_BUTTONS = [PROTEINOGENIC_BUTTON,
+                           NON_PROTEINOGENIC_BUTTON,
+                           NON_AMINO_ACID_BUTTON,
+                           FATTY_ACID_BUTTON]
 
 ALL_BUTTONS = [CREATE_GENE_BUTTON,
                ADD_GENE_BUTTON,
@@ -560,55 +568,121 @@ def show_buttons(buttons, screen, active_buttons):
         show_button(button, screen, active_buttons)
 
 
-def make_raster(substrate_groups, buttons):
+def make_raster(substrate_groups, buttons, buttons_per_line, button_size):
     x_coord = int(0.25 * WIDTH)
-    y_coord = int(0.77 * HEIGHT)
+    y_coord = int(0.52 * HEIGHT)
 
     for i, group in enumerate(substrate_groups):
-        if i % SUBSTRATE_GROUP_BUTTONS_PER_LINE == 0:
+        if i % buttons_per_line == 0:
             if i != 0:
                 y_coord += int(0.05 * HEIGHT)
             x_coord = int(0.25 * WIDTH)
         else:
-            x_coord += SUBSTRATE_GROUP_BUTTON_SIZE + SUBSTRATE_GROUP_BUTTON_PADDING
+            x_coord += button_size[0] + SUBSTRATE_GROUP_BUTTON_PADDING
 
-        button = Button(group, (x_coord, y_coord), SUBSTRATE_GROUP_BUTTON_SIZE)
+        button = SubstrateGroupButton(group, (x_coord, y_coord), button_size)
         buttons.add(button)
 
 
 def make_nrps_substrate_group_buttons():
-    buttons = set()
+    proteinogenic_buttons = set()
+    nonproteinogenic_buttons = set()
+    fatty_acid_buttons = set()
+    non_amino_acid_buttons = set()
 
-    make_raster(PROTEINOGENIC_SUBSTRATES, buttons)
-    make_raster(NONPROTEINOGENIC_SUBSTRATES, buttons)
-    make_raster(FATTY_ACIDS, buttons)
-    make_raster(NON_AMINO_ACIDS, buttons)
+    make_raster(PROTEINOGENIC_SUBSTRATES, proteinogenic_buttons, SUBSTRATE_GROUP_BUTTONS_PER_LINE, SUBSTRATE_GROUP_BUTTON_SIZE)
+    make_raster(NONPROTEINOGENIC_SUBSTRATES, nonproteinogenic_buttons, SUBSTRATE_GROUP_BUTTONS_PER_LINE, (int(WIDTH * 0.08), int(HEIGHT / 25)))
+    make_raster(FATTY_ACIDS, fatty_acid_buttons, 1, (int(WIDTH * 0.15), int(HEIGHT / 25)))
+    make_raster(NON_AMINO_ACIDS, non_amino_acid_buttons, 1, (int(WIDTH * 0.15), int(HEIGHT / 25)))
 
-    return buttons
+    return [proteinogenic_buttons, nonproteinogenic_buttons, fatty_acid_buttons, non_amino_acid_buttons]
 
 
-def make_nrps_substrate_buttons():
-    buttons = set()
+def make_nrps_substrate_groups(supergroup, name_to_smiles):
+    group_to_buttons = {}
+    for group, substrate_names in supergroup.items():
+        group_to_buttons[group] = set()
 
-    name_to_smiles = parse_smiles(PARAS_SMILES)
-    for group, substrate_names in PROTEINOGENIC_SUBSTRATES.items():
         substrates = []
 
         for substrate_name in substrate_names:
             smiles = name_to_smiles[substrate_name]
-            substrate = Substrate(substrate_name, smiles)
+            substrate = Substrate(substrate_name, smiles, 'NRPS')
             substrates.append(substrate)
 
         substrate_group = SubstrateGroup(group, substrates)
         for substrate in substrate_group.substrates:
-            buttons.add(SubstrateButton(substrate.name,
-                                        (substrate.x, substrate.y),
-                                        (substrate.width, substrate.height)))
+            group_to_buttons[group].add(SubstrateButton(substrate,
+                                                        (substrate.x, substrate.y),
+                                                        (substrate.width, substrate.height)))
+
+    return group_to_buttons
+
+
+def make_nrps_substrate_buttons():
+
+    name_to_smiles = parse_smiles(PARAS_SMILES)
+    proteinogenic_group_to_buttons = make_nrps_substrate_groups(PROTEINOGENIC_SUBSTRATES,
+                                                                name_to_smiles)
+
+    nonproteinogenic_group_to_buttons = make_nrps_substrate_groups(NONPROTEINOGENIC_SUBSTRATES,
+                                                                   name_to_smiles)
+    fattyacid_group_to_buttons = make_nrps_substrate_groups(FATTY_ACIDS,
+                                                            name_to_smiles)
+    nonaminoacid_group_to_buttons = make_nrps_substrate_groups(NON_AMINO_ACIDS,
+                                                               name_to_smiles)
+
+    return proteinogenic_group_to_buttons, nonproteinogenic_group_to_buttons, fattyacid_group_to_buttons, \
+           nonaminoacid_group_to_buttons
+
+
+def make_pks_substrate_buttons():
+    buttons = set()
+
+    name_to_smiles = {'malonylcoa': "OC(=O)CC(=O)SI",
+                      'methylmalonylcoa': "OC(=O)C(C)C(=O)SI",
+                      'methoxymalonylcoa': "OC(=O)C(OC)C(=O)SI",
+                      'ethylmalonylcoa': "OC(=O)C(CC)C(=O)SI",
+                      'wildcard': "OC(=O)C(*)C(=O)SI"}
+
+    substrates = []
+
+    for substrate_name, smiles in name_to_smiles.items():
+
+        smiles = name_to_smiles[substrate_name]
+        substrate = Substrate(substrate_name, smiles, 'PKS')
+        substrates.append(substrate)
+
+    substrate_group = SubstrateGroup('pks', substrates)
+    for substrate in substrate_group.substrates:
+        buttons.add(SubstrateButton(substrate,
+                                    (substrate.x, substrate.y),
+                                    (substrate.width, substrate.height)))
 
     return buttons
 
-NRPS_SUBSTRATE_BUTTONS = make_nrps_substrate_buttons()
-NRPS_SUBSTRATE_GROUP_BUTTONS = make_nrps_substrate_group_buttons()
 
-ALL_BUTTONS += NRPS_SUBSTRATE_BUTTONS
-ALL_BUTTONS += NRPS_SUBSTRATE_GROUP_BUTTONS
+PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS = \
+    make_nrps_substrate_group_buttons()
+PKS_SUBSTRATE_BUTTONS = make_pks_substrate_buttons()
+
+PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
+           NON_AMINOACID_GROUP_TO_BUTTONS = make_nrps_substrate_buttons()
+
+ALL_BUTTONS += PROTEINOGENIC_BUTTONS
+ALL_BUTTONS += NON_PROTEINOGENIC_BUTTONS
+ALL_BUTTONS += FATTY_ACID_BUTTONS
+ALL_BUTTONS += NON_AMINO_ACID_BUTTONS
+ALL_BUTTONS += PKS_SUBSTRATE_BUTTONS
+
+for buttons in PROTEINOGENIC_GROUP_TO_BUTTONS.values():
+    ALL_BUTTONS += buttons
+
+for buttons in NONPROTEINOGENIC_GROUP_TO_BUTTONS.values():
+    ALL_BUTTONS += buttons
+
+for buttons in FATTY_ACID_GROUP_TO_BUTTONS.values():
+    ALL_BUTTONS += buttons
+
+for buttons in NON_AMINOACID_GROUP_TO_BUTTONS.values():
+    ALL_BUTTONS += buttons

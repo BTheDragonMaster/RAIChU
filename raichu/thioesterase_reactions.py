@@ -1,3 +1,4 @@
+import os
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 
 from raichu.modules_to_structure import *
@@ -8,7 +9,6 @@ CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
 N_AMINO = GroupDefiner('N_amino', 'CN', 1)
 O_OH = GroupDefiner('O_oh', 'CO', 1)
 O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
-
 
 
 def thioesterase_linear_product(chain_intermediate):
@@ -142,8 +142,7 @@ def find_o_betapropriolactone(polyketide):
          oxygen atom')
 
 
-
-def thioesterase_all_products(chain_intermediate):
+def thioesterase_all_products(chain_intermediate, out_folder=None):
     """Performs all thioesterase reactions on the input chain_intermediate
      using all internal amino and -OH groups except for the -OH group that
      leads to the formation of a beta-propriolactone compound, which does not
@@ -177,12 +176,12 @@ def thioesterase_all_products(chain_intermediate):
     chain_intermediate.set_atom_neighbours()
     amino_n_atoms_filtered = []
     for atom in chain_intermediate_copy.graph:
-            if atom.type == 'N':
-                n_neighbour_types = []
-                for neighbour in atom.neighbours:
-                    n_neighbour_types.append(neighbour.type)
-                if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
-                    amino_n_atoms_filtered.append(atom)
+        if atom.type == 'N':
+            n_neighbour_types = []
+            for neighbour in atom.neighbours:
+                n_neighbour_types.append(neighbour.type)
+            if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
+                amino_n_atoms_filtered.append(atom)
 
     # Define -OH group that should not be used to carry out the thioesterase
     # reaction (distance -S and internal -OH group)
@@ -214,9 +213,20 @@ def thioesterase_all_products(chain_intermediate):
             product = thioesterase_circular_product(chain_intermediate_copy, o_oh)
             list_product_drawings.append(product)
 
-    # Draw all products
-    for product in list_product_drawings:
-        RaichuDrawer(product)
+    if out_folder:
+
+        for i, product in enumerate(list_product_drawings):
+            file_path = os.path.join(out_folder, f"product_{i}.png")
+            if os.path.exists(file_path):
+                os.remove(file_path)
+            drawing = RaichuDrawer(product, save_png=file_path)
+            drawing.draw_structure()
+
+    else:
+
+        # Draw all products
+        for product in list_product_drawings:
+            RaichuDrawer(product)
 
     return list_product_drawings
 

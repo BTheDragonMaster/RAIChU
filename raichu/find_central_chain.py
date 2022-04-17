@@ -52,7 +52,5 @@ def find_central_chain(pks_nrps_attached):
                 else:
                     visited.append(neighbour)
 
-    print(central_chain)
-
     return central_chain
 

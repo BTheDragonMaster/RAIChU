@@ -91,6 +91,14 @@ class Gene:
             if module.id > module_nr:
                 module.id -= 1
 
+    def get_domains(self):
+        domains = []
+        for module in self.modules:
+            for domain in module.domains:
+                domains.append(domain)
+
+        return domains
+
     def add_module(self, insertion_point, module_type):
 
         self.adjust_module_indices(insertion_point)

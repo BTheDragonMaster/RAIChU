@@ -6,20 +6,21 @@ from interactive.style import DOMAIN_SIZE, GENE_LABEL_SIZE, MODULE_SPACING, MODU
 
 
 class Module:
-    module_to_order = {'NRPS': ['C', 'A', 'nMT', 'PCP', 'E'],
-                       'PKS': ['KS', 'AT', 'DH', 'ER', 'KR', 'ACP']}
+    module_to_order = {'NRPS': ['C', 'A', 'nMT', 'PCP', 'E', 'TE'],
+                       'PKS': ['KS', 'AT', 'DH', 'ER', 'KR', 'ACP', 'TE']}
 
-    domain_to_subsequent_domains = {'C': ['A', 'nMT', 'PCP', 'E'],
-                                    'A': ['nMT', 'PCP', 'E'],
-                                    'nMT': ['PCP', 'E'],
-                                    'PCP': ['E'],
-                                    'E': [],
-                                    'KS': ['AT', 'DH', 'ER', 'KR', 'ACP'],
-                                    'AT': ['DH', 'ER', 'KR', 'ACP'],
-                                    'DH': ['ER', 'KR', 'ACP'],
-                                    'ER': ['KR', 'ACP'],
-                                    'KR': ['ACP'],
-                                    'ACP': []}
+    domain_to_subsequent_domains = {'C': ['A', 'nMT', 'PCP', 'E', 'TE'],
+                                    'A': ['nMT', 'PCP', 'E', 'TE'],
+                                    'nMT': ['PCP', 'E', 'TE'],
+                                    'PCP': ['E', 'TE'],
+                                    'E': ['TE'],
+                                    'KS': ['AT', 'DH', 'ER', 'KR', 'ACP', 'TE'],
+                                    'AT': ['DH', 'ER', 'KR', 'ACP', 'TE'],
+                                    'DH': ['ER', 'KR', 'ACP', 'TE'],
+                                    'ER': ['KR', 'ACP', 'TE'],
+                                    'KR': ['ACP', 'TE'],
+                                    'ACP': [],
+                                    'TE': []}
 
     def __init__(self, screen, module_index, module_type, gene):
         assert module_type in ['NRPS', 'PKS']
@@ -86,7 +87,7 @@ class Module:
             if domain.id > domain_index:
                 domain.id -= 1
 
-    def add_domain(self, domain_type):
+    def add_domain(self, domain_type, domain_label=None):
         assert domain_type not in [domain.type for domain in self.domains]
         assert domain_type in self.module_to_order[self.type]
 
@@ -100,7 +101,7 @@ class Module:
 
         self.adjust_domain_indices(insertion_point)
 
-        domain = Domain(self.screen, domain_type, self, insertion_point)
+        domain = Domain(self.screen, domain_type, self, insertion_point, domain_label=domain_label)
 
         self.domains.insert(insertion_point, domain)
 

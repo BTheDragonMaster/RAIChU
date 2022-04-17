@@ -250,7 +250,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             filenames_list.append(mechanism_filename)
             rel_width_buttons = 1 / (nr_elongation_modules + 1)
             ax_button = plt.axes([x_bottomleft, 0, rel_width_buttons,\
-            0.075], anchor = 'C')
+            0.075], anchor='C')
             module_button = Button(ax_button, label = module_name, \
             color='#b3d8fa', hovercolor='#74abde')
             module_button.label.set_fontsize(15)
@@ -282,6 +282,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         module_name = module[0]
         if path.exists(f'{module_name}_quick_mechanism.png'):
             os.remove(f'{module_name}_quick_mechanism.png')
+
 
 def sort_domains(unsorted_list_domains):
     """

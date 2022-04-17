@@ -14,12 +14,12 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     ProteinogenicButton, NonProteinogenicButton, FattyAcidButton, NonAminoAcidButton, \
     PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
     NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton, RenderClusterButton, \
-    KR_BUTTONS, KRSubtypeButton
+    KR_BUTTONS, KRSubtypeButton, SaveClusterButton, SaveProductsButton, RenderProductsButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
 from interactive.insertion_point import InsertionPoint
-from interactive.render_cluster import render_cluster
+from interactive.render_cluster import render_cluster, render_products
 from interactive.style import RENDER_WINDOW_SIZE, WHITE
 
 
@@ -48,6 +48,7 @@ class RaichuManager:
         self.text_box = None
         self.insertion_point = None
         self.cluster_image = None
+        self.product_images = []
 
     def get_mouse_domain(self, mouse):
         for gene in self.genes:
@@ -161,29 +162,77 @@ class RaichuManager:
         elif type(button) == RemoveDomainButton:
             button.do_action(self.selected_domain, self.screen, self.active_buttons, mouse)
             self.reset_selections()
+        elif type(button) == RenderProductsButton:
+            self.text_box = button.do_action(self.screen, self.active_buttons)
         elif type(button) == RenderClusterButton:
-            render_cluster(self.genes)
+            self.text_box = button.do_action(self.screen, self.active_buttons)
+        elif type(button) == SaveProductsButton:
+            render_products(self.genes, self.text_box.text)
+            product_dir = os.path.join(os.getcwd(), self.text_box.text)
+            product_images = []
+            for product_name in os.listdir(product_dir):
+                if product_name.endswith('.png'):
+                    product_file = os.path.join(os.path.join(product_dir, product_name))
+                    product_image = pygame.image.load(product_file)
+                    product_images.append(product_image)
+
+            self.text_box.erase(self.screen)
+            self.text_box = None
+
+            product_image_height = RENDER_WINDOW_SIZE[1] / 2
+            product_image_width = RENDER_WINDOW_SIZE[0] / 3
+
+            for i, image in enumerate(product_images):
+                image_width = image.get_width()
+                image_height = image.get_height()
+
+                if image_width <= product_image_width and image_height > product_image_height:
+                    ratio = product_image_height / image_height
+                    image_width *= ratio
+                    image_height = product_image_height
+                elif image_width > product_image_width and image_height <= product_image_height:
+                    ratio = product_image_width / image_width
+                    image_height *= ratio
+                    image_width = product_image_width
+                elif image_width > product_image_width and image_height > product_image_height:
+                    ratio_1 = product_image_width / image_width
+                    ratio_2 = product_image_height / image_height
+                    if ratio_1 <= ratio_2:
+                        ratio = ratio_1
+                    else:
+                        ratio = ratio_2
+
+                    image_height *= ratio
+                    image_width *= ratio
+
+                render_window_size = (image_width, image_height)
+
+                self.product_images.append(pygame.transform.smoothscale(image, render_window_size))
+
+        elif type(button) == SaveClusterButton:
+            if self.text_box.text.endswith('.png'):
+                text = self.text_box.text
+            else:
+                text = self.text_box.text + '.png'
+            render_cluster(self.genes, text)
             reset_buttons(self.screen, self.active_buttons)
             self.reset_selections()
-            cluster_image = pygame.image.load(os.path.join(os.getcwd(), 'cluster_test.png'))
+
+            cluster_image = pygame.image.load(os.path.join(os.getcwd(), text))
+            self.text_box.erase(self.screen)
+            self.text_box = None
             image_width = cluster_image.get_width()
             image_height = cluster_image.get_height()
 
-            print(image_width, image_height)
-
             if image_width <= RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
-                print('1')
                 ratio = RENDER_WINDOW_SIZE[1] / image_height
                 image_width *= ratio
                 image_height = RENDER_WINDOW_SIZE[1]
             elif image_width > RENDER_WINDOW_SIZE[0] and image_height <= RENDER_WINDOW_SIZE[1]:
-                print("2")
                 ratio = RENDER_WINDOW_SIZE[0] / image_width
-                print(ratio)
                 image_height *= ratio
                 image_width = RENDER_WINDOW_SIZE[0]
             elif image_width > RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
-                print('3')
                 ratio_1 = RENDER_WINDOW_SIZE[0] / image_width
                 ratio_2 = RENDER_WINDOW_SIZE[1] / image_height
                 if ratio_1 <= ratio_2:
@@ -193,8 +242,6 @@ class RaichuManager:
 
                 image_height *= ratio
                 image_width *= ratio
-
-            print(image_width, image_height)
 
             render_window_size = (image_width, image_height)
 
@@ -273,6 +320,7 @@ class RaichuManager:
         self.selected_domain = None
         self.selected_substrate_group = None
         self.cluster_image = False
+        self.product_images = []
 
 
 

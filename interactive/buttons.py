@@ -76,6 +76,15 @@ class RenderClusterButton(Button):
 
         super().__init__("Render cluster", position, dimensions)
 
+    def do_action(self, screen, active_buttons):
+        position = (int(0.77 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+        text_box = TextBox(position, dimensions)
+        text_box.draw(screen)
+        hide_buttons(ALL_BUTTONS, screen, active_buttons)
+        show_button(SAVE_CLUSTER_BUTTON, screen, active_buttons)
+        return text_box
+
 
 class KRSubtypeButton(Button):
     def __init__(self, position, kr_subtype):
@@ -342,6 +351,12 @@ class ATDomainButton(DomainButton):
         super().__init__(position, 'AT')
 
 
+class TEDomainButton(DomainButton):
+    def __init__(self):
+        position = (int(0.25 * WIDTH), int(0.72 * HEIGHT))
+        super().__init__(position, 'TE')
+
+
 class RemoveDomainButton(Button):
     def __init__(self):
         position = (int(0.02 * WIDTH), int(0.57 * HEIGHT))
@@ -446,7 +461,52 @@ class FattyAcidButton(SubstrateSupergroupButton):
                          FATTY_ACIDS)
 
 
+class RenderProductsButton(Button):
+    def __init__(self):
+        position = (int(0.52 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Render products", position, dimensions)
+
+    def do_action(self, screen, active_buttons):
+        position = (int(0.52 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+        text_box = TextBox(position, dimensions)
+        text_box.draw(screen)
+        hide_buttons(ALL_BUTTONS, screen, active_buttons)
+        show_button(SAVE_PRODUCTS_BUTTON, screen, active_buttons)
+        return text_box
+
+
+class SaveClusterButton(Button):
+    def __init__(self):
+        position = (int(0.77 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Save cluster", position, dimensions)
+
+
+class SaveProductsButton(Button):
+    def __init__(self):
+        position = (int(0.52 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Save products", position, dimensions)
+
+    def do_action(self, screen, genes, text_box, active_buttons, mouse):
+        gene_number = len(genes)
+        gene = Gene(screen, gene_number)
+        gene.name = text_box.text
+        text_box.erase(screen)
+        gene.draw(mouse)
+        genes.append(gene)
+        reset_buttons(screen, active_buttons)
+
+
 RENDER_CLUSTER_BUTTON = RenderClusterButton()
+RENDER_PRODUCTS_BUTTON = RenderProductsButton()
+SAVE_CLUSTER_BUTTON = SaveClusterButton()
+SAVE_PRODUCTS_BUTTON = SaveProductsButton()
 
 CREATE_GENE_BUTTON = CreateGeneButton()
 ADD_GENE_BUTTON = AddGeneButton()
@@ -478,19 +538,22 @@ A_DOMAIN_BUTTON = ADomainButton()
 PCP_DOMAIN_BUTTON = PCPDomainButton()
 E_DOMAIN_BUTTON = EDomainButton()
 NMT_DOMAIN_BUTTON = NMTDomainButton()
+TE_DOMAIN_BUTTON = TEDomainButton()
 
 PKS_DOMAIN_TO_BUTTON = {'KS': KS_DOMAIN_BUTTON,
                         'AT': AT_DOMAIN_BUTTON,
                         'DH': DH_DOMAIN_BUTTON,
                         'ER': ER_DOMAIN_BUTTON,
                         'KR': KR_DOMAIN_BUTTON,
-                        'ACP': ACP_DOMAIN_BUTTON}
+                        'ACP': ACP_DOMAIN_BUTTON,
+                        'TE': TE_DOMAIN_BUTTON}
 
 NRPS_DOMAIN_TO_BUTTON = {'C': C_DOMAIN_BUTTON,
                          'A': A_DOMAIN_BUTTON,
                          'nMT': NMT_DOMAIN_BUTTON,
                          'PCP': PCP_DOMAIN_BUTTON,
-                         'E': E_DOMAIN_BUTTON}
+                         'E': E_DOMAIN_BUTTON,
+                         'TE': TE_DOMAIN_BUTTON}
 
 PROTEINOGENIC_BUTTON = ProteinogenicButton()
 NON_PROTEINOGENIC_BUTTON = NonProteinogenicButton()
@@ -503,6 +566,7 @@ NRPS_SUPERGROUP_BUTTONS = [PROTEINOGENIC_BUTTON,
                            FATTY_ACID_BUTTON]
 
 ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
+               RENDER_PRODUCTS_BUTTON,
                CREATE_GENE_BUTTON,
                ADD_GENE_BUTTON,
                ADD_MODULE_BUTTON,
@@ -518,6 +582,7 @@ ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                A_DOMAIN_BUTTON,
                PCP_DOMAIN_BUTTON,
                E_DOMAIN_BUTTON,
+               TE_DOMAIN_BUTTON,
                NMT_DOMAIN_BUTTON,
                ADD_DOMAIN_BUTTON,
                REMOVE_DOMAIN_BUTTON,
@@ -529,7 +594,9 @@ ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                PROTEINOGENIC_BUTTON,
                NON_PROTEINOGENIC_BUTTON,
                NON_AMINO_ACID_BUTTON,
-               FATTY_ACID_BUTTON]
+               FATTY_ACID_BUTTON,
+               SAVE_CLUSTER_BUTTON,
+               SAVE_PRODUCTS_BUTTON]
 
 
 def show_domain_buttons(module, screen, active_buttons):
@@ -582,6 +649,9 @@ def make_buttons(screen):
     buttons.add(RENDER_CLUSTER_BUTTON)
     RENDER_CLUSTER_BUTTON.draw(screen)
 
+    buttons.add(RENDER_PRODUCTS_BUTTON)
+    RENDER_PRODUCTS_BUTTON.draw(screen)
+
     return buttons
 
 
@@ -597,6 +667,7 @@ def reset_buttons(screen, active_buttons):
     hide_buttons(ALL_BUTTONS, screen, active_buttons)
     show_button(CREATE_GENE_BUTTON, screen, active_buttons)
     show_button(RENDER_CLUSTER_BUTTON, screen, active_buttons)
+    show_button(RENDER_PRODUCTS_BUTTON, screen, active_buttons)
 
 
 def hide_button(button, screen, active_buttons):

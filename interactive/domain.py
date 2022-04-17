@@ -8,7 +8,7 @@ DOMAIN_IMAGE_DIR = os.path.dirname(interactive.images.domains.__file__)
 
 
 class Domain:
-    def __init__(self, screen, domain_type, module, domain_id):
+    def __init__(self, screen, domain_type, module, domain_id, domain_label=None):
         self.screen = screen
         self.module = module
         self.type = domain_type
@@ -19,6 +19,7 @@ class Domain:
         self.rectangle = None
         self.substrate_rectangle = None
         self.substrate = None
+        self.domain_label = domain_label
 
         self.x = 0
         self.y = 0

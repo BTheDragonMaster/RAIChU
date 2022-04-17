@@ -1,8 +1,12 @@
+import os
 from raichu.visualize_cluster import *
+from raichu.modules_to_structure import cluster_to_structure
+from raichu.thioesterase_reactions import thioesterase_all_products
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
 
-def render_cluster(genes):
+
+def get_raichu_cluster(genes):
     cluster = []
 
     module_nr = 0
@@ -46,6 +50,8 @@ def render_cluster(genes):
 
                     if substrate_specificity == 'methoxymalonylcoa':
                         substrate_specificity = 'methoxymalonylacp'
+                    if substrate_specificity == 'wildcard':
+                        substrate_specificity = 'pk'
 
                 if module.type == 'NRPS':
                     substrate_specificity = 'nrp'
@@ -56,6 +62,8 @@ def render_cluster(genes):
 
                 assert substrate_specificity
 
+                last_domain = False
+
                 tailoring_domains = []
                 for domain in module.domains:
                     if domain.type not in ['A', 'C', 'AT', 'KR', 'KS', 'ACP', 'PCP', 'TE']:
@@ -65,16 +73,37 @@ def render_cluster(genes):
                             tailoring_domains = [f'KR_{domain.subtype}'] + tailoring_domains
                         else:
                             tailoring_domains = ["KR"] + tailoring_domains
+                    elif domain.type == 'TE':
+                        last_domain = True
+                        if module.type == 'NRPS':
+                            module_type = 'terminator_module_nrps'
+                        elif module.type == 'PKS':
+
+                            module_type = 'terminator_module_pks'
 
                 if module_type.startswith('starter'):
                     cluster.append([module_name, module_type, substrate_specificity])
                 else:
                     cluster.append([module_name, module_type, substrate_specificity, tailoring_domains])
 
-        draw_cluster(cluster, save_fig="cluster_test.png")
+                if last_domain:
+                    break
+
+    return cluster
 
 
+def render_products(genes, dir_name="products_test"):
+    directory = os.path.join(os.getcwd(), dir_name)
+    cluster = get_raichu_cluster(genes)
+    if cluster:
+        if not os.path.exists(directory):
+            os.mkdir(directory)
+        attached_product = cluster_to_structure(cluster, attach_to_acp=True)
+        thioesterase_all_products(attached_product, out_folder=directory)
 
 
-
+def render_cluster(genes, file_name="cluster_test.png"):
+    cluster = get_raichu_cluster(genes)
+    if cluster:
+        draw_cluster(cluster, save_fig=file_name)
 

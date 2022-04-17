@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 import os
 import sys
-import importlib.resources as pkg_resources
-from pathlib import Path
 
 import pygame
 from pygame.locals import *
@@ -10,7 +8,8 @@ from interactive.run_raichu import RaichuManager
 from interactive.buttons import draw_buttons
 import interactive.images
 from interactive.style import SIZE, WHITE, BLACK
-from interactive.background import ButtonPanel
+from interactive.background import ButtonPanel, ProductRaster
+from interactive.load_antismash import genes_from_antismash
 
 IMAGE_DIR = os.path.dirname(interactive.images.__file__)
 
@@ -32,6 +31,14 @@ pygame.display.set_icon(raichu_icon)
 running = True
 
 manager = RaichuManager(screen)
+product_raster = ProductRaster(screen)
+
+input_file = None
+
+if len(sys.argv) == 2:
+    input_file = sys.argv[1]
+    manager.genes = genes_from_antismash(input_file, screen)
+
 
 while running:
     for event in pygame.event.get():
@@ -54,13 +61,13 @@ while running:
     if manager.text_box:
         manager.text_box.draw(screen)
 
-    if not manager.cluster_image:
+    if not manager.cluster_image and not manager.product_images:
         button_panel.draw()
         mouse = pygame.mouse.get_pos()
         draw_buttons(manager.active_buttons, screen, mouse)
         for gene in manager.genes:
             gene.draw(mouse)
-    else:
+    elif manager.cluster_image:
         width = manager.cluster_image.get_width()
         height = manager.cluster_image.get_height()
         x = SIZE[0] - width
@@ -69,6 +76,8 @@ while running:
 
         screen.blit(manager.cluster_image, rectangle)
         pygame.draw.rect(screen, BLACK, rectangle, 2)
+    elif manager.product_images:
+        product_raster.draw_images(manager.product_images)
 
     pygame.display.update()
 

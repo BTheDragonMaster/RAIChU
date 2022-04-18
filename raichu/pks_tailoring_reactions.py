@@ -170,6 +170,11 @@ def ketoreductase(chain_intermediate, kr_type = None):
     chiral_c_locations = find_atoms(RECENT_REDUCTION_MMAL_CHIRAL_C, chain_intermediate)
     if chiral_c_locations:
         chiral_c = chiral_c_locations[0]
+        # neighbours_chiral_c = []
+        # for neighbour in chiral_c.neighbours:
+        #     neighbours_chiral_c.append(neighbour.type)
+        # if neighbours_chiral_c.count('C') != 3:
+        #     chiral_c = None
     if chiral_c and kr_type:
         if kr_type.endswith('1'):
             chiral_c.chiral = 'clockwise'
@@ -230,6 +235,20 @@ def ketoreductase(chain_intermediate, kr_type = None):
             for atom in chain_intermediate.graph[carbonyl_carbon]:
                 if atom.type == 'O' and atom not in new_neighbours:
                     new_neighbours.append(atom)
+            c_2 = None
+            sulphur_locations = find_atoms(S_KR, chain_intermediate)
+            assert len(sulphur_locations) == 1
+            sulphur = sulphur_locations[0]
+            assert sulphur
+            c_1 = None
+            for neighbour in sulphur.neighbours:
+                if neighbour.annotations.in_central_chain and neighbour.type == 'C':
+                    c_1 = neighbour
+            assert c_1
+            c_2 = None
+            for neighbour in c_1.neighbours:
+                if neighbour.annotations.in_central_chain and neighbour != sulphur:
+                    c_2 = neighbour
             new_neighbours.append(c_2)
             for atom in chain_intermediate.graph[carbonyl_carbon]:
                 if atom.type == 'C' and atom != c_2 and atom not in new_neighbours:

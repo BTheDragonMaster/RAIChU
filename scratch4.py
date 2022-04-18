@@ -1,5 +1,7 @@
 from raichu.visualize_cluster import *
 
+
+
 clust = [['module 1', 'starter_module_nrps', 'threonine'],
          ['module 2', 'elongation_module_nrps', 'glycine'],
          ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR']],
@@ -29,7 +31,11 @@ clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
                ['module 2', 'elongation_module_nrps', 'proline', ['E', 'nMT']],
                ['module 3', 'terminator_module_pks', 'methoxymalonylacp', ['KR', 'DH', 'ER']]]
 
+clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
+            ['module 2', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
+            ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR_B1']]]
 draw_cluster(clust_wrong)
+# draw_cluster(clust_wrong)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
 # for atom in product.graph:
@@ -48,3 +54,17 @@ draw_cluster(clust_wrong)
 # product = attach_to_domain_nrp(product, 'PCP')
 #
 # RaichuDrawer(product)
+
+
+####
+cysteine = read_smiles('C([C@@H](C(=O)O)N)S')
+isoleucine = read_smiles('CC[C@H](C)[C@@H](C(=O)O)N')
+valine = read_smiles('CC(C)[C@@H](C(=O)O)N')
+valine.add_attributes(ATTRIBUTES, boolean=True)
+valine = condensation_nrps(isoleucine, valine)
+valine = condensation_nrps(cysteine, valine)
+#
+valine = attach_to_domain_nrp(valine, 'PCP')
+# prod = nrps_epimerization(valine)
+# prod = nrps_methylation(prod)
+RaichuDrawer(valine)

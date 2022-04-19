@@ -17,6 +17,7 @@ class Gene:
         self.y = GENE_PADDING + self.gene_number * GENE_SPACING
         self.width = 0
         self.height = GENE_HEIGHT
+        self.dna_coords = None
 
         self.rectangle = None
         self.set_rectangle()

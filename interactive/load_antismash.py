@@ -114,6 +114,7 @@ def parse_antismash_modules(antismash_gbk, screen):
                 add_gene = False
                 module_nr = -1
                 qualifiers = feature.qualifiers
+                print(feature)
 
                 if 'gene' in qualifiers:
                     gene_name = qualifiers['gene'][0]

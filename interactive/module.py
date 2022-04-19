@@ -31,6 +31,7 @@ class Module:
         self.type = module_type
         self.domains = []
         self.rectangle = None
+        self.dna_coords = None
 
         self.x = 0
         self.y = 0

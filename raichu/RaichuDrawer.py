@@ -7,7 +7,7 @@ from raichu.find_central_chain import find_central_chain
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=False, dpi=100):
+                 coords_only=False, dpi=100, save_svg = None):
         self.dont_show = dont_show
         self.dpi = dpi
         if options == None:
@@ -20,6 +20,12 @@ class RaichuDrawer(Drawer):
             # Check if filename is valid
             assert save_png.endswith('.png')
             self.save_png = save_png
+        if save_svg == None:
+            self.save_svg = None
+        else:
+            # Check if filename is valid
+            assert save_svg.endswith('.svg')
+            self.save_svg = save_svg
         super().__init__(structure, options=None, coords_only=False)
 
     def finetune_overlap_resolution(self, masked_bonds=None):
@@ -359,10 +365,13 @@ class RaichuDrawer(Drawer):
         # png image to the provided filename
         if self.dont_show == True:
             return self
-        elif self.save_png == None and self.dont_show == False:
+        elif self.save_png == None and self.dont_show == False and self.save_svg == None:
             plt.show()
         else:
-            plt.savefig(self.save_png)
+            if self.save_png:
+                plt.savefig(self.save_png)
+            elif self.save_svg:
+                plt.savefig(self.save_svg)
             plt.clf()
             plt.close()
 

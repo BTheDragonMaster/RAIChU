@@ -18,6 +18,7 @@ class Gene:
         self.width = 0
         self.height = GENE_HEIGHT
         self.dna_coords = None
+        self.strand = None
 
         self.rectangle = None
         self.set_rectangle()
@@ -32,6 +33,14 @@ class Gene:
         self.selected = False
 
         self.insertion_point = None
+
+    def sort_modules(self):
+        self.modules.sort(key=lambda module: module.dna_coords[0])
+        if self.strand == -1:
+            self.modules.reverse()
+
+        for i, module in enumerate(self.modules):
+            module.id = i
 
     def set_rectangle(self):
         self.y = GENE_PADDING + self.gene_number * GENE_SPACING

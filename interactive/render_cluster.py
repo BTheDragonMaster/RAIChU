@@ -14,6 +14,7 @@ def get_raichu_cluster(genes):
     if genes:
 
         for i, gene in enumerate(genes):
+            last_gene = False
 
             if gene.name:
                 file_name = f"{gene}.png"
@@ -87,19 +88,23 @@ def get_raichu_cluster(genes):
                     cluster.append([module_name, module_type, substrate_specificity, tailoring_domains])
 
                 if last_domain:
+                    last_gene = True
                     break
+
+            if last_gene:
+                break
 
     return cluster
 
 
 def render_products(genes, dir_name="products_test"):
-    directory = os.path.join(os.getcwd(), dir_name)
+
     cluster = get_raichu_cluster(genes)
     if cluster:
-        if not os.path.exists(directory):
-            os.mkdir(directory)
+        if not os.path.exists(dir_name):
+            os.mkdir(dir_name)
         attached_product = cluster_to_structure(cluster, attach_to_acp=True)
-        thioesterase_all_products(attached_product, out_folder=directory)
+        thioesterase_all_products(attached_product, out_folder=dir_name)
 
 
 def render_cluster(genes, file_name="cluster_test.png"):

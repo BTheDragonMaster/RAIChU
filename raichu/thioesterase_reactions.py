@@ -156,7 +156,9 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
     for atom in chain_intermediate.graph:
         atom.hybridise()
     chain_intermediate_copy = chain_intermediate.deepcopy()
-    RaichuDrawer(thioesterase_linear_product(chain_intermediate_copy))
+    linear_product = thioesterase_linear_product(chain_intermediate_copy)
+    if not out_folder:
+        RaichuDrawer(linear_product)
 
     # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
     chain_intermediate_copy = chain_intermediate.deepcopy()
@@ -215,8 +217,15 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
 
     if out_folder:
 
+        file_path = os.path.join(out_folder, f"product_0.png")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        drawing = RaichuDrawer(linear_product, save_png=file_path)
+        drawing.draw_structure()
+
         for i, product in enumerate(list_product_drawings):
-            file_path = os.path.join(out_folder, f"product_{i}.png")
+            file_path = os.path.join(out_folder, f"product_{i + 1}.png")
             if os.path.exists(file_path):
                 os.remove(file_path)
             drawing = RaichuDrawer(product, save_png=file_path)

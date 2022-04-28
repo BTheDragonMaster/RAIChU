@@ -421,6 +421,18 @@ class SubstrateButton(Button):
         pass
 
 
+class NRPSWildcardButton(SubstrateButton):
+    def __init__(self):
+        substrate = Substrate('nrp', 'NC(C(=O)O)[*]', 'NRPS')
+        position = (int(0.52 * WIDTH), int(0.52 * HEIGHT))
+        substrate.x = position[0]
+        substrate.y = position[1]
+        substrate.rectangle = pygame.Rect(substrate.x, substrate.y, substrate.width, substrate.height)
+        dimensions = (substrate.width, substrate.height)
+
+        super().__init__(substrate, position, dimensions)
+
+
 class SubstrateSupergroupButton(Button):
     def __init__(self, text, position, group):
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
@@ -469,7 +481,7 @@ class RenderProductsButton(Button):
         super().__init__("Render products", position, dimensions)
 
     def do_action(self, screen, active_buttons):
-        position = (int(0.52 * WIDTH), int(0.92 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.92 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
         text_box = TextBox(position, dimensions)
         text_box.draw(screen)
@@ -478,35 +490,81 @@ class RenderProductsButton(Button):
         return text_box
 
 
+class YesButton(Button):
+    def __init__(self):
+        position = (int(0.02 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.05 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Yes", position, dimensions)
+
+
+class NoButton(Button):
+    def __init__(self):
+        position = (int(0.08 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.05 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("No", position, dimensions)
+
+
 class SaveClusterButton(Button):
     def __init__(self):
-        position = (int(0.77 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Save cluster", position, dimensions)
 
+    def do_action(self, screen, active_buttons):
+        position = (int(0.02 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+        text_box = TextBox(position, dimensions)
+        text_box.draw(screen)
+        hide_buttons(ALL_BUTTONS, screen, active_buttons)
+        show_button(SAVE_TO_PNG_BUTTON, screen, active_buttons)
+        return text_box
+
+
+class SaveToPngButton(Button):
+    def __init__(self):
+        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Save to png", position, dimensions)
+
+
+class SaveToFolderButton(Button):
+    def __init__(self):
+        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Save to folder", position, dimensions)
+
 
 class SaveProductsButton(Button):
     def __init__(self):
-        position = (int(0.52 * WIDTH), int(0.87 * HEIGHT))
+        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Save products", position, dimensions)
 
-    def do_action(self, screen, genes, text_box, active_buttons, mouse):
-        gene_number = len(genes)
-        gene = Gene(screen, gene_number)
-        gene.name = text_box.text
-        text_box.erase(screen)
-        gene.draw(mouse)
-        genes.append(gene)
-        reset_buttons(screen, active_buttons)
+    def do_action(self, screen, active_buttons):
+        position = (int(0.02 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+        text_box = TextBox(position, dimensions)
+        text_box.draw(screen)
+        hide_buttons(ALL_BUTTONS, screen, active_buttons)
+        show_button(SAVE_TO_FOLDER_BUTTON, screen, active_buttons)
+        return text_box
 
 
 RENDER_CLUSTER_BUTTON = RenderClusterButton()
 RENDER_PRODUCTS_BUTTON = RenderProductsButton()
 SAVE_CLUSTER_BUTTON = SaveClusterButton()
 SAVE_PRODUCTS_BUTTON = SaveProductsButton()
+SAVE_TO_FOLDER_BUTTON = SaveToFolderButton()
+SAVE_TO_PNG_BUTTON = SaveToPngButton()
+
+YES_BUTTON = YesButton()
+NO_BUTTON = NoButton()
 
 CREATE_GENE_BUTTON = CreateGeneButton()
 ADD_GENE_BUTTON = AddGeneButton()
@@ -559,11 +617,13 @@ PROTEINOGENIC_BUTTON = ProteinogenicButton()
 NON_PROTEINOGENIC_BUTTON = NonProteinogenicButton()
 NON_AMINO_ACID_BUTTON = NonAminoAcidButton()
 FATTY_ACID_BUTTON = FattyAcidButton()
+NRPS_WILDCARD_BUTTON = NRPSWildcardButton()
 
 NRPS_SUPERGROUP_BUTTONS = [PROTEINOGENIC_BUTTON,
                            NON_PROTEINOGENIC_BUTTON,
                            NON_AMINO_ACID_BUTTON,
-                           FATTY_ACID_BUTTON]
+                           FATTY_ACID_BUTTON,
+                           NRPS_WILDCARD_BUTTON]
 
 ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                RENDER_PRODUCTS_BUTTON,
@@ -596,7 +656,12 @@ ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                NON_AMINO_ACID_BUTTON,
                FATTY_ACID_BUTTON,
                SAVE_CLUSTER_BUTTON,
-               SAVE_PRODUCTS_BUTTON]
+               SAVE_PRODUCTS_BUTTON,
+               NRPS_WILDCARD_BUTTON,
+               SAVE_TO_FOLDER_BUTTON,
+               SAVE_TO_PNG_BUTTON,
+               YES_BUTTON,
+               NO_BUTTON]
 
 
 def show_domain_buttons(module, screen, active_buttons):

@@ -8,19 +8,20 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     show_domain_buttons, reset_buttons, AddDomainButton, ADD_DOMAIN_BUTTON, \
     REMOVE_MODULE_BUTTON, REMOVE_DOMAIN_BUTTON, RemoveDomainButton, RemoveModuleButton, RemoveGeneButton, \
     REMOVE_GENE_BUTTON, SELECT_SUBSTRATE_BUTTON, SelectSubstrateButton, SELECT_DOMAIN_TYPE_BUTTON, \
-    SelectDomainTypeButton, SET_DOMAIN_INACTIVE_BUTTON, SetDomainInactiveButton, \
-    PKS_SUBSTRATE_BUTTONS, NRPS_SUPERGROUP_BUTTONS, SubstrateSupergroupButton,\
+    SelectDomainTypeButton, PKS_SUBSTRATE_BUTTONS, NRPS_SUPERGROUP_BUTTONS, SubstrateSupergroupButton,\
     PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS, \
     ProteinogenicButton, NonProteinogenicButton, FattyAcidButton, NonAminoAcidButton, \
     PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
     NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton, RenderClusterButton, \
-    KR_BUTTONS, KRSubtypeButton, SaveClusterButton, SaveProductsButton, RenderProductsButton
+    KR_BUTTONS, KRSubtypeButton, SaveClusterButton, SaveProductsButton, RenderProductsButton, \
+    NRPSWildcardButton, SAVE_TO_PNG_BUTTON, SaveToPngButton, SAVE_TO_FOLDER_BUTTON, SaveToFolderButton, \
+    hide_buttons, ALL_BUTTONS, SAVE_PRODUCTS_BUTTON, SAVE_CLUSTER_BUTTON, YES_BUTTON, NO_BUTTON, YesButton, NoButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
 from interactive.insertion_point import InsertionPoint
 from interactive.render_cluster import render_cluster, render_products
-from interactive.style import RENDER_WINDOW_SIZE, WHITE
+from interactive.style import RENDER_WINDOW_SIZE, WHITE, REPLACE_TEXT_1, REPLACE_TEXT_2, HEIGHT, WIDTH
 
 
 class RaichuManager:
@@ -49,6 +50,7 @@ class RaichuManager:
         self.insertion_point = None
         self.cluster_image = None
         self.product_images = []
+        self.replace_text = [REPLACE_TEXT_1, REPLACE_TEXT_2]
 
     def get_mouse_domain(self, mouse):
         for gene in self.genes:
@@ -163,21 +165,19 @@ class RaichuManager:
             button.do_action(self.selected_domain, self.screen, self.active_buttons, mouse)
             self.reset_selections()
         elif type(button) == RenderProductsButton:
-            self.text_box = button.do_action(self.screen, self.active_buttons)
-        elif type(button) == RenderClusterButton:
-            self.text_box = button.do_action(self.screen, self.active_buttons)
-        elif type(button) == SaveProductsButton:
-            render_products(self.genes, self.text_box.text)
-            product_dir = os.path.join(os.getcwd(), self.text_box.text)
+
+            render_products(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu'))
+            product_dir = os.path.join(os.getcwd(), 'tmp_out_raichu')
+
+            self.reset_selections()
+
             product_images = []
+
             for product_name in os.listdir(product_dir):
                 if product_name.endswith('.png'):
                     product_file = os.path.join(os.path.join(product_dir, product_name))
                     product_image = pygame.image.load(product_file)
                     product_images.append(product_image)
-
-            self.text_box.erase(self.screen)
-            self.text_box = None
 
             product_image_height = RENDER_WINDOW_SIZE[1] / 2
             product_image_width = RENDER_WINDOW_SIZE[0] / 3
@@ -208,19 +208,15 @@ class RaichuManager:
                 render_window_size = (image_width, image_height)
 
                 self.product_images.append(pygame.transform.smoothscale(image, render_window_size))
+            hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
+            show_button(SAVE_PRODUCTS_BUTTON, self.screen, self.active_buttons)
+        elif type(button) == RenderClusterButton:
 
-        elif type(button) == SaveClusterButton:
-            if self.text_box.text.endswith('.png'):
-                text = self.text_box.text
-            else:
-                text = self.text_box.text + '.png'
-            render_cluster(self.genes, text)
-            reset_buttons(self.screen, self.active_buttons)
+            render_cluster(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
             self.reset_selections()
 
-            cluster_image = pygame.image.load(os.path.join(os.getcwd(), text))
-            self.text_box.erase(self.screen)
-            self.text_box = None
+            cluster_image = pygame.image.load(os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
+
             image_width = cluster_image.get_width()
             image_height = cluster_image.get_height()
 
@@ -246,6 +242,60 @@ class RaichuManager:
             render_window_size = (image_width, image_height)
 
             self.cluster_image = pygame.transform.smoothscale(cluster_image, render_window_size)
+            hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
+            show_button(SAVE_CLUSTER_BUTTON, self.screen, self.active_buttons)
+
+        elif type(button) == SaveProductsButton or type(button) == SaveClusterButton:
+            self.reset_selections()
+            self.text_box = button.do_action(self.screen, self.active_buttons)
+        elif type(button) == SaveToPngButton:
+            png_dir = os.path.join(os.getcwd(), 'tmp_out_raichu.png')
+            if self.text_box.text.endswith('.png'):
+                new_file = os.path.join(os.getcwd(), self.text_box.text)
+            else:
+                new_file = os.path.join(os.getcwd(), self.text_box.text + '.png')
+            new_png_dir = os.path.join(os.getcwd(), new_file)
+            if os.path.exists(new_png_dir):
+                for i, replace_text in enumerate(self.replace_text):
+                    self.screen.blit(replace_text, (0.02 * WIDTH, 0.52 * HEIGHT + 0.05 * HEIGHT * i))
+                show_buttons([YES_BUTTON, NO_BUTTON], self.screen, self.active_buttons)
+            else:
+                os.replace(png_dir, new_png_dir)
+                self.random_click(mouse)
+        elif type(button) == SaveToFolderButton:
+            folder = os.path.join(os.getcwd(), 'tmp_out_raichu')
+            new_folder = os.path.join(os.getcwd(), self.text_box.text)
+            if os.path.isdir(new_folder):
+                for i, replace_text in enumerate(self.replace_text):
+                    self.screen.blit(replace_text, (0.02 * WIDTH, 0.52 * HEIGHT + 0.05 * HEIGHT * i))
+                show_buttons([YES_BUTTON, NO_BUTTON], self.screen, self.active_buttons)
+            else:
+                os.replace(folder, new_folder)
+                self.random_click(mouse)
+
+        elif type(button) == YesButton:
+            if self.product_images:
+                folder = os.path.join(os.getcwd(), 'tmp_out_raichu')
+                new_folder = os.path.join(os.getcwd(), self.text_box.text)
+                for file_name in os.listdir(new_folder):
+                    file_path = os.path.join(new_folder, file_name)
+                    os.remove(file_path)
+                os.rmdir(new_folder)
+                os.replace(folder, new_folder)
+                self.random_click(mouse)
+            elif self.cluster_image:
+                png_dir = os.path.join(os.getcwd(), 'tmp_out_raichu.png')
+                if self.text_box.text.endswith('.png'):
+                    new_file = os.path.join(os.getcwd(), self.text_box.text)
+                else:
+                    new_file = os.path.join(os.getcwd(), self.text_box.text + '.png')
+
+                os.replace(png_dir, new_file)
+                self.random_click(mouse)
+
+        elif type(button) == NoButton:
+            self.random_click(mouse)
+
         elif type(button) == SelectDomainTypeButton:
             reset_buttons(self.screen, self.active_buttons)
             show_buttons(KR_BUTTONS, self.screen, self.active_buttons)
@@ -260,7 +310,7 @@ class RaichuManager:
             button.do_action(self.selected_domain, mouse, self.screen, self.active_buttons)
             self.reset_selections()
 
-        elif type(button) == SubstrateButton:
+        elif type(button) == SubstrateButton or type(button) == NRPSWildcardButton:
             self.selected_domain.substrate = button.substrate
             self.selected_domain.module.gene.erase()
             self.selected_domain.module.gene.draw(mouse)
@@ -321,6 +371,17 @@ class RaichuManager:
         self.selected_substrate_group = None
         self.cluster_image = False
         self.product_images = []
+        self.text_box = None
+        raichu_dir = os.path.join(os.getcwd(), 'tmp_out_raichu')
+        raichu_png_dir = os.path.join(os.getcwd(), 'tmp_out_raichu.png')
+        if os.path.exists(raichu_png_dir):
+            os.remove(raichu_png_dir)
+        if os.path.exists(raichu_dir):
+            for file_name in os.listdir(raichu_dir):
+                file_path = os.path.join(raichu_dir, file_name)
+                os.remove(file_path)
+            os.rmdir(raichu_dir)
+
 
 
 

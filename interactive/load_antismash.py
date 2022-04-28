@@ -103,6 +103,31 @@ AS_TO_PKS = {'mal': 'malonylcoa',
              }
 
 
+def sort_genes(genes):
+    genes.sort(key=lambda gene: gene.dna_coords[0])
+    gene_groups = []
+    gene_group = []
+    previous_direction = None
+    for i, gene in enumerate(genes):
+        current_direction = gene.strand
+        if current_direction != previous_direction:
+            if gene_group:
+                if previous_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+            gene_group = [gene]
+            previous_direction = current_direction
+        else:
+            gene_group.append(gene)
+            if i == len(genes) - 1:
+                if current_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+    return gene_groups
+
+
 def parse_antismash_modules(antismash_gbk, screen):
     gene_name_to_genes = {}
     module_nr = -1
@@ -114,7 +139,6 @@ def parse_antismash_modules(antismash_gbk, screen):
                 add_gene = False
                 module_nr = -1
                 qualifiers = feature.qualifiers
-                print(feature)
 
                 if 'gene' in qualifiers:
                     gene_name = qualifiers['gene'][0]
@@ -136,6 +160,8 @@ def parse_antismash_modules(antismash_gbk, screen):
                     if add_gene:
                         gene = Gene(screen, len(gene_name_to_genes))
                         gene.name = gene_name
+                        gene.dna_coords = (feature.location.start, feature.location.end)
+                        gene.strand = feature.location.strand
                         gene_name_to_genes[gene_name] = gene
 
             elif feature.type == 'aSModule':
@@ -146,6 +172,8 @@ def parse_antismash_modules(antismash_gbk, screen):
                     gene.add_module(module_nr, module_type)
                     for domain in gene.modules[module_nr].domains[:]:
                         gene.modules[module_nr].remove_domain(domain)
+
+                    gene.modules[module_nr].dna_coords = (feature.location.start, feature.location.end)
 
                     for domain in feature.qualifiers['domains']:
                         if 'PKS_KS' in domain:
@@ -237,7 +265,10 @@ def genes_from_antismash(antismash_gbk, screen):
     for gene in gene_name_to_genes.values():
         genes.append(gene)
 
-    genes.sort(key=lambda x: x.gene_number)
+    genes = sort_genes(genes)
+    for i, gene in enumerate(genes):
+        gene.gene_number = i
+        gene.sort_modules()
 
     return genes
 

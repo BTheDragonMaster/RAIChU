@@ -117,7 +117,7 @@ beta-lysine	C(C[C@@H](CC(=O)O)N)CN
 (2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoate	O[C@@H]([C@@H](C(O)=O)N)CC1=CC=C([N+]([O-])=O)C=C1
 D-2-hydroxyisovalerate	CC(C)[C@H](C(=O)O)O
 2-hydroxyisovalerate	CC(C)[C@@H](C(=O)O)O
-2,3-diamino-3-methyl-propanoicacid 	NC(C)[C@H](N)C(O)=O
+2,3-diamino-3-methyl-propanoicacid	NC(C)[C@H](N)C(O)=O
 4,5-Dihydroxyornithine	C([C@@H](C(=O)O)N)C(C(N)O)O
 4,5-Dihydroxyhomotyrosine	C1C=C(C=C(C1(O)O)O)CC[C@@H](C(=O)O)N
 3-Hydroxyglutamine	C(C([C@@H](C(=O)O)N)O)C(=O)N

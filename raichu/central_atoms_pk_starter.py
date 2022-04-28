@@ -6,7 +6,6 @@ from raichu.attach_to_domain import attach_to_domain_pk
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 
 
-
 def find_central_atoms_pk_starter(pk_starter_unit):
     """Finds the the atoms in the central chain of the polyketide starter unit,
     sets the in_central_chain Atom object attribute to True/False accordingly,
@@ -153,6 +152,7 @@ def find_central_atoms_pk_starter(pk_starter_unit):
             atom.annotations.in_central_chain = False
 
     return pk_starter_unit
+
 
 if __name__ == "__main__":
     starter_units_antismash = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',

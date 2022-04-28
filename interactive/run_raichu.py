@@ -205,7 +205,7 @@ class RaichuManager:
                     image_height *= ratio
                     image_width *= ratio
 
-                render_window_size = (image_width, image_height)
+                render_window_size = (int(image_width), int(image_height))
 
                 self.product_images.append(pygame.transform.smoothscale(image, render_window_size))
             hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
@@ -239,7 +239,7 @@ class RaichuManager:
                 image_height *= ratio
                 image_width *= ratio
 
-            render_window_size = (image_width, image_height)
+            render_window_size = (int(image_width), int(image_height))
 
             self.cluster_image = pygame.transform.smoothscale(cluster_image, render_window_size)
             hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)

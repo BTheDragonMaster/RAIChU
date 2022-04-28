@@ -836,6 +836,13 @@ def make_pks_substrate_buttons():
                       'ethylmalonylcoa': "CCCC(=O)S",
                       'wildcard': "[*]CC(=O)S"}
 
+    x = {'Malonyl-CoA': 'mal', 'Methylmalonyl-CoA': 'mmal', 'Methoxymalonyl-CoA': 'mxmal',
+     'Ethylmalonyl-CoA': 'emal', 'Isobutyryl-CoA': 'isobut', '2-Methylbutyryl-CoA': '2metbut',
+     'trans-1,2-CPDA': 'trans-1,2-CPDA', 'Acetyl-CoA': 'Acetyl-CoA', 'Benzoyl-CoA': 'benz',
+     'Propionyl-CoA': 'prop', '3-Methylbutyryl-CoA': '3metbut',
+     'CE-Malonyl-CoA': 'cemal', '2-Rhyd-Malonyl-CoA': '2Rhydmal', 'CHC-CoA': 'CHC-CoA',
+     'inactive': 'inactive'}
+
     substrates = []
 
     for substrate_name, smiles in name_to_smiles.items():

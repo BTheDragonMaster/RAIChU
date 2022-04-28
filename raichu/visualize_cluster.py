@@ -133,6 +133,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             max_y = atom.draw.position.y
     delta_y = max_y - min_y
 
+
     # Find line length to define the width of the window
     x = 30
     index = 0
@@ -156,7 +157,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         x += 30
 
     # Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27)))
+    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27) + 0.5))
     ax.set_aspect('equal', adjustable='box')
     thismanager = plt.get_current_fig_manager()
     # thismanager.window.wm_iconbitmap("raichu_r_icon.ico")

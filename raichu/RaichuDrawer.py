@@ -28,7 +28,7 @@ class RaichuDrawer(Drawer):
             self.save_svg = save_svg
         super().__init__(structure, options=None, coords_only=False)
 
-    def finetune_overlap_resolution(self, masked_bonds=None):
+    def finetune_overlap_resolution(self, masked_bonds=None, highest_atom=None):
 
         if not masked_bonds:
             masked_bonds = set()
@@ -61,8 +61,14 @@ class RaichuDrawer(Drawer):
                 optimal_distance = float('inf')
                 for i, distance in enumerate(distances):
                     if distance < optimal_distance:
-                        best_bond = rotatable_bonds[i]
-                        optimal_distance = distance
+                        if highest_atom:
+                            if not atom_1.draw.position.x > highest_atom.draw.position.x and atom_2.draw.position.x > highest_atom.draw.position.x:
+                                best_bond = rotatable_bonds[i]
+                                optimal_distance = distance
+                        else:
+                            best_bond = rotatable_bonds[i]
+                            optimal_distance = distance
+
 
                 if best_bond:
                     best_bonds.append(best_bond)
@@ -877,7 +883,7 @@ class RaichuDrawer(Drawer):
                 if bond.atom_1.annotations.in_central_chain or\
                         bond.atom_2.annotations.in_central_chain:
                     central_chain_bonds.add(bond)
-            self.finetune_overlap_resolution(masked_bonds=central_chain_bonds)
+            self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
 
     ### End NRPS rotation code
 

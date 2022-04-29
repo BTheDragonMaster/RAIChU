@@ -286,23 +286,18 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             aa_structure = read_smiles(dict_aa_smiles[aa_specifity])
 
             # Check that the structure is an amino acid
-            if not (len(aa_structure.find_substructures(
-                    read_smiles('CN'))) > 0
-                    and len(aa_structure.find_substructures(
-                        read_smiles('C(O)=O'))) > 0):
-                raise ValueError(
-                    f'The structure: {aa_specifity}, is not an amino acid')
+            if module_type != 'starter_module_nrps':
+                if not (len(aa_structure.find_substructures(
+                        read_smiles('CN'))) > 0
+                        and len(aa_structure.find_substructures(
+                            read_smiles('C(O)=O'))) > 0):
+                    raise ValueError(
+                        f'The structure: {aa_specifity}, is not an amino acid')
 
             # Perform condensation reaction
             if module_type != 'starter_module_nrps':
                 chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
 
-            # if len(list_domains) == 0:
-            #     if visualization_mechanism:
-            #         display_reactions(['1.png', '2.png'],
-            #                           list_domains, elongation_unit,
-            #                           module_name,
-            #                           draw_mechanism_per_module)
             if len(list_tailoring_domains) == 0:
             # Save drawings if necessary
                 if draw_structures_per_module and attach_to_acp:
@@ -551,7 +546,7 @@ def make_dict_aa_smiles():
     PARAS_smiles.txt file
     """
     # Parse list SMILES amino acids attached to PCP to dict name -> Structure
-    lines_aa = open(PARAS_SMILES, 'r', encoding='utf8').readlines()
+    lines_aa = open('PARAS_SMILES.txt', 'r', encoding='utf8').readlines()
     dict_aa_smiles = {}
 
     for line in lines_aa:

@@ -154,3 +154,9 @@ alpha-ketoisovalericacid	CC(C)C(=O)C(=O)O
 Glycocyamine	C(C(=O)O)N=C(N)N
 nrp NC(C(=O)O)[*]
 4-methylglutamicacid    C([H])([C@H](C([H])(C(=O)O)N)C)C(=O)O
+capricacid  O=C(O)CCCCCCCCC
+test    C(=O)(O)CC(C)CC1CCCC1
+test2   C(O)(=O)CCCCCCC
+test3   C(O)(=O)CCCCCCC=CCC
+test4   C(O)(=O)CCCCCCC=CCCC=CC
+test5   C(O)(=O)CCCCCCCC=CCC=CCCCCC

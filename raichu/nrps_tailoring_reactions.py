@@ -23,11 +23,17 @@ def nrps_epimerization(nrp):
     for atom in nrp.graph:
         if atom.annotations.chiral_c_ep:
             chiral_c_ep_atoms.append(atom)
-    assert len(chiral_c_ep_atoms) == 1
-    chiral_c = chiral_c_ep_atoms[0]
+
+    # If the substrate is a (fatty) acid, epimerization is not possible
+    if len(chiral_c_ep_atoms) == 0:
+       print('Warning: Cannot perform epimerization reaction on non-amino acid substrate!')
+
+    assert len(chiral_c_ep_atoms) < 2
 
     # Carry out epimerization
-    epimerization(chiral_c)
+    if len(chiral_c_ep_atoms) == 1:
+        chiral_c = chiral_c_ep_atoms[0]
+        epimerization(chiral_c)
 
     return nrp
 
@@ -69,19 +75,29 @@ def nrps_methylation(nrp):
     for atom in nrp.graph:
         if atom.annotations.n_atom_nmeth:
             n_meth_locations.append(atom)
-    assert len(n_meth_locations) == 1
-    n_meth = n_meth_locations[0]
 
-    # Check if the N atom has a hydrogen group necessary for the reaction, and
-    # not a cyclic amiono acid such as proline
-    executable = True
-    if not n_meth.has_neighbour('H'):
-        executable = False
+    # If the substrate is not an amino acid, N-methylation is not possible
+    if len(n_meth_locations) == 0:
+        print('Warning: Cannot perform N-methylation on a non-amino acid substrate!')
+
+    assert len(n_meth_locations) < 2
+
+    if len(n_meth_locations) == 1:
+        n_meth = n_meth_locations[0]
+
+        # Check if the N atom has a hydrogen group necessary for the reaction, and
+        # not a cyclic amiono acid such as proline
+        executable = True
+        if not n_meth.has_neighbour('H'):
+            executable = False
+            product = nrp
+
+        # Carry out N-methylation
+        if executable:
+            product = methylation(n_meth, nrp)
+
+    else:
         product = nrp
-
-    # Carry out N-methylation
-    if executable:
-        product = methylation(n_meth, nrp)
 
     return product
 

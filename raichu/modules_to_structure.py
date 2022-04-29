@@ -73,8 +73,9 @@ def cluster_to_structure(modules, visualization_mechanism=False,
     list_drawings_per_module = []
 
     # Retrieve and remove starter module
-
-    starter_module = modules.pop(0)
+    starter_module = modules[0]
+    if starter_module[1] == 'starter_module_pks':
+        modules = modules[1:]
 
     assert len(starter_module) >= 3
 
@@ -105,23 +106,23 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             drawing = RaichuDrawer(chain_intermediate, dont_show=True)
             list_drawings_per_module.append([drawing])
 
-    # If starter module = NRPS module: find SMILES in PARAS.txt and
-    # build starter unit
-    elif starter_module_type == 'starter_module_nrps':
-
-        starter_unit = read_smiles(dict_aa_smiles[starter_module_smiles.upper()])
-        starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-        set_nrps_central_chain(starter_unit)
-
-        # If attached, attach
-        chain_intermediate = starter_unit
-        if draw_structures_per_module and attach_to_acp:
-            copy_chain_intermediate = chain_intermediate.deepcopy()
-            copy_chain_intermediate.find_cycles()
-            copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
-            copy_attached.refresh_structure(find_cycles=True)
-            drawing = RaichuDrawer(copy_attached, dont_show=True)
-            list_drawings_per_module.append([drawing])
+    # # If starter module = NRPS module: find SMILES in PARAS.txt and
+    # # build starter unit
+    # elif starter_module_type == 'starter_module_nrps':
+    #
+    #     starter_unit = read_smiles(dict_aa_smiles[starter_module_smiles.upper()])
+    #     starter_unit.add_attributes(ATTRIBUTES, boolean=True)
+    #     set_nrps_central_chain(starter_unit)
+    #
+    #     # If attached, attach
+    #     chain_intermediate = starter_unit
+    #     if draw_structures_per_module and attach_to_acp:
+    #         copy_chain_intermediate = chain_intermediate.deepcopy()
+    #         copy_chain_intermediate.find_cycles()
+    #         copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+    #         copy_attached.refresh_structure(find_cycles=True)
+    #         drawing = RaichuDrawer(copy_attached, dont_show=True)
+    #         list_drawings_per_module.append([drawing])
 
     # Iterate over remaining modules
 
@@ -248,9 +249,16 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
         # If the module is an NRPS module:
         elif module[1] == 'elongation_module_nrps' or \
-                module[1] == 'terminator_module_nrps':
-
+                module[1] == 'terminator_module_nrps' or \
+                module[1] == 'starter_module_nrps':
             module_name, module_type, aa_specifity, list_tailoring_domains = module
+            if module[1] == 'starter_module_nrps':
+                starter_unit = read_smiles(
+                    dict_aa_smiles[starter_module_smiles.upper()])
+                starter_unit.add_attributes(ATTRIBUTES, boolean=True)
+                set_nrps_central_chain(starter_unit)
+                chain_intermediate = starter_unit
+
             if visualization_mechanism and attach_to_acp:
                 for atom in chain_intermediate.graph:
                     atom.draw.colour = 'black'
@@ -286,8 +294,9 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                     f'The structure: {aa_specifity}, is not an amino acid')
 
             # Perform condensation reaction
+            if module_type != 'starter_module_nrps':
+                chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
 
-            chain_intermediate = condensation_nrps(aa_structure, chain_intermediate)
             # if len(list_domains) == 0:
             #     if visualization_mechanism:
             #         display_reactions(['1.png', '2.png'],

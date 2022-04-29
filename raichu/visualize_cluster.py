@@ -93,6 +93,8 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             module_list_domains += ['AT', 'ACP']
         elif module_type == 'starter_module_nrps':
             module_list_domains += ['A', 'PCP']
+            for tailoring_domain in module[3]:
+                module_list_domains.insert(-1, tailoring_domain)
         elif module_type == 'elongation_module_pks' or \
                 module_type == 'terminator_module_pks':
             elongation_modules_with_mechanisms.append([module_name, \

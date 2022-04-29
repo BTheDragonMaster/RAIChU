@@ -18,11 +18,11 @@ daptomycin_cluster = [['module_1', 'starter_module_nrps', 'tryptophan'],
 clust = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
          ['module 2', 'elongation_module_pks', 'pk', []],
          ['module 3', 'elongation_module_nrps', 'nrp', []]]
-product = cluster_to_structure(clust, attach_to_acp=True)
-lin_te = thioesterase_linear_product(product)
-print(structure_to_smiles(lin_te))
-RaichuDrawer(lin_te, save_svg='test.svg')
-draw_structure(lin_te)
+# product = cluster_to_structure(clust, attach_to_acp=True)
+# lin_te = thioesterase_linear_product(product)
+# print(structure_to_smiles(lin_te))
+# RaichuDrawer(lin_te, save_svg='test.svg')
+# draw_structure(lin_te)
 # clust = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 #          ['module 2', 'elongation_module_pks', 'ethylmalonylcoa', ['KR']],
 #          ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
@@ -37,7 +37,7 @@ clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
          ['module 6', 'elongation_module_nrps', 'valine', ['E', 'nMT']],
          ['module 7', 'terminator_module_nrps', 'serine', []]]
 
-clust2 = [['module 1', 'starter_module_nrps', 'glycine'],
+clust2 = [['module 1', 'starter_module_nrps', 'valine', ['nMT', 'E']],
           ['module 2', 'terminator_module_nrps', 'serine', ['E']],
           ['module 3', 'terminator_module_nrps', 'asparagine', ['nMT', 'E']],
           ['module 4', 'terminator_module_nrps', 'valine', []]]
@@ -50,7 +50,7 @@ clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
             ['module 2', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
             ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR_B1']]]
-# draw_cluster(clust_wrong)
+draw_cluster(clust2)
 # draw_cluster(clust_wrong)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)

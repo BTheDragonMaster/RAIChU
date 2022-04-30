@@ -14,14 +14,18 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
     NON_AMINOACID_GROUP_TO_BUTTONS, SubstrateGroupButton, SubstrateButton, RenderClusterButton, \
     KR_BUTTONS, KRSubtypeButton, SaveClusterButton, SaveProductsButton, RenderProductsButton, \
-    NRPSWildcardButton, SAVE_TO_PNG_BUTTON, SaveToPngButton, SAVE_TO_FOLDER_BUTTON, SaveToFolderButton, \
-    hide_buttons, ALL_BUTTONS, SAVE_PRODUCTS_BUTTON, SAVE_CLUSTER_BUTTON, YES_BUTTON, NO_BUTTON, YesButton, NoButton
+    NRPSWildcardButton, SaveToPngButton, SaveToFolderButton, FATTY_ACID_SUPER_OPTIONS_BUTTONS, \
+    hide_buttons, ALL_BUTTONS, SAVE_PRODUCTS_BUTTON, SAVE_CLUSTER_BUTTON, YES_BUTTON, NO_BUTTON, YesButton, NoButton, \
+    FattyAcidOptionButton, FattyAcidSuperOptionButton, ISO_BUTTON, ANTEISO_BUTTON, show_carbon_nr_buttons, \
+    CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON, CButton, SET_ISOFORM_BUTTON
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
+from interactive.substrate import FattyAcid
 from interactive.insertion_point import InsertionPoint
 from interactive.render_cluster import render_cluster, render_products
-from interactive.style import RENDER_WINDOW_SIZE, WHITE, REPLACE_TEXT_1, REPLACE_TEXT_2, HEIGHT, WIDTH
+from interactive.style import RENDER_WINDOW_SIZE, WHITE, REPLACE_TEXT_1, REPLACE_TEXT_2, HEIGHT, WIDTH, \
+    SIZE, FATTY_ACID_IMAGE_SIZE
 
 
 class RaichuManager:
@@ -51,6 +55,10 @@ class RaichuManager:
         self.cluster_image = None
         self.product_images = []
         self.replace_text = [REPLACE_TEXT_1, REPLACE_TEXT_2]
+        self.fatty_acid_mode = 'size'
+        self.fatty_acid = None
+        self.fatty_acid_bond_type = None
+        self.fatty_acid_modified = False
 
     def get_mouse_domain(self, mouse):
         for gene in self.genes:
@@ -138,8 +146,103 @@ class RaichuManager:
                 self.selected_substrate_group = NON_AMINOACID_GROUP_TO_BUTTONS
         elif type(button) == SubstrateGroupButton:
             reset_buttons(self.screen, self.active_buttons)
-            show_buttons(self.selected_substrate_group[button.text], self.screen, self.active_buttons)
-            self.selected_substrate_group = None
+            if button.text != 'Custom':
+                show_buttons(self.selected_substrate_group[button.text], self.screen, self.active_buttons)
+                self.selected_substrate_group = None
+            else:
+                show_carbon_nr_buttons(self.screen, self.active_buttons)
+
+        elif type(button) == FattyAcidSuperOptionButton:
+
+            reset_buttons(self.screen, self.active_buttons)
+
+            if button.text == 'Set substrate':
+                self.fatty_acid.set_substrate(self.selected_domain)
+                self.selected_domain.module.gene.erase()
+                self.selected_domain.module.gene.draw(mouse)
+                reset_buttons(self.screen, self.active_buttons)
+                self.reset_selections()
+                self.fatty_acid = None
+                self.fatty_acid_mode = 'size'
+                self.fatty_acid_bond_type = None
+                self.fatty_acid_modified = False
+                pygame.draw.rect(self.screen, WHITE,
+                                 pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                                             FATTY_ACID_IMAGE_SIZE[0], FATTY_ACID_IMAGE_SIZE[1]))
+                pygame.draw.rect(self.screen, WHITE,
+                                 pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                                             FATTY_ACID_IMAGE_SIZE[0], FATTY_ACID_IMAGE_SIZE[1]), 2)
+
+            else:
+
+                if button.text == 'Add double bond':
+                    self.fatty_acid_mode = 'double bond'
+                    show_buttons([CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON], self.screen, self.active_buttons)
+
+                elif button.text == 'Set isoform':
+                    if self.fatty_acid.c_nr > 4:
+                        show_buttons([ISO_BUTTON, ANTEISO_BUTTON], self.screen, self.active_buttons)
+                    elif self.fatty_acid.c_nr == 4:
+                        show_button(ISO_BUTTON, self.screen, self.active_buttons)
+
+                else:
+                    if button.text == 'Add amino group':
+                        self.fatty_acid_mode = 'amino'
+                    elif button.text == 'Add methyl group':
+                        self.fatty_acid_mode = 'methyl'
+                    elif button.text == 'Add -OH group':
+                        self.fatty_acid_mode = 'hydroxyl'
+
+                    show_carbon_nr_buttons(self.screen, self.active_buttons, mode=self.fatty_acid_mode, fatty_acid=self.fatty_acid)
+                show_buttons(FATTY_ACID_SUPER_OPTIONS_BUTTONS, self.screen, self.active_buttons)
+                if self.fatty_acid_modified:
+                    hide_button(SET_ISOFORM_BUTTON, self.screen, self.active_buttons)
+
+        elif type(button) == FattyAcidOptionButton:
+            reset_buttons(self.screen, self.active_buttons)
+            if button.text == 'cis':
+                self.fatty_acid_bond_type = 'cis'
+            elif button.text == 'trans':
+                self.fatty_acid_bond_type = 'trans'
+            elif button.text == 'iso':
+                self.fatty_acid.set_isoform('iso')
+            elif button.text == 'anteiso':
+                self.fatty_acid.set_isoform('anteiso')
+
+            if button.text in {'cis', 'trans', 'undefined'}:
+                self.fatty_acid_mode = 'double bond'
+                show_carbon_nr_buttons(self.screen, self.active_buttons, mode=self.fatty_acid_mode,
+                                       fatty_acid=self.fatty_acid)
+
+            show_buttons(FATTY_ACID_SUPER_OPTIONS_BUTTONS, self.screen, self.active_buttons)
+            if self.fatty_acid_modified:
+                hide_button(SET_ISOFORM_BUTTON, self.screen, self.active_buttons)
+
+        elif type(button) == CButton:
+            if self.fatty_acid_mode == 'double bond':
+                self.fatty_acid.add_double_bond(button.nr, self.fatty_acid_bond_type)
+                self.fatty_acid_bond_type = None
+                self.fatty_acid_modified = True
+            elif self.fatty_acid_mode == 'size':
+                self.fatty_acid = FattyAcid(button.nr)
+            elif self.fatty_acid_mode == 'amino':
+                self.fatty_acid.add_amino_group(button.nr)
+                self.fatty_acid_modified = True
+            elif self.fatty_acid_mode == 'methyl':
+                self.fatty_acid.add_methyl_group(button.nr)
+                self.fatty_acid_modified = True
+            elif self.fatty_acid_mode == 'hydroxyl':
+                self.fatty_acid.add_hydroxyl_group(button.nr)
+                self.fatty_acid_modified = True
+            self.fatty_acid_mode = 'size'
+
+            reset_buttons(self.screen, self.active_buttons)
+            show_buttons(FATTY_ACID_SUPER_OPTIONS_BUTTONS, self.screen, self.active_buttons)
+            if self.fatty_acid_modified:
+                hide_button(SET_ISOFORM_BUTTON, self.screen, self.active_buttons)
+            elif self.fatty_acid and self.fatty_acid.c_nr < 4:
+                hide_button(SET_ISOFORM_BUTTON, self.screen, self.active_buttons)
+
 
         elif type(button) == AddGeneButton:
             button.do_action(self.screen, self.genes, self.text_box, self.active_buttons, mouse)
@@ -372,6 +475,14 @@ class RaichuManager:
         self.cluster_image = False
         self.product_images = []
         self.text_box = None
+        self.fatty_acid = None
+        self.fatty_acid_mode = 'size'
+        self.fatty_acid_bond_type = None
+        self.fatty_acid_modified = False
+        pygame.draw.rect(self.screen, WHITE, pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                                                         FATTY_ACID_IMAGE_SIZE[0], FATTY_ACID_IMAGE_SIZE[1]))
+        pygame.draw.rect(self.screen, WHITE, pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                                                         FATTY_ACID_IMAGE_SIZE[0], FATTY_ACID_IMAGE_SIZE[1]), 2)
         raichu_dir = os.path.join(os.getcwd(), 'tmp_out_raichu')
         raichu_png_dir = os.path.join(os.getcwd(), 'tmp_out_raichu.png')
         if os.path.exists(raichu_png_dir):

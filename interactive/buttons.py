@@ -21,12 +21,13 @@ PARAS_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
 class Button:
     def __init__(self, text, position, dimensions, font_size=None):
+
         self.text = text
 
         self.x, self.y = position
         self.width, self.height = dimensions
         self.rectangle = pygame.Rect(position, dimensions)
-        self.font_size = self.height - 10
+        self.font_size = int(self.height) - 10
 
         self.text_x = 0
         self.text_y = 0
@@ -506,6 +507,16 @@ class NoButton(Button):
         super().__init__("No", position, dimensions)
 
 
+class FattyAcidSuperOptionButton(Button):
+    def __init__(self, text, position, dimensions):
+        super().__init__(text, position, dimensions)
+
+
+class FattyAcidOptionButton(Button):
+    def __init__(self, text, position, dimensions):
+        super().__init__(text, position, dimensions)
+
+
 class SaveClusterButton(Button):
     def __init__(self):
         position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
@@ -529,6 +540,12 @@ class SaveToPngButton(Button):
         dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
 
         super().__init__("Save to png", position, dimensions)
+
+
+class CButton(Button):
+    def __init__(self, nr, position, dimensions):
+        self.nr = nr
+        super().__init__(f"C{nr}", position, dimensions)
 
 
 class SaveToFolderButton(Button):
@@ -825,6 +842,103 @@ def make_nrps_substrate_buttons():
 
     return proteinogenic_group_to_buttons, nonproteinogenic_group_to_buttons, fattyacid_group_to_buttons, \
            nonaminoacid_group_to_buttons
+
+
+def make_fatty_acid_buttons():
+    dimensions = (0.2 * WIDTH, HEIGHT / 25)
+
+    fatty_acid_buttons = [FattyAcidSuperOptionButton('Set isoform', (0.25 * WIDTH, 0.52 * HEIGHT), dimensions),
+                          FattyAcidSuperOptionButton('Add methyl group', (0.25 * WIDTH, 0.57 * HEIGHT), dimensions),
+                          FattyAcidSuperOptionButton('Add amino group', (0.25 * WIDTH, 0.62 * HEIGHT), dimensions),
+                          FattyAcidSuperOptionButton('Add -OH group', (0.25 * WIDTH, 0.67 * HEIGHT), dimensions),
+                          FattyAcidSuperOptionButton('Add double bond', (0.25 * WIDTH, 0.72 * HEIGHT), dimensions),
+                          FattyAcidSuperOptionButton('Set substrate', (0.25 * WIDTH, 0.82 * HEIGHT), dimensions)]
+
+    small_dimensions = (0.1 * WIDTH, HEIGHT / 25)
+    options_buttons = [FattyAcidOptionButton('iso', (0.47 * WIDTH, 0.52 * HEIGHT), small_dimensions),
+                       FattyAcidOptionButton('anteiso', (0.47 * WIDTH, 0.57 * HEIGHT), dimensions),
+                       FattyAcidOptionButton('cis', (0.47 * WIDTH, 0.52 * HEIGHT), small_dimensions),
+                       FattyAcidOptionButton('trans', (0.47 * WIDTH, 0.57 * HEIGHT), dimensions),
+                       FattyAcidOptionButton('undefined', (0.47 * WIDTH, 0.62 * HEIGHT), dimensions)]
+
+    tiny_dimensions = (0.05 * WIDTH, HEIGHT / 25)
+
+    c_buttons = [CButton(1, (0.47 * WIDTH, 0.52 * HEIGHT), tiny_dimensions),
+                 CButton(2, (0.54 * WIDTH, 0.52 * HEIGHT), tiny_dimensions),
+                 CButton(3, (0.61 * WIDTH, 0.52 * HEIGHT), tiny_dimensions),
+                 CButton(4, (0.68 * WIDTH, 0.52 * HEIGHT), tiny_dimensions),
+                 CButton(5, (0.75 * WIDTH, 0.52 * HEIGHT), tiny_dimensions),
+
+                 CButton(6, (0.47 * WIDTH, 0.57 * HEIGHT), tiny_dimensions),
+                 CButton(7, (0.54 * WIDTH, 0.57 * HEIGHT), tiny_dimensions),
+                 CButton(8, (0.61 * WIDTH, 0.57 * HEIGHT), tiny_dimensions),
+                 CButton(9, (0.68 * WIDTH, 0.57 * HEIGHT), tiny_dimensions),
+                 CButton(10, (0.75 * WIDTH, 0.57 * HEIGHT), tiny_dimensions),
+
+                 CButton(11, (0.47 * WIDTH, 0.62 * HEIGHT), tiny_dimensions),
+                 CButton(12, (0.54 * WIDTH, 0.62 * HEIGHT), tiny_dimensions),
+                 CButton(13, (0.61 * WIDTH, 0.62 * HEIGHT), tiny_dimensions),
+                 CButton(14, (0.68 * WIDTH, 0.62 * HEIGHT), tiny_dimensions),
+                 CButton(15, (0.75 * WIDTH, 0.62 * HEIGHT), tiny_dimensions),
+
+                 CButton(16, (0.47 * WIDTH, 0.67 * HEIGHT), tiny_dimensions),
+                 CButton(17, (0.54 * WIDTH, 0.67 * HEIGHT), tiny_dimensions),
+                 CButton(18, (0.61 * WIDTH, 0.67 * HEIGHT), tiny_dimensions),
+                 CButton(19, (0.68 * WIDTH, 0.67 * HEIGHT), tiny_dimensions),
+                 CButton(20, (0.75 * WIDTH, 0.67 * HEIGHT), tiny_dimensions)]
+
+    return fatty_acid_buttons, options_buttons, c_buttons
+
+
+FATTY_ACID_SUPER_OPTIONS_BUTTONS, FATTY_ACID_OPTIONS_BUTTONS, C_BUTTONS = make_fatty_acid_buttons()
+
+SET_ISOFORM_BUTTON, ADD_METHYL_GROUP_BUTTON, ADD_AMINO_GROUP_BUTTON, ADD_OH_GROUP_BUTTON, \
+    ADD_DOUBLE_BOND_BUTTON, SET_SUBSTRATE_BUTTON = FATTY_ACID_SUPER_OPTIONS_BUTTONS
+
+ISO_BUTTON, ANTEISO_BUTTON, CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON = FATTY_ACID_OPTIONS_BUTTONS
+
+ALL_BUTTONS += FATTY_ACID_SUPER_OPTIONS_BUTTONS
+ALL_BUTTONS += FATTY_ACID_OPTIONS_BUTTONS
+ALL_BUTTONS += C_BUTTONS
+
+
+def show_carbon_nr_buttons(screen, active_buttons, mode='size', fatty_acid=None):
+    if mode == 'size':
+        show_buttons(C_BUTTONS, screen, active_buttons)
+    else:
+        involved_positions = fatty_acid.count_involvement()
+        if mode == 'double bond':
+            c_number = fatty_acid.c_nr
+            if fatty_acid.isoform:
+                c_number -= 1
+
+            double_bond_numbers = [bond[0] for bond in fatty_acid.double_bonds]
+            for button in C_BUTTONS[:c_number - 2]:
+                double_bond_possible = True
+                for nr in double_bond_numbers:
+                    if abs(button.nr - nr) <= 1:
+                        double_bond_possible = False
+                        break
+
+                if button.nr in involved_positions and involved_positions[button.nr] >= 2 or \
+                        (button.nr + 1) in involved_positions and involved_positions[button.nr + 1] >= 2:
+                    double_bond_possible = False
+                if double_bond_possible:
+                    show_button(button, screen, active_buttons)
+
+        else:
+            c_number = fatty_acid.c_nr
+            if fatty_acid.isoform:
+                c_number -= 1
+
+            for button in C_BUTTONS[:c_number - 1]:
+                modification_possible = True
+
+                if button.nr in involved_positions and involved_positions[button.nr] >= 2:
+                    modification_possible = False
+
+                if modification_possible:
+                    show_button(button, screen, active_buttons)
 
 
 def make_pks_substrate_buttons():

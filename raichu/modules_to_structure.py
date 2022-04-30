@@ -36,6 +36,15 @@ TAILOR_DOMAIN_TO_COLOUR = {'KR' : 'red', 'KR_inactive' : 'red', 'KR*' : 'red',
                            'DH' : 'blue', 'ER' : 'green'}
 
 
+def get_substrate_structure(substrate, aa_dict):
+    if substrate.upper() in aa_dict:
+        structure = read_smiles(aa_dict[substrate.upper()])
+    else:
+        structure = read_smiles(substrate)
+
+    return structure
+
+
 def cluster_to_structure(modules, visualization_mechanism=False,
                          draw_structures_per_module=False,
                          attach_to_acp=False,
@@ -105,24 +114,6 @@ def cluster_to_structure(modules, visualization_mechanism=False,
         if draw_structures_per_module:
             drawing = RaichuDrawer(chain_intermediate, dont_show=True)
             list_drawings_per_module.append([drawing])
-
-    # # If starter module = NRPS module: find SMILES in PARAS.txt and
-    # # build starter unit
-    # elif starter_module_type == 'starter_module_nrps':
-    #
-    #     starter_unit = read_smiles(dict_aa_smiles[starter_module_smiles.upper()])
-    #     starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-    #     set_nrps_central_chain(starter_unit)
-    #
-    #     # If attached, attach
-    #     chain_intermediate = starter_unit
-    #     if draw_structures_per_module and attach_to_acp:
-    #         copy_chain_intermediate = chain_intermediate.deepcopy()
-    #         copy_chain_intermediate.find_cycles()
-    #         copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
-    #         copy_attached.refresh_structure(find_cycles=True)
-    #         drawing = RaichuDrawer(copy_attached, dont_show=True)
-    #         list_drawings_per_module.append([drawing])
 
     # Iterate over remaining modules
 
@@ -253,8 +244,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 module[1] == 'starter_module_nrps':
             module_name, module_type, aa_specifity, list_tailoring_domains = module
             if module[1] == 'starter_module_nrps':
-                starter_unit = read_smiles(
-                    dict_aa_smiles[starter_module_smiles.upper()])
+                starter_unit = get_substrate_structure(starter_module_smiles, dict_aa_smiles)
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)
                 set_nrps_central_chain(starter_unit)
                 chain_intermediate = starter_unit
@@ -282,8 +272,8 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
             # Build amino acid structure from dict containig PARAS SMILES
             aa_specifity = aa_specifity.upper()
-            assert aa_specifity in dict_aa_smiles
-            aa_structure = read_smiles(dict_aa_smiles[aa_specifity])
+
+            aa_structure = get_substrate_structure(aa_specifity, dict_aa_smiles)
 
             # Check that the structure is an amino acid
             if module_type != 'starter_module_nrps':

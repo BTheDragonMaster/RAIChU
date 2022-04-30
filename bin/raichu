@@ -7,7 +7,7 @@ from pygame.locals import *
 from interactive.run_raichu import RaichuManager
 from interactive.buttons import draw_buttons
 import interactive.images
-from interactive.style import SIZE, WHITE, BLACK
+from interactive.style import SIZE, WHITE, BLACK, FATTY_ACID_IMAGE_SIZE
 from interactive.background import ButtonPanel, ProductRaster
 from interactive.load_antismash import genes_from_antismash
 
@@ -64,6 +64,14 @@ while running:
     if not manager.cluster_image and not manager.product_images:
         button_panel.draw()
         mouse = pygame.mouse.get_pos()
+        if manager.fatty_acid:
+            rectangle = pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                                    manager.fatty_acid.scaled_image.get_width(), manager.fatty_acid.scaled_image.get_height())
+            pygame.draw.rect(screen, WHITE, pygame.Rect(SIZE[0] - (FATTY_ACID_IMAGE_SIZE[0] + 20), SIZE[1] / 2 + 20,
+                             FATTY_ACID_IMAGE_SIZE[0], FATTY_ACID_IMAGE_SIZE[1]))
+            screen.blit(manager.fatty_acid.scaled_image, rectangle)
+            pygame.draw.rect(screen, BLACK, rectangle, 2)
+
         draw_buttons(manager.active_buttons, screen, mouse)
         for gene in manager.genes:
             gene.draw(mouse)

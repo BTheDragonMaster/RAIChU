@@ -59,7 +59,10 @@ def get_raichu_cluster(genes):
                     for domain in module.domains:
                         if domain.type == 'A':
                             if domain.substrate:
-                                substrate_specificity = domain.substrate.name
+                                if domain.substrate.custom:
+                                    substrate_specificity = domain.substrate.smiles
+                                else:
+                                    substrate_specificity = domain.substrate.name
 
                 assert substrate_specificity
 

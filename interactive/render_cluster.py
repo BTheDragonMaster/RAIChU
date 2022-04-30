@@ -82,7 +82,7 @@ def get_raichu_cluster(genes):
 
                             module_type = 'terminator_module_pks'
 
-                if module_type.startswith('starter'):
+                if module_type == "starter_module_pks":
                     cluster.append([module_name, module_type, substrate_specificity])
                 else:
                     cluster.append([module_name, module_type, substrate_specificity, tailoring_domains])

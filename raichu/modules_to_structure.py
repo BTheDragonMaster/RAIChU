@@ -546,7 +546,7 @@ def make_dict_aa_smiles():
     PARAS_smiles.txt file
     """
     # Parse list SMILES amino acids attached to PCP to dict name -> Structure
-    lines_aa = open('PARAS_SMILES.txt', 'r', encoding='utf8').readlines()
+    lines_aa = open(PARAS_SMILES, 'r', encoding='utf8').readlines()
     dict_aa_smiles = {}
 
     for line in lines_aa:

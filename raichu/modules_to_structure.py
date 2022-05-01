@@ -128,6 +128,10 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             if len(locations) > 0:
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
 
+            if any(atom.annotations.c2_acid for atom in chain_intermediate.graph):
+                chain_intermediate = attach_to_domain_nrp(chain_intermediate,
+                                                          'ACP')
+
             module_name, module_type, elongation_unit, list_domains = module
             assert elongation_unit in ALL_PKS_ELONGATION_UNITS
 

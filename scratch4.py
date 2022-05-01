@@ -50,7 +50,7 @@ clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
             ['module 2', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
             ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR_B1']]]
-draw_cluster(clust2)
+
 # draw_cluster(clust_wrong)
 # draw_cluster(clust2, interactive=True)
 # product = cluster_to_structure(clust2)
@@ -84,3 +84,10 @@ draw_cluster(clust2)
 # # prod = nrps_epimerization(valine)
 # # prod = nrps_methylation(prod)
 # RaichuDrawer(valine)
+
+clustje = [['module 1', 'starter_module_nrps', 'C(O)(=O)C(CCCCC=CCC)O', []],
+         ['module 2', 'elongation_module_pks', 'malonylcoa', []],
+         ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
+         ['module 4', 'elongation_module_pks', 'methoxymalonylacp', ['KR']],
+         ['module 5', 'terminator_module_nrps', 'valine', []]]
+draw_cluster(clustje)

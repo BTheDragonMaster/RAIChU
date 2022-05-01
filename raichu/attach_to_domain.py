@@ -63,6 +63,7 @@ def attach_to_domain_nrp(nrp, domain_type):
     domain_type: Str, domain type
     nrp: PIKAChU Structure object, to-be attached NRP
     """
+
     for atom in nrp.graph:
         if not hasattr(atom.annotations, 'in_central_chain'):
             for attribute in ATTRIBUTES:
@@ -83,6 +84,7 @@ def attach_to_domain_nrp(nrp, domain_type):
                 c_atom_to_domain = atom
 
     oxygens = c_atom_to_domain.get_neighbours('O')
+
 
     hydroxyl_oxygen = None
     hydroxyl_bond = None

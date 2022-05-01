@@ -130,6 +130,9 @@ def pks_elongation(pk_chain, elongation_monomer):
     for bond_nr, bond in combined.bonds.items():
         bond.set_bond_summary()
 
+    for atom in combined.graph:
+        atom.annotations.c2_acid = False
+
     return combined
 
 

@@ -1,0 +1,4 @@
+eMal	SC(C(C(O)=O)CC)=O
+Mal	SC(CC(O)=O)=O
+mMal	SC(C(C)C(O)=O)=O
+mxMal	SC(C(C(O)=O)OC)=O

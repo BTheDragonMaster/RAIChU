@@ -4,6 +4,7 @@ import pygame
 import interactive.flatfiles
 import interactive.images.nrps_substrates
 import interactive.images.pks_substrates
+import interactive.images.pks_starter_substrates
 
 from pikachu.general import png_from_smiles
 
@@ -13,6 +14,7 @@ from interactive.style import SUBSTRATE_BUTTON_SIZE, SUBSTRATE_BUTTON_PADDING, \
 SUBSTRATE_DIR = os.path.dirname(interactive.flatfiles.__file__)
 NRPS_SUBSTRATE_IMG = os.path.dirname(interactive.images.nrps_substrates.__file__)
 PKS_SUBSTRATE_IMG = os.path.dirname(interactive.images.pks_substrates.__file__)
+PKS_STARTER_SUBSTRATE_IMG = os.path.dirname(interactive.images.pks_starter_substrates.__file__)
 SUBSTRATE_TO_ABBREVIATION_FILE = os.path.join(SUBSTRATE_DIR, 'substrate_to_abbreviation.txt')
 
 PROTEINOGENIC_SUBSTRATES = {"Ala": ['Alanine',
@@ -202,12 +204,17 @@ class SubstrateGroup:
 
         x_coord = int(0.23 * WIDTH)
         y_coord = int(0.52 * HEIGHT)
+        column_nr = 0
 
         for i, substrate in enumerate(self.substrates):
             if i % SUBSTRATE_BUTTONS_PER_LINE == 0:
-                if i != 0:
-                    y_coord += SUBSTRATE_BUTTON_SIZE + SUBSTRATE_BUTTON_PADDING
                 x_coord = int(0.23 * WIDTH)
+                column_nr += 1
+                if i != 0 and column_nr <= 2:
+                    y_coord += SUBSTRATE_BUTTON_SIZE + SUBSTRATE_BUTTON_PADDING
+                elif i != 0:
+                    x_coord = int(0.23 * WIDTH - SUBSTRATE_BUTTON_SIZE - SUBSTRATE_BUTTON_PADDING)
+
             else:
                 x_coord += SUBSTRATE_BUTTON_SIZE + SUBSTRATE_BUTTON_PADDING
 
@@ -223,7 +230,7 @@ class SubstrateGroup:
 
 
 class Substrate:
-    def __init__(self, name, smiles, module_type, set_images=True, custom=False):
+    def __init__(self, name, smiles, module_type, set_images=True, custom=False, starter=False):
         self.name = name
         self.abbr = self.name
         if self.name in SUBSTRATE_TO_ABBREVIATION:
@@ -232,6 +239,7 @@ class Substrate:
         self.image = None
         self.highlight_image = None
         self.custom = custom
+        self.starter = starter
 
         if set_images:
             if module_type == 'NRPS':
@@ -241,6 +249,10 @@ class Substrate:
             if module_type == 'PKS':
                 self.image = os.path.join(PKS_SUBSTRATE_IMG, f'{name}.png')
                 self.highlight_image = os.path.join(PKS_SUBSTRATE_IMG, f'{name}_highlight.png')
+
+            if module_type == 'PKS_starter':
+                self.image = os.path.join(PKS_STARTER_SUBSTRATE_IMG, f'{name}.png')
+                self.highlight_image = os.path.join(PKS_STARTER_SUBSTRATE_IMG, f'{name}_highlight.png')
 
         self.rectangle = None
         self.x = 0
@@ -279,7 +291,7 @@ class FattyAcid:
     def set_substrate(self, domain):
         self.to_smiles()
         self.set_name()
-        substrate = Substrate(self.name, self.smiles, 'NRPS', set_images=False, custom=True)
+        substrate = Substrate(self.name, self.smiles, 'NRPS', set_images=False, custom=True, starter=True)
         domain.substrate = substrate
 
     def add_methyl_group(self, position):

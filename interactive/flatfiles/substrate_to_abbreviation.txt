@@ -158,5 +158,5 @@ nrp	*
 malonylcoa	Mal
 methylmalonylcoa	mMal
 ethylmalonylcoa	eMal
-methoxymalonylcoa	moMal
+methoxymalonylcoa	mxMal
 wildcard	*

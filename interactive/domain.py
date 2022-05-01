@@ -1,6 +1,6 @@
 import os
 import interactive.images.domains
-from interactive.style import DOMAIN_SIZE, MODULE_SPACING, FONT, BLACK
+from interactive.style import DOMAIN_SIZE, MODULE_SPACING, FONT, BLACK, RED
 
 import pygame
 
@@ -46,8 +46,12 @@ class Domain:
         self.screen.blit(rendered_text, text_rectangle)
 
     def draw_substrate_text(self):
+        colour = BLACK
+        if self.module.gene.gene_number != 0 or self.module.id != 0:
+            if self.substrate.starter:
+                colour = RED
 
-        rendered_text = self.font.render(self.substrate.abbr, False, BLACK)
+        rendered_text = self.font.render(self.substrate.abbr, False, colour)
         text_rectangle = rendered_text.get_rect(center=(self.x + self.width/2, self.y - 10))
         self.screen.blit(rendered_text, text_rectangle)
 

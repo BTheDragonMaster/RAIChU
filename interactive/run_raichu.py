@@ -17,7 +17,9 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     NRPSWildcardButton, SaveToPngButton, SaveToFolderButton, FATTY_ACID_SUPER_OPTIONS_BUTTONS, \
     hide_buttons, ALL_BUTTONS, SAVE_PRODUCTS_BUTTON, SAVE_CLUSTER_BUTTON, YES_BUTTON, NO_BUTTON, YesButton, NoButton, \
     FattyAcidOptionButton, FattyAcidSuperOptionButton, ISO_BUTTON, ANTEISO_BUTTON, show_carbon_nr_buttons, \
-    CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON, CButton, SET_ISOFORM_BUTTON
+    CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON, CButton, SET_ISOFORM_BUTTON, StarterButton, ElongationButton, \
+    PKS_STARTER_SUBSTRATE_BUTTONS, PROTEINOGENIC_BUTTON, FATTY_ACID_BUTTON, NON_PROTEINOGENIC_BUTTON, \
+    NON_AMINO_ACID_BUTTON, STARTER_BUTTON, ELONGATION_BUTTON
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
@@ -151,6 +153,20 @@ class RaichuManager:
                 self.selected_substrate_group = None
             else:
                 show_carbon_nr_buttons(self.screen, self.active_buttons)
+
+        elif type(button) == StarterButton:
+            reset_buttons(self.screen, self.active_buttons)
+            if self.selected_domain.module.type == 'NRPS':
+                show_buttons([FATTY_ACID_BUTTON, NON_AMINO_ACID_BUTTON], self.screen, self.active_buttons)
+            elif self.selected_domain.module.type == 'PKS':
+                show_buttons(PKS_STARTER_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
+
+        elif type(button) == ElongationButton:
+            reset_buttons(self.screen, self.active_buttons)
+            if self.selected_domain.module.type == 'NRPS':
+                show_buttons([PROTEINOGENIC_BUTTON, NON_PROTEINOGENIC_BUTTON], self.screen, self.active_buttons)
+            elif self.selected_domain.module.type == 'PKS':
+                show_buttons(PKS_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
 
         elif type(button) == FattyAcidSuperOptionButton:
 
@@ -405,10 +421,11 @@ class RaichuManager:
         elif type(button) == SelectSubstrateButton:
             if self.selected_domain.type == 'A':
                 reset_buttons(self.screen, self.active_buttons)
-                show_buttons(NRPS_SUPERGROUP_BUTTONS, self.screen, self.active_buttons)
+                show_buttons([STARTER_BUTTON, ELONGATION_BUTTON], self.screen, self.active_buttons)
+                #show_buttons(NRPS_SUPERGROUP_BUTTONS, self.screen, self.active_buttons)
             elif self.selected_domain.type == 'AT':
                 reset_buttons(self.screen, self.active_buttons)
-                show_buttons(PKS_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
+                show_buttons([STARTER_BUTTON, ELONGATION_BUTTON], self.screen, self.active_buttons)
         elif type(button) == KRSubtypeButton:
             button.do_action(self.selected_domain, mouse, self.screen, self.active_buttons)
             self.reset_selections()

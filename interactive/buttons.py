@@ -17,6 +17,7 @@ DOMAIN_IMAGE_DIR = os.path.dirname(interactive.images.domains.__file__)
 KR_IMAGE_DIR = os.path.dirname(interactive.images.kr_subtypes.__file__)
 FLATFILES = os.path.dirname(interactive.flatfiles.__file__)
 PARAS_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
+PKS_SMILES = os.path.join(FLATFILES, "at_specificities.txt")
 
 
 class Button:
@@ -444,7 +445,7 @@ class SubstrateSupergroupButton(Button):
 
 class ProteinogenicButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.52 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.52 * HEIGHT))
 
         super().__init__("Proteinogenic", position,
                          PROTEINOGENIC_SUBSTRATES)
@@ -452,7 +453,7 @@ class ProteinogenicButton(SubstrateSupergroupButton):
 
 class NonProteinogenicButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.57 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.57 * HEIGHT))
 
         super().__init__("Non-proteinogenic", position,
                          NONPROTEINOGENIC_SUBSTRATES)
@@ -460,7 +461,7 @@ class NonProteinogenicButton(SubstrateSupergroupButton):
 
 class NonAminoAcidButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.62 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.52 * HEIGHT))
 
         super().__init__("Non-amino acids", position,
                          NON_AMINO_ACIDS)
@@ -468,7 +469,7 @@ class NonAminoAcidButton(SubstrateSupergroupButton):
 
 class FattyAcidButton(SubstrateSupergroupButton):
     def __init__(self):
-        position = (int(0.30 * WIDTH), int(0.67 * HEIGHT))
+        position = (int(0.25 * WIDTH), int(0.57 * HEIGHT))
 
         super().__init__("Fatty acids", position,
                          FATTY_ACIDS)
@@ -573,6 +574,24 @@ class SaveProductsButton(Button):
         return text_box
 
 
+class StarterButton(Button):
+    def __init__(self):
+        position = (int(0.25 * WIDTH), int(0.52 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Starter substrates", position,
+                         dimensions)
+
+
+class ElongationButton(Button):
+    def __init__(self):
+        position = (int(0.25 * WIDTH), int(0.57 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Elongation substrates", position,
+                         dimensions)
+
+
 RENDER_CLUSTER_BUTTON = RenderClusterButton()
 RENDER_PRODUCTS_BUTTON = RenderProductsButton()
 SAVE_CLUSTER_BUTTON = SaveClusterButton()
@@ -614,6 +633,9 @@ PCP_DOMAIN_BUTTON = PCPDomainButton()
 E_DOMAIN_BUTTON = EDomainButton()
 NMT_DOMAIN_BUTTON = NMTDomainButton()
 TE_DOMAIN_BUTTON = TEDomainButton()
+
+STARTER_BUTTON = StarterButton()
+ELONGATION_BUTTON = ElongationButton()
 
 PKS_DOMAIN_TO_BUTTON = {'KS': KS_DOMAIN_BUTTON,
                         'AT': AT_DOMAIN_BUTTON,
@@ -678,7 +700,9 @@ ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                SAVE_TO_FOLDER_BUTTON,
                SAVE_TO_PNG_BUTTON,
                YES_BUTTON,
-               NO_BUTTON]
+               NO_BUTTON,
+               STARTER_BUTTON,
+               ELONGATION_BUTTON]
 
 
 def show_domain_buttons(module, screen, active_buttons):
@@ -806,7 +830,7 @@ def make_nrps_substrate_group_buttons():
     return [proteinogenic_buttons, nonproteinogenic_buttons, fatty_acid_buttons, non_amino_acid_buttons]
 
 
-def make_nrps_substrate_groups(supergroup, name_to_smiles):
+def make_nrps_substrate_groups(supergroup, name_to_smiles, starter=False):
     group_to_buttons = {}
     for group, substrate_names in supergroup.items():
         group_to_buttons[group] = set()
@@ -815,7 +839,7 @@ def make_nrps_substrate_groups(supergroup, name_to_smiles):
 
         for substrate_name in substrate_names:
             smiles = name_to_smiles[substrate_name]
-            substrate = Substrate(substrate_name, smiles, 'NRPS')
+            substrate = Substrate(substrate_name, smiles, 'NRPS', starter=starter)
             substrates.append(substrate)
 
         substrate_group = SubstrateGroup(group, substrates)
@@ -836,9 +860,9 @@ def make_nrps_substrate_buttons():
     nonproteinogenic_group_to_buttons = make_nrps_substrate_groups(NONPROTEINOGENIC_SUBSTRATES,
                                                                    name_to_smiles)
     fattyacid_group_to_buttons = make_nrps_substrate_groups(FATTY_ACIDS,
-                                                            name_to_smiles)
+                                                            name_to_smiles, starter=True)
     nonaminoacid_group_to_buttons = make_nrps_substrate_groups(NON_AMINO_ACIDS,
-                                                               name_to_smiles)
+                                                               name_to_smiles, starter=True)
 
     return proteinogenic_group_to_buttons, nonproteinogenic_group_to_buttons, fattyacid_group_to_buttons, \
            nonaminoacid_group_to_buttons
@@ -941,6 +965,28 @@ def show_carbon_nr_buttons(screen, active_buttons, mode='size', fatty_acid=None)
                     show_button(button, screen, active_buttons)
 
 
+def make_pks_substrate_starter_buttons():
+    buttons = set()
+
+    name_to_smiles = parse_smiles(PKS_SMILES)
+
+    substrates = []
+
+    for substrate_name, smiles in name_to_smiles.items():
+        smiles = name_to_smiles[substrate_name]
+        substrate = Substrate(substrate_name, smiles, 'PKS_starter', starter=True)
+        substrates.append(substrate)
+
+    substrate_group = SubstrateGroup('pks_starter', substrates)
+    for substrate in substrate_group.substrates:
+        buttons.add(SubstrateButton(substrate,
+                                    (substrate.x, substrate.y),
+                                    (substrate.width, substrate.height)))
+
+    return buttons
+
+PKS_STARTER_SUBSTRATE_BUTTONS = make_pks_substrate_starter_buttons()
+
 def make_pks_substrate_buttons():
     buttons = set()
 
@@ -950,12 +996,21 @@ def make_pks_substrate_buttons():
                       'ethylmalonylcoa': "CCCC(=O)S",
                       'wildcard': "[*]CC(=O)S"}
 
-    x = {'Malonyl-CoA': 'mal', 'Methylmalonyl-CoA': 'mmal', 'Methoxymalonyl-CoA': 'mxmal',
-     'Ethylmalonyl-CoA': 'emal', 'Isobutyryl-CoA': 'isobut', '2-Methylbutyryl-CoA': '2metbut',
-     'trans-1,2-CPDA': 'trans-1,2-CPDA', 'Acetyl-CoA': 'Acetyl-CoA', 'Benzoyl-CoA': 'benz',
-     'Propionyl-CoA': 'prop', '3-Methylbutyryl-CoA': '3metbut',
-     'CE-Malonyl-CoA': 'cemal', '2-Rhyd-Malonyl-CoA': '2Rhydmal', 'CHC-CoA': 'CHC-CoA',
-     'inactive': 'inactive'}
+    x = {'Malonyl-CoA': 'mal',
+         'Methylmalonyl-CoA': 'mmal',
+         'Methoxymalonyl-CoA': 'mxmal',
+         'Ethylmalonyl-CoA': 'emal',
+         'Isobutyryl-CoA': 'isobut',
+         '2-Methylbutyryl-CoA': '2metbut',
+         'trans-1,2-CPDA': 'trans-1,2-CPDA',
+         'Acetyl-CoA': 'Acetyl-CoA',
+         'Benzoyl-CoA': 'benz',
+         'Propionyl-CoA': 'prop',
+         '3-Methylbutyryl-CoA': '3metbut',
+         'CE-Malonyl-CoA': 'cemal',
+         '2-Rhyd-Malonyl-CoA': '2Rhydmal',
+         'CHC-CoA': 'CHC-CoA',
+         'inactive': 'inactive'}
 
     substrates = []
 
@@ -1003,6 +1058,7 @@ ALL_BUTTONS += FATTY_ACID_BUTTONS
 ALL_BUTTONS += NON_AMINO_ACID_BUTTONS
 ALL_BUTTONS += PKS_SUBSTRATE_BUTTONS
 ALL_BUTTONS += KR_BUTTONS
+ALL_BUTTONS += PKS_STARTER_SUBSTRATE_BUTTONS
 
 for buttons in PROTEINOGENIC_GROUP_TO_BUTTONS.values():
     ALL_BUTTONS += buttons

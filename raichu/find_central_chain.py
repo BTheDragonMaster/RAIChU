@@ -11,6 +11,7 @@ def find_central_chain(pks_nrps_attached):
     pks_nrps_attached: PIKAChU Structure object, input (hybrid) PK/NRP structure
     """
     # If the structure is a PK starter unit, find the central carbon chain
+
     if not any(atom.annotations.in_central_chain for atom in pks_nrps_attached.graph) and\
             len(pks_nrps_attached.find_substructures(read_smiles('C(=O)S'))) > 0:
         pks_nrps_attached = find_central_atoms_pk_starter(pks_nrps_attached)
@@ -24,12 +25,14 @@ def find_central_chain(pks_nrps_attached):
             atom.inside_ring = False
 
     # Identify starting point central chain attached NRP/PK
+    sulphur = None
     for atom in pks_nrps_attached.graph:
         if atom.type == 'S' and any(neighbour.annotations.domain_type
                                     for neighbour in atom.neighbours):
             sulphur = atom
         if not atom.annotations.in_central_chain:
             atom.annotations.in_central_chain = False
+    assert sulphur
 
     central_chain = [sulphur]
     visited = [sulphur]

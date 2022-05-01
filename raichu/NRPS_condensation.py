@@ -34,6 +34,7 @@ def set_nrps_central_chain(peptide):
         acid = peptide
         set_nrps_central_chain_acid(acid)
 
+
 def set_nrps_central_chain_acid(acid):
     c1_atom = None
     c2_atom = None
@@ -42,28 +43,38 @@ def set_nrps_central_chain_acid(acid):
     visited = []
 
     c1_atoms_aa = find_atoms(ACID_C1, acid)
-    c1_atom = c1_atoms_aa[0]
+    if c1_atoms_aa:
+        c1_atom = c1_atoms_aa[0]
+
+    assert c1_atom
+
     for neighbour in c1_atom.neighbours:
         neighbours = []
+
         if neighbour.type == 'C':
             for next_atom in neighbour.neighbours:
                 neighbours.append(next_atom.type)
             if neighbours.count('O') == 2 and len(neighbours) == 3:
                 c2_atom = neighbour
+
+                # Find the leaving -OH group and annotate it
+
                 for bond in c2_atom.bonds:
-                    if bond.type == 'single' and (bond.atom_1.type == 'O' or bond.atom_2.type == 'O'):
+                    if bond.type == 'single' and (bond.has_neighbour('O')):
                         if bond.atom_1.type == 'O':
                             bond.atom_1.annotations.leaving_oh_o = True
                             oh_o_atom = bond.atom_1
+
                             bond.atom_2.annotations.leaving_oh_h = True
                             oh_h_atom = bond.atom_2
+
                         elif bond.atom_2.type == 'O':
                             bond.atom_2.annotations.leaving_oh_o = True
                             oh_o_atom = bond.atom_2
+
                             bond.atom_1.annotations.leaving_oh_h = True
                             oh_h_atom = bond.atom_1
 
-    assert c1_atom
     assert c2_atom
     assert oh_o_atom
     assert oh_h_atom
@@ -77,11 +88,17 @@ def set_nrps_central_chain_acid(acid):
 
     starting_point = c1_atom
     endpoint = False
+    ring_members = 0
+    if starting_point.in_ring(acid):
+        ring_members += 1
 
     # Add atoms in chain with exactly 2 non-H neighbours to the central chain
     while not endpoint:
         for neighbour in starting_point.neighbours:
-            if len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour not in visited:
+            neighbour_in_ring = neighbour.in_ring(acid)
+            if neighbour_in_ring:
+                ring_members += 1
+            if len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour not in visited and not (ring_members > 2 and neighbour_in_ring):
                 neighbour.annotations.in_central_chain = True
                 visited.append(neighbour)
                 starting_point = neighbour
@@ -90,16 +107,14 @@ def set_nrps_central_chain_acid(acid):
             for neighbour in starting_point.neighbours:
                 if neighbour not in visited:
                     neighbours.append(neighbour)
-            if not any(len(atom.get_non_hydrogen_bonds()) == 2 for atom in neighbours):
+
+            if not any(len(atom.get_non_hydrogen_bonds()) == 2 for atom in neighbours) or (any(atom.in_ring(acid) for atom in neighbours) and neighbour_in_ring):
                 endpoint = True
 
                 # Add the last atom in the chain to the central chain
                 for atom in neighbours:
                     if len(atom.get_non_hydrogen_bonds()) == 1:
                         atom.annotations.in_central_chain = True
-
-
-
 
 
 def condensation_nrps(amino_acid, nrp_intermediate):

@@ -520,8 +520,8 @@ class RaichuDrawer(Drawer):
         self.structure.refresh_structure()
         self.restore_ring_information()
         self.resolve_primary_overlaps()
-        self.total_overlap_score, sorted_overlap_scores, \
-        atom_to_scores = self.get_overlap_score()
+        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+
         for i in range(self.options.overlap_resolution_iterations):
             for bond in self.drawn_bonds:
                 if self.bond_is_rotatable(bond):
@@ -561,7 +561,6 @@ class RaichuDrawer(Drawer):
                                                     atom_2.draw.position)
                             else:
                                 self.total_overlap_score = new_overlap_score
-
 
                         elif len(neighbours_2) == 2:
                             if atom_2.draw.rings and atom_1.draw.rings:
@@ -636,24 +635,30 @@ class RaichuDrawer(Drawer):
 
         ### NRPS + PK code: Force pk/peptide backbone to be drawn straight:
         # If struct=PK/NRP, find central chain and attached domain
-        if (is_nrp and attached_to_domain) or (
-                is_polyketide and attached_to_domain):
+        if attached_to_domain and (is_nrp or is_polyketide):
             backbone_atoms = find_central_chain(self.structure)
+            pcp = None
             for atom in self.structure.graph:
                 if atom.annotations.domain_type:
                     pcp = atom
 
+            assert pcp
+
             # Fix position of the S and C atom and the S-C angle
             sulphur = backbone_atoms[0]
             first_carbon = backbone_atoms[1]
+
             sulphur.draw.position.x = first_carbon.draw.position.x
             sulphur.draw.position.y = first_carbon.draw.position.y + 15
+
             angle = get_angle(first_carbon.draw.position,
                               sulphur.draw.position)
             angle_degrees = round(math.degrees(angle), 3)
+
             correct_angle_deg = -120
             delta_angle_deg = correct_angle_deg - angle_degrees
             delta_angle_rad = math.radians(delta_angle_deg)
+
             self.rotate_subtree(sulphur, first_carbon, delta_angle_rad,
                                 first_carbon.draw.position)
 
@@ -663,11 +668,13 @@ class RaichuDrawer(Drawer):
 
             # Rotate all other bonds in peptide backbone of NRP
             i = 0
+            fixed_atoms = set()
             while i < (len(backbone_atoms) - 1):
                 atom1 = backbone_atoms[i]
                 atom2 = backbone_atoms[i + 1]
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
+
                 # Save angle last two atoms, needed later
                 if i == (len(backbone_atoms) - 2):
                     last_angle_degrees = angle_degrees
@@ -680,41 +687,39 @@ class RaichuDrawer(Drawer):
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad,
                                             atom1.draw.position)
-                        i += 1
-                    else:
-                        i += 1
+                    i += 1
 
                     # Flip cyclic backbone amino acid if necessary
-                    if atom1.draw.position.x > backbone_atoms[
-                        i - 2].draw.position.x:
+                    if atom1.draw.position.x > backbone_atoms[i - 2].draw.position.x:
+                        first_atom_cycle = None
                         for next_atom in atom1.neighbours:
                             if next_atom.type != 'H' and next_atom not in backbone_atoms:
                                 first_atom_cycle = next_atom
+                        assert first_atom_cycle
                         if atom1.draw.position.x > first_atom_cycle.draw.position.x:
-                            masked = set([atom1, atom2])
+                            masked = {atom1, atom2}
                             for atom in self.traverse_substructure(
                                     first_atom_cycle, masked):
-                                delta_x = 2 * (
-                                            atom1.draw.position.x - atom.draw.position.x)
+                                delta_x = 2 * (atom1.draw.position.x - atom.draw.position.x)
                                 atom.draw.position.x += delta_x
-                    if atom1.draw.position.x < backbone_atoms[
-                        i - 2].draw.position.x:
+
+                    if atom1.draw.position.x < backbone_atoms[i - 2].draw.position.x:
+                        first_atom_cycle = None
                         for next_atom in atom1.neighbours:
                             if next_atom.type != 'H' and next_atom not in backbone_atoms:
                                 first_atom_cycle = next_atom
+                        assert first_atom_cycle
                         if atom1.draw.position.x < first_atom_cycle.draw.position.x:
-                            masked = set([atom1, atom2])
-                            for atom in self.traverse_substructure(
-                                    first_atom_cycle, masked):
-                                delta_x = 2 * (
-                                            atom.draw.position.x - atom1.draw.position.x)
+                            masked = {atom1, atom2}
+                            for atom in self.traverse_substructure(first_atom_cycle, masked):
+                                delta_x = 2 * (atom.draw.position.x - atom1.draw.position.x)
                                 atom.draw.position.x -= delta_x
 
                 # Fix bond angle backbone atoms if second backbone atom (one
                 # with larger position.x) is inside ring, and the first is not
                 elif atom2 != backbone_atoms[-1] and atom2.inside_ring and not atom1.inside_ring and \
                         backbone_atoms[i + 2].inside_ring:
-                    if angle_degrees != 120.0 and angle_degrees != 60.0:
+                    if atom2 not in fixed_atoms:
                         if round(math.degrees(get_angle(
                                 backbone_atoms[i - 1].draw.position,
                                 backbone_atoms[i].draw.position)),
@@ -733,6 +738,8 @@ class RaichuDrawer(Drawer):
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad,
                                             atom1.draw.position)
+
+                        fixed_atoms.add(atom2)
                         i = 0
                     else:
                         if angle_degrees == 120.0:

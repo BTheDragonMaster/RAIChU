@@ -8,6 +8,7 @@ POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
 
+
 def attach_to_domain_pk(polyketide, domain_type):
     """
     Attaches the sulphur atom in the input polyketide to a PKS domain and
@@ -79,12 +80,14 @@ def attach_to_domain_nrp(nrp, domain_type):
         assert len(locations_c_to_domain) == 1
         c_atom_to_domain = locations_c_to_domain[0]
     else:
+        c_atom_to_domain = None
         for atom in nrp.graph:
             if atom.annotations.c2_acid:
                 c_atom_to_domain = atom
 
-    oxygens = c_atom_to_domain.get_neighbours('O')
+    assert c_atom_to_domain
 
+    oxygens = c_atom_to_domain.get_neighbours('O')
 
     hydroxyl_oxygen = None
     hydroxyl_bond = None

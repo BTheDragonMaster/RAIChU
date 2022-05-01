@@ -928,7 +928,7 @@ ALL_BUTTONS += C_BUTTONS
 
 def show_carbon_nr_buttons(screen, active_buttons, mode='size', fatty_acid=None):
     if mode == 'size':
-        show_buttons(C_BUTTONS, screen, active_buttons)
+        show_buttons(C_BUTTONS[1:], screen, active_buttons)
     else:
         involved_positions = fatty_acid.count_involvement()
         if mode == 'double bond':

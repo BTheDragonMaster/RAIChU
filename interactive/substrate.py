@@ -421,4 +421,3 @@ class FattyAcid:
                 smiles[pos - 1] += f'({group})'
 
         self.smiles = ''.join(smiles)
-        print(self.smiles)

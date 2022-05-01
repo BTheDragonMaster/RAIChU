@@ -535,6 +535,31 @@ class SaveClusterButton(Button):
         return text_box
 
 
+class ExportTabularButton(Button):
+    def __init__(self):
+        position = (int(0.27 * WIDTH), int(0.92 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Export to tabular", position, dimensions)
+
+    def do_action(self, screen, active_buttons):
+        position = (int(0.02 * WIDTH), int(0.87 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+        text_box = TextBox(position, dimensions)
+        text_box.draw(screen)
+        hide_buttons(ALL_BUTTONS, screen, active_buttons)
+        show_button(SAVE_TO_TXT_BUTTON, screen, active_buttons)
+        return text_box
+
+
+class SaveToTxtButton(Button):
+    def __init__(self):
+        position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
+        dimensions = (int(0.2 * WIDTH), int(HEIGHT / 25))
+
+        super().__init__("Save to tabular", position, dimensions)
+
+
 class SaveToPngButton(Button):
     def __init__(self):
         position = (int(0.02 * WIDTH), int(0.82 * HEIGHT))
@@ -598,6 +623,8 @@ SAVE_CLUSTER_BUTTON = SaveClusterButton()
 SAVE_PRODUCTS_BUTTON = SaveProductsButton()
 SAVE_TO_FOLDER_BUTTON = SaveToFolderButton()
 SAVE_TO_PNG_BUTTON = SaveToPngButton()
+SAVE_TO_TXT_BUTTON = SaveToTxtButton()
+EXPORT_TABULAR_BUTTON = ExportTabularButton()
 
 YES_BUTTON = YesButton()
 NO_BUTTON = NoButton()
@@ -702,7 +729,9 @@ ALL_BUTTONS = [RENDER_CLUSTER_BUTTON,
                YES_BUTTON,
                NO_BUTTON,
                STARTER_BUTTON,
-               ELONGATION_BUTTON]
+               ELONGATION_BUTTON,
+               EXPORT_TABULAR_BUTTON,
+               SAVE_TO_TXT_BUTTON]
 
 
 def show_domain_buttons(module, screen, active_buttons):
@@ -758,6 +787,9 @@ def make_buttons(screen):
     buttons.add(RENDER_PRODUCTS_BUTTON)
     RENDER_PRODUCTS_BUTTON.draw(screen)
 
+    buttons.add(EXPORT_TABULAR_BUTTON)
+    EXPORT_TABULAR_BUTTON.draw(screen)
+
     return buttons
 
 
@@ -774,6 +806,7 @@ def reset_buttons(screen, active_buttons):
     show_button(CREATE_GENE_BUTTON, screen, active_buttons)
     show_button(RENDER_CLUSTER_BUTTON, screen, active_buttons)
     show_button(RENDER_PRODUCTS_BUTTON, screen, active_buttons)
+    show_button(EXPORT_TABULAR_BUTTON, screen, active_buttons)
 
 
 def hide_button(button, screen, active_buttons):

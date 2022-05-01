@@ -19,13 +19,13 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     FattyAcidOptionButton, FattyAcidSuperOptionButton, ISO_BUTTON, ANTEISO_BUTTON, show_carbon_nr_buttons, \
     CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON, CButton, SET_ISOFORM_BUTTON, StarterButton, ElongationButton, \
     PKS_STARTER_SUBSTRATE_BUTTONS, PROTEINOGENIC_BUTTON, FATTY_ACID_BUTTON, NON_PROTEINOGENIC_BUTTON, \
-    NON_AMINO_ACID_BUTTON, STARTER_BUTTON, ELONGATION_BUTTON
+    NON_AMINO_ACID_BUTTON, STARTER_BUTTON, ELONGATION_BUTTON, ExportTabularButton, SaveToTxtButton
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
 from interactive.substrate import FattyAcid
 from interactive.insertion_point import InsertionPoint
-from interactive.render_cluster import render_cluster, render_products
+from interactive.render_cluster import render_cluster, render_products, export_tabular
 from interactive.style import RENDER_WINDOW_SIZE, WHITE, REPLACE_TEXT_1, REPLACE_TEXT_2, HEIGHT, WIDTH, \
     SIZE, FATTY_ACID_IMAGE_SIZE
 
@@ -367,6 +367,23 @@ class RaichuManager:
         elif type(button) == SaveProductsButton or type(button) == SaveClusterButton:
             self.reset_selections()
             self.text_box = button.do_action(self.screen, self.active_buttons)
+        elif type(button) == SaveToTxtButton:
+            if self.text_box.text.endswith('.txt'):
+                new_file = os.path.join(os.getcwd(), self.text_box.text)
+            else:
+                new_file = os.path.join(os.getcwd(), self.text_box.text + '.txt')
+
+            if os.path.exists(new_file):
+                for i, replace_text in enumerate(self.replace_text):
+                    self.screen.blit(replace_text, (0.02 * WIDTH, 0.52 * HEIGHT + 0.05 * HEIGHT * i))
+                show_buttons([YES_BUTTON, NO_BUTTON], self.screen, self.active_buttons)
+            else:
+                export_tabular(self.genes, new_file)
+                self.random_click(mouse)
+
+        elif type(button) == ExportTabularButton:
+            self.reset_selections()
+            self.text_box = button.do_action(self.screen, self.active_buttons)
         elif type(button) == SaveToPngButton:
             png_dir = os.path.join(os.getcwd(), 'tmp_out_raichu.png')
             if self.text_box.text.endswith('.png'):
@@ -410,6 +427,10 @@ class RaichuManager:
                     new_file = os.path.join(os.getcwd(), self.text_box.text + '.png')
 
                 os.replace(png_dir, new_file)
+                self.random_click(mouse)
+            else:
+                directory = os.path.join(os.getcwd(), self.text_box.text)
+                export_tabular(self.genes, directory)
                 self.random_click(mouse)
 
         elif type(button) == NoButton:

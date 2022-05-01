@@ -165,41 +165,43 @@ def parse_antismash_modules(antismash_gbk, screen):
                         gene_name_to_genes[gene_name] = gene
 
             elif feature.type == 'aSModule':
-                module_nr += 1
+
                 module_type = feature.qualifiers['type'][0].upper()
                 if gene_name in gene_name_to_genes:
                     gene = gene_name_to_genes[gene_name]
-                    gene.add_module(module_nr, module_type)
-                    for domain in gene.modules[module_nr].domains[:]:
-                        gene.modules[module_nr].remove_domain(domain)
+                    if module_type == 'NRPS' or module_type == 'PKS':
+                        module_nr += 1
+                        gene.add_module(module_nr, module_type)
+                        for domain in gene.modules[module_nr].domains[:]:
+                            gene.modules[module_nr].remove_domain(domain)
 
-                    gene.modules[module_nr].dna_coords = (feature.location.start, feature.location.end)
+                        gene.modules[module_nr].dna_coords = (feature.location.start, feature.location.end)
 
-                    for domain in feature.qualifiers['domains']:
-                        if 'PKS_KS' in domain:
-                            gene.modules[module_nr].add_domain('KS', domain_label=domain)
-                        elif 'PKS_AT' in domain:
-                            gene.modules[module_nr].add_domain('AT', domain_label=domain)
-                        elif 'PKS_PP' in domain or 'ACP' in domain:
-                            gene.modules[module_nr].add_domain('ACP', domain_label=domain)
-                        elif 'PKS_KR' in domain:
-                            gene.modules[module_nr].add_domain('KR', domain_label=domain)
-                        elif 'PKS_DH' in domain:
-                            gene.modules[module_nr].add_domain('DH', domain_label=domain)
-                        elif 'PKS_ER' in domain:
-                            gene.modules[module_nr].add_domain('ER', domain_label=domain)
-                        elif 'Thioesterase' in domain:
-                            gene.modules[module_nr].add_domain('TE', domain_label=domain)
-                        elif 'AMP-binding' in domain:
-                            gene.modules[module_nr].add_domain('A', domain_label=domain)
-                        elif 'Epimerization' in domain:
-                            gene.modules[module_nr].add_domain('E', domain_label=domain)
-                        elif 'Condensation' in domain or 'Cglyc' in domain:
-                            gene.modules[module_nr].add_domain('C', domain_label=domain)
-                        elif 'nMT' in domain:
-                            gene.modules[module_nr].add_domain('nMT', domain_label=domain)
-                        elif 'PCP' in domain:
-                            gene.modules[module_nr].add_domain('PCP', domain_label=domain)
+                        for domain in feature.qualifiers['domains']:
+                            if 'PKS_KS' in domain:
+                                gene.modules[module_nr].add_domain('KS', domain_label=domain)
+                            elif 'PKS_AT' in domain:
+                                gene.modules[module_nr].add_domain('AT', domain_label=domain)
+                            elif 'PKS_PP' in domain or 'ACP' in domain:
+                                gene.modules[module_nr].add_domain('ACP', domain_label=domain)
+                            elif 'PKS_KR' in domain:
+                                gene.modules[module_nr].add_domain('KR', domain_label=domain)
+                            elif 'PKS_DH' in domain:
+                                gene.modules[module_nr].add_domain('DH', domain_label=domain)
+                            elif 'PKS_ER' in domain:
+                                gene.modules[module_nr].add_domain('ER', domain_label=domain)
+                            elif 'Thioesterase' in domain:
+                                gene.modules[module_nr].add_domain('TE', domain_label=domain)
+                            elif 'AMP-binding' in domain:
+                                gene.modules[module_nr].add_domain('A', domain_label=domain)
+                            elif 'Epimerization' in domain:
+                                gene.modules[module_nr].add_domain('E', domain_label=domain)
+                            elif 'Condensation' in domain or 'Cglyc' in domain:
+                                gene.modules[module_nr].add_domain('C', domain_label=domain)
+                            elif 'nMT' in domain:
+                                gene.modules[module_nr].add_domain('nMT', domain_label=domain)
+                            elif 'PCP' in domain:
+                                gene.modules[module_nr].add_domain('PCP', domain_label=domain)
 
     return gene_name_to_genes
 

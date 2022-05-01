@@ -1,10 +1,12 @@
 from pikachu.reactions.functional_groups import BondDefiner
+from pikachu.chem.chirality import same_chirality
 
 from raichu.attach_to_domain import *
 
 RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)
 RECENT_REDUCTION_COH = BondDefiner('recent_reduction_C-OH', 'OCCC(=O)S', 0, 1)
 RECENT_REDUCTION_MMAL_CHIRAL_C = GroupDefiner('recent_reduction_mmal_chiral_c', 'CCC(C(=O)S)C', 2)
+RECENT_REDUCTION_C = GroupDefiner('recent_reduction_mal', 'OCCC(=O)S', 2)
 RECENT_REDUCTION_CC = BondDefiner('recent_reduction_C-C', 'OCCC(=O)S', 1, 2)
 RECENT_DEHYDRATION = BondDefiner('recent_dehydration', 'SC(C=CC)=O', 2, 3)
 KR_DOMAIN_TYPES = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
@@ -89,7 +91,7 @@ def find_betaketon(structure):
     return bonds
 
 
-def ketoreductase(chain_intermediate, kr_type = None):
+def ketoreductase(chain_intermediate, kr_type=None):
     """
     Performs the ketoreductase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -107,74 +109,91 @@ def ketoreductase(chain_intermediate, kr_type = None):
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
-    # Identify beta-ketone bond, identify O- and C-atom participating in bond
-    if kr_type == 'C2':
-        beta_ketone_bond = find_betaketon(chain_intermediate)
-        for bond in beta_ketone_bond:
-            for atom in bond.neighbours:
-                if atom.type == 'O':
-                    carbonyl_oxygen = atom
-                elif atom.type == 'C':
-                    carbonyl_carbon = atom
-                else:
-                    raise Exception('Cannot find atoms in beta ketone bond')
+    chiral_c = None
+    chiral_c_locations = find_atoms(RECENT_REDUCTION_MMAL_CHIRAL_C, chain_intermediate)
 
     # Identify beta-ketone bond, identify O- and C-atom participating in bond
-    if kr_type == None or kr_type.startswith('A') or kr_type.startswith('B'):
-        beta_ketone_bond = find_betaketon(chain_intermediate)
-        for bond in beta_ketone_bond:
-            for atom in bond.neighbours:
-                if atom.type == 'O':
-                    carbonyl_oxygen = atom
-                elif atom.type == 'C':
-                    carbonyl_carbon = atom
+    if kr_type in {'A1', 'A2', 'B1', 'B2', 'C2', None}:
+
+        beta_ketone_bonds = find_betaketon(chain_intermediate)
+        assert len(beta_ketone_bonds) == 1
+        beta_ketone_bond = beta_ketone_bonds[0]
+
+        carbonyl_oxygen = beta_ketone_bond.get_neighbour('O')
+        carbonyl_carbon = beta_ketone_bond.get_neighbour('C')
+        if not carbonyl_carbon or not carbonyl_oxygen:
+            raise Exception('Cannot find atoms in beta ketone bond')
+
+    # Identify beta-ketone bond, identify O- and C-atom participating in bond
+        if kr_type in {'A1', 'A2', 'B1', 'B2', None}:
+
+            # Change carbonyl bond to single bond
+            new_single_bond = carbonyl_to_hydroxyl(beta_ketone_bond)
+
+            # Add H atom to form hydroxyl group and another H to the C
+            chain_intermediate.add_atom('H', [carbonyl_oxygen])
+            chain_intermediate.add_atom('H', [carbonyl_carbon])
+            for atom in chain_intermediate.graph:
+                if not hasattr(atom.annotations, 'in_central_chain'):
+                    for attribute in ATTRIBUTES:
+                        atom.annotations.add_annotation(attribute, False)
+
+            chain_intermediate.refresh_structure()
+            carbonyl_carbon = chain_intermediate.get_atom(carbonyl_carbon)
+
+            if kr_type != None:
+                h_atom = carbonyl_carbon.get_neighbour('H')
+                o_atom = carbonyl_carbon.get_neighbour('O')
+                c_atoms = carbonyl_carbon.get_neighbours('C')
+                bottom_c = None
+
+                top_cs = find_atoms(RECENT_REDUCTION_C, chain_intermediate)
+                assert len(top_cs) == 1
+                top_c = top_cs[0]
+                assert top_c in c_atoms
+
+                for atom in c_atoms:
+                    if atom != top_c:
+                        bottom_c = atom
+
+                assert bottom_c
+
+                counterclockwise_order = [h_atom, o_atom, top_c, bottom_c]
+
+                if kr_type.startswith('A'):
+
+                    if same_chirality(counterclockwise_order, carbonyl_carbon.neighbours):
+                        carbonyl_carbon.chiral = 'clockwise'
+                    else:
+                        carbonyl_carbon.chiral = 'counterclockwise'
+
+                elif kr_type.startswith('B'):
+                    if same_chirality(counterclockwise_order, carbonyl_carbon.neighbours):
+                        carbonyl_carbon.chiral = 'counterclockwise'
+                    else:
+                        carbonyl_carbon.chiral = 'clockwise'
                 else:
-                    raise Exception('Cannot find atoms in beta ketone bond')
+                    raise ValueError('This type of KR domain is not supported by RAIChU or does not exist')
 
-        # Change carbonyl bond to single bond
-        for bond in beta_ketone_bond:
-            new_single_bond = carbonyl_to_hydroxyl(bond)
-
-        # Add H atom to form hydroxyl group and another H to the C
-        chain_intermediate.add_atom('H', [carbonyl_oxygen])
-        chain_intermediate.add_atom('H', [carbonyl_carbon])
-        for atom in chain_intermediate.graph:
-            if not hasattr(atom.annotations, 'in_central_chain'):
-                for attribute in ATTRIBUTES:
-                    atom.annotations.add_annotation(attribute, False)
-
-        if kr_type != None:
-            if kr_type.startswith('A'):
-                carbonyl_carbon.chiral = 'clockwise'
-            elif kr_type.startswith('B'):
-                carbonyl_carbon.chiral = 'counterclockwise'
+            # If the type of KR domain is not known, the chirality of the carbonyl carbon is set to None
             else:
-                raise ValueError('This type of KR domain is not supported by RAIChU or does not exist')
+                carbonyl_carbon.chiral = None
 
-        # If the type of KR domain is not known, the chirality of the carbonyl carbon is set to None
-        else:
-            carbonyl_carbon.chiral = None
+            # Set bond summary for newly formed bond (cannot do from struct.bonds?)
 
-        # Set bond summary for newly formed bond (cannot do from struct.bonds?)
-        for atom in chain_intermediate.graph:
-            if atom == carbonyl_carbon:
-                for bond in atom.bonds:
-                    for neighbour in bond.neighbours:
-                        if neighbour.type == 'O':
-                            the_bond = bond
-        the_bond.set_bond_summary()
+            for atom in chain_intermediate.graph:
+                if atom == carbonyl_carbon:
+                    for bond in atom.bonds:
+                        for neighbour in bond.neighbours:
+                            if neighbour.type == 'O':
+                                bond.set_bond_summary()
 
     # See if the previous elongation step was performed using methylmalonyl-CoA,
     # perform epimerization if required
-    chiral_c = None
-    chiral_c_locations = find_atoms(RECENT_REDUCTION_MMAL_CHIRAL_C, chain_intermediate)
+
     if chiral_c_locations:
         chiral_c = chiral_c_locations[0]
-        # neighbours_chiral_c = []
-        # for neighbour in chiral_c.neighbours:
-        #     neighbours_chiral_c.append(neighbour.type)
-        # if neighbours_chiral_c.count('C') != 3:
-        #     chiral_c = None
+
     if chiral_c and kr_type:
         if kr_type.endswith('1'):
             chiral_c.chiral = 'clockwise'
@@ -228,39 +247,6 @@ def ketoreductase(chain_intermediate, kr_type = None):
 
         new_neighbours = [first_sidechain_atom, c_1, c_3, hydrogen]
         chain_intermediate.graph[chiral_c] = new_neighbours
-
-    if kr_type != None:
-        new_neighbours = []
-        if kr_type.startswith('A') or kr_type.startswith('B'):
-            for atom in chain_intermediate.graph[carbonyl_carbon]:
-                if atom.type == 'O' and atom not in new_neighbours:
-                    new_neighbours.append(atom)
-            c_2 = None
-            sulphur_locations = find_atoms(S_KR, chain_intermediate)
-            assert len(sulphur_locations) == 1
-            sulphur = sulphur_locations[0]
-            assert sulphur
-            c_1 = None
-            for neighbour in sulphur.neighbours:
-                if neighbour.annotations.in_central_chain and neighbour.type == 'C':
-                    c_1 = neighbour
-            assert c_1
-            c_2 = None
-            for neighbour in c_1.neighbours:
-                if neighbour.annotations.in_central_chain and neighbour != sulphur:
-                    c_2 = neighbour
-            new_neighbours.append(c_2)
-            for atom in chain_intermediate.graph[carbonyl_carbon]:
-                if atom.type == 'C' and atom != c_2 and atom not in new_neighbours:
-                    c_4 = atom
-                    new_neighbours.append(c_4)
-            for atom in chain_intermediate.graph[carbonyl_carbon]:
-                if atom.type == 'H' and atom not in new_neighbours:
-                    new_neighbours.append(atom)
-            for atom in chain_intermediate.graph[carbonyl_carbon]:
-                if atom not in new_neighbours:
-                    new_neighbours.append(atom)
-            chain_intermediate.graph[carbonyl_carbon] = new_neighbours
 
     # Refresh structure :)
     chain_intermediate.set_atom_neighbours()
@@ -560,6 +546,7 @@ def enoylreductase(chain_intermediate):
 
     # Return chirality C atom in the case that the previous elongation reaction
     # was performed using methylmalonyl-CoA
+
     for atom in atoms_in_double_bond:
         carbon_neighbours = 0
         for neighbour in atom.neighbours:
@@ -574,17 +561,16 @@ def enoylreductase(chain_intermediate):
             for bond in atom.bonds:
                 for neighbour in bond.neighbours:
                     if neighbour == atom_2:
-                        the_bond = bond
-    for atom in the_bond.neighbours:
-        atom.draw.colour = 'LIME'
+                        for coloured_atom in bond.neighbours:
+                            coloured_atom.draw.colour = 'LIME'
+
     for atom in chain_intermediate.graph:
         if atom == atom_2:
             for bond in atom.bonds:
                 for neighbour in bond.neighbours:
                     if neighbour == atom_1:
-                        the_bond = bond
-    for atom in the_bond.neighbours:
-        atom.draw.colour = 'LIME'
+                        for coloured_atom in bond.neighbours:
+                            coloured_atom.draw.colour = 'LIME'
 
     return chain_intermediate
 

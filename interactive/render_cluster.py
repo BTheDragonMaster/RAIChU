@@ -6,6 +6,37 @@ matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
 
 
+def export_tabular(genes, file_name="cluster_text.txt"):
+    cluster = get_raichu_cluster(genes)
+    gene_names = []
+    pks = False
+    nrps = False
+    for gene in genes:
+        for module in gene.modules:
+            gene_names.append(gene.name)
+            if module.type == 'NRPS':
+                nrps = True
+            if module.type == 'PKS':
+                pks = True
+
+    if nrps and pks:
+        cluster_type = 'NRPS/PKS hybrid'
+    elif pks:
+        cluster_type = 'PKS type I'
+    elif nrps:
+        cluster_type = 'NRPS'
+    else:
+        cluster_type = ''
+
+    with open(file_name, 'w') as out:
+        out.write('bgc_type\tgene_name\tmodule_id\tmodule_type\tspecificity\ttailoring_domains\n')
+        for i, module in enumerate(cluster):
+            if len(module) == 4:
+                out.write(f"{cluster_type}\t{gene_names[i]}\t{i}\t{module[1]}\t{module[2]}\t{'|'.join(module[3])}\n")
+            else:
+                out.write(f"{cluster_type}\t{gene_names[i]}\t{i}\t{module[1]}\t{module[2]}\n")
+
+
 def get_raichu_cluster(genes):
     cluster = []
 

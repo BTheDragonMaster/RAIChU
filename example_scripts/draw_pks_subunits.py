@@ -21,9 +21,10 @@ hmal = read_smiles("ISC(=O)C(C(=O)O)O")
 hmals = read_smiles("ISC(=O)[C@@H](C(=O)O)O")
 hmalr = read_smiles("ISC(=O)[C@H](C(=O)O)O")
 cemal = read_smiles("ISC(C(C(=O)O)CC[Cl])=O")
+isobut = read_smiles("ISC(=O)C(C)C")
 
-structures = [prop, ac, benz, but3, but2, but2s, but2r, tcpda, chc, hmal, hmals, hmalr, cemal]
-names = ["Prop", "Ac", "Benz", "3mBut", "2mBut", "2S-mBut", "2R-mBut", "tCPDA", "CHC", "hMal", "2S-hMal", "2R-hMal", "ceMal"]
+structures = [isobut, ac, benz, but3, but2, but2s, but2r, tcpda, chc, hmal, hmals, hmalr, cemal]
+names = ["isoBut", "Ac", "Benz", "3mBut", "2mBut", "2S-mBut", "2R-mBut", "tCPDA", "CHC", "hMal", "2S-hMal", "2R-hMal", "ceMal"]
 
 # malonylcoa_drawing = Drawer(malonylcoa)
 # methylmalonylcoa_drawing = Drawer(methylmalonylcoa)

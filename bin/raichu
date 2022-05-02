@@ -10,6 +10,7 @@ import interactive.images
 from interactive.style import SIZE, WHITE, BLACK, FATTY_ACID_IMAGE_SIZE
 from interactive.background import ButtonPanel, ProductRaster
 from interactive.load_antismash import genes_from_antismash
+from interactive.load_tabular import load_tabular
 
 IMAGE_DIR = os.path.dirname(interactive.images.__file__)
 
@@ -37,7 +38,10 @@ input_file = None
 
 if len(sys.argv) == 2:
     input_file = sys.argv[1]
-    manager.genes = genes_from_antismash(input_file, screen)
+    if input_file.endswith('.gbk'):
+        manager.genes = genes_from_antismash(input_file, screen)
+    elif input_file.endswith('.txt'):
+        manager.genes = load_tabular(input_file, screen)
 
 
 while running:

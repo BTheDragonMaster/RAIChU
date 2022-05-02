@@ -14,6 +14,7 @@ def epimerization(chiral_centre):
 
     chiral_centre.chiral = new_chirality
 
+
 def nrps_epimerization(nrp):
     """
 

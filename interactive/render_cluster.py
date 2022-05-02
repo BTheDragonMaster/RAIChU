@@ -134,6 +134,7 @@ def get_raichu_cluster(genes):
 def render_products(genes, dir_name="products_test"):
 
     cluster = get_raichu_cluster(genes)
+
     if cluster:
         if not os.path.exists(dir_name):
             os.mkdir(dir_name)

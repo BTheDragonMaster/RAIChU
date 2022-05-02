@@ -322,8 +322,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 for domain in list_tailoring_domains:
                     if domain == 'E':
                         if draw_structures_per_module and attach_to_acp:
-                            chain_intermediate = nrps_epimerization(
-                                chain_intermediate)
+                            chain_intermediate = nrps_epimerization(chain_intermediate)
                             if domain == list_tailoring_domains[-1]:
                                 copy_chain_intermediate = chain_intermediate.deepcopy()
                                 # copy_chain_intermediate.find_cycles()
@@ -340,6 +339,8 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             copy_chain_intermediate.find_cycles()
                             copy_attached = attach_to_domain_nrp(
                                 copy_chain_intermediate, 'PCP')
+                            after_reaction_filename = None
+
                             if domain == list_tailoring_domains[0]:
                                 before_reaction_filename = '2.png'
                                 after_reaction_filename = '3.png'
@@ -373,6 +374,9 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                                 # NRPS module
                                 if module == modules[-1]:
                                     chain_intermediate = copy_attached
+                        elif attach_to_acp:
+                            chain_intermediate = nrps_epimerization(chain_intermediate)
+
                     elif domain == 'nMT':
                         if draw_structures_per_module and attach_to_acp:
                             chain_intermediate = nrps_methylation(
@@ -429,6 +433,9 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                                 # NRPS module
                                 if module == modules[-1]:
                                     chain_intermediate = copy_attached
+
+                        elif attach_to_acp:
+                            chain_intermediate = nrps_methylation(chain_intermediate)
 
     # Reset the atom color in the final structure to black
     for atom in chain_intermediate.graph:

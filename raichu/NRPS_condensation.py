@@ -98,7 +98,29 @@ def set_nrps_central_chain_acid(acid):
             neighbour_in_ring = neighbour.in_ring(acid)
             if neighbour_in_ring:
                 ring_members += 1
-            if len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour not in visited and not (ring_members > 2 and neighbour_in_ring):
+            neighbour_found = False
+            if len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour.type == 'C' and neighbour not in visited \
+                    and not (ring_members > 2 and neighbour_in_ring):
+                neighbour.annotations.in_central_chain = True
+                visited.append(neighbour)
+                starting_point = neighbour
+                neighbour_found = True
+
+            if not neighbour_found and neighbour.type == 'C' and neighbour not in visited and \
+                    len(neighbour.get_non_hydrogen_bonds()) >= 2 and not (ring_members > 2 and neighbour_in_ring):
+                terminal_count = 0
+                for atom in neighbour.neighbours:
+                    if atom not in visited and len(atom.get_non_hydrogen_bonds()) == 1:
+                        terminal_count += 1
+
+                if len(neighbour.get_non_hydrogen_bonds()) - terminal_count == 2:
+                    neighbour.annotations.in_central_chain = True
+                    visited.append(neighbour)
+                    starting_point = neighbour
+                    neighbour_found = True
+
+            if not neighbour_found and len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour not in visited \
+                    and not (ring_members > 2 and neighbour_in_ring):
                 neighbour.annotations.in_central_chain = True
                 visited.append(neighbour)
                 starting_point = neighbour

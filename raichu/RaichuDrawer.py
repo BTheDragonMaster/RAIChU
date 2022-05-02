@@ -828,11 +828,11 @@ class RaichuDrawer(Drawer):
                 for neighbour in atom.neighbours:
                     atom_neighbours.append(neighbour)
                     atom_neighbour_types.append(neighbour.type)
+
                     if neighbour not in backbone_atoms and \
                             neighbour.type != 'H' and neighbour.type != 'S' and\
                             neighbour.type == 'O' and \
-                            self.structure.bond_lookup[neighbour][
-                                atom].type == 'double':
+                            self.structure.bond_lookup[neighbour][atom].type == 'double':
                         first_atom_sidechain = neighbour
                         connected_to_sidechain = True
                         if backbone_atoms[i - 1].draw.position.x < \
@@ -852,6 +852,7 @@ class RaichuDrawer(Drawer):
                         elif backbone_atoms[i - 1].draw.position.x > \
                                 backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'left'
+
                     elif neighbour not in backbone_atoms and \
                             neighbour.type != 'H' and neighbour.type != 'S' and \
                             neighbour.inside_ring and any(
@@ -865,6 +866,18 @@ class RaichuDrawer(Drawer):
                         elif backbone_atoms[i - 1].draw.position.x > \
                                 backbone_atoms[i].draw.position.x:
                             sidechain_orientation = 'diagonal_left'
+
+                    elif neighbour not in backbone_atoms and \
+                            neighbour.type != 'H' and neighbour.type != 'S' and \
+                            neighbour.in_ring(self.structure) and not atom.in_ring(self.structure):
+                        first_atom_sidechain = neighbour
+                        connected_to_sidechain = True
+                        if backbone_atoms[i - 1].draw.position.x < \
+                                backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'right'
+                        elif backbone_atoms[i - 1].draw.position.x > \
+                                backbone_atoms[i].draw.position.x:
+                            sidechain_orientation = 'left'
 
                     # If bond is directly connected to sidechain, check&rotate
                     if connected_to_sidechain:
@@ -1029,7 +1042,6 @@ class RaichuDrawer(Drawer):
     ### End NRPS rotation code
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
-        # print(line.atom_1, line.atom_2, midpoint, line.point_1, line.point_2)
         truncated_line = line.get_truncated_line(self.options.short_bond_length)
         self.plot_line_dashed(truncated_line, ax, color='#a6a6a6')
 

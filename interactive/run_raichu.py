@@ -19,7 +19,7 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     FattyAcidOptionButton, FattyAcidSuperOptionButton, ISO_BUTTON, ANTEISO_BUTTON, show_carbon_nr_buttons, \
     CIS_BUTTON, TRANS_BUTTON, UNDEFINED_BUTTON, CButton, SET_ISOFORM_BUTTON, StarterButton, ElongationButton, \
     PKS_STARTER_SUBSTRATE_BUTTONS, PROTEINOGENIC_BUTTON, FATTY_ACID_BUTTON, NON_PROTEINOGENIC_BUTTON, \
-    NON_AMINO_ACID_BUTTON, STARTER_BUTTON, ELONGATION_BUTTON, ExportTabularButton, SaveToTxtButton
+    NON_AMINO_ACID_BUTTON, STARTER_BUTTON, ELONGATION_BUTTON, ExportTabularButton, SaveToTxtButton, NRPS_WILDCARD_BUTTON
 from interactive.domain import Domain
 from interactive.module import Module
 from interactive.gene import Gene
@@ -157,14 +157,14 @@ class RaichuManager:
         elif type(button) == StarterButton:
             reset_buttons(self.screen, self.active_buttons)
             if self.selected_domain.module.type == 'NRPS':
-                show_buttons([FATTY_ACID_BUTTON, NON_AMINO_ACID_BUTTON], self.screen, self.active_buttons)
+                show_buttons([FATTY_ACID_BUTTON, NON_AMINO_ACID_BUTTON, NRPS_WILDCARD_BUTTON], self.screen, self.active_buttons)
             elif self.selected_domain.module.type == 'PKS':
                 show_buttons(PKS_STARTER_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
 
         elif type(button) == ElongationButton:
             reset_buttons(self.screen, self.active_buttons)
             if self.selected_domain.module.type == 'NRPS':
-                show_buttons([PROTEINOGENIC_BUTTON, NON_PROTEINOGENIC_BUTTON], self.screen, self.active_buttons)
+                show_buttons([PROTEINOGENIC_BUTTON, NON_PROTEINOGENIC_BUTTON, NRPS_WILDCARD_BUTTON], self.screen, self.active_buttons)
             elif self.selected_domain.module.type == 'PKS':
                 show_buttons(PKS_SUBSTRATE_BUTTONS, self.screen, self.active_buttons)
 
@@ -446,7 +446,7 @@ class RaichuManager:
             if self.selected_domain.type == 'A':
                 reset_buttons(self.screen, self.active_buttons)
                 show_buttons([STARTER_BUTTON, ELONGATION_BUTTON], self.screen, self.active_buttons)
-                #show_buttons(NRPS_SUPERGROUP_BUTTONS, self.screen, self.active_buttons)
+
             elif self.selected_domain.type == 'AT':
                 reset_buttons(self.screen, self.active_buttons)
                 show_buttons([STARTER_BUTTON, ELONGATION_BUTTON], self.screen, self.active_buttons)

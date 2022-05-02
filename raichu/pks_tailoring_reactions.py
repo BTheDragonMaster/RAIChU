@@ -29,12 +29,16 @@ def carbonyl_to_hydroxyl(double_bond):
 
     # Define the two electrons in the pi bond (inside the db) that needs
     # to be broken
+    electron_1 = None
+    electron_2 = None
     electrons_in_db = double_bond.electrons
     for electron in electrons_in_db:
         if electron.atom.type == 'O' and electron.orbital_type == 'p':
             electron_1 = electron
         elif electron.atom.type == 'C' and electron.orbital_type == 'p':
             electron_2 = electron
+
+    assert electron_1 and electron_2
 
     # Remove the pi electrons from their respective orbital
     orbital_1 = electron_1.orbital
@@ -56,7 +60,6 @@ def carbonyl_to_hydroxyl(double_bond):
             double_bond.electrons.remove(electron)
         elif electron == electron_2 and electron.orbital_type == 'p':
             double_bond.electrons.remove(electron)
-
 
     # Change hybridisation of both C and O atoms to sp3
     atom_1, atom_2 = double_bond.neighbours
@@ -112,6 +115,8 @@ def ketoreductase(chain_intermediate, kr_type=None):
     chiral_c = None
     chiral_c_locations = find_atoms(RECENT_REDUCTION_MMAL_CHIRAL_C, chain_intermediate)
 
+    new_single_bond = None
+
     # Identify beta-ketone bond, identify O- and C-atom participating in bond
     if kr_type in {'A1', 'A2', 'B1', 'B2', 'C2', None}:
 
@@ -141,7 +146,7 @@ def ketoreductase(chain_intermediate, kr_type=None):
             chain_intermediate.refresh_structure()
             carbonyl_carbon = chain_intermediate.get_atom(carbonyl_carbon)
 
-            if kr_type != None:
+            if kr_type:
                 h_atom = carbonyl_carbon.get_neighbour('H')
                 o_atom = carbonyl_carbon.get_neighbour('O')
                 c_atoms = carbonyl_carbon.get_neighbours('C')
@@ -209,7 +214,7 @@ def ketoreductase(chain_intermediate, kr_type=None):
 
     # Fix order atom neighbours for chiral methyl centre
     if chiral_c:
-        sulphur = None
+
         sulphur_locations = find_atoms(S_KR, chain_intermediate)
         assert len(sulphur_locations) == 1
         sulphur = sulphur_locations[0]
@@ -256,8 +261,8 @@ def ketoreductase(chain_intermediate, kr_type=None):
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
-    #Add colouring to the tailored group
-    if kr_type == None or kr_type.startswith('A') or kr_type.startswith('B'):
+    # Add colouring to the tailored group
+    if not kr_type or kr_type.startswith('A') or kr_type.startswith('B'):
         for atom in new_single_bond.neighbours:
             atom.draw.colour = 'red'
 
@@ -280,6 +285,11 @@ def dehydratase(chain_intermediate):
 
     # Find and define the atoms that participate in the bond changes
     co_bond = find_oh_dh(chain_intermediate)
+
+    c1 = None
+    c2 = None
+    o_oh = None
+
     for bond in co_bond[:]:
         for neighbour in bond.neighbours:
             if neighbour.type == 'C':
@@ -287,6 +297,7 @@ def dehydratase(chain_intermediate):
             elif neighbour.type == 'O':
                 o_oh = neighbour
     cc_bond = find_cc_dh(chain_intermediate)
+
     for bond in cc_bond[:]:
         bond.type = 'double'
         for neighbour in bond.neighbours:
@@ -302,6 +313,8 @@ def dehydratase(chain_intermediate):
     # chain_intermediate, oh = split
 
     # Remove H-atom from c1
+    bond_to_break = None
+    hydrogen = None
     for atom in chain_intermediate.graph:
         if atom == c1:
             for neighbour in atom.neighbours:
@@ -310,6 +323,9 @@ def dehydratase(chain_intermediate):
                     for bond in neighbour.bonds:
                         bond_to_break = bond
                     break
+
+    assert bond_to_break and hydrogen
+
     chain_intermediate.break_bond(bond_to_break)
     # split = chain_intermediate.split_disconnected_structures()
     # for structure in split:
@@ -334,10 +350,8 @@ def dehydratase(chain_intermediate):
     # Remove separate water structure from the Structure object
     one, two = chain_intermediate.split_disconnected_structures()
     if len(one.graph) == 3:
-        water = one
         chain_intermediate = two
     else:
-        water = two
         chain_intermediate = one
 
     # After double bond formation, remove chirality c1 and c2
@@ -353,24 +367,24 @@ def dehydratase(chain_intermediate):
             for bond in atom.bonds:
                 for neighbour in bond.neighbours:
                     if neighbour == c2:
-                        the_bond = bond
-    for atom in the_bond.neighbours:
-        atom.draw.colour = 'blue'
+                        for atom1 in bond.neighbours:
+                            atom1.draw.colour = 'blue'
+
     for atom in chain_intermediate.graph:
         if atom == c2:
             for bond in atom.bonds:
                 for neighbour in bond.neighbours:
                     if neighbour == c1:
-                        the_bond = bond
-    for atom in the_bond.neighbours:
-        atom.draw.colour = 'blue'
+                        for atom1 in bond.neighbours:
+                            atom1.draw.colour = 'blue'
 
-    #Refresh structure :)
+    # Refresh structure :)
     for atom in chain_intermediate.graph:
         atom.get_connectivity()
     chain_intermediate.set_atom_neighbours()
     chain_intermediate.set_connectivities()
     chain_intermediate.find_cycles()
+
     for bond_nr, bond in chain_intermediate.bonds.items():
         bond.set_bond_summary()
 
@@ -386,6 +400,11 @@ def form_double_bond(atom1, atom2, bond):
     bond: Bond object of the bond between atom1 and atom2
     """
     # Select the bonding electron in the first atom valence shell
+    electron_1 = None
+    electron_2 = None
+    orbital_1 = None
+    orbital_2 = None
+
     for orbital in atom2.valence_shell.orbitals:
         if len(orbital.electrons) == 1:
             orbital_2 = orbital
@@ -394,6 +413,8 @@ def form_double_bond(atom1, atom2, bond):
         if len(orbital.electrons) == 1:
             orbital_1 = orbital
             electron_1 = orbital.electrons[0]
+
+    assert electron_1 and electron_2 and orbital_1 and orbital_2
 
     # Add the lone electron of atom 1 to the orbital of atom 2 and vice versa
     orbital_1.add_electron(electron_2)
@@ -407,6 +428,13 @@ def form_double_bond(atom1, atom2, bond):
     atom1.valence_shell.hybridise('sp2')
     atom2.valence_shell.dehybridise()
     atom2.valence_shell.hybridise('sp2')
+
+    p_orbital_1 = None
+    electrons_in_p = []
+    p_orbital_2 = None
+    electrons_in_p_2 = []
+    electrons_in_sp2 = []
+    electrons_in_sp2_2 = []
 
     # Make sure that the electrons of the new bond are in type p orbitals
     # instead of sp2
@@ -441,11 +469,16 @@ def form_double_bond(atom1, atom2, bond):
             if atom2.valence_shell.atom == electron.atom:
                 electron.set_orbital(orbital)
 
-    #A dd the new electrons of the pi-bond to the Bond between the two atoms
+    newly_double_bond = None
+
+    # Add the new electrons of the pi-bond to the Bond between the two atoms
     for bond in atom1.bonds:
         for neighbour in bond.neighbours:
             if neighbour == atom2:
                 newly_double_bond = bond
+
+    assert newly_double_bond
+
     for orbital in atom1.valence_shell.orbitals:
         if orbital.orbital_type == 'p':
             for electron in orbital.electrons:
@@ -590,6 +623,3 @@ def find_double_cc(structure):
         bonds.append(bond)
 
     return bonds
-
-
-

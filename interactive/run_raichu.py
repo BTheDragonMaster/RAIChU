@@ -429,7 +429,10 @@ class RaichuManager:
                 os.replace(png_dir, new_file)
                 self.random_click(mouse)
             else:
-                directory = os.path.join(os.getcwd(), self.text_box.text)
+                if self.text_box.text.endswith('.txt'):
+                    directory = os.path.join(os.getcwd(), self.text_box.text)
+                else:
+                    directory = os.path.join(os.getcwd(), self.text_box.text + '.txt')
                 export_tabular(self.genes, directory)
                 self.random_click(mouse)
 

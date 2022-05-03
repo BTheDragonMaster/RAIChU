@@ -115,7 +115,7 @@ class Gene:
         new_module = Module(self.screen, insertion_point, module_type, self)
 
         starter_module = False
-        if insertion_point == 0:
+        if insertion_point == 0 and self.gene_number == 0:
             starter_module = True
 
         domains = None

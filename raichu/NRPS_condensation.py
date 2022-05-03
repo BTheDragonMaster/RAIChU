@@ -11,8 +11,15 @@ N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
 C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
 C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
+BETA_AMINO_ACID_BACKBONE = read_smiles('NCCC(=O)O')
+B_N_AMINO_ACID = GroupDefiner('Nitrogen atom beta amino acid', 'NCCC(=O)O', 0)
+B_C1_AMINO_ACID = GroupDefiner('C1 atom beta amino acid', 'NCCC(=O)O', 1)
+B_C2_AMINO_ACID = GroupDefiner('C2 atom beta amino acid', 'NCCC(=O)O', 2)
+B_C3_AMINO_ACID = GroupDefiner('C3 atom beta amino acid', 'NCCC(=O)O', 3)
+B_LEAVING_BOND = BondDefiner('beta leaving bond', 'NCCC(=O)O', 3, 5)
 ACID_C1 = GroupDefiner('C1 atom (fatty) acid', 'CC(=O)O', 0)
 ACID_C2 = GroupDefiner('C2 atom (fatty) acid', 'CC(=O)O', 1)
+
 
 def set_nrps_central_chain(peptide):
     if peptide.find_substructures(AMINO_ACID_BACKBONE):
@@ -29,6 +36,37 @@ def set_nrps_central_chain(peptide):
         c1_atoms_aa[0].annotations.in_central_chain = True
         c1_atoms_aa[0].annotations.chiral_c_ep = True
         c2_atoms_aa[0].annotations.in_central_chain = True
+    elif peptide.find_substructures(BETA_AMINO_ACID_BACKBONE):
+        n_atoms_aa = find_atoms(B_N_AMINO_ACID, peptide)
+        c1_atoms_aa = find_atoms(B_C1_AMINO_ACID, peptide)
+        c2_atoms_aa = find_atoms(B_C2_AMINO_ACID, peptide)
+        c3_atoms_aa = find_atoms(B_C3_AMINO_ACID, peptide)
+
+        assert len(n_atoms_aa) == 1
+        assert len(c1_atoms_aa) == 1
+        assert len(c2_atoms_aa) == 1
+        assert len(c3_atoms_aa) == 1
+
+        n_atoms_aa[0].annotations.in_central_chain = True
+        n_atoms_aa[0].annotations.n_atom_nmeth = True
+        c1_atoms_aa[0].annotations.in_central_chain = True
+        c1_atoms_aa[0].annotations.chiral_c_ep = True
+        c2_atoms_aa[0].annotations.in_central_chain = True
+        c3_atoms_aa[0].annotations.in_central_chain = True
+
+        bonds = find_bonds(B_LEAVING_BOND, peptide)
+        assert len(bonds) == 1
+        bond = bonds[0]
+        if bond.atom_1.type == 'O':
+            bond.atom_1.annotations.leaving_oh_o = True
+
+            bond.atom_2.annotations.leaving_oh_h = True
+
+        elif bond.atom_2.type == 'O':
+            bond.atom_2.annotations.leaving_oh_o = True
+
+            bond.atom_1.annotations.leaving_oh_h = True
+
     else:
         # If NRPS starter unit is a (fatty) acid instead of an amino acid
         acid = peptide
@@ -165,11 +203,6 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     if len(found_bonds_thioester) > 0:
         is_thioester = True
         nrp_intermediate, oh_bond = sulphur_to_hydroxyl(nrp_intermediate)
-        # for atom in nrp_intermediate.graph:
-        #     if not hasattr(atom.annotations, 'in_central_chain'):
-        #
-        #         for attribute in ATTRIBUTES:
-        #             atom.annotations.add_annotation(attribute, False)
 
     # Define reaction targets
     if not is_thioester:
@@ -178,11 +211,16 @@ def condensation_nrps(amino_acid, nrp_intermediate):
             assert len(found_bonds) == 1
             oh_bond = found_bonds[0]
         else:
+            oh_h_atom = None
+            oh_o_atom = None
             for atom in nrp_intermediate.graph:
                 if atom.annotations.leaving_oh_o:
                     oh_o_atom = atom
                 elif atom.annotations.leaving_oh_h:
                     oh_h_atom = atom
+
+            assert oh_h_atom
+            assert oh_o_atom
             oh_bond = nrp_intermediate.bond_lookup[oh_h_atom][oh_o_atom]
 
     assert oh_bond
@@ -190,8 +228,10 @@ def condensation_nrps(amino_acid, nrp_intermediate):
     # If the amino acid unit contains an unknown moiety, add a number to the
     # '*' atom to display in the structure drawing
     pk_chain_atom_types = []
+
     for atom in nrp_intermediate.graph:
         pk_chain_atom_types.append(atom.type)
+
     nr_unknown_atoms = pk_chain_atom_types.count('*')
     for atom in amino_acid.graph:
         if atom.type == '*':
@@ -199,7 +239,11 @@ def condensation_nrps(amino_acid, nrp_intermediate):
 
     # Define the bond attached to the -H leaving group
     n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
+    if not n_atoms_aa:
+        n_atoms_aa = find_atoms(B_N_AMINO_ACID, amino_acid)
+
     assert len(n_atoms_aa) == 1
+
     n_atom = n_atoms_aa[0]
 
     h_bond = None

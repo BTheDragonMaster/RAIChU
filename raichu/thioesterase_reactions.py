@@ -1,6 +1,7 @@
 import os
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
 from pikachu.reactions.basic_reactions import hydrolysis, internal_condensation
+from pikachu.general import structure_to_smiles, png_from_smiles
 
 from raichu.modules_to_structure import *
 
@@ -171,6 +172,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
     o_not_to_use = find_o_betapropriolactone(linear_product)
 
     list_product_drawings = []
+    circular_smiles = []
 
     # Perform all possible thioesterase reactions leading to the formation of
     # circular products using the internal amino groups, save Structure objects
@@ -180,6 +182,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
         linear_product_copy = linear_product.deepcopy()
         n_atom = linear_product_copy.get_atom(n_amino)
         product = thioesterase_circular_product(linear_product_copy, n_atom)
+        circular_smiles.append(structure_to_smiles(product))
         list_product_drawings.append(product)
 
     # Perform all possible thioesterase reactions leading to the formation of
@@ -191,23 +194,39 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
 
         if oh_atom != o_not_to_use:
             product = thioesterase_circular_product(linear_product_copy, oh_atom)
+            circular_smiles.append(structure_to_smiles(product))
             list_product_drawings.append(product)
 
     if out_folder:
+        smiles_path = os.path.join(out_folder, "product_smiles.txt")
+        smiles_file = open(smiles_path, 'w')
 
         file_path = os.path.join(out_folder, f"product_0.png")
+
         if os.path.exists(file_path):
             os.remove(file_path)
+
+        linear_smiles = structure_to_smiles(linear_product)
+        smiles_file.write(f"product_0\t{linear_smiles}\n")
+
+        #png_from_smiles(linear_smiles, file_path)
 
         drawing = RaichuDrawer(linear_product, save_png=file_path)
         drawing.draw_structure()
 
         for i, product in enumerate(list_product_drawings):
+            smiles = circular_smiles[i]
+            smiles_file.write(f"product_{i}\t{smiles}\n")
+
             file_path = os.path.join(out_folder, f"product_{i + 1}.png")
             if os.path.exists(file_path):
                 os.remove(file_path)
             drawing = RaichuDrawer(product, save_png=file_path)
             drawing.draw_structure()
+
+            #png_from_smiles(smiles, file_path)
+
+        smiles_file.close()
 
     else:
 

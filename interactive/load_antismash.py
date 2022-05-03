@@ -183,7 +183,10 @@ def parse_antismash_modules(antismash_gbk, screen):
                             elif 'PKS_AT' in domain:
                                 gene.modules[module_nr].add_domain('AT', domain_label=domain)
                             elif 'PKS_PP' in domain or 'ACP' in domain:
-                                gene.modules[module_nr].add_domain('ACP', domain_label=domain)
+                                if gene.modules[module_nr].type == 'NRPS':
+                                    gene.modules[module_nr].add_domain('PCP', domain_label=domain)
+                                else:
+                                    gene.modules[module_nr].add_domain('ACP', domain_label=domain)
                             elif 'PKS_KR' in domain:
                                 gene.modules[module_nr].add_domain('KR', domain_label=domain)
                             elif 'PKS_DH' in domain:
@@ -201,7 +204,10 @@ def parse_antismash_modules(antismash_gbk, screen):
                             elif 'nMT' in domain:
                                 gene.modules[module_nr].add_domain('nMT', domain_label=domain)
                             elif 'PCP' in domain:
-                                gene.modules[module_nr].add_domain('PCP', domain_label=domain)
+                                if gene.modules[module_nr].type == 'NRPS':
+                                    gene.modules[module_nr].add_domain('PCP', domain_label=domain)
+                                else:
+                                    gene.modules[module_nr].add_domain('ACP', domain_label=domain)
 
     return gene_name_to_genes
 

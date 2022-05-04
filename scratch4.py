@@ -85,9 +85,15 @@ clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 # # prod = nrps_methylation(prod)
 # RaichuDrawer(valine)
 
-clustje = [['module 1', 'starter_module_nrps', 'C(O)(=O)C(CCCCC=CCC)O', []],
-         ['module 2', 'elongation_module_pks', 'malonylcoa', []],
-         ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
-         ['module 4', 'elongation_module_pks', 'methoxymalonylacp', ['KR']],
-         ['module 5', 'terminator_module_nrps', 'valine', []]]
-draw_cluster(clustje)
+clustje = [['module 1', 'starter_module_pks', 'SC(C(C(O)=O)CC)=O', 'gene1'],
+         ['module 2', 'elongation_module_pks', 'malonylcoa', [], 'gene1'],
+         ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'], 'gene2'],
+         ['module 4', 'elongation_module_pks', 'methoxymalonylacp', ['KR'], 'gene2'],
+           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+            'gene2'],
+           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+            'gene2'],
+           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+            'gene2'],
+         ['module 5', 'terminator_module_pks', 'methoxymalonylacp', ['KR','DH','ER'], 'gene3']]
+draw_cluster(clustje, save_fig='TEST.png')

@@ -93,9 +93,9 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
     assert starter_module_type == 'starter_module_pks' or starter_module_type == 'starter_module_nrps'
     if starter_module_type == 'starter_module_pks':
-        assert len(starter_module) == 3
+        assert len(starter_module) == 4
     elif starter_module_type == 'starter_module_nrps':
-        assert len(starter_module) == 3 or len(starter_module) == 4
+        assert len(starter_module) == 4 or len(starter_module) == 5
 
     if len(starter_module) > 3:
         tailoring_domains = starter_module[3]
@@ -132,7 +132,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate,
                                                           'ACP')
 
-            module_name, module_type, elongation_unit, list_domains = module
+            module_name, module_type, elongation_unit, list_domains, gene_name = module
             assert elongation_unit in ALL_PKS_ELONGATION_UNITS
 
             # Reset atom colours in the first structure depicted to black
@@ -246,7 +246,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
         elif module[1] == 'elongation_module_nrps' or \
                 module[1] == 'terminator_module_nrps' or \
                 module[1] == 'starter_module_nrps':
-            module_name, module_type, aa_specifity, list_tailoring_domains = module
+            module_name, module_type, aa_specifity, list_tailoring_domains, gene_name = module
             if module[1] == 'starter_module_nrps':
                 starter_unit = get_substrate_structure(starter_module_smiles, dict_aa_smiles)
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)

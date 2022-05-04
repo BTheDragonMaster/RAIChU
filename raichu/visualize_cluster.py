@@ -1,5 +1,5 @@
 import matplotlib
-
+from random import choice
 from sys import platform
 if platform == 'darwin':
     matplotlib.use('TkAgg')
@@ -87,7 +87,8 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
     elongation_modules_with_mechanisms = []
     for module in pks_cluster:
         module_name = module[0]
-        module_list_domains = [module[0]]
+        gene_name = module[-1]
+        module_list_domains = [gene_name, module_name]
         module_type = module[1]
         if module_type == 'starter_module_pks':
             module_list_domains += ['AT', 'ACP']
@@ -168,11 +169,19 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
     global_figure = fig
 
     #Draw domains per module
+    module_txt_size = 15
+    gene_name_size = 12
+    font_modules = {'family': 'verdana', 'size': module_txt_size}
+    font_gene_name = {'family': 'verdana', 'size': gene_name_size}
     domain_text = []
-    x = 30
+    x = 60
+    x_start = 0
     index = 0
+    last_gene_name = None
     for module in list_all_domains:
-        module_name = module[0]
+        gene_name = module[0]
+        module_name = module[1]
+        del module[0]
         del module[0]
         for domain in module:
             domain_circle = make_circle(x, domain)
@@ -205,18 +214,26 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
                     length_line = x_max + 30
             x += 30
         x_module_name = (x_min + x_max) / 2
-        module_txt_size = 15
-        font_modules = {'family': 'verdana', 'size': module_txt_size}
+        colours = ['lightgrey']
+        if gene_name == last_gene_name:
+            x_start -= 30
+        elif gene_name != last_gene_name:
+            plt.text(x_start, 0, gene_name, ha='left', va='center', \
+                     fontdict=font_gene_name)
+        ax.plot([x_start, x_max], [0, 0], linewidth = 30, c=choice(colours), zorder = 0, solid_capstyle='round')
         plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
         fontdict = font_modules)
         x += 60
+        x_start = x - 60
+        last_gene_name = gene_name
+
 
     plt.axis('equal')
     plt.axis('off')
     fig.tight_layout()
 
     # Draw horizontal line
-    ax.plot([0, length_line], [0, 0], color='black', zorder=1)
+    #ax.plot([0, length_line], [0, 0], color='black', zorder=1)
 
     # Add module names
     domain_txt_size = (13)

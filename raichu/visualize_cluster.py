@@ -490,7 +490,7 @@ def draw_structures(drawer_objects, ax):
         ax.set_aspect('equal', adjustable='box')
         ax.axis('off')
 
-        drawer_object.line_width = 2
+        drawer_object.line_width = 1.5
 
         plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
 

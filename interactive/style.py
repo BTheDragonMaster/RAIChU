@@ -74,3 +74,7 @@ REPLACE_TEXT_FONT = pygame.font.SysFont(FONT, 14, bold=False)
 REPLACE_TEXT_1 = REPLACE_TEXT_FONT.render("This file destination already exists.", True, BLACK)
 REPLACE_TEXT_2 = REPLACE_TEXT_FONT.render("Are you sure you want to overwrite?", True, BLACK)
 
+FAILED_TEXT_1 = REPLACE_TEXT_FONT.render("Failed to render cluster.", True, BLACK)
+FAILED_TEXT_2 = REPLACE_TEXT_FONT.render("Check if starter units were used as elongation units.", True, BLACK)
+FAILED_TEXT_3 = REPLACE_TEXT_FONT.render("Failed to render products.", True, BLACK)
+

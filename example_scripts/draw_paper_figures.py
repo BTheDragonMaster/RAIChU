@@ -27,4 +27,5 @@ for i, drawing in enumerate(drawings):
 
     drawing.structure.refresh_structure()
     drawing.draw()
-    drawing.show_molecule()
+    drawing.save_svg("malonylcoa.svg")
+    break

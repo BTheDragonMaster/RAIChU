@@ -8,7 +8,7 @@ from interactive.buttons import make_buttons, get_mouse_button, Button, DomainBu
     show_domain_buttons, reset_buttons, AddDomainButton, ADD_DOMAIN_BUTTON, \
     REMOVE_MODULE_BUTTON, REMOVE_DOMAIN_BUTTON, RemoveDomainButton, RemoveModuleButton, RemoveGeneButton, \
     REMOVE_GENE_BUTTON, SELECT_SUBSTRATE_BUTTON, SelectSubstrateButton, SELECT_DOMAIN_TYPE_BUTTON, \
-    SelectDomainTypeButton, PKS_SUBSTRATE_BUTTONS, NRPS_SUPERGROUP_BUTTONS, SubstrateSupergroupButton,\
+    SelectDomainTypeButton, PKS_SUBSTRATE_BUTTONS, SubstrateSupergroupButton,\
     PROTEINOGENIC_BUTTONS, NON_PROTEINOGENIC_BUTTONS, FATTY_ACID_BUTTONS, NON_AMINO_ACID_BUTTONS, \
     ProteinogenicButton, NonProteinogenicButton, FattyAcidButton, NonAminoAcidButton, \
     PROTEINOGENIC_GROUP_TO_BUTTONS, NONPROTEINOGENIC_GROUP_TO_BUTTONS, FATTY_ACID_GROUP_TO_BUTTONS, \
@@ -27,7 +27,7 @@ from interactive.substrate import FattyAcid
 from interactive.insertion_point import InsertionPoint
 from interactive.render_cluster import render_cluster, render_products, export_tabular
 from interactive.style import RENDER_WINDOW_SIZE, WHITE, REPLACE_TEXT_1, REPLACE_TEXT_2, HEIGHT, WIDTH, \
-    SIZE, FATTY_ACID_IMAGE_SIZE
+    SIZE, FATTY_ACID_IMAGE_SIZE, FAILED_TEXT_1, FAILED_TEXT_3, FAILED_TEXT_2
 
 
 class RaichuManager:
@@ -285,37 +285,79 @@ class RaichuManager:
             self.reset_selections()
         elif type(button) == RenderProductsButton:
 
-            render_products(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu'))
-            product_dir = os.path.join(os.getcwd(), 'tmp_out_raichu')
+            try:
+
+                render_products(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu'))
+                product_dir = os.path.join(os.getcwd(), 'tmp_out_raichu')
+
+                product_images = []
+
+                for product_name in os.listdir(product_dir):
+                    if product_name.endswith('.png'):
+                        product_file = os.path.join(os.path.join(product_dir, product_name))
+                        product_image = pygame.image.load(product_file)
+                        product_images.append(product_image)
+
+                product_image_height = RENDER_WINDOW_SIZE[1] / 2
+                product_image_width = RENDER_WINDOW_SIZE[0] / 3
+
+                for i, image in enumerate(product_images):
+                    image_width = image.get_width()
+                    image_height = image.get_height()
+
+                    if image_width <= product_image_width and image_height > product_image_height:
+                        ratio = product_image_height / image_height
+                        image_width *= ratio
+                        image_height = product_image_height
+                    elif image_width > product_image_width and image_height <= product_image_height:
+                        ratio = product_image_width / image_width
+                        image_height *= ratio
+                        image_width = product_image_width
+                    elif image_width > product_image_width and image_height > product_image_height:
+                        ratio_1 = product_image_width / image_width
+                        ratio_2 = product_image_height / image_height
+                        if ratio_1 <= ratio_2:
+                            ratio = ratio_1
+                        else:
+                            ratio = ratio_2
+
+                        image_height *= ratio
+                        image_width *= ratio
+
+                    render_window_size = (int(image_width), int(image_height))
+
+                    self.product_images.append(pygame.transform.smoothscale(image, render_window_size))
+                hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
+                show_button(SAVE_PRODUCTS_BUTTON, self.screen, self.active_buttons)
+
+            except Exception as e:
+                print(e)
+                self.screen.blit(FAILED_TEXT_3, (0.42 * WIDTH, 0.52 * HEIGHT))
+                self.screen.blit(FAILED_TEXT_2, (0.42 * WIDTH, 0.57 * HEIGHT))
 
             self.reset_selections()
+        elif type(button) == RenderClusterButton:
 
-            product_images = []
+            try:
 
-            for product_name in os.listdir(product_dir):
-                if product_name.endswith('.png'):
-                    product_file = os.path.join(os.path.join(product_dir, product_name))
-                    product_image = pygame.image.load(product_file)
-                    product_images.append(product_image)
+                render_cluster(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
 
-            product_image_height = RENDER_WINDOW_SIZE[1] / 2
-            product_image_width = RENDER_WINDOW_SIZE[0] / 3
+                cluster_image = pygame.image.load(os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
 
-            for i, image in enumerate(product_images):
-                image_width = image.get_width()
-                image_height = image.get_height()
+                image_width = cluster_image.get_width()
+                image_height = cluster_image.get_height()
 
-                if image_width <= product_image_width and image_height > product_image_height:
-                    ratio = product_image_height / image_height
+                if image_width <= RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                    ratio = RENDER_WINDOW_SIZE[1] / image_height
                     image_width *= ratio
-                    image_height = product_image_height
-                elif image_width > product_image_width and image_height <= product_image_height:
-                    ratio = product_image_width / image_width
+                    image_height = RENDER_WINDOW_SIZE[1]
+                elif image_width > RENDER_WINDOW_SIZE[0] and image_height <= RENDER_WINDOW_SIZE[1]:
+                    ratio = RENDER_WINDOW_SIZE[0] / image_width
                     image_height *= ratio
-                    image_width = product_image_width
-                elif image_width > product_image_width and image_height > product_image_height:
-                    ratio_1 = product_image_width / image_width
-                    ratio_2 = product_image_height / image_height
+                    image_width = RENDER_WINDOW_SIZE[0]
+                elif image_width > RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
+                    ratio_1 = RENDER_WINDOW_SIZE[0] / image_width
+                    ratio_2 = RENDER_WINDOW_SIZE[1] / image_height
                     if ratio_1 <= ratio_2:
                         ratio = ratio_1
                     else:
@@ -326,43 +368,15 @@ class RaichuManager:
 
                 render_window_size = (int(image_width), int(image_height))
 
-                self.product_images.append(pygame.transform.smoothscale(image, render_window_size))
-            hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
-            show_button(SAVE_PRODUCTS_BUTTON, self.screen, self.active_buttons)
-        elif type(button) == RenderClusterButton:
+                self.cluster_image = pygame.transform.smoothscale(cluster_image, render_window_size)
+                hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
+                show_button(SAVE_CLUSTER_BUTTON, self.screen, self.active_buttons)
+            except Exception as e:
+                print(e)
+                self.screen.blit(FAILED_TEXT_1, (0.42 * WIDTH, 0.52 * HEIGHT))
+                self.screen.blit(FAILED_TEXT_2, (0.42 * WIDTH, 0.57 * HEIGHT))
 
-            render_cluster(self.genes, os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
             self.reset_selections()
-
-            cluster_image = pygame.image.load(os.path.join(os.getcwd(), 'tmp_out_raichu.png'))
-
-            image_width = cluster_image.get_width()
-            image_height = cluster_image.get_height()
-
-            if image_width <= RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
-                ratio = RENDER_WINDOW_SIZE[1] / image_height
-                image_width *= ratio
-                image_height = RENDER_WINDOW_SIZE[1]
-            elif image_width > RENDER_WINDOW_SIZE[0] and image_height <= RENDER_WINDOW_SIZE[1]:
-                ratio = RENDER_WINDOW_SIZE[0] / image_width
-                image_height *= ratio
-                image_width = RENDER_WINDOW_SIZE[0]
-            elif image_width > RENDER_WINDOW_SIZE[0] and image_height > RENDER_WINDOW_SIZE[1]:
-                ratio_1 = RENDER_WINDOW_SIZE[0] / image_width
-                ratio_2 = RENDER_WINDOW_SIZE[1] / image_height
-                if ratio_1 <= ratio_2:
-                    ratio = ratio_1
-                else:
-                    ratio = ratio_2
-
-                image_height *= ratio
-                image_width *= ratio
-
-            render_window_size = (int(image_width), int(image_height))
-
-            self.cluster_image = pygame.transform.smoothscale(cluster_image, render_window_size)
-            hide_buttons(ALL_BUTTONS, self.screen, self.active_buttons)
-            show_button(SAVE_CLUSTER_BUTTON, self.screen, self.active_buttons)
 
         elif type(button) == SaveProductsButton or type(button) == SaveClusterButton:
             self.reset_selections()

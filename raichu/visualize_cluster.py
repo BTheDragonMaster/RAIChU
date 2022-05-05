@@ -126,13 +126,25 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         list_all_domains += [module_list_domains]
 
     # Define height of window, based on max y coordinates largest structure
+    first_drawing = list_drawings_per_module[0][0]
     last_drawing = list_drawings_per_module[-1][0]
-    print(last_drawing)
-    last_drawing.structure.print_graph()
+
+    min_x_start = 100000000
+    max_x_start = -100000000
+
+    for atom in first_drawing.structure.graph:
+        if atom.draw.position.x > max_x_start:
+            max_x_start = atom.draw.position.x
+        if atom.draw.position.x < min_x_start:
+            min_x_start = atom.draw.position.x
+
+    max_start_width = (max_x_start - min_x_start)
+
     min_y = 100000000
     max_y = -100000000
     min_x = 100000000
     max_x = -100000000
+
     for atom in last_drawing.structure.graph:
         if atom.draw.position.y < min_y:
             min_y = atom.draw.position.y
@@ -143,15 +155,16 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         if atom.draw.position.x < min_x:
             min_x = atom.draw.position.x
     delta_y = max_y - min_y
+    max_width = (max_x - min_x) / 2
 
     padding = 40
+    x_padding = 60 + 0.5 * max_width
+    x_start_padding = 10 + 0.5 * max_start_width
 
     # Find line length to define the width of the window
     x = 30
     index = 0
     list_all_domains_copy = deepcopy(list_all_domains)
-
-    print(list_all_domains_copy)
 
     # deepcopy(list_all_domains)
 
@@ -168,25 +181,20 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
 
     height = max_y - min_y + 40
 
-    print(min_y, max_y)
-
     min_y_line = -15
     min_x_line = 0
     max_x_line = length_line
 
-    min_x = min([min_x_line, min_x])
-    min_y = min([min_y, min_y_line])
-    max_x = max([max_x_line, max_x])
+    min_x = min_x_line
+    max_x = max_x_line
     width = max_x - min_x
-    print("Width:", width)
 
 
     # Make fig
     # fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27) + 0.5))
-    fig, ax = plt.subplots(figsize=((width + 2 * padding) / 50.0, (height + 2 * padding) / 50.0), dpi=100)
+    fig, ax = plt.subplots(figsize=((width + x_start_padding + x_padding) / 50.0, (height + 2 * padding) / 50.0), dpi=100)
     ax.set_aspect('equal', adjustable='box')
 
-    print(min_x - padding, max_x + padding, min_y_line - padding, min_y_line + height + padding)
     thismanager = plt.get_current_fig_manager()
     # thismanager.window.wm_iconbitmap("raichu_r_icon.ico")
     thismanager.set_window_title('RAIChU - Visualization PKS/NRPS cluster')
@@ -283,7 +291,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         if atom.draw.position.y > max_y:
             max_y = atom.draw.position.y
 
-    ax.set_xlim([min_x - padding, max_x + padding])
+    ax.set_xlim([min_x - x_start_padding, max_x + x_padding])
     ax.set_ylim([min_y - padding - 40, min_y + height + padding])
 
     # Add molecules to pks cluster visualization
@@ -445,7 +453,6 @@ def set_domain_to_origin(drawer_object):
             domain = atom
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y
-            print("Domain y:", domain_y)
 
             atom.draw.position.x = 0
             atom.draw.position.y = -11

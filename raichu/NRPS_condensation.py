@@ -17,60 +17,71 @@ B_C1_AMINO_ACID = GroupDefiner('C1 atom beta amino acid', 'NCCC(=O)O', 1)
 B_C2_AMINO_ACID = GroupDefiner('C2 atom beta amino acid', 'NCCC(=O)O', 2)
 B_C3_AMINO_ACID = GroupDefiner('C3 atom beta amino acid', 'NCCC(=O)O', 3)
 B_LEAVING_BOND = BondDefiner('beta leaving bond', 'NCCC(=O)O', 3, 5)
+AMINO_FATTY_ACID = read_smiles('CCCCCCCC(=O)O')
 ACID_C1 = GroupDefiner('C1 atom (fatty) acid', 'CC(=O)O', 0)
 ACID_C2 = GroupDefiner('C2 atom (fatty) acid', 'CC(=O)O', 1)
 
 
-def set_nrps_central_chain(peptide):
-    if peptide.find_substructures(AMINO_ACID_BACKBONE):
-        n_atoms_aa = find_atoms(N_AMINO_ACID, peptide)
-        c1_atoms_aa = find_atoms(C1_AMINO_ACID, peptide)
-        c2_atoms_aa = find_atoms(C2_AMINO_ACID, peptide)
+def set_nrps_central_chain(peptide, module_type='elongation'):
+    as_normal = False
+    if module_type == 'starter':
+        if peptide.find_substructures(AMINO_FATTY_ACID):
+            acid = peptide
+            set_nrps_central_chain_acid(acid)
+        else:
+            as_normal = True
 
-        assert len(n_atoms_aa) == 1
-        assert len(c1_atoms_aa) == 1
-        assert len(c2_atoms_aa) == 1
+    if as_normal or module_type == 'elongation':
 
-        n_atoms_aa[0].annotations.in_central_chain = True
-        n_atoms_aa[0].annotations.n_atom_nmeth = True
-        c1_atoms_aa[0].annotations.in_central_chain = True
-        c1_atoms_aa[0].annotations.chiral_c_ep = True
-        c2_atoms_aa[0].annotations.in_central_chain = True
-    elif peptide.find_substructures(BETA_AMINO_ACID_BACKBONE):
-        n_atoms_aa = find_atoms(B_N_AMINO_ACID, peptide)
-        c1_atoms_aa = find_atoms(B_C1_AMINO_ACID, peptide)
-        c2_atoms_aa = find_atoms(B_C2_AMINO_ACID, peptide)
-        c3_atoms_aa = find_atoms(B_C3_AMINO_ACID, peptide)
+        if peptide.find_substructures(AMINO_ACID_BACKBONE):
+            n_atoms_aa = find_atoms(N_AMINO_ACID, peptide)
+            c1_atoms_aa = find_atoms(C1_AMINO_ACID, peptide)
+            c2_atoms_aa = find_atoms(C2_AMINO_ACID, peptide)
 
-        assert len(n_atoms_aa) == 1
-        assert len(c1_atoms_aa) == 1
-        assert len(c2_atoms_aa) == 1
-        assert len(c3_atoms_aa) == 1
+            assert len(n_atoms_aa) == 1
+            assert len(c1_atoms_aa) == 1
+            assert len(c2_atoms_aa) == 1
 
-        n_atoms_aa[0].annotations.in_central_chain = True
-        n_atoms_aa[0].annotations.n_atom_nmeth = True
-        c1_atoms_aa[0].annotations.in_central_chain = True
-        c1_atoms_aa[0].annotations.chiral_c_ep = True
-        c2_atoms_aa[0].annotations.in_central_chain = True
-        c3_atoms_aa[0].annotations.in_central_chain = True
+            n_atoms_aa[0].annotations.in_central_chain = True
+            n_atoms_aa[0].annotations.n_atom_nmeth = True
+            c1_atoms_aa[0].annotations.in_central_chain = True
+            c1_atoms_aa[0].annotations.chiral_c_ep = True
+            c2_atoms_aa[0].annotations.in_central_chain = True
+        elif peptide.find_substructures(BETA_AMINO_ACID_BACKBONE):
+            n_atoms_aa = find_atoms(B_N_AMINO_ACID, peptide)
+            c1_atoms_aa = find_atoms(B_C1_AMINO_ACID, peptide)
+            c2_atoms_aa = find_atoms(B_C2_AMINO_ACID, peptide)
+            c3_atoms_aa = find_atoms(B_C3_AMINO_ACID, peptide)
 
-        bonds = find_bonds(B_LEAVING_BOND, peptide)
-        assert len(bonds) == 1
-        bond = bonds[0]
-        if bond.atom_1.type == 'O':
-            bond.atom_1.annotations.leaving_oh_o = True
+            assert len(n_atoms_aa) == 1
+            assert len(c1_atoms_aa) == 1
+            assert len(c2_atoms_aa) == 1
+            assert len(c3_atoms_aa) == 1
 
-            bond.atom_2.annotations.leaving_oh_h = True
+            n_atoms_aa[0].annotations.in_central_chain = True
+            n_atoms_aa[0].annotations.n_atom_nmeth = True
+            c1_atoms_aa[0].annotations.in_central_chain = True
+            c1_atoms_aa[0].annotations.chiral_c_ep = True
+            c2_atoms_aa[0].annotations.in_central_chain = True
+            c3_atoms_aa[0].annotations.in_central_chain = True
 
-        elif bond.atom_2.type == 'O':
-            bond.atom_2.annotations.leaving_oh_o = True
+            bonds = find_bonds(B_LEAVING_BOND, peptide)
+            assert len(bonds) == 1
+            bond = bonds[0]
+            if bond.atom_1.type == 'O':
+                bond.atom_1.annotations.leaving_oh_o = True
 
-            bond.atom_1.annotations.leaving_oh_h = True
+                bond.atom_2.annotations.leaving_oh_h = True
 
-    else:
-        # If NRPS starter unit is a (fatty) acid instead of an amino acid
-        acid = peptide
-        set_nrps_central_chain_acid(acid)
+            elif bond.atom_2.type == 'O':
+                bond.atom_2.annotations.leaving_oh_o = True
+
+                bond.atom_1.annotations.leaving_oh_h = True
+
+        else:
+            # If NRPS starter unit is a (fatty) acid instead of an amino acid
+            acid = peptide
+            set_nrps_central_chain_acid(acid)
 
 
 def set_nrps_central_chain_acid(acid):
@@ -164,17 +175,36 @@ def set_nrps_central_chain_acid(acid):
                 starting_point = neighbour
 
             neighbours = []
-            for neighbour in starting_point.neighbours:
-                if neighbour not in visited:
-                    neighbours.append(neighbour)
+            for nb in starting_point.neighbours:
+                if nb not in visited:
+                    neighbours.append(nb)
 
-            if not any(len(atom.get_non_hydrogen_bonds()) == 2 for atom in neighbours) or (any(atom.in_ring(acid) for atom in neighbours) and neighbour_in_ring):
+            if any(atom.in_ring(acid) for atom in neighbours) and neighbour_in_ring:
                 endpoint = True
-
-                # Add the last atom in the chain to the central chain
                 for atom in neighbours:
                     if len(atom.get_non_hydrogen_bonds()) == 1:
                         atom.annotations.in_central_chain = True
+
+            elif not any(len(atom.get_non_hydrogen_bonds()) == 2 for atom in neighbours):
+
+                endpoint = True
+
+                for atom in neighbours:
+                    terminal_count = 0
+                    for atom_2 in atom.neighbours:
+                        if atom_2 not in visited and len(atom_2.get_non_hydrogen_bonds()) == 1:
+                            terminal_count += 1
+
+                    if len(atom.get_non_hydrogen_bonds()) - terminal_count == 2:
+                        endpoint = False
+                        break
+
+                if endpoint:
+
+                    # Add the last atom in the chain to the central chain
+                    for atom in neighbours:
+                        if len(atom.get_non_hydrogen_bonds()) == 1:
+                            atom.annotations.in_central_chain = True
 
 
 def condensation_nrps(amino_acid, nrp_intermediate):

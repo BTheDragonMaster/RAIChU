@@ -250,7 +250,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             if module[1] == 'starter_module_nrps':
                 starter_unit = get_substrate_structure(starter_module_smiles, dict_aa_smiles)
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-                set_nrps_central_chain(starter_unit)
+                set_nrps_central_chain(starter_unit, module_type='starter')
                 chain_intermediate = starter_unit
 
             if visualization_mechanism and attach_to_acp:

@@ -16,16 +16,16 @@ from copy import deepcopy
 
 
 # Colour dicts to match antiSMASH domain colouring
-colour_fill_dict = {'ACP':'#81bef7', 'AT':'#f78181', 'KS':'#81f781',
-                    'KR':'#80f680', 'DH':'#f7be81', 'ER':'#81f7f3',
-                    'TE':'#f5c4f2', 'KR*':'#80f680', 'C':'#8181f7',
-                    'A':'#bc7ff5', 'PCP':'#81bef7', 'E':'#8181f7',
-                    'nMT':'#dadada'}
-colour_outline_dict = {'ACP':'#3d79d6', 'AT':'#df5d5d', 'KS':'#5fc65f',
-                       'KR':'#5fbb87', 'DH':'#ca9862', 'ER':'#61bbad',
-                       'TE':'#a25ba0', 'KR*':'#5fbb87', 'C':'#5858b6',
-                       'A':'#74399b', 'PCP':'#306dd2', 'E':'#5858b6',
-                       'nMT':'#a2a2a2'}
+colour_fill_dict = {'ACP': '#81bef7', 'AT': '#f78181', 'KS': '#81f781',
+                    'KR': '#80f680', 'DH': '#f7be81', 'ER': '#81f7f3',
+                    'TE': '#f5c4f2', 'KR*': '#80f680', 'C': '#8181f7',
+                    'A': '#bc7ff5', 'PCP': '#81bef7', 'E': '#8181f7',
+                    'nMT': '#dadada'}
+colour_outline_dict = {'ACP': '#3d79d6', 'AT': '#df5d5d', 'KS': '#5fc65f',
+                       'KR': '#5fbb87', 'DH': '#ca9862', 'ER': '#61bbad',
+                       'TE': '#a25ba0', 'KR*': '#5fbb87', 'C': '#5858b6',
+                       'A': '#74399b', 'PCP': '#306dd2', 'E': '#5858b6',
+                       'nMT': '#a2a2a2'}
 
 
 
@@ -127,41 +127,66 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
 
     # Define height of window, based on max y coordinates largest structure
     last_drawing = list_drawings_per_module[-1][0]
+    print(last_drawing)
+    last_drawing.structure.print_graph()
     min_y = 100000000
     max_y = -100000000
+    min_x = 100000000
+    max_x = -100000000
     for atom in last_drawing.structure.graph:
         if atom.draw.position.y < min_y:
             min_y = atom.draw.position.y
         if atom.draw.position.y > max_y:
             max_y = atom.draw.position.y
+        if atom.draw.position.x > max_x:
+            max_x = atom.draw.position.x
+        if atom.draw.position.x < min_x:
+            min_x = atom.draw.position.x
     delta_y = max_y - min_y
 
+    padding = 40
 
     # Find line length to define the width of the window
     x = 30
     index = 0
     list_all_domains_copy = deepcopy(list_all_domains)
 
-    #deepcopy(list_all_domains)
+    print(list_all_domains_copy)
+
+    # deepcopy(list_all_domains)
+
     for module in list_all_domains_copy:
         del module[0]
+        del module[0]
         for domain in module:
-            if domain == 'ACP':
-                index += 1
-            if domain == 'PCP':
-                index += 1
-            if domain == module[0]:
-                x_min = x
             if domain == module[-1]:
                 x_max = x
                 if domain == module[-1]:
                     length_line = x_max + 30
-            x += 60
-        x += 30
+            x += 30
+        x += 60
+
+    height = max_y - min_y + 40
+
+    print(min_y, max_y)
+
+    min_y_line = -15
+    min_x_line = 0
+    max_x_line = length_line
+
+    min_x = min([min_x_line, min_x])
+    min_y = min([min_y, min_y_line])
+    max_x = max([max_x_line, max_x])
+    width = max_x - min_x
+    print("Width:", width)
+
 
     # Make fig
-    fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27) + 0.5))
+    # fig, ax = plt.subplots(figsize=((length_line / 70), (delta_y / 27) + 0.5))
+    fig, ax = plt.subplots(figsize=((width + 2 * padding) / 50.0, (height + 2 * padding) / 50.0), dpi=100)
     ax.set_aspect('equal', adjustable='box')
+
+    print(min_x - padding, max_x + padding, min_y_line - padding, min_y_line + height + padding)
     thismanager = plt.get_current_fig_manager()
     # thismanager.window.wm_iconbitmap("raichu_r_icon.ico")
     thismanager.set_window_title('RAIChU - Visualization PKS/NRPS cluster')
@@ -193,10 +218,10 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
                 # in interactive mode
                 first_line = lines.Line2D([x-9.899494937, x+9.899494937],
                                           [-9.899494937, 9.899494937],
-                                          axes = ax, color = 'mediumseagreen')
+                                          axes=ax, color='mediumseagreen')
                 second_line = lines.Line2D([x - 9.899494937, x + 9.899494937],
                                            [9.899494937, -9.899494937],
-                                           axes = ax, color = 'mediumseagreen')
+                                           axes=ax, color='mediumseagreen')
                 ax.add_line(first_line)
                 ax.add_line(second_line)
             domain_text.append([domain_txt, x])
@@ -218,19 +243,16 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         if gene_name == last_gene_name:
             x_start -= 30
         elif gene_name != last_gene_name:
-            plt.text(x_start, 0, gene_name, ha='left', va='center', \
-                     fontdict=font_gene_name)
-        ax.plot([x_start, x_max], [0, 0], linewidth = 30, c=choice(colours), zorder = 0, solid_capstyle='round')
-        plt.text(x_module_name, 30, module_name, ha = 'center', va = 'center',\
-        fontdict = font_modules)
+            plt.text(x_start, 0, gene_name, ha='left', va='center', fontdict=font_gene_name)
+        ax.plot([x_start, x_max], [0, 0], linewidth=30, c=choice(colours), zorder=0, solid_capstyle='round')
+        plt.text(x_module_name, 30, module_name, ha='center', va='center', fontdict=font_modules)
         x += 60
         x_start = x - 60
         last_gene_name = gene_name
 
-
-    plt.axis('equal')
+    # plt.axis('equal')
     plt.axis('off')
-    fig.tight_layout()
+    # fig.tight_layout()
 
     # Draw horizontal line
     #ax.plot([0, length_line], [0, 0], color='black', zorder=1)
@@ -240,8 +262,7 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
     for domain_x in domain_text:
         domain, x = domain_x
         font_domains = {'family': 'verdana', 'size': domain_txt_size}
-        plt.text(x, 0, domain, ha='center', va='center', \
-                 fontdict=font_domains)
+        plt.text(x, 0, domain, ha='center', va='center', fontdict=font_domains)
 
     # Change coordinates of all atoms of all structures to match cluster drawing
     list_drawings_correct_coord = []
@@ -251,9 +272,23 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
         push_drawing_to_right(drawer_obj, x_coord)
         list_drawings_correct_coord.append(drawer_obj)
 
+    min_y = 100000000
+    max_y = -100000000
+
+    last_correct_drawing = list_drawings_correct_coord[-1]
+
+    for atom in last_correct_drawing.structure.graph:
+        if atom.draw.position.y < min_y:
+            min_y = atom.draw.position.y
+        if atom.draw.position.y > max_y:
+            max_y = atom.draw.position.y
+
+    ax.set_xlim([min_x - padding, max_x + padding])
+    ax.set_ylim([min_y - padding - 40, min_y + height + padding])
+
     # Add molecules to pks cluster visualization
-    height = 400
-    draw_structures(list_drawings_correct_coord, fig, ax, height)
+
+    draw_structures(list_drawings_correct_coord, ax)
 
     # Add buttons to view reaction mechanisms per module if interactive
     if interactive:
@@ -269,10 +304,8 @@ def draw_cluster(pks_cluster, interactive=False, save_fig = False):
             global filenames_list
             filenames_list.append(mechanism_filename)
             rel_width_buttons = 1 / (nr_elongation_modules + 1)
-            ax_button = plt.axes([x_bottomleft, 0, rel_width_buttons,\
-            0.075], anchor='C')
-            module_button = Button(ax_button, label = module_name, \
-            color='#b3d8fa', hovercolor='#74abde')
+            ax_button = plt.axes([x_bottomleft, 0, rel_width_buttons, 0.075], anchor='C')
+            module_button = Button(ax_button, label = module_name, color='#b3d8fa', hovercolor='#74abde')
             module_button.label.set_fontsize(15)
             module_button.label.set_family('verdana')
             module_button.on_clicked(button_action)
@@ -397,6 +430,7 @@ def make_circle(x_coord, domain_type):
     , edgecolor = colour_outline_dict[domain_type], zorder = 2)
     return circle
 
+
 def set_domain_to_origin(drawer_object):
     """Accessory function that alters the coordinates of all atoms in the input
     Drawer object as such that the ACP/PCP domain has coordinates [0,0], after
@@ -408,10 +442,11 @@ def set_domain_to_origin(drawer_object):
     domain = None
     for atom in drawer_object.structure.graph:
         if type(atom) == Domain:
-        # if atom.annotations.domain_type:
             domain = atom
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y
+            print("Domain y:", domain_y)
+
             atom.draw.position.x = 0
             atom.draw.position.y = -11
 
@@ -441,8 +476,7 @@ def push_drawing_to_right(drawer_object, shift_to_right):
     return drawer_object
 
 
-
-def draw_structures(drawer_objects, fig, ax, height):
+def draw_structures(drawer_objects, ax):
     """Copied from the PIKAChU drawing.py script, used to draw the reaction
     intermediates in the canvas
 
@@ -450,30 +484,17 @@ def draw_structures(drawer_objects, fig, ax, height):
     fig, ax: matplotlib canvas to draw structures in
     height: height of the canvas
     """
-    min_x = 100000000
-    max_x = -100000000
-    min_y = 100000000
-    max_y = -100000000
+
     for i in range(len(drawer_objects)):
         drawer_object = drawer_objects[i]
-        #  fig, ax = plt.subplots()
         ax.set_aspect('equal', adjustable='box')
         ax.axis('off')
 
-        font_size = 3500 / height
-        drawer_object.line_width = 600 / height
+        drawer_object.line_width = 2
 
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
 
-        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0,
-                            hspace=0)
-
-        #  figure, ax = plt.subplots(figsize=(8, 8))
-        # ax.patch.set_face_color(drawer_object.options.background_color)
-        #  ax.set_aspect()('equal', adjustable='box')
-        #  plt.gca().set_aspect('equal', adjustable='box')
-
-        params = {'mathtext.default': 'regular',
-                  'font.size': font_size}
+        params = {'mathtext.default': 'regular'}
         plt.rcParams.update(params)
 
         ring_centers_x = []
@@ -485,16 +506,13 @@ def draw_structures(drawer_objects, fig, ax, height):
             ring_centers_x.append(ring.center.x)
             ring_centers_y.append(ring.center.y)
 
-        #   ax.scatter(ring_centers_x, ring_centers_y, color='blue')
-
         for bond_nr, bond in drawer_object.structure.bonds.items():
             if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
                 line = Line(bond.atom_1.draw.position,
                             bond.atom_2.draw.position, bond.atom_1,
                             bond.atom_2)
                 midpoint = line.get_midpoint()
-                truncated_line = line.get_truncated_line(
-                    drawer_object.options.short_bond_length)
+
                 if bond.type == 'single':
                     if bond in drawer_object.chiral_bonds:
                         orientation, chiral_center = \
@@ -510,8 +528,7 @@ def draw_structures(drawer_objects, fig, ax, height):
 
                 elif bond.type == 'double':
                     if not drawer_object.is_terminal(
-                            bond.atom_1) and not drawer_object.is_terminal(
-                        bond.atom_2):
+                            bond.atom_1) and not drawer_object.is_terminal(bond.atom_2):
                         drawer_object.plot_halflines(line, ax, midpoint)
 
                         common_ring_numbers = drawer_object.get_common_rings(

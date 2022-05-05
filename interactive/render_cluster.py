@@ -116,10 +116,16 @@ def get_raichu_cluster(genes):
 
                             module_type = 'terminator_module_pks'
 
-                if module_type == "starter_module_pks":
-                    cluster.append([module_name, module_type, substrate_specificity])
+                if not gene.name:
+                    gene_name = f"gene {i + 1}"
                 else:
-                    cluster.append([module_name, module_type, substrate_specificity, tailoring_domains])
+                    gene_name = gene.name
+
+                if module_type == "starter_module_pks":
+
+                    cluster.append([module_name, module_type, substrate_specificity, gene_name])
+                else:
+                    cluster.append([module_name, module_type, substrate_specificity, tailoring_domains, gene_name])
 
                 if last_domain:
                     last_gene = True

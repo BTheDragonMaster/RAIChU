@@ -29,14 +29,14 @@ clust = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 #          ['module 4', 'elongation_module_pks', 'methylmalonylcoa', ['KR']],
 #          ['module 5', 'elongation_module_pks', 'pk', []]]
 
-clust = [['module 1', 'starter_module_pks', 'SC(C1=CC=CC=C1)=O'],
-         ['module 2', 'elongation_module_pks', 'methylmalonylcoa', []],
-         ['module 3', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH', 'ER']],
-         ['module 4', 'elongation_module_nrps', 'glutamine', ['E']],
-         ['module 5', 'elongation_module_pks', 'malonylcoa', ['KR', 'DH']],
-         ['module 6', 'elongation_module_nrps', 'valine', ['E', 'nMT']],
-         ['module 7', 'terminator_module_nrps', 'serine', []]]
+clust = [['module 1', 'starter_module_pks', 'SC(C(C(O)=O)OC)=O', ''],
+ ['module 2', 'elongation_module_pks', 'ethylmalonylcoa', ['KR', 'DH', 'ER'], ''],
+ ['module 3', 'elongation_module_pks', 'malonylcoa', ['KR', 'DH', 'ER'], ''],
+ ['module 4', 'elongation_module_pks', 'methylmalonylcoa', ['KR', 'DH'], ''],
+ ['module 5', 'elongation_module_pks', 'methylmalonylcoa', ['KR'], ''],
+ ['module 6', 'terminator_module_pks', 'pk', ['KR'], '']]
 
+draw_cluster(clust)
 clust2 = [['module 1', 'starter_module_nrps', 'valine', ['nMT', 'E']],
           ['module 2', 'terminator_module_nrps', 'serine', ['E']],
           ['module 3', 'terminator_module_nrps', 'asparagine', ['nMT', 'E']],
@@ -85,15 +85,15 @@ clust_wrong = [['module 1', 'starter_module_pks', 'SC(=O)CC'],
 # # prod = nrps_methylation(prod)
 # RaichuDrawer(valine)
 
-clustje = [['module 1', 'starter_module_pks', 'SC(C(C(O)=O)CC)=O', 'gene1'],
-         ['module 2', 'elongation_module_pks', 'malonylcoa', [], 'gene1'],
-         ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'], 'gene2'],
-         ['module 4', 'elongation_module_pks', 'methoxymalonylacp', ['KR'], 'gene2'],
-           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
-            'gene2'],
-           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
-            'gene2'],
-           ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
-            'gene2'],
-         ['module 5', 'terminator_module_pks', 'methoxymalonylacp', ['KR','DH','ER'], 'gene3']]
-draw_cluster(clustje, save_fig='TEST.png')
+# clustje = [['module 1', 'starter_module_pks', 'SC(C(C(O)=O)CC)=O', 'gene1'],
+#          ['module 2', 'elongation_module_pks', 'malonylcoa', [], 'gene1'],
+#          ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'], 'gene2'],
+#          ['module 4', 'elongation_module_pks', 'methoxymalonylacp', ['KR'], 'gene2'],
+#            ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+#             'gene2'],
+#            ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+#             'gene2'],
+#            ['module 3', 'elongation_module_nrps', 'valine', ['E', 'nMT'],
+#             'gene2'],
+#          ['module 5', 'terminator_module_pks', 'methoxymalonylacp', ['KR','DH','ER'], 'gene3']]
+# draw_cluster(clustje, save_fig='TEST.png')

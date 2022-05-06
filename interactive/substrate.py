@@ -155,25 +155,30 @@ NON_AMINO_ACIDS = {'Aromatic': ["2-carboxyquinoxaline",
                                 "hydroxypicolinicacid",
                                 "phenylaceticacid",
                                 "salicylicacid"],
-                   'Cyclic': ["cycloOrnithine",
-                              "D-cycloOrnithine",
-                              "homoserinelactone",
-                              "D-homoserinelactone"],
+                   # 'Cyclic': ["cycloOrnithine",
+                   #            "D-cycloOrnithine",
+                   #            "homoserinelactone",
+                   #            "D-homoserinelactone"],
                    'Other': ["2-hydroxyisovalerate",
                              "D-2-hydroxyisovalerate",
                              "3-aminopropanimidamide",
-                             "Alaninol",
+                             # "Alaninol",
                              "alpha-ketoisocaproicacid",
-                             "alpha-ketoisovalericacid",
+                             # "alpha-ketoisovalericacid",
                              "Glycocyamine",
-                             "Glycolicacid",
-                             "valinol"]}
+                             "Glycolicacid"]
+                             # "valinol"]
+                   }
 
-FATTY_ACIDS = {'Amino group': ['2-Amino-9,10-epoxy-8-oxodecanoidacid',
-                               'D-methyl-2-aminooctanoicacid',
-                               'methyl-2-aminooctanoicacid'],
-                               
-               'No amino group': [],
+# FATTY_ACIDS = {'Amino group': ['2-Amino-9,10-epoxy-8-oxodecanoidacid',
+#                                'D-methyl-2-aminooctanoicacid',
+#                                'methyl-2-aminooctanoicacid'],
+#
+#                'No amino group': [],
+#                'Custom': []}
+
+FATTY_ACIDS = {'Amino group': ['methyl-2-aminooctanoicacid',
+                               'D-methyl-2-aminooctanoicacid'],
                'Custom': []}
 
 

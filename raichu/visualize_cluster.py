@@ -38,7 +38,7 @@ global_nr_elongation_modules = 0
 global_final_polyketide_Drawer_object = 0
 
 
-def draw_cluster(pks_cluster, interactive=False, save_fig = False):
+def draw_cluster(pks_cluster, interactive=False, save_fig=False):
     """
     Displays a visualization of the module- and domain architecture of the
     input PKS cluster

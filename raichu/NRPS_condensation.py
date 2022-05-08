@@ -306,6 +306,8 @@ def condensation_nrps(amino_acid, nrp_intermediate):
         atom.annotations.chiral_c_ep = False
         atom.annotations.n_atom_nmeth = False
         atom.annotations.c2_acid = False
+        atom.annotations.leaving_oh_h = False
+        atom.annotations.leaving_oh_o = False
 
     # Carry out condensation reaction using build-in PIKAChU function
     condensation_product = condensation(nrp_intermediate, amino_acid, oh_bond, h_bond)[0]

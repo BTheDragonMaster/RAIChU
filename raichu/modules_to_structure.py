@@ -125,10 +125,15 @@ def cluster_to_structure(modules, visualization_mechanism=False,
         if module[1] == 'elongation_module_pks' or module[1] == 'terminator_module_pks':
             # If last reaction was an NRPS reaction
             locations = chain_intermediate.find_substructures(read_smiles('C(=O)(O)CN'))
-            if len(locations) > 0:
+            b_locations = chain_intermediate.find_substructures(read_smiles('C(=O)(O)CCN'))
+            asp_locations = chain_intermediate.find_substructures(read_smiles('C(=O)(O)CC(C=O)N'))
+            mal_amino_c_locations = chain_intermediate.find_substructures(read_smiles('NC(=O)CC(O)=O'))
+
+            location_nr = len(locations) + len(b_locations) - len(asp_locations) - len(mal_amino_c_locations)
+            if location_nr > 0:
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
 
-            if any(atom.annotations.c2_acid for atom in chain_intermediate.graph):
+            elif any(atom.annotations.c2_acid for atom in chain_intermediate.graph):
                 chain_intermediate = attach_to_domain_nrp(chain_intermediate,
                                                           'ACP')
 

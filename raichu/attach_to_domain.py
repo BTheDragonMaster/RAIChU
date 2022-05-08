@@ -8,7 +8,9 @@ POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
 B_AMINO_ACID_BACKBONE = read_smiles('NCCC(=O)O')
+ASP_ACID_C = GroupDefiner('Asp', 'NC(C=O)CC(O)=O', 5)
 B_NRP_C = GroupDefiner('Beta C atom to attach to PCP domain', 'NCCC(O)=O', 3)
+MAL_AMINO = GroupDefiner('malonyl_starter_amino', 'NC(=O)CC(O)=O', 4)
 
 
 def attach_to_domain_pk(polyketide, domain_type):
@@ -84,6 +86,15 @@ def attach_to_domain_nrp(nrp, domain_type):
         c_atom_to_domain = locations_c_to_domain[0]
     elif nrp.find_substructures(B_AMINO_ACID_BACKBONE):
         locations_c_to_domain = find_atoms(B_NRP_C, nrp)
+        asp_acid_cs = find_atoms(ASP_ACID_C, nrp)
+        mal_amino_cs = find_atoms(MAL_AMINO, nrp)
+
+        for asp_acid_c in asp_acid_cs:
+            if asp_acid_c in locations_c_to_domain:
+                locations_c_to_domain.remove(asp_acid_c)
+        for mal_amino_c in mal_amino_cs:
+            if mal_amino_c in locations_c_to_domain:
+                locations_c_to_domain.remove(mal_amino_c)
         assert len(locations_c_to_domain) == 1
         c_atom_to_domain = locations_c_to_domain[0]
     else:

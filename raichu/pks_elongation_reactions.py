@@ -1,4 +1,4 @@
-from pikachu.general import read_smiles
+from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import BondDefiner, combine_structures
 from raichu.central_atoms_pk_starter import find_central_atoms_pk_starter
 from raichu.attributes import ATTRIBUTES
@@ -28,6 +28,7 @@ def pks_elongation(pk_chain, elongation_monomer):
     # central chain atoms in the starter unit
     if not any(atom.annotations.in_central_chain for atom in pk_chain.graph):
         pk_chain = find_central_atoms_pk_starter(pk_chain)
+        print("not here")
 
     # Reset atom colours to black
     for atom in pk_chain.graph:
@@ -72,7 +73,6 @@ def pks_elongation(pk_chain, elongation_monomer):
             if atom.type == '*':
                 atom.annotations.unknown_index = nr_unknown_atoms + 1
 
-
     # Remove the Hs in the malonylunit in order to add it to the pk chain
     elongation_monomer_struct.remove_atom(h_to_remove)
     elongation_monomer_struct.set_atom_neighbours()
@@ -85,6 +85,8 @@ def pks_elongation(pk_chain, elongation_monomer):
     pk_chain.set_connectivities()
     pk_chain.refresh_structure()
     thioester_bonds = find_bonds(pk_chain, THIOESTERBOND)
+    print(thioester_bonds)
+
     assert len(thioester_bonds) == 1
     for bond in thioester_bonds:
         if bond.atom_1.type == 'S':

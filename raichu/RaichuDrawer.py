@@ -69,7 +69,6 @@ class RaichuDrawer(Drawer):
                             best_bond = rotatable_bonds[i]
                             optimal_distance = distance
 
-
                 if best_bond:
                     best_bonds.append(best_bond)
 
@@ -1037,8 +1036,9 @@ class RaichuDrawer(Drawer):
                 if bond.atom_1.annotations.in_central_chain or\
                         bond.atom_2.annotations.in_central_chain:
                     central_chain_bonds.add(bond)
-            self.resolve_secondary_overlaps(sorted_overlap_scores)
+
             self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
+            self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     ### End NRPS rotation code
 

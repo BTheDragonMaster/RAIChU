@@ -20,8 +20,8 @@ erythromycin_bgc = [['module 0', 'starter_module_pks', 'SC(=O)CC'],
                     ['module 5', 'elongation_module_pks', 'methylmalonylcoa', ['KR_A1']],
                     ['module 6', 'terminator_module_pks', 'methylmalonylcoa', ['KR_A1']]]
 
-
-draw_cluster(clust, interactive=True)
+clust = [['module 1', 'starter_module_nrps', 'dehydro-cysteine', ['E'], ''], ['module 2', 'elongation_module_nrps', 'd-tyrosine', ['nMT', 'E'], ''], ['module 3', 'elongation_module_nrps', 'norcoronamicacid', ['nMT'], ''], ['module 4', 'elongation_module_nrps', 'd-asparticacid', [], ''], ['module 5', 'elongation_module_nrps', 'n-acetylphenylalanine', ['E'], ''], ['module 6', 'elongation_module_nrps', 'homotyrosine', ['nMT'], ''], ['module 7', 'elongation_module_nrps', 'd-cysteine', [], ''], ['module 8', 'elongation_module_nrps', 'methionine', ['E'], ''], ['module 9', 'elongation_module_nrps', 'isovaline', ['E'], ''], ['module 10', 'terminator_module_nrps', '(r)beta-tyrosine', ['nMT', 'E'], '']]
+draw_cluster(clust, save_fig="testy.png")
 
 # products = cluster_to_structure(clust, visualization_mechanism=True, attach_to_acp=True, draw_mechanism_per_module=True)
 # print(products)

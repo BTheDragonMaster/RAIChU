@@ -2,7 +2,7 @@ from raichu.class_domain import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner, combine_structures
 from pikachu.reactions.basic_reactions import condensation
 from raichu.attributes import ATTRIBUTES
-from pikachu.general import read_smiles, draw_structure
+from pikachu.general import read_smiles
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)

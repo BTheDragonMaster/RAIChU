@@ -1040,7 +1040,7 @@ class RaichuDrawer(Drawer):
             self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
             self.resolve_secondary_overlaps(sorted_overlap_scores)
 
-    ### End NRPS rotation code
+    # End NRPS rotation code
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
         truncated_line = line.get_truncated_line(self.options.short_bond_length)

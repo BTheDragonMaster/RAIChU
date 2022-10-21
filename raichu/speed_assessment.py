@@ -1,4 +1,4 @@
-from raichu.create_random_clusters import *
+from validation.create_random_clusters import *
 import time
 
 if __name__ == "__main__":

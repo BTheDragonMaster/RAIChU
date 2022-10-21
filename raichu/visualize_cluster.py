@@ -7,10 +7,9 @@ if platform == 'darwin':
 from matplotlib.patches import Circle
 from matplotlib.widgets import Button
 import matplotlib.lines as lines
-import matplotlib.image as mpimg
 
-from raichu.RaichuDrawer import *
-from raichu.thioesterase_reactions import *
+from raichu.drawing.RaichuDrawer import *
+from raichu.reactions.thioesterase_reactions import *
 
 from copy import deepcopy
 
@@ -449,7 +448,7 @@ def set_domain_to_origin(drawer_object):
     """
     domain = None
     for atom in drawer_object.structure.graph:
-        if type(atom) == Domain:
+        if type(atom) == CarrierDomain:
             domain = atom
             domain_x = atom.draw.position.x
             domain_y = atom.draw.position.y

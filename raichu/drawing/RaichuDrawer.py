@@ -2,25 +2,25 @@ from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
 
-from raichu.find_central_chain import find_central_chain
+from raichu.central_chain_detection.find_central_chain import find_central_chain
 
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=False, dpi=100, save_svg = None):
+                 coords_only=False, dpi=100, save_svg=None):
         self.dont_show = dont_show
         self.dpi = dpi
-        if options == None:
+        if options is None:
             self.options = Options()
         else:
             self.options = options
-        if save_png == None:
+        if save_png is None:
             self.save_png = None
         else:
             # Check if filename is valid
             assert save_png.endswith('.png')
             self.save_png = save_png
-        if save_svg == None:
+        if save_svg is None:
             self.save_svg = None
         else:
             # Check if filename is valid
@@ -500,10 +500,10 @@ class RaichuDrawer(Drawer):
         # If a png filename is included in the initialization of the
         # Raichu_drawer object, don't show the structure, but do save it as a
         # png image to the provided filename
-        if self.dont_show == True:
+        if self.dont_show:
             return self
 
-        elif self.save_png == None and self.dont_show == False and self.save_svg == None:
+        elif self.save_png is None and not self.dont_show and self.save_svg is None:
             plt.show()
 
         else:

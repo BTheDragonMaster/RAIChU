@@ -13,5 +13,6 @@ setup(
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     package_data={"": ["*.png", "*.svg", "*.txt"]},
-    install_requires=[],
+    install_requires=['matplotlib',
+                      'pikachu-chem'],
     scripts=["bin/raichu"],)

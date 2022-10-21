@@ -1,8 +1,9 @@
 from pikachu.chem.structure import *
 from pikachu.chem.atom import AtomAnnotations, AtomDrawProperties, Atom
-from raichu.attributes import ATTRIBUTES
+from raichu.data.attributes import ATTRIBUTES
 
-class Domain(Atom):
+
+class CarrierDomain(Atom):
     def __init__(self, atom_type, atom_nr, chiral, charge, aromatic):
         super().__init__(atom_type, atom_nr, chiral, charge, aromatic)
         self.type = atom_type
@@ -19,7 +20,7 @@ class Domain(Atom):
         return self.nr
 
     def __eq__(self, domain):
-        if type(domain) == Domain:
+        if type(domain) == CarrierDomain:
             return self.nr == domain.nr
         else:
             return False
@@ -28,7 +29,7 @@ class Domain(Atom):
         print(self.domain_type)
 
     def copy(self):
-        domain_copy = Domain(self.type, self.nr, self.chiral, self.charge, self.aromatic)
+        domain_copy = CarrierDomain(self.type, self.nr, self.chiral, self.charge, self.aromatic)
         domain_copy.hybridisation = self.hybridisation
         domain_copy.pyrrole = self.pyrrole
         domain_copy.furan = self.furan
@@ -70,7 +71,7 @@ def make_domain(domain_type, next_atom_nr):
     domain_type: Str, domain type
     next_atom_nr: Int, 'atom nr' of the domain in the structure
     """
-    domain = Domain('I', next_atom_nr, None, 0, False)
+    domain = CarrierDomain('I', next_atom_nr, None, 0, False)
     domain.set_domain_type(domain_type)
     return domain
 
@@ -85,7 +86,7 @@ def make_scaffold_domain(domain_type):
     """
     structure = Structure()
 
-    domain = Domain('I', 0, None, 0, False)
+    domain = CarrierDomain('I', 0, None, 0, False)
     domain.set_domain_type(domain_type)
 
     structure.add_disconnected_atom(domain)

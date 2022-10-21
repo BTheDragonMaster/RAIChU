@@ -83,7 +83,10 @@ def n_methylate(nrp):
 
     assert len(n_meth_locations) < 2
 
+    product = None
+
     if len(n_meth_locations) == 1:
+
         n_meth = n_meth_locations[0]
 
         # Check if the N atom has a hydrogen group necessary for the reaction, and
@@ -99,6 +102,8 @@ def n_methylate(nrp):
 
     else:
         product = nrp
+
+    assert product
 
     return product
 

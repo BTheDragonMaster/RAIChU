@@ -18,7 +18,7 @@ class ModuleType(Enum):
     @staticmethod
     def from_string(label: str) -> "ModuleType":
         for value in ModuleType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown module type: {label}")
 
@@ -32,9 +32,9 @@ class PKSModuleSubtype(Enum):
     @staticmethod
     def from_string(label: str) -> "PKSModuleSubtype":
         for value in PKSModuleSubtype:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
-            raise ValueError(f"Unknown PKS module subtype: {label}")
+        raise ValueError(f"Unknown PKS module subtype: {label}")
 
 
 @unique
@@ -44,13 +44,16 @@ class NRPSDomainType(Enum):
     PCP = 3
     E = 4
     nMT = 5
+    TE = 6
+    TD = 7
+    UNKNOWN = 8
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":
         for value in NRPSDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
-            raise ValueError(f"Unknown NRPS domain type: {label}")
+        raise ValueError(f"Unknown NRPS domain type: {label}")
 
 
 @unique
@@ -61,13 +64,16 @@ class PKSDomainType(Enum):
     KR = 4
     DH = 5
     ER = 6
+    TE = 7
+    TD = 8
+    UNKNOWN = 9
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
         for value in PKSDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
-            raise ValueError(f"Unknown PKS domain type: {label}")
+        raise ValueError(f"Unknown PKS domain type: {label}")
 
 
 class _Module:
@@ -99,9 +105,9 @@ class _Module:
 
         for domain in self.domains:
             if self.type.name == 'NRPS':
-                assert domain.type.name in [v for v in NRPSDomainType]
+                assert domain.type.name in [v.name for v in NRPSDomainType]
             if self.type.name == 'PKS':
-                assert domain.type.name in [v for v in PKSDomainType]
+                assert domain.type.name in [v.name for v in PKSDomainType]
 
             if domain.used and domain.active:
                 if isinstance(domain, TailoringDomain):
@@ -159,36 +165,40 @@ class _Module:
 
         return
 
-    def do_pks_tailoring(self, structure: Structure) -> None:
+    def do_pks_tailoring(self, structure: Structure) -> Structure:
         kr_domain = self.get_tailoring_domain("KR")
         dh_domain = self.get_tailoring_domain("DH")
         er_domain = self.get_tailoring_domain("ER")
 
         if kr_domain and kr_domain.active:
             assert kr_domain.subtype is not None
-            kr_domain.do_tailoring(structure)
+            structure = kr_domain.do_tailoring(structure)
             if not kr_domain.subtype.name == 'C1' and not kr_domain.subtype.name == 'C2':
                 if dh_domain and dh_domain.active:
-                    dh_domain.do_tailoring(structure)
+                    structure = dh_domain.do_tailoring(structure)
                     if er_domain and er_domain.active:
-                        er_domain.do_tailoring(structure)
+                        structure = er_domain.do_tailoring(structure)
 
-    def do_nrps_tailoring(self, structure: Structure) -> None:
+        return structure
+
+    def do_nrps_tailoring(self, structure: Structure) -> Structure:
         e_domain = self.get_tailoring_domain('E')
         n_mt_domain = self.get_tailoring_domain('nMT')
 
         if e_domain and e_domain.active:
-            e_domain.do_tailoring(structure)
+            structure = e_domain.do_tailoring(structure)
         if n_mt_domain and n_mt_domain.active:
-            n_mt_domain.do_tailoring(structure)
+            structure = n_mt_domain.do_tailoring(structure)
+
+        return structure
 
     def release_chain(self, structure: Structure) -> Structure:
         assert structure
         assert self.termination_domain
 
-        self.termination_domain.release_chain(structure)
+        released_structure = self.termination_domain.release_chain(structure)
 
-        return structure
+        return released_structure
 
 
 class LinearPKSModule(_Module):
@@ -203,10 +213,9 @@ class LinearPKSModule(_Module):
             label_pk_central_chain(starter_unit)
             structure = attach_to_domain_pk(starter_unit)
         else:
-            elongation_unit = read_smiles(self.recognition_domain.substrate.smiles)
-            structure = self.synthesis_domain.do_elongation(structure, elongation_unit)
+            structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-        self.do_pks_tailoring(structure)
+        structure = self.do_pks_tailoring(structure)
 
         return structure
 
@@ -222,7 +231,7 @@ class IterativePKSModule(_Module):
 
 
 class TransATPKSModule(_Module):
-    def __init__(self, nr, domains, substrate_name="wildcard", starter=False, terminator=False) -> None:
+    def __init__(self, nr, domains, substrate_name="MALONYL_COA", starter=False, terminator=False) -> None:
         super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_TRANS")
         if not self.recognition_domain:
             self.recognition_domain = RecognitionDomain("DUMMY_AT", substrate_name)
@@ -244,9 +253,8 @@ class NRPSModule(_Module):
             label_nrp_central_chain(starter_unit)
             structure = attach_to_domain_nrp(starter_unit)
         else:
-            elongation_unit = read_smiles(self.recognition_domain.substrate.smiles)
-            structure = self.synthesis_domain.do_elongation(structure, elongation_unit)
+            structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-        self.do_nrps_tailoring(structure)
+        structure = self.do_nrps_tailoring(structure)
 
         return structure

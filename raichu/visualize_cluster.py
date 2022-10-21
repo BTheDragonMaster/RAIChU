@@ -8,8 +8,8 @@ from matplotlib.patches import Circle
 from matplotlib.widgets import Button
 import matplotlib.lines as lines
 
-from raichu.drawing.RaichuDrawer import *
-from raichu.reactions.thioesterase_reactions import *
+from raichu.drawing.drawer import *
+from raichu.reactions.chain_release import *
 
 from copy import deepcopy
 

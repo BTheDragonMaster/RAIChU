@@ -1,7 +1,7 @@
 from raichu.class_domain import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner, combine_structures
 from pikachu.reactions.basic_reactions import condensation
-from raichu.data.attributes import ATTRIBUTES
+from raichu.reactions.general import initialise_atom_attributes
 from pikachu.general import read_smiles
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
@@ -21,10 +21,7 @@ def attach_to_domain_pk(polyketide):
     polyketide: PIKAChU Structure object, to-be attached structure
     """
     # Add attributes to input molecule
-    for atom in polyketide.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(polyketide)
 
     # Create domain
     domain = make_scaffold_domain('ACP')
@@ -55,6 +52,7 @@ def attach_to_domain_pk(polyketide):
             break
 
     assert tethered_polyketide
+    initialise_atom_attributes(tethered_polyketide)
 
     return tethered_polyketide
 
@@ -67,10 +65,7 @@ def attach_to_domain_nrp(nrp):
     nrp: PIKAChU Structure object, to-be attached NRP
     """
 
-    for atom in nrp.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(nrp)
 
     # Create domain
     domain = make_scaffold_domain('PCP')
@@ -124,10 +119,7 @@ def attach_to_domain_nrp(nrp):
 
     structure = condensation(nrp, domain, hydroxyl_bond, hydrogen_bond)[0]
 
-    for atom in structure.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(structure)
 
     return structure
 

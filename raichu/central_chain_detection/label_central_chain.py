@@ -1,8 +1,9 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, find_bonds
 from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
+from raichu.reactions.general import initialise_atom_attributes
 from raichu.attach_to_domain import attach_to_domain_pk
-from raichu.data.attributes import AMINO_FATTY_ACID, AMINO_ACID_BACKBONE, N_AMINO_ACID, C1_AMINO_ACID, \
+from raichu.data.molecular_moieties import AMINO_FATTY_ACID, AMINO_ACID_BACKBONE, N_AMINO_ACID, C1_AMINO_ACID, \
     C2_AMINO_ACID, BETA_AMINO_ACID_BACKBONE, B_N_AMINO_ACID, B_C1_AMINO_ACID, B_C2_AMINO_ACID, B_C3_AMINO_ACID, \
     B_LEAVING_BOND, ACID_C1
 
@@ -16,7 +17,8 @@ def label_pk_central_chain(pk_starter_unit):
 
     pk_starter_unit: PIKAChU Structure object of the PK starter unit
     """
-    pk_starter_unit.find_cycles()
+
+    initialise_atom_attributes(pk_starter_unit)
     central_chain = []
     visited = []
 
@@ -32,65 +34,64 @@ def label_pk_central_chain(pk_starter_unit):
         if neighbour.type == 'C':
             chain_carbon = neighbour
             end_carbon = False
-            central_chain += [chain_carbon]
+            central_chain.append(chain_carbon)
             visited.append(chain_carbon)
+
             while not end_carbon:
                 for next_atom in chain_carbon.neighbours:
                     ethyl_branch = False
                     inside_cycle = False
                     methyl_group = False
-                    next_atom_neighbour_types = []
 
                     # Build lists of neighbouring atom types
                     if next_atom.type == 'C' and next_atom not in visited:
-                        c_neighbours = []
-                        for neighbor in next_atom.neighbours:
-                            next_atom_neighbour_types.append(neighbor.type)
-                            if neighbor.type == 'C':
-                                c_neighbours.append(neighbor)
+
+                        # Keep track of carbon neighbours
 
                         # Confirm carbon doesn't belong to ethyl sidebranch
                         types = []
-                        if len(c_neighbours) == 2 and 'O' not in \
-                                next_atom_neighbour_types:
+                        c_neighbours = next_atom.get_neighbours('C')
+                        if len(c_neighbours) == 2 and next_atom.get_neighbour('O') is None:
+
                             for atom in c_neighbours:
-                                neighbours_atom = atom.neighbours
-                                for neighbour in neighbours_atom:
+                                for neighbour in atom.neighbours:
                                     types.append(neighbour.type)
+
                             if types.count('H') == 4 and types.count('C') == 4:
                                 ethyl_branch = True
-                            for c_atom in c_neighbours:
-                                if c_atom not in visited and c_atom != next_atom:
+
+                            for atom in c_neighbours:
+                                if atom not in visited and atom != next_atom:
                                     ethyl_branch = False
+
                             visited.append(chain_carbon)
 
                         # Carbon in a terminal carboxylic acid group is the
                         # final carbon in the central chain
-                        if next_atom_neighbour_types.count('O') == 2:
+                        if len(next_atom.get_neighbours('O')) == 2:
                             central_chain.append(next_atom)
                             end_carbon = True
                             visited.append(chain_carbon)
 
                         # Confirm carbon is not part of cycle
                         if len(c_neighbours) == 2:
-                            if all(atom.in_ring(pk_starter_unit)
-                                   for atom in c_neighbours):
+                            if all(atom.in_ring(pk_starter_unit) for atom in c_neighbours):
+                                print(15)
                                 visited.append(next_atom)
                                 inside_cycle = True
+                                end_carbon = True
 
                         # Case if carbon is part of a benzene ring
-                        if len (c_neighbours) == 3 and \
-                                len(next_atom_neighbour_types) == 3:
+                        if len(c_neighbours) == 3 and len(next_atom.neighbours) == 3:
                             # central_chain.append(next_atom) #added 10/04/2021
                             visited.append(next_atom)
                             inside_cycle = True
                             end_carbon = True
 
                         # Case where the PK starter ends in two methyl branches
-                        if next_atom_neighbour_types.count(
-                                'C') == 3 and \
-                                next_atom_neighbour_types.count('H') == 1:
+                        if len(next_atom.get_neighbours('C')) == 3 and len(next_atom.get_neighbours('H')) == 1:
                             nr_methyl_brances = 0
+                            methyl_carbon = None
                             for c_neighbour in c_neighbours:
                                 c_neighbour_neighbour_types = []
                                 for c_neighbour_neighbour \
@@ -100,7 +101,9 @@ def label_pk_central_chain(pk_starter_unit):
                                 if c_neighbour_neighbour_types.count('H') == 3:
                                     methyl_carbon = c_neighbour
                                     nr_methyl_brances += 1
+
                             if nr_methyl_brances == 2:
+                                assert methyl_carbon is not None
                                 methyl_group = True
                                 visited.append(next_atom)
                                 central_chain.append(next_atom)
@@ -109,13 +112,11 @@ def label_pk_central_chain(pk_starter_unit):
                                 end_carbon = True
 
                         # Confirm carbon doesn't belong to methyl sidebranch
-                        if next_atom_neighbour_types.count('H') == 3 or (
-                                next_atom_neighbour_types.count(
-                                        'H') == 2 and next_atom_neighbour_types.count(
-                                '*') == 1):
+                        if len(next_atom.get_neighbours('H')) == 3 or \
+                                (len(next_atom.get_neighbours('H')) == 2 and len(next_atom.get_neighbours('*')) == 1):
                             methyl_group = True
 
-                            # Terminal methylgroup is not a sidebranch:
+                            # Terminal methyl group is not a side branch:
                             count_c_neighbours_not_visited = 0
                             for neighbouring_atom in chain_carbon.neighbours:
                                 if neighbouring_atom.type == 'C' and neighbouring_atom not in visited:
@@ -156,6 +157,8 @@ def label_pk_central_chain(pk_starter_unit):
 
 
 def label_nrp_central_chain(peptide, module_type='elongation'):
+    initialise_atom_attributes(peptide)
+
     as_normal = False
     if module_type == 'starter':
         if peptide.find_substructures(AMINO_FATTY_ACID):

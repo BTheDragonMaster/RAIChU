@@ -158,8 +158,6 @@ class RaichuDrawer(Drawer):
             ring_centers_x.append(ring.center.x)
             ring_centers_y.append(ring.center.y)
 
-
-
         for bond_nr, bond in self.structure.bonds.items():
             if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
                 line = Line(bond.atom_1.draw.position,

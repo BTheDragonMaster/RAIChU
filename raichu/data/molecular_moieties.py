@@ -4,10 +4,10 @@ from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner
 from raichu.reactions.general import initialise_atom_attributes
 
-import interactive.flatfiles
+import raichu.data
 
-FLATFILES = os.path.dirname(interactive.flatfiles.__file__)
-AA_SMILES = os.path.join(FLATFILES, "../PARAS_smiles.txt")
+FLATFILES = os.path.dirname(raichu.data.__file__)
+AA_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
 
 class PksElongationUnit:
@@ -22,6 +22,7 @@ class PksElongationUnit:
         self.smiles = smiles
         self.structure = read_smiles(self.smiles)
         initialise_atom_attributes(self.structure)
+        self.structure.refresh_structure()
 
         self.c_to_pk_intermediate = None
         self.c_to_s = None
@@ -34,8 +35,12 @@ class PksElongationUnit:
 
         assert self.c_to_pk_intermediate is not None and self.c_to_s is not None
 
-        self.c_to_pk_intermediate.attributes.in_central_chain = True
-        self.c_to_s.attributes.in_central_chain = True
+        self.c_to_pk_intermediate.annotations.in_central_chain = True
+        self.c_to_s.annotations.in_central_chain = True
+
+        if self.smiles == 'O=CCC':
+            # TODO: CHECK CHIRALITY ACTUALLY WORKS!!!!
+            self.c_to_pk_intermediate.chiral = 'clockwise'
 
 
 def parse_smiles():
@@ -44,11 +49,11 @@ def parse_smiles():
     PARAS_smiles.txt file
     """
     # Parse list SMILES amino acids attached to PCP to dict name -> Structure
-    lines_aa = open(AA_SMILES, 'r', encoding='utf8').readlines()
     name_to_smiles = {}
     with open(AA_SMILES, 'r', encoding='utf8') as paras_smiles:
         for line in paras_smiles:
             line = line.strip()
+            print(line)
             name, smiles = line.split('\t')
             name = name.upper()
             name_to_smiles[name] = smiles
@@ -56,22 +61,11 @@ def parse_smiles():
     return name_to_smiles
 
 
-NAME_TO_ELONGATION_MONOMER = {'malonylcoa': PksElongationUnit('Malonyl CoA', 'CC=O', 0, 1),
-                              'methylmalonylcoa': PksElongationUnit('Methylmalonyl CoA', 'O=CCC', 2, 1),
-                              'methoxymalonylacp': PksElongationUnit("Methoxymalonyl CoA", 'O=CCOC', 2, 1),
-                              'ethylmalonylcoa': PksElongationUnit("Ethylmalonyl CoA", 'O=CCCC', 2, 1),
-                              'pk': PksElongationUnit("Wildcard", 'O=CC*', 2, 1)
-                              }
-
-NAME_TO_SMILES = parse_smiles()
-
-name_to_smiles = {'MALONYLCOA': "CC(=O)S",
-                  'METHYLMALONYLCOA': "CCC(=O)S",
-                  'METHOXYMALONYLCOA': "COCC(=O)S",
-                  'ETHYLMALONYLCOA': "CCCC(=O)S",
-                  'PK': "[*]CC(=O)S"}
-
-NAME_TO_SMILES.update(name_to_smiles)
+NAME_TO_ELONGATION_MONOMER = {'MALONYL_COA': PksElongationUnit('Malonyl CoA', 'CC=O', 0, 1),
+                              'METHYLMALONYL_COA': PksElongationUnit('Methylmalonyl CoA', 'O=CCC', 2, 1),
+                              'METHOXYMALONYL_ACP': PksElongationUnit("Methoxymalonyl ACP", 'O=CCOC', 2, 1),
+                              'ETHYLMALONYL_COA': PksElongationUnit("Ethylmalonyl CoA", 'O=CCCC', 2, 1),
+                              'WILDCARD': PksElongationUnit("Wildcard", 'O=CC*', 2, 1)}
 
 
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)

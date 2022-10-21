@@ -1,5 +1,6 @@
 from typing import Union
 from pikachu.chem.structure import Structure
+from pikachu.general import read_smiles
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
 from raichu.reactions.pks_tailoring_reactions import ketoreduction, enoylreduction, dehydration
 from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate
@@ -52,20 +53,20 @@ class TailoringDomain(Domain):
 
         super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
 
-    def do_tailoring(self, structure) -> None:
+    def do_tailoring(self, structure) -> Structure:
         """
         Performs tailoring reaction
         """
         if self.type.name == 'KR':
-            ketoreduction(structure, self.subtype)
+            return ketoreduction(structure, self.subtype)
         elif self.type.name == 'DH':
-            dehydration(structure)
+            return dehydration(structure)
         elif self.type.name == 'ER':
-            enoylreduction(structure)
+            return enoylreduction(structure)
         elif self.type.name == 'E':
-            epimerize(structure)
+            return epimerize(structure)
         elif self.type.name == 'nMT':
-            n_methylate(structure)
+            return n_methylate(structure)
         else:
             raise Warning(f"Tailoring domain {self.domain_name} not recognised by RAIChU. Ignored.")
 
@@ -86,16 +87,18 @@ class SynthesisDomain(Domain):
         super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
         self.is_elongating = is_elongating
 
-    def do_elongation(self, structure, building_block) -> Structure:
+    def do_elongation(self, structure, substrate) -> Structure:
         """
         Performs elongation reaction
         """
         if self.type.name == 'C' or self.type.name == "DUMMY_C":
             if self.is_elongating:
+                building_block = read_smiles(substrate.smiles)
                 return nrps_elongation(building_block, structure)
         elif self.type.name == 'KS' or self.type.name == "DUMMY_KS":
             if self.is_elongating:
-                if self.subtype.name == 'CIS' or self.subtype is None or self.subtype.name == 'UNKNOWN':
+                if self.subtype is None or self.subtype.name == 'CIS' or self.subtype.name == 'UNKNOWN':
+                    building_block = substrate.elongation_monomer
                     return pks_elongation(structure, building_block)
                 else:
                     raise ValueError(f"RAIChU does not support domain subtype {self.subtype.name}")

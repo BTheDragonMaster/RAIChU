@@ -6,8 +6,8 @@ from raichu.domain.domain_types import KRDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
 
 
-RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=CCC(=O)S', 0, 1)
-RECENT_REDUCTION_COH = BondDefiner('recent_reduction_C-OH', 'OCCC(=O)S', 0, 1)
+RECENT_ELONGATION = BondDefiner('recent_elongation', 'O=C(C)CC(=O)S', 0, 1)
+RECENT_REDUCTION_COH = BondDefiner('recent_reduction_C-OH', 'OC(C)CC(=O)S', 0, 1)
 RECENT_REDUCTION_MMAL_CHIRAL_C = GroupDefiner('recent_reduction_mmal_chiral_c', 'CCC(C(=O)S)C', 2)
 RECENT_REDUCTION_C = GroupDefiner('recent_reduction_mal', 'OCCC(=O)S', 2)
 RECENT_REDUCTION_CC = BondDefiner('recent_reduction_C-C', 'OCCC(=O)S', 1, 2)
@@ -15,7 +15,7 @@ RECENT_DEHYDRATION = BondDefiner('recent_dehydration', 'SC(C=CC)=O', 2, 3)
 S_KR = GroupDefiner('C1 atom before KR reaction', 'SC(C)=O', 0)
 
 
-def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> None:
+def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Structure:
     """
     Performs the ketoreductase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -25,7 +25,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> No
     """
 
     if kr_type.name == 'C1':
-        return
+        return chain_intermediate
 
     chiral_c = None
 
@@ -37,7 +37,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> No
     beta_ketone_bonds = find_bonds(RECENT_ELONGATION, chain_intermediate)
 
     if not len(beta_ketone_bonds) == 1:
-        return
+        return chain_intermediate
 
     beta_ketone_bond = beta_ketone_bonds[0]
 
@@ -86,21 +86,21 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> No
 
         counterclockwise_order = [h_atom, o_atom, top_c, bottom_c]
 
-        if kr_type.startswith('A'):
+        if kr_type.name.startswith('A'):
 
             if same_chirality(counterclockwise_order, carbonyl_carbon.neighbours):
                 carbonyl_carbon.chiral = 'clockwise'
             else:
                 carbonyl_carbon.chiral = 'counterclockwise'
 
-        elif kr_type.startswith('B'):
+        elif kr_type.name.startswith('B'):
             if same_chirality(counterclockwise_order, carbonyl_carbon.neighbours):
                 carbonyl_carbon.chiral = 'counterclockwise'
             else:
                 carbonyl_carbon.chiral = 'clockwise'
 
         # If the type of KR domain is not known, the chirality of the carbonyl carbon is set to None
-        elif kr_type == "UNKNOWN":
+        elif kr_type.name == "UNKNOWN":
             carbonyl_carbon.chiral = None
 
         else:
@@ -147,25 +147,26 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> No
 
         clockwise_order = [first_sidechain_atom, c_1, c_3, hydrogen]
 
-        if kr_type.endswith('1'):
+        if kr_type.name.endswith('1'):
             if same_chirality(clockwise_order, chiral_c.neighbours):
                 chiral_c.chiral = 'clockwise'
             else:
                 chiral_c.chiral = 'counterclockwise'
-        elif kr_type.endswith('2'):
+        elif kr_type.name.endswith('2'):
             if same_chirality(clockwise_order, chiral_c.neighbours):
                 chiral_c.chiral = 'counterclockwise'
             else:
                 chiral_c.chiral = 'clockwise'
-        elif kr_type == "UNKNOWN":
+        elif kr_type.name == "UNKNOWN":
             chiral_c.chiral = None
         else:
             raise ValueError(f'KR domain of type {kr_type.name} is not supported by RAIChU or does not exist')
 
     chain_intermediate.refresh_structure()
+    return chain_intermediate
 
 
-def dehydration(chain_intermediate: Structure) -> None:
+def dehydration(chain_intermediate: Structure) -> Structure:
     """
     Performs the dehydratase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -179,7 +180,7 @@ def dehydration(chain_intermediate: Structure) -> None:
     cc_bonds = find_bonds(RECENT_REDUCTION_CC, chain_intermediate)
 
     if not len(co_bonds) == 1 or not len(cc_bonds) == 1:
-        return
+        return chain_intermediate
 
     c1 = None
     c2 = None
@@ -221,7 +222,7 @@ def dehydration(chain_intermediate: Structure) -> None:
 
     # Patch. When the bond is broken, the electron is not removed from
     # the orbitals of the C atom.
-    c1 = chain_intermediate.get_atom(c1.nr)
+    c1 = chain_intermediate.get_atom(c1)
 
     # Make double c1=c2 bond
     chain_intermediate.bond_lookup[c1][c2].make_double()
@@ -239,8 +240,10 @@ def dehydration(chain_intermediate: Structure) -> None:
 
     chain_intermediate.refresh_structure()
 
+    return chain_intermediate
 
-def enoylreduction(chain_intermediate: Structure) -> None:
+
+def enoylreduction(chain_intermediate: Structure) -> Structure:
     """
     Performs the enoylreductase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -256,7 +259,7 @@ def enoylreduction(chain_intermediate: Structure) -> None:
     # Find double bond, change to single bond
     double_cc_bonds = find_bonds(RECENT_DEHYDRATION, chain_intermediate)
     if not len(double_cc_bonds) == 1:
-        return
+        return chain_intermediate
 
     double_cc_bond = double_cc_bonds[0]
     double_cc_bond.make_single()
@@ -271,3 +274,4 @@ def enoylreduction(chain_intermediate: Structure) -> None:
     # TODO: Set chirality depending on ER domain subtype
 
     chain_intermediate.refresh_structure()
+    return chain_intermediate

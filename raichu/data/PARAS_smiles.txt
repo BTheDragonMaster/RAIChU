@@ -153,5 +153,5 @@ Beta-hydroxycyclohex-2-enylalanine	O[C@@H](C1C=CCCC1)C(N)C(O)=O
 alpha-ketoisovalericacid	CC(C)C(=O)C(=O)O
 2-methyl-beta-alanine	NC[C@@H](C)C(O)=O
 Glycocyamine	C(C(=O)O)N=C(N)N
-nrp NC(C(=O)O)[*]
-4-methylglutamicacid    C([H])([C@H](C([H])(C(=O)O)N)C)C(=O)O
+nrp	NC(C(=O)O)[*]
+4-methylglutamicacid	C([H])([C@H](C([H])(C(=O)O)N)C)C(=O)O

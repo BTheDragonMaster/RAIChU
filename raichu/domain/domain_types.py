@@ -16,9 +16,9 @@ class DomainSuperClass(Enum):
     @staticmethod
     def from_string(label: str) -> "DomainSuperClass":
         for value in DomainSuperClass:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
-            raise ValueError(f"Unknown domain superclass: {label}")
+        raise ValueError(f"Unknown domain superclass: {label}")
 
 
 @unique
@@ -34,9 +34,9 @@ class RecognitionDomainType(Enum):
     @staticmethod
     def from_string(label: str) -> "RecognitionDomainType":
         for value in RecognitionDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
-            raise ValueError(f"Unknown recognition domain type: {label}")
+        raise ValueError(f"Unknown recognition domain type: {label}")
 
 
 @unique
@@ -52,7 +52,7 @@ class TerminationDomainType(Enum):
     @staticmethod
     def from_string(label: str) -> "TerminationDomainType":
         for value in TerminationDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown termination domain type: {label}")
 
@@ -70,7 +70,7 @@ class SynthesisDomainType(Enum):
     @staticmethod
     def from_string(label: str) -> "SynthesisDomainType":
         for value in SynthesisDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown synthesis domain type: {label}")
 
@@ -88,7 +88,7 @@ class CarrierDomainType(Enum):
     @staticmethod
     def from_string(label: str) -> "CarrierDomainType":
         for value in CarrierDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown carrier domain type: {label}")
 
@@ -108,7 +108,7 @@ class TailoringDomainType(Enum):
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":
         for value in TailoringDomainType:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown tailoring domain type: {label}")
 
@@ -129,7 +129,7 @@ class KRDomainSubtype(Enum):
     @staticmethod
     def from_string(label: str) -> "KRDomainSubtype":
         for value in KRDomainSubtype:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown KR domain subtype: {label}")
 
@@ -145,7 +145,7 @@ class KSDomainSubtype(Enum):
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":
         for value in KSDomainSubtype:
-            if str(value) == label:
+            if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown KS domain subtype: {label}")
 

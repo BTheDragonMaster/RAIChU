@@ -1,19 +1,6 @@
-from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import combine_structures
-from raichu.central_chain_detection.label_central_chain import label_pk_central_chain
-from raichu.data.attributes import ATTRIBUTES
-from raichu.data.molecular_moieties import COABOND, THIOESTERBOND
+from raichu.data.molecular_moieties import THIOESTERBOND
 from raichu.reactions.general import label_rest_groups
-
-
-PKS_SUBUNIT_TO_MONOMER = {'malonylcoa': ['CC=O', 0, 1],
-                          'methylmalonylcoa': ['O=CCC', 2, 1],
-                          'methoxymalonylacp': ['O=CCOC', 2, 1],
-                          'ethylmalonylcoa': ['O=CCCC', 2, 1],
-                          'pk': ['O=CC*', 2, 1]}
-
-
-UNKNOWN_KS = "**Unknown_KS**"
 
 
 def pks_elongation(chain_intermediate, elongation_monomer):
@@ -33,10 +20,6 @@ def pks_elongation(chain_intermediate, elongation_monomer):
     # Reset atom colours to black
     for atom in chain_intermediate.graph:
         atom.draw.colour = 'black'
-
-    if elongation_monomer.smiles == 'O=CCC':
-        # TODO: CHECK CHIRALITY ACTUALLY WORKS!!!!
-        elongation_monomer.c_to_pk_intermediate.chiral = 'clockwise'
 
     h_to_remove_1 = None
     h_to_remove_2 = None
@@ -68,7 +51,7 @@ def pks_elongation(chain_intermediate, elongation_monomer):
             s_pkchain = bond.atom_2
             c_pkchain = bond.atom_1
 
-    new_structure = combine_structures([elongation_monomer, chain_intermediate])
+    new_structure = combine_structures([elongation_monomer.structure, chain_intermediate])
 
     # Remove the Hs in the malonyl derivative in order to add it to the pk chain
     elongation_monomer.structure.remove_atom(new_structure.get_atom(h_to_remove_1))
@@ -88,7 +71,7 @@ def pks_elongation(chain_intermediate, elongation_monomer):
 
     # Refresh malonylunit
 
-    elongation_monomer.refresh_structure()
+    elongation_monomer.structure.refresh_structure()
 
     # Combining structures PK chain and elongation unit into one Structure object
     pk_chain_and_malonyl = (elongation_monomer.structure, chain_intermediate)
@@ -102,7 +85,7 @@ def pks_elongation(chain_intermediate, elongation_monomer):
 
     # Adding the bonds to form the new molecule after the single elongation step
     new_bond_nr = combined.find_next_bond_nr()
-    combined.make_bond(elongation_monomer.c_to_pkchain, c_pkchain, new_bond_nr)
+    combined.make_bond(elongation_monomer.c_to_pk_intermediate, c_pkchain, new_bond_nr)
     new_bond_nr = combined.find_next_bond_nr()
     combined.make_bond(elongation_monomer.c_to_s, s_pkchain, new_bond_nr)
     combined.get_connectivities()

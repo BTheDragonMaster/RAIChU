@@ -1,8 +1,6 @@
 from typing import List, Union
 import os
 
-from pikachu.chem.structure import Structure
-from pikachu.general import draw_structure
 from raichu.cluster import Cluster
 from raichu.domain.domain import TailoringDomain, CarrierDomain, SynthesisDomain, RecognitionDomain, \
     TerminationDomain, UnknownDomain, Domain
@@ -110,17 +108,18 @@ def make_domain(domain_repr: DomainRepresentation, substrate: str, strict: bool 
                                   active=domain_repr.active,
                                   used=domain_repr.used)
         elif domain_class == UnknownDomain:
-            domain = domain_class(domain_repr.type, domain_subtype=domain_repr.subtype,
-                                  domain_name=domain_repr.name,
-                                  active=domain_repr.active, used=domain_repr.used)
+            if domain_repr.name is None:
+                raise ValueError(f"Domain name is required for a domain of type UNKNOWN")
+            domain = domain_class(domain_repr.name, active=domain_repr.active, used=domain_repr.used)
         else:
             domain = domain_class(domain_repr.type, domain_subtype=domain_repr.subtype, active=domain_repr.active,
                                   used=domain_repr.used)
     elif strict:
         raise ValueError(f"Unrecognised domain type: {domain_repr.type}")
     else:
-        domain = UnknownDomain(domain_repr.type, domain_subtype=domain_repr.subtype, active=domain_repr.active,
-                               used=False)
+        if domain_repr.name is None:
+            raise ValueError(f"Domain name is required for domains not recognised by RAIChU.")
+        domain = UnknownDomain(domain_repr.name, active=domain_repr.active, used=domain_repr.used)
 
     return domain
 
@@ -128,6 +127,8 @@ def make_domain(domain_repr: DomainRepresentation, substrate: str, strict: bool 
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)
+    for module in cluster.modules:
+        print(module.domains)
     cluster.compute_structures(compute_cyclic_products=False)
     spaghettis = cluster.draw_spaghettis()
 
@@ -135,12 +136,12 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
 
 if __name__ == "__main__":
-    cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ISOBUTYRYL_COA",
+    cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("gene 1", 'AT', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'ACP', None, None, True,
                                                                                      True),
-                                                                DomainRepresentation("gene 1", 'KR', "A1", None, True,
+                                                                DomainRepresentation("gene 1", 'KR', 'A1', None, True,
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'DH', None, None, True,
                                                                                      True)
@@ -150,16 +151,20 @@ if __name__ == "__main__":
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'AT', None, None, True,
                                                                                      True),
-                                                                DomainRepresentation("gene 1", 'KR', "A1", None, True,
+                                                                DomainRepresentation("gene 1", 'KR', "B1", None, True,
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'DH', None, None, True,
                                                                                      True),
-                                                                DomainRepresentation("gene 1", 'ER', None, None, True,
+                                                                DomainRepresentation("gene 1", 'ER', "S", None, True,
+                                                                                     True),
+                                                                DomainRepresentation("gene 1", 'UNKNOWN', None, "MyDOM",
+                                                                                     True, True),
+                                                                DomainRepresentation("gene 1", 'ACP', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'ACP', None, None, True,
-                                                                                     True)
+                                                                                     False)
                                                                 ]),
-                                          ModuleRepresentation("NRPS", None, "**Unknown**",
+                                          ModuleRepresentation("NRPS", None, "tyrosine",
                                                                [DomainRepresentation("gene 1", 'C', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("gene 1", 'A', None, None, True,

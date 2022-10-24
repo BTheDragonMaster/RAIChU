@@ -11,7 +11,6 @@ class DomainSuperClass(Enum):
     CARRIER = 3
     TAILORING = 4
     TERMINATION = 5
-    UNKNOWN = 6
 
     @staticmethod
     def from_string(label: str) -> "DomainSuperClass":
@@ -150,3 +149,18 @@ class KSDomainSubtype(Enum):
         raise ValueError(f"Unknown KS domain subtype: {label}")
 
 
+@unique
+class ERDomainSubtype(Enum):
+    """
+    An Enum representing the subtypes of KS domain supported by RAIChU
+    """
+    S = 1
+    R = 2
+    UNKNOWN = 3
+
+    @staticmethod
+    def from_string(label: str) -> "ERDomainSubtype":
+        for value in ERDomainSubtype:
+            if str(value.name) == label:
+                return value
+        raise ValueError(f"Unknown ER domain subtype: {label}")

@@ -115,36 +115,35 @@ class _Module:
                         self.tailoring_domains.append(domain)
                     else:
                         raise ValueError(f"Cannot have two used tailoring domains of type {domain.type.name} in one \
-                        module. Remove domain or set the 'used' or 'active' flag to False")
+module. Remove domain or set the 'used' or 'active' flag to False")
 
                 if isinstance(domain, RecognitionDomain):
                     if not self.recognition_domain:
                         self.recognition_domain = domain
                     else:
                         raise ValueError(f"Cannot have more than one used recognition domain in one \
-                        module. Remove a domain or set the 'used' or 'active' flag to False")
+module. Remove a domain or set the 'used' or 'active' flag to False")
 
                 if isinstance(domain, SynthesisDomain) and domain.is_elongating:
                     if not self.synthesis_domain:
                         self.synthesis_domain = domain
                     else:
-                        raise ValueError(f"Cannot have more than one used and elongating synthesis domains \
-                        in one module. Remove a domain, set the 'used' or 'active' flag to False, \
-                        or set the 'is_elongating' flag to False.")
+                        raise ValueError("Cannot have more than one used and elongating synthesis domains \
+in one module. Remove a domain, set the 'used' or 'active' flag to False, or set the 'is_elongating' flag to False.")
 
                 if isinstance(domain, CarrierDomain):
                     if not self.carrier_domain:
                         self.carrier_domain = domain
                     else:
-                        raise ValueError(f"Cannot have more than one used carrier domain in one \
-                        module. Remove a domain or set the 'used' or 'active' flag to False")
+                        raise ValueError("Cannot have more than one used carrier domain in one \
+module. Remove a domain or set the 'used' or 'active' flag to False")
 
                 if isinstance(domain, TerminationDomain):
                     if not self.termination_domain:
                         self.termination_domain = domain
                     else:
-                        raise ValueError(f"Cannot have more than one used termination domain in one \
-                        module. Remove a domain or set the 'used' or 'active' flag to False")
+                        raise ValueError("Cannot have more than one used termination domain in one \
+module. Remove a domain or set the 'used' or 'active' flag to False")
 
         if not self.is_starter_module and not self.synthesis_domain:
             if self.type.name == 'NRPS':

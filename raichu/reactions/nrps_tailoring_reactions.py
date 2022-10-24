@@ -1,8 +1,7 @@
 from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures
 
-from raichu.attributes import ATTRIBUTES
-
+from raichu.data.attributes import ATTRIBUTES
 
 
 def epimerization(chiral_centre):
@@ -15,7 +14,7 @@ def epimerization(chiral_centre):
     chiral_centre.chiral = new_chirality
 
 
-def nrps_epimerization(nrp):
+def epimerize(nrp):
     """
 
     """
@@ -67,7 +66,8 @@ def methylation(target_atom, structure):
         if carbon.nr in s.atoms:
             return s
 
-def nrps_methylation(nrp):
+
+def n_methylate(nrp):
     """
 
     """
@@ -83,7 +83,10 @@ def nrps_methylation(nrp):
 
     assert len(n_meth_locations) < 2
 
+    product = None
+
     if len(n_meth_locations) == 1:
+
         n_meth = n_meth_locations[0]
 
         # Check if the N atom has a hydrogen group necessary for the reaction, and
@@ -100,7 +103,10 @@ def nrps_methylation(nrp):
     else:
         product = nrp
 
+    assert product
+
     return product
+
 
 if __name__ == "__main__":
     s = read_smiles(r"NCC(=O)NCC(=O)O")

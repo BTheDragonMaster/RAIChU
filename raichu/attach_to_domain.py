@@ -1,7 +1,7 @@
 from raichu.class_domain import *
 from pikachu.reactions.functional_groups import find_atoms, GroupDefiner, combine_structures
 from pikachu.reactions.basic_reactions import condensation
-from raichu.attributes import ATTRIBUTES
+from raichu.reactions.general import initialise_atom_attributes
 from pikachu.general import read_smiles
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
@@ -13,22 +13,18 @@ B_NRP_C = GroupDefiner('Beta C atom to attach to PCP domain', 'NCCC(O)=O', 3)
 MAL_AMINO = GroupDefiner('malonyl_starter_amino', 'NC(=O)CC(O)=O', 4)
 
 
-def attach_to_domain_pk(polyketide, domain_type):
+def attach_to_domain_pk(polyketide):
     """
     Attaches the sulphur atom in the input polyketide to a PKS domain and
     returns the attached structure as a PIKAChU Structure object
 
-    domain_type: Str, domain type
     polyketide: PIKAChU Structure object, to-be attached structure
     """
     # Add attributes to input molecule
-    for atom in polyketide.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(polyketide)
 
     # Create domain
-    domain = make_scaffold_domain(domain_type)
+    domain = make_scaffold_domain('ACP')
     sh_bond = domain.bond_lookup[domain.atoms[1]][domain.atoms[2]]
     hydrogen = domain.atoms[2]
     sulphur_1 = domain.atoms[1]
@@ -56,26 +52,23 @@ def attach_to_domain_pk(polyketide, domain_type):
             break
 
     assert tethered_polyketide
+    initialise_atom_attributes(tethered_polyketide)
 
     return tethered_polyketide
 
 
-def attach_to_domain_nrp(nrp, domain_type):
+def attach_to_domain_nrp(nrp):
     """
     Attaches the input NRP to a PCP domain and returns the product as a
     PIKAChU Structure object
 
-    domain_type: Str, domain type
     nrp: PIKAChU Structure object, to-be attached NRP
     """
 
-    for atom in nrp.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(nrp)
 
     # Create domain
-    domain = make_scaffold_domain(domain_type)
+    domain = make_scaffold_domain('PCP')
 
     # Remove OH group from carboxylic acid in NRP, to allow attachment
     # to domain
@@ -126,10 +119,7 @@ def attach_to_domain_nrp(nrp, domain_type):
 
     structure = condensation(nrp, domain, hydroxyl_bond, hydrogen_bond)[0]
 
-    for atom in structure.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
+    initialise_atom_attributes(structure)
 
     return structure
 

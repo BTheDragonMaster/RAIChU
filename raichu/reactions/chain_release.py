@@ -1,22 +1,43 @@
 import os
-from pikachu.reactions.functional_groups import find_atoms, GroupDefiner
+
+from pikachu.chem.structure import Structure
+from pikachu.reactions.functional_groups import find_bonds, find_atoms
 from pikachu.reactions.basic_reactions import hydrolysis, internal_condensation
-from pikachu.general import structure_to_smiles, png_from_smiles
+from pikachu.general import structure_to_smiles
 
-from raichu.modules_to_structure import *
-
-
-SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
-CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
-N_AMINO = GroupDefiner('N_amino', 'CN', 1)
-O_OH = GroupDefiner('O_oh', 'CO', 1)
-
-O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
-O_BETAPROPRIOLACTONE_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 4)
-O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 0)
+from raichu.data.molecular_moieties import SC_BOND, O_OH, O_BETAPROPRIOLACTONE_O,\
+    O_BETAPROPRIOLACTONE_TERMINAL_O
+from raichu.reactions.general import initialise_atom_attributes
+from raichu.drawing.RaichuDrawer import RaichuDrawer
 
 
-def thioesterase_linear_product(chain_intermediate):
+def release_linear_reduction(chain_intermediate: Structure) -> Structure:
+    sc_bonds = find_bonds(SC_BOND, chain_intermediate)
+    if len(sc_bonds) != 1:
+        raise ValueError("Cannot release product from carrier domain as no SC bond is present")
+
+    sc_bond = sc_bonds[0]
+
+    carbon = sc_bond.get_neighbour('C')
+    sulphur = sc_bond.get_neighbour('S')
+
+    chain_intermediate.break_bond(sc_bond)
+
+    chain_intermediate.add_atom('H', [carbon])
+    chain_intermediate.add_atom('H', [sulphur])
+
+    initialise_atom_attributes(chain_intermediate)
+
+    structures = chain_intermediate.split_disconnected_structures()
+    for structure in structures:
+        if carbon in structure.graph:
+            structure.refresh_structure()
+            return structure
+
+    raise RuntimeError("Could not release chain through reduction.")
+
+
+def release_linear_thioesterase(chain_intermediate):
     """Carries out the thioesterase reaction on the polyketide chain
     intermediate, returning the free acid linear polyketide product as a
     PIKAChU Structure object
@@ -25,13 +46,13 @@ def thioesterase_linear_product(chain_intermediate):
     intermediate, either attached to a PKS domain or not
     """
     # Find S-H bond in chain intermediate and break the bond and define atoms
-    sh_bonds = find_cs_bond(chain_intermediate)
-    assert len(sh_bonds) == 1
-    carbon = sh_bonds[0].get_neighbour('C')
+    sc_bonds = find_bonds(SC_BOND, chain_intermediate)
+    assert len(sc_bonds) == 1
+    carbon = sc_bonds[0].get_neighbour('C')
 
     linear_product = None
 
-    structures = hydrolysis(chain_intermediate, sh_bonds[0])
+    structures = hydrolysis(chain_intermediate, sc_bonds[0])
     for structure in structures:
         if carbon in structure.graph:
             linear_product = structure
@@ -39,14 +60,7 @@ def thioesterase_linear_product(chain_intermediate):
 
     assert linear_product
 
-    for atom in linear_product.graph:
-        if not hasattr(atom.annotations, 'in_central_chain'):
-            for attribute in ATTRIBUTES:
-                atom.annotations.add_annotation(attribute, False)
-        if not hasattr(atom.annotations, 'terminal_c'):
-            atom.annotations.add_annotation('terminal_c', False)
-        if not hasattr(atom.annotations, 'terminal_o'):
-            atom.annotations.add_annotation('terminal_o', False)
+    initialise_atom_attributes(linear_product)
 
     carbon = linear_product.get_atom(carbon)
     carbon.annotations.set_annotation('terminal_c', True)
@@ -66,7 +80,7 @@ def thioesterase_linear_product(chain_intermediate):
     return linear_product
 
 
-def thioesterase_circular_product(linear_product, o_oh_n_amino):
+def cyclic_release(linear_product, o_oh_n_amino):
     """Performs the thioesterase reactions on the input chain_intermediate
      using the -OH group defined by the input O-atom participating in that
      internal -OH group, returns the circular product as PIKAChU Structure
@@ -145,7 +159,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
     # Perform first thioesterase reaction, generating linear polyketide/NRP
 
     chain_intermediate_copy = chain_intermediate.deepcopy()
-    linear_product = thioesterase_linear_product(chain_intermediate_copy)
+    linear_product = release_linear_thioesterase(chain_intermediate_copy)
     if not out_folder:
         RaichuDrawer(linear_product)
 
@@ -181,7 +195,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
     for n_amino in amino_n_atoms_filtered:
         linear_product_copy = linear_product.deepcopy()
         n_atom = linear_product_copy.get_atom(n_amino)
-        product = thioesterase_circular_product(linear_product_copy, n_atom)
+        product = cyclic_release(linear_product_copy, n_atom)
         circular_smiles.append(structure_to_smiles(product))
         list_product_drawings.append(product)
 
@@ -193,7 +207,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
         oh_atom = linear_product_copy.get_atom(o_oh)
 
         if oh_atom != o_not_to_use:
-            product = thioesterase_circular_product(linear_product_copy, oh_atom)
+            product = cyclic_release(linear_product_copy, oh_atom)
             circular_smiles.append(structure_to_smiles(product))
             list_product_drawings.append(product)
 
@@ -209,7 +223,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
         linear_smiles = structure_to_smiles(linear_product)
         smiles_file.write(f"product_0\t{linear_smiles}\n")
 
-        #png_from_smiles(linear_smiles, file_path)
+        # png_from_smiles(linear_smiles, file_path)
 
         drawing = RaichuDrawer(linear_product, save_png=file_path)
         drawing.draw_structure()
@@ -224,7 +238,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
             drawing = RaichuDrawer(product, save_png=file_path)
             drawing.draw_structure()
 
-            #png_from_smiles(smiles, file_path)
+            # png_from_smiles(smiles, file_path)
 
         smiles_file.close()
 
@@ -235,20 +249,3 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
             RaichuDrawer(product)
 
     return list_product_drawings
-
-
-def find_cs_bond(structure):
-    """
-    Returns the bond between the sulphur and carbon atom of the polyketide
-    chain intermediate
-
-    structure: PIKAChU Structure object
-    """
-    locations = structure.find_substructures(SH_BOND.structure)
-    bonds = []
-    for match in locations:
-        atom_1 = match.atoms[RECENT_ELONGATION.atom_1]
-        atom_2 = match.atoms[RECENT_ELONGATION.atom_2]
-        bond = structure.bond_lookup[atom_1][atom_2]
-        bonds.append(bond)
-    return bonds

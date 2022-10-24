@@ -1,9 +1,8 @@
 import os
 from raichu.visualize_cluster import *
 from raichu.modules_to_structure import cluster_to_structure
-from raichu.thioesterase_reactions import thioesterase_all_products
+from raichu.reactions.thioesterase_reactions import thioesterase_all_products
 matplotlib.use("Agg")
-import matplotlib.backends.backend_agg as agg
 
 
 def export_tabular(genes, file_name="cluster_text.txt"):

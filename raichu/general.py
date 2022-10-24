@@ -1,7 +1,7 @@
 """
 This script contains examples of the general functionalities of RAIChU.
 """
-from visualize_cluster import *
+from visualize_cluster import draw_cluster
 
 
 if __name__ == "__main__":

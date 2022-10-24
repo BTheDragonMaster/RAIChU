@@ -4,15 +4,14 @@ from os import path
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 from matplotlib.patches import FancyArrow
-from pikachu.general import read_smiles
 
-from raichu.pks_elongation_reactions import PKS_SUBUNIT_TO_MONOMER, pks_elongation
-from raichu.pks_tailoring_reactions import *
-from raichu.RaichuDrawer import RaichuDrawer
-from raichu.attributes import ATTRIBUTES, ALL_PKS_ELONGATION_UNITS
-from raichu.NRPS_condensation import condensation_nrps, set_nrps_central_chain
-from raichu.nrps_tailoring_reactions import nrps_epimerization, nrps_methylation
-from raichu.central_atoms_pk_starter import find_central_atoms_pk_starter
+from raichu.reactions.pks_elongation_reactions import PKS_SUBUNIT_TO_MONOMER, pks_elongation
+from raichu.reactions.pks_tailoring_reactions import *
+from raichu.drawing.RaichuDrawer import RaichuDrawer
+from raichu.data.attributes import ATTRIBUTES, ALL_PKS_ELONGATION_UNITS
+from raichu.reactions.nrps_condensation import condensation_nrps, label_nrp_central_chain
+from raichu.reactions.nrps_tailoring_reactions import nrps_epimerization, nrps_methylation
+from raichu.central_chain_detection.label_central_chain import label_pk_central_chain
 
 import interactive.flatfiles
 
@@ -30,10 +29,10 @@ ELONGATION_UNIT_TO_TEXT = {'malonylcoa': 'Malonyl-CoA',
 
 TAILOR_DOMAIN_SHORT_TO_LONG = {'E': 'Epimerization', 'nMT' : 'N-methylation'}
 
-TAILOR_DOMAIN_TO_COLOUR = {'KR' : 'red', 'KR_inactive' : 'red', 'KR*' : 'red',
-                           'KR_A1' : 'red', 'KR_A2' : 'red', 'KR_B1' : 'red',
-                           'KR_B2' : 'red', 'KR_C1' : 'red', 'KR_C2' : 'red',
-                           'DH' : 'blue', 'ER' : 'green'}
+TAILOR_DOMAIN_TO_COLOUR = {'KR': 'red', 'KR_inactive': 'red', 'KR*': 'red',
+                           'KR_A1': 'red', 'KR_A2': 'red', 'KR_B1': 'red',
+                           'KR_B2': 'red', 'KR_C1': 'red', 'KR_C2': 'red',
+                           'DH': 'blue', 'ER': 'green'}
 
 
 def get_substrate_structure(substrate, aa_dict):
@@ -102,13 +101,14 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
     # If starter module = PKS module: construct starter unit from
     # supplied SMILES string
+
     if starter_module_type == 'starter_module_pks':
         starter_unit = read_smiles(starter_module_smiles)
         starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-        starter_unit = find_central_atoms_pk_starter(starter_unit)
+        starter_unit = label_pk_central_chain (starter_unit)
 
         if attach_to_acp:
-            chain_intermediate = attach_to_domain_pk(starter_unit, 'ACP')
+            chain_intermediate = attach_to_domain_pk(starter_unit)
         else:
             chain_intermediate = starter_unit
         if draw_structures_per_module:
@@ -131,11 +131,10 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
             location_nr = len(locations) + len(b_locations) - len(asp_locations) - len(mal_amino_c_locations)
             if location_nr > 0:
-                chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'ACP')
+                chain_intermediate = attach_to_domain_nrp(chain_intermediate)
 
             elif any(atom.annotations.c2_acid for atom in chain_intermediate.graph):
-                chain_intermediate = attach_to_domain_nrp(chain_intermediate,
-                                                          'ACP')
+                chain_intermediate = attach_to_domain_nrp(chain_intermediate)
 
             module_name, module_type, elongation_unit, list_domains, gene_name = module
             assert elongation_unit in ALL_PKS_ELONGATION_UNITS
@@ -177,14 +176,14 @@ def cluster_to_structure(modules, visualization_mechanism=False,
 
                 if domain.startswith('KR'):
                     if domain == 'KR':
-                        new_chain_intermediate = ketoreductase(chain_intermediate)
+                        new_chain_intermediate = ketoreduction(chain_intermediate)
                         chain_intermediate = new_chain_intermediate
                     elif domain == 'KR_inactive':
                         inactive_kr_domain = True
                     else:
                         kr_type = domain[-2:]
                         new_chain_intermediate = \
-                            ketoreductase(chain_intermediate, kr_type = kr_type)
+                            ketoreduction(chain_intermediate, kr_type = kr_type)
                         chain_intermediate = new_chain_intermediate
                     if visualization_mechanism and not inactive_kr_domain:
                         if path.exists('3.png'):
@@ -211,7 +210,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                         if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
                             executable = False
                     if executable:
-                        new_chain_intermediate = dehydratase(chain_intermediate)
+                        new_chain_intermediate = dehydration(chain_intermediate)
                         chain_intermediate = new_chain_intermediate
                         if visualization_mechanism:
                             if path.exists('4.png'):
@@ -231,7 +230,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                         if domain_type in KR_NO_KETOREDUCTASE_ACTIVITY:
                             executable = False
                     if executable:
-                        new_chain_intermediate = enoylreductase(chain_intermediate)
+                        new_chain_intermediate = enoylreduction(chain_intermediate)
                         chain_intermediate = new_chain_intermediate
                         if visualization_mechanism:
                             if path.exists('5.png'):
@@ -255,7 +254,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
             if module[1] == 'starter_module_nrps':
                 starter_unit = get_substrate_structure(starter_module_smiles, dict_aa_smiles)
                 starter_unit.add_attributes(ATTRIBUTES, boolean=True)
-                set_nrps_central_chain(starter_unit, module_type='starter')
+                label_nrp_central_chain(starter_unit, module_type='starter')
                 chain_intermediate = starter_unit
 
             if visualization_mechanism and attach_to_acp:
@@ -269,7 +268,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 copy_chain_intermediate.find_cycles()
                 if not any(atom.annotations.domain_type for
                            atom in copy_chain_intermediate.graph):
-                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate)
                 else:
                     copy_attached = copy_chain_intermediate
                 RaichuDrawer(copy_attached, save_png='1.png', dpi=500)
@@ -302,7 +301,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 if draw_structures_per_module and attach_to_acp:
                     copy_chain_intermediate = chain_intermediate.deepcopy()
                     # copy_chain_intermediate.find_cycles()
-                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                    copy_attached = attach_to_domain_nrp(copy_chain_intermediate)
                     copy_attached.refresh_structure()
                     copy_attached.set_connectivities()
                     copy_attached.find_cycles()
@@ -312,7 +311,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                 elif visualization_mechanism and attach_to_acp:
                         copy_chain_intermediate = chain_intermediate.deepcopy()
                         copy_chain_intermediate.find_cycles()
-                        copy_attached = attach_to_domain_nrp(copy_chain_intermediate, 'PCP')
+                        copy_attached = attach_to_domain_nrp(copy_chain_intermediate)
                         if path.exists('2.png'):
                             os.remove('2.png')
                         RaichuDrawer(copy_attached, save_png='2.png', dpi=500)
@@ -343,7 +342,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             copy_chain_intermediate = chain_intermediate.deepcopy()
                             copy_chain_intermediate.find_cycles()
                             copy_attached = attach_to_domain_nrp(
-                                copy_chain_intermediate, 'PCP')
+                                copy_chain_intermediate)
                             after_reaction_filename = None
 
                             if domain == list_tailoring_domains[0]:
@@ -363,7 +362,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             copy_chain_intermediate = chain_intermediate.deepcopy()
                             copy_chain_intermediate.find_cycles()
                             copy_attached = attach_to_domain_nrp(
-                                copy_chain_intermediate, 'PCP')
+                                copy_chain_intermediate)
 
                             if path.exists(after_reaction_filename):
                                 os.remove(after_reaction_filename)
@@ -390,7 +389,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                                 copy_chain_intermediate = chain_intermediate.deepcopy()
                                 # copy_chain_intermediate.find_cycles()
                                 copy_attached = attach_to_domain_nrp(
-                                    copy_chain_intermediate, 'PCP')
+                                    copy_chain_intermediate)
                                 copy_attached.refresh_structure()
                                 copy_attached.set_connectivities()
                                 copy_attached.find_cycles()
@@ -401,7 +400,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             copy_chain_intermediate = chain_intermediate.deepcopy()
                             copy_chain_intermediate.find_cycles()
                             copy_attached = attach_to_domain_nrp(
-                                copy_chain_intermediate, 'PCP')
+                                copy_chain_intermediate)
                             if domain == list_tailoring_domains[0]:
                                 before_reaction_filename = '2.png'
                                 after_reaction_filename = '3.png'
@@ -420,7 +419,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
                             copy_chain_intermediate = chain_intermediate.deepcopy()
                             copy_chain_intermediate.find_cycles()
                             copy_attached = attach_to_domain_nrp(
-                                copy_chain_intermediate, 'PCP')
+                                copy_chain_intermediate)
 
                             if path.exists(after_reaction_filename):
                                 os.remove(after_reaction_filename)
@@ -449,7 +448,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
     if not visualization_mechanism and not draw_structures_per_module:
         if last_module_nrps and attach_to_acp:
             # chain_intermediate.find_cycles()
-            chain_intermediate = attach_to_domain_nrp(chain_intermediate, 'PCP')
+            chain_intermediate = attach_to_domain_nrp(chain_intermediate)
             chain_intermediate.find_cycles()
             RaichuDrawer(chain_intermediate)
         else:
@@ -465,6 +464,7 @@ def cluster_to_structure(modules, visualization_mechanism=False,
         return(list_drawings_per_module)
 
     return chain_intermediate
+
 
 def display_reactions(structures, tailoring_domains, elongation_unit,
                       module_name, draw_mechanism_per_module):

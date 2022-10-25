@@ -67,6 +67,17 @@ class PKSDomainType(Enum):
     TE = 7
     TD = 8
     UNKNOWN = 9
+    DUMMY_ALMT = 10 #Alpha-L-Methyltransferase
+    DUMMY_AMT = 11 #Alpha-Methyltransferase
+    DUMMY_SC = 12 #Smalles cyclase for creating pyran/furan rings
+    DUMMY_ZDH = 13 #E-configured double bonds
+    DUMMY_EDH = 14 #Z-configured double bonds
+    DUMMY_AH = 15 #Alpha-hydroxylase
+    DUMMY_GDH = 16 #Gamma-beta-dehydrogenase
+    DUMMY_ZGDH = 17 #Z-Gamma-beta-dehydrogenase
+    DUMMY_EGDH = 18 #E-Gamma-beta-dehydrogenase
+    DUMMY_OMT = 19 #Beta-Hydroxymethyltransferase
+    DUMMY_BMT = 20 #Beta-Methyltransferase
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -169,13 +180,13 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
         dh_domain = self.get_tailoring_domain("DH")
         er_domain = self.get_tailoring_domain("ER")
 
-        if kr_domain and kr_domain.active:
+        if kr_domain and kr_domain.active and kr_domain.used:
             assert kr_domain.subtype is not None
             structure = kr_domain.do_tailoring(structure)
             if not kr_domain.subtype.name == 'C1' and not kr_domain.subtype.name == 'C2':
-                if dh_domain and dh_domain.active:
+                if dh_domain and dh_domain.active and dh_domain.used:
                     structure = dh_domain.do_tailoring(structure)
-                    if er_domain and er_domain.active:
+                    if er_domain and er_domain.active and er_domain.used:
                         structure = er_domain.do_tailoring(structure)
 
         return structure
@@ -184,9 +195,9 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
         e_domain = self.get_tailoring_domain('E')
         n_mt_domain = self.get_tailoring_domain('nMT')
 
-        if e_domain and e_domain.active:
+        if e_domain and e_domain.active and e_domain.used:
             structure = e_domain.do_tailoring(structure)
-        if n_mt_domain and n_mt_domain.active:
+        if n_mt_domain and n_mt_domain.active and e_domain.used:
             structure = n_mt_domain.do_tailoring(structure)
 
         return structure

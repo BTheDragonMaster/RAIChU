@@ -103,6 +103,22 @@ class TailoringDomainType(Enum):
     E = 5
     nMT = 6
     UNKNOWN = 7
+    DUMMY_ALMT = 8 #Alpha-L-Methyltransferase
+    DUMMY_AMT = 9 #Alpha-Methyltransferase
+    DUMMY_SC = 10 #Smalles cyclase for creating pyran/furan rings
+    DUMMY_ZDH = 11 #E-configured double bonds
+    DUMMY_EDH = 12 #Z-configured double bonds
+    DUMMY_AH = 13 #Alpha-hydroxylase
+    DUMMY_GDH = 14 #Gamma-beta-dehydrogenase
+    DUMMY_ZGDH = 15 #Z-Gamma-beta-dehydrogenase
+    DUMMY_EGDH = 16 #E-Gamma-beta-dehydrogenase
+    DUMMY_OMT = 17 #Beta-Hydroxymethyltransferase
+    DUMMY_BMT = 18 #Beta-Methyltransferase
+    DUMMY_ER = 19
+    DUMMY_KR = 20
+    DUMMY_DH = 21
+    DUMMY_E = 22
+    DUMMY_nMT = 23
 
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":
@@ -140,6 +156,48 @@ class KSDomainSubtype(Enum):
     """
     CIS = 1
     UNKNOWN = 2
+    TRANS_AT_PKS_NON_ELONGATING_BETA_L_OH = 3
+    TRANS_AT_PKS_BETA_OH = 4
+    TRANS_AT_PKS_NON_ELONGATING_ALPHAME_EDB = 5
+    TRANS_AT_PKS_OXI = 6
+    TRANS_AT_PKS_ST = 7
+    TRANS_AT_PKS_BETA_OH_EDB = 8
+    TRANS_AT_PKS_UNST = 9
+    TRANS_AT_PKS_BETA_D_OH = 10
+    TRANS_AT_PKS_NON_ELONGATING_BETA_OH = 11
+    TRANS_AT_PKS_LACST = 12
+    TRANS_AT_PKS_OUT = 13
+    TRANS_AT_PKS_SHDB = 14
+    TRANS_AT_PKS_BETA_OH_KETO = 15
+    TRANS_AT_PKS_OXA = 16
+    TRANS_AT_PKS_ACST = 17
+    TRANS_AT_PKS_ALPHAME_BETAOH = 18
+    TRANS_AT_PKS_NON_ELONGATING_OXA = 19
+    TRANS_AT_PKS_BETA_D_OME = 20
+    TRANS_AT_PKS_ARST = 21
+    TRANS_AT_PKS_ALPHABETA_OH = 22
+    TRANS_AT_PKS_RED_SHDB = 23
+    TRANS_AT_PKS_BR = 24
+    TRANS_AT_PKS_BETA_ME = 25
+    TRANS_AT_PKS_EDB = 26
+    TRANS_AT_PKS_BETA_MEDB = 27
+    TRANS_AT_PKS_NON_ELONGATING_DB = 28
+    TRANS_AT_PKS_ALPHAME_EDB = 29
+    TRANS_AT_PKS_ALPHAME = 30
+    TRANS_AT_PKS_ALPHAME_BETA_L_OH = 31
+    TRANS_AT_PKS = 32
+    TRANS_AT_PKS_AA = 33
+    TRANS_AT_PKS_DB = 34
+    TRANS_AT_PKS_RED = 35
+    TRANS_AT_PKS_PYR = 36
+    TRANS_AT_PKS_ALPHAME_BETA_D_OH = 37
+    TRANS_AT_PKS_NON_ELONGATING = 38
+    TRANS_AT_PKS_MEOST = 39
+    TRANS_AT_PKS_BETA_L_OH = 40
+    TRANS_AT_PKS_ZDB = 41
+    TRANS_AT_PKS_KETO = 42
+    TRANS_AT_PKS_ALPHA_OH = 43
+    TRANS_AT_PKS_NON_ELONGATING_PYR = 44
 
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":
@@ -147,7 +205,6 @@ class KSDomainSubtype(Enum):
             if str(value.name) == label:
                 return value
         raise ValueError(f"Unknown KS domain subtype: {label}")
-
 
 @unique
 class ERDomainSubtype(Enum):

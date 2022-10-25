@@ -1,12 +1,17 @@
 from typing import List
 
 from pikachu.drawing.drawing import Drawer
-from matplotlib import pyplot as plt
 
 from raichu.reactions.chain_release import cyclic_release
 from raichu.drawing.drawer import RaichuDrawer
 from raichu.module import _Module
+
 from raichu.drawing.bubbles import draw_bubbles
+
+
+from raichu.substrate import PKSSubstrate
+from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE
+from raichu.domain.domain import TailoringDomain
 
 
 class Cluster:
@@ -21,7 +26,32 @@ class Cluster:
         self.handle_transat()
 
     def handle_transat(self):
-        pass
+
+        for i, module in enumerate(self.modules):
+            if module.type.name == "PKS" and module.subtype.name == "PKS_TRANS":
+                substrate = PKSSubstrate("MALONYL_COA")
+                if i < len(self.modules) - 1:
+                    next_module = self.modules[i + 1]
+
+                    if next_module.type.name == "PKS":
+                        if module.is_starter_module and next_module.subtype.name == "PKS_TRANS":
+                            substrate_name = TRANSATOR_CLADE_TO_STARTER_SUBSTRATE.get(next_module.synthesis_domain.subtype.name)
+                            if substrate_name is not None:
+                                substrate = PKSSubstrate(substrate_name)
+                            else:
+                                substrate = PKSSubstrate("ACETYL_COA")
+                                # TODO: Transfer names of substrates to a dictionary in raichu.substrate
+                        elif module.is_starter_module:
+                            substrate = PKSSubstrate("ACETYL_COA")
+                        elif not module.is_starter_module and not module.is_termination_module and next_module.subtype.name == "PKS_TRANS":
+                            # Ignore tailoring domains in the module itself
+                            for domain in module.tailoring_domains:
+                                domain.used = False
+                            module.tailoring_domains = []
+                            for dummy_domain_type, dummy_domain_subtype in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[next_module.synthesis_domain.subtype.name]:
+                                self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
+                                                                                         dummy_domain_subtype))
+                self.modules[i].recognition_domain.substrate = substrate
 
     def compute_structures(self, compute_cyclic_products=True):
         for module in self.modules:
@@ -71,3 +101,4 @@ class Mechanism:
 
     def draw_mechanism(self):
         pass
+

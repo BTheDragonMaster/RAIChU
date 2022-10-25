@@ -9,9 +9,10 @@ from raichu.reactions.nrps_elongation_reactions import nrps_elongation
 from raichu.reactions.chain_release import release_linear_reduction, release_linear_thioesterase
 from raichu.domain.domain_types import DomainSuperClass, RecognitionDomainType, CarrierDomainType, \
     TailoringDomainType, SynthesisDomainType, TerminationDomainType, KSDomainSubtype, KRDomainSubtype, ERDomainSubtype
-from dataclasses import dataclass
 
-
+from dataclasses import dataclass    
+    
+ 
 @dataclass
 class Domain:
     supertype: DomainSuperClass
@@ -35,11 +36,11 @@ class Domain:
 
 
 class UnknownDomain(Domain):
-    def __init__(self, domain_name: str, active: bool = True, used: bool = False) -> None:
+    def __init__(self, domain_name: str, active: bool = True) -> None:
         superclass = DomainSuperClass.from_string("TAILORING")
         domain_type = TailoringDomainType.from_string("UNKNOWN")
         assert domain_name
-        super().__init__(superclass, domain_type, None, domain_name, active=active, used=used)
+        super().__init__(superclass, domain_type, None, domain_name, active=active, used=False)
 
 
 class TailoringDomain(Domain):
@@ -48,14 +49,14 @@ class TailoringDomain(Domain):
         superclass = DomainSuperClass.from_string("TAILORING")
         domain_type = TailoringDomainType.from_string(domain_type)
         if domain_subtype is not None:
-            if domain_type.name == 'KR':
+            if 'KR'  in domain_type.name:
                 domain_subtype = KRDomainSubtype.from_string(domain_subtype)
             elif domain_type.name == 'ER':
                 domain_subtype = ERDomainSubtype.from_string(domain_subtype)
             else:
                 raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
         else:
-            if domain_type.name == 'KR':
+            if domain_type.name == 'KR' or domain_type.name == 'DUMMY_KR':
                 domain_subtype = KRDomainSubtype.from_string("UNKNOWN")
             elif domain_type.name == 'ER':
                 domain_subtype = ERDomainSubtype.from_string("UNKNOWN")
@@ -121,6 +122,7 @@ class RecognitionDomain(Domain):
 
         superclass = DomainSuperClass.from_string("RECOGNITION")
         domain_type = RecognitionDomainType.from_string(domain_type)
+ 
 
         if domain_subtype is not None:
             raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")

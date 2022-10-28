@@ -153,7 +153,6 @@ class Cluster:
         width = max_x - min_x + 2 * padding
         height = max_y
 
-        print(len(svg_strings))
 
         svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">"""
         svg_string += bubble_svg

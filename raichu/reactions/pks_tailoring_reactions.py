@@ -30,10 +30,11 @@ RECENT_REDUCTION_TOP_H = GroupDefiner('recent_reduction_top_h', '[H]C(C)=C([H])C
 RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]\C(C)=C(\C)C(S)=O', 4)
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', '[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', '[H]C(C)=C([H])C(S)=O', 0)
-RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', r'[H]\C(C)=C(\[H])CC(S)=O', 5)
-RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', r'[H]\C(C)=C(\[H])CC(S)=O', 4)
-RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', r'[H]\C(C)=C(\[H])CC(S)=O', 2)
-RECENT_REDUCTION_SHIFTED_BOTTOM_H = GroupDefiner('recent_reduction_shifted_bottom_h', r'[H]\C(C)=C(\[H])CC(S)=O', 0)
+RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', '[H]\C(C)=C(\[H])CC(S)=O', 5)
+RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', '[H]\C(C)=C(\[H])CC(S)=O', 4)
+RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', '[H]\C(C)=C(\[H])CC(S)=O', 2)
+RECENT_REDUCTION_SHIFTED_BOTTOM_H = GroupDefiner('recent_reduction_shifted_bottom_h', '[H]\C(C)=C(\[H])CC(S)=O', 0)
+RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL = GroupDefiner('recent_reduction_shifted_bottom_methyl', '[H]\C(CC(S)=O)=C(\C)CC', 7)
 S_KR = GroupDefiner('C1 atom before KR reaction', 'SC(C)=O', 0)
 ER_MMAL_CARBON = GroupDefiner('Chiral carbon atom after enoylreduction of mmal', 'SC(=O)C(C)CC', 3)
 ER_S_CARBON = GroupDefiner('S-carbon atom after enoylreduction of mmal', 'SC(=O)C(C)CC', 1)
@@ -286,6 +287,7 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         if not main_chain_top_h:
             main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]
         else:
+<<<<<<< HEAD
             main_chain_top_h = main_chain_top_h[0]
         main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)[0]
         if chirality == "E":
@@ -306,6 +308,15 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
                                                              main_chain_top_h: 'trans'},
                                        main_chain_bottom_h: {main_chain_top_c: 'trans',
                                                              main_chain_top_h: 'cis'}}
+=======
+            main_chain_top_h=main_chain_top_h[0]
+        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H,chain_intermediate)[0]
+        if chirality=="E":
+            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'trans',main_chain_top_h:'cis'},main_chain_bottom_h:{main_chain_top_c:'cis',main_chain_top_h:'trans'}}
+        if chirality=="Z":
+            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_top_h:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_bottom_c:{main_chain_top_c:'cis',main_chain_top_h:'trans'},main_chain_bottom_h:{main_chain_top_c:'trans',main_chain_top_h:'cis'}}
+        double_bond.chiral = True
+>>>>>>> trans_at_reactions
     chain_intermediate.refresh_structure()
 
     return chain_intermediate, True
@@ -691,6 +702,7 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
 
     # implement stereochemistry
     if chirality:
+<<<<<<< HEAD
         main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
         main_chain_bottom_c = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C, chain_intermediate)[0]
         main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_H, chain_intermediate)
@@ -717,5 +729,20 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
                                                              main_chain_top_h: 'trans'},
                                        main_chain_bottom_h: {main_chain_top_c: 'trans',
                                                              main_chain_top_h: 'cis'}}
+=======
+        main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C,chain_intermediate)[0]
+        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C,chain_intermediate)[0]
+        main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_H,chain_intermediate)
+        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_H,chain_intermediate)[0]
+        if not main_chain_bottom_h:
+            main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL,chain_intermediate)[0]
+        else:
+            main_chain_bottom_h=main_chain_bottom_h[0]
+        if chirality=="E":
+            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'trans',main_chain_top_h:'cis'},main_chain_bottom_h:{main_chain_top_c:'cis',main_chain_top_h:'trans'}}
+        if chirality=="Z":
+            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'cis',main_chain_top_h:'trans'},main_chain_bottom_h:{main_chain_top_c:'trans',main_chain_top_h:'cis'}}
+        double_bond.chiral = True
+>>>>>>> trans_at_reactions
     chain_intermediate.refresh_structure()
     return chain_intermediate, True

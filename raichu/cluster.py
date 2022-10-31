@@ -142,8 +142,11 @@ class Cluster:
         svg_strings = []
         squiggly_svgs = []
         padding = None
+        svg_style = None
 
         for i, drawing in enumerate(drawings):
+            drawing.set_structure_id(f"s{i}")
+            svg_style = drawing.svg_style
 
             padding = drawing.options.padding
 
@@ -192,7 +195,9 @@ class Cluster:
         width = x2
         height = y2
 
-        svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">"""
+        svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
+        if svg_style:
+            svg_string += f"{svg_style}\n"
         svg_string += bubble_svg
         for string in svg_strings:
             svg_string += string

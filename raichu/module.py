@@ -221,7 +221,7 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
             structure, epimerized = e_domain.do_tailoring(structure)
             if not epimerized:
                 e_domain.used = False
-        if n_mt_domain and n_mt_domain.active and e_domain.used:
+        if n_mt_domain and n_mt_domain.active and n_mt_domain.used:
             structure, methylated = n_mt_domain.do_tailoring(structure)
             if not methylated:
                 n_mt_domain.used = False

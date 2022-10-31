@@ -37,8 +37,7 @@ _PKS_TO_SMILES = {"WILDCARD": r"SC(C([*])C(O)=O)=O",
                   "DIHYDROXY_PROPANOLYL_COA_33": r"OC(O)CC(O)S",
                   "LACTYL_COA": r"C[C@@H](O)C(S)=O",
                   "PHENYLACETYLCOA": r"SC(=O)CC1=CC=CC=C1",
-                  "METHOXYFORMYL_COA": r"COC(S)=O",
-                  "GLYCERYL_COA": r"OCC(O)C(S)=O"
+                  "METHOXYFORMYL_COA": r"COC(S)=O"
                   }
 
 
@@ -70,6 +69,9 @@ class PksStarterSubstrate(Enum):
     HEPTATRIENOYL_COA = 24  # 2,4,6-heptatrienoyl-CoA
     HYDROXYPROPIONYL_COA_2R = 25  # 2R-hydroxypropionyl-CoA
     DIHYDROXY_PROPANOLYL_COA_33 = 26  # 3,3-dihydroxy-propanolyl-CoA
+    LACTYL_COA=27
+    PHENYLACETYLCOA=28
+    METHOXYFORMYL_COA=29
 
     @staticmethod
     def from_string(label: str):

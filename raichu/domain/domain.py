@@ -2,7 +2,7 @@ from typing import Union, Tuple
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
-from raichu.reactions.pks_tailoring_reactions import ketoreduction, enoylreduction, dehydration
+from raichu.reactions.pks_tailoring_reactions import ketoreduction, enoylreduction, dehydration, alpha_L_methyl_transferase,alpha_methyl_transferase,smallest_cyclisation,alpha_hydroxylase,gamma_beta_dehydratase,beta_hydroxy_methyl_transferase,beta_methyl_transferase
 from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate
 from raichu.reactions.pks_elongation_reactions import pks_elongation
 from raichu.reactions.nrps_elongation_reactions import nrps_elongation
@@ -11,7 +11,6 @@ from raichu.domain.domain_types import DomainSuperClass, RecognitionDomainType, 
     TailoringDomainType, SynthesisDomainType, TerminationDomainType, KSDomainSubtype, KRDomainSubtype, ERDomainSubtype
 
 from dataclasses import dataclass
-
 
 @dataclass
 class Domain:
@@ -72,6 +71,10 @@ class TailoringDomain(Domain):
             return ketoreduction(structure, self.subtype)
         elif self.type.name == 'DH' or self.type.name == 'DUMMY_DH':
             return dehydration(structure)
+        elif self.type.name == 'EDH' or self.type.name == 'DUMMY_EDH':
+            return dehydration(structure,"E")
+        elif self.type.name == 'ZDH' or self.type.name == 'DUMMY_ZDH':
+            return dehydration(structure,"Z")
         elif self.type.name == 'ER' or self.type.name == 'DUMMY_ER':
             return enoylreduction(structure, self.subtype)
         elif self.type.name == 'ALMT' or self.type.name == 'DUMMY_ALMT':
@@ -84,6 +87,10 @@ class TailoringDomain(Domain):
             return alpha_hydroxylase(structure)
         elif self.type.name == 'GDH' or self.type.name == 'DUMMY_GDH':
             return gamma_beta_dehydratase(structure)
+        elif self.type.name == 'EGDH' or self.type.name == 'DUMMY_EGDH':
+            return gamma_beta_dehydratase(structure,"E")
+        elif self.type.name == 'ZGDH' or self.type.name == 'DUMMY_ZGDH':
+            return gamma_beta_dehydratase(structure,"Z")
         elif self.type.name == 'OMT' or self.type.name == 'DUMMY_OMT':
             return beta_hydroxy_methyl_transferase(structure)
         elif self.type.name == 'BMT' or self.type.name == 'DUMMY_BMT':
@@ -122,7 +129,7 @@ class SynthesisDomain(Domain):
                 return nrps_elongation(building_block, structure)
         elif self.type.name == 'KS' or self.type.name == "DUMMY_KS":
             if self.is_elongating:
-                if self.subtype is None or self.subtype.name == 'CIS' or self.subtype.name == 'UNKNOWN':
+                if self.subtype is None or self.subtype.name in [v.name for v in KSDomainSubtype]:
                     building_block = substrate.elongation_monomer
                     return pks_elongation(structure, building_block)
                 else:

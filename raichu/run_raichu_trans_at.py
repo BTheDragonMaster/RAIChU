@@ -1,5 +1,4 @@
 from typing import List, Union
-import os
 
 from raichu.cluster import Cluster
 from raichu.domain.domain import TailoringDomain, CarrierDomain, SynthesisDomain, RecognitionDomain, \

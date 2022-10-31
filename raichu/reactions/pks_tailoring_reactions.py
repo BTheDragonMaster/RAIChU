@@ -1,7 +1,7 @@
 from typing import Tuple
 
 from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner, find_atoms, find_bonds, combine_structures
-from pikachu.reactions.basic_reactions import condensation, hydrolysis, internal_condensation
+from pikachu.reactions.basic_reactions import internal_condensation
 from pikachu.chem.chirality import same_chirality
 from pikachu.chem.structure import Structure
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
@@ -22,30 +22,36 @@ RECENT_REDUCTION_C = GroupDefiner('recent_reduction_mal', 'OCCC(=O)S', 2)
 RECENT_REDUCTION_CC = BondDefiner('recent_reduction_C-C', 'OCCC(=O)S', 1, 2)
 RECENT_REDUCTION_CC_SHIFTED = BondDefiner('recent_reduction_C-C_shifted', 'CC(O)CC(S)=O', 0, 1)
 RECENT_DEHYDRATION = BondDefiner('recent_dehydration', 'SC(C=CC)=O', 2, 3)
-RECENT_EONYL_REDUCTION = BondDefiner('recent_eonyl_reduction',"CCCC(S)=O",2,3)
-RECENT_EONYL_REDUCTION_CC = BondDefiner('recent_eonyl_reduction',"CCCC(S)=O",2,1)
+RECENT_EONYL_REDUCTION = BondDefiner('recent_eonyl_reduction', "CCCC(S)=O", 2, 3)
+RECENT_EONYL_REDUCTION_CC = BondDefiner('recent_eonyl_reduction', "CCCC(S)=O", 2, 1)
 RECENT_REDUCTION_OH = BondDefiner('recent_reduction_C-H', '[H]OC(C)CC(S)=O', 0, 1)
 RECENT_REDUCTION_TOP_C = GroupDefiner('recent_reduction_top_c', '[H]C(C)=C([H])C(S)=O', 5)
 RECENT_REDUCTION_TOP_H = GroupDefiner('recent_reduction_top_h', '[H]C(C)=C([H])C(S)=O', 4)
-RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', '[H]\C(C)=C(\C)C(S)=O', 4)
+RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]\C(C)=C(\C)C(S)=O', 4)
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', '[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', '[H]C(C)=C([H])C(S)=O', 0)
-RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', '[H]\C(C)=C(\[H])CC(S)=O', 5)
-RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', '[H]\C(C)=C(\[H])CC(S)=O', 4)
-RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', '[H]\C(C)=C(\[H])CC(S)=O', 2)
-RECENT_REDUCTION_SHIFTED_BOTTOM_H = GroupDefiner('recent_reduction_shifted_bottom_h', '[H]\C(C)=C(\[H])CC(S)=O', 0)
+RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', r'[H]\C(C)=C(\[H])CC(S)=O', 5)
+RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', r'[H]\C(C)=C(\[H])CC(S)=O', 4)
+RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', r'[H]\C(C)=C(\[H])CC(S)=O', 2)
+RECENT_REDUCTION_SHIFTED_BOTTOM_H = GroupDefiner('recent_reduction_shifted_bottom_h', r'[H]\C(C)=C(\[H])CC(S)=O', 0)
 S_KR = GroupDefiner('C1 atom before KR reaction', 'SC(C)=O', 0)
 ER_MMAL_CARBON = GroupDefiner('Chiral carbon atom after enoylreduction of mmal', 'SC(=O)C(C)CC', 3)
 ER_S_CARBON = GroupDefiner('S-carbon atom after enoylreduction of mmal', 'SC(=O)C(C)CC', 1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND=BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond","OC\C=C\CCC(S)=O",0,1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND=BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond","OCC\C=C\CCC(S)=O",0,1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND_SHIFTED=BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond_shifted","O\C=C\CCCC(S)=O",0,1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND_SHIFTED=BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond_shifted","OC\C=C\CCCC(S)=O",0,1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA=BondDefiner("hydroxyl_group_two_module_upstream_alpha","OCCCCCC(S)=O",0,1)
-HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA=BondDefiner("hydroxyl_group_two_module_upstream_beta","OCCCCCCC(S)=O",0,1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND = BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond",
+                                                                         r"OC\C=C\CCC(S)=O", 0, 1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND = BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond",
+                                                                        r"OCC\C=C\CCC(S)=O", 0, 1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND_SHIFTED = BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond_shifted",
+                                                                                 r"O\C=C\CCCC(S)=O", 0, 1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND_SHIFTED = BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond_shifted",
+                                                                                r"OC\C=C\CCCC(S)=O", 0, 1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA = BondDefiner("hydroxyl_group_two_module_upstream_alpha",
+                                                        "OCCCCCC(S)=O", 0, 1)
+HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA = BondDefiner("hydroxyl_group_two_module_upstream_beta",
+                                                       "OCCCCCCC(S)=O", 0, 1)
 
 
-#STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
+# STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
 
 def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tuple[Structure, bool]:
     """
@@ -198,7 +204,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     return chain_intermediate, True
 
 
-def dehydration(chain_intermediate: Structure, chirality = None) -> Tuple[Structure, bool]:
+def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structure, bool]:
     """
     Performs the dehydratase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -271,23 +277,37 @@ def dehydration(chain_intermediate: Structure, chirality = None) -> Tuple[Struct
         chain_intermediate = structure_2
 
     chain_intermediate.refresh_structure()
-    double_bond=chain_intermediate.bond_lookup[c1][c2]
-    #implement stereochemistry
+    double_bond = chain_intermediate.bond_lookup[c1][c2]
+    # implement stereochemistry
     if chirality:
-        main_chain_top_c = find_atoms(RECENT_REDUCTION_TOP_C,chain_intermediate)[0]
-        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_BOTTOM_C,chain_intermediate)[0]
-        main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H,chain_intermediate)
+        main_chain_top_c = find_atoms(RECENT_REDUCTION_TOP_C, chain_intermediate)[0]
+        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_BOTTOM_C, chain_intermediate)[0]
+        main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H, chain_intermediate)
         if not main_chain_top_h:
-            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL,chain_intermediate)[0]
+            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]
         else:
-            main_chain_top_h=main_chain_top_h[0]
-        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H,chain_intermediate)[0]
-        if chirality=="E":
-            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'trans',main_chain_top_h:'cis'},main_chain_bottom_h:{main_chain_top_c:'cis',main_chain_top_h:'trans'}}
-        if chirality=="Z":
-            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'cis',main_chain_top_h:'trans'},main_chain_bottom_h:{main_chain_top_c:'trans',main_chain_top_h:'cis'}}
+            main_chain_top_h = main_chain_top_h[0]
+        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)[0]
+        if chirality == "E":
+            double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
+                                                          main_chain_bottom_h: 'cis'},
+                                       main_chain_top_h: {main_chain_bottom_c: 'cis',
+                                                          main_chain_bottom_h: 'trans'},
+                                       main_chain_bottom_c: {main_chain_top_c: 'trans',
+                                                             main_chain_top_h: 'cis'},
+                                       main_chain_bottom_h: {main_chain_top_c: 'cis',
+                                                             main_chain_top_h: 'trans'}}
+        if chirality == "Z":
+            double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
+                                                          main_chain_bottom_h: 'cis'},
+                                       main_chain_top_h: {main_chain_bottom_c: 'cis',
+                                                          main_chain_bottom_h: 'trans'},
+                                       main_chain_bottom_c: {main_chain_top_c: 'cis',
+                                                             main_chain_top_h: 'trans'},
+                                       main_chain_bottom_h: {main_chain_top_c: 'trans',
+                                                             main_chain_top_h: 'cis'}}
     chain_intermediate.refresh_structure()
-    #chain_intermediate.set_connectivities()
+
     return chain_intermediate, True
 
 
@@ -356,7 +376,7 @@ def enoylreduction(chain_intermediate: Structure, er_subtype: ERDomainSubtype) -
     return chain_intermediate, True
 
 
-#trans-AT-PKS tailoring reactions
+# trans-AT-PKS tailoring reactions
 def hydroxylation(target_atom, structure: Structure) -> Structure:
     """
     Returns the hydroxylated structure thats hydroxylated at the target atom.
@@ -382,13 +402,15 @@ def hydroxylation(target_atom, structure: Structure) -> Structure:
     hydroxylated_structure.break_bond(bond_2)
 
     hydroxylated_structure.make_bond(oxygen, target_atom, hydroxylated_structure.find_next_bond_nr())
-    hydroxylated_structure.make_bond(hydrogen_1, hydrogen_2,hydroxylated_structure.find_next_bond_nr())
+    hydroxylated_structure.make_bond(hydrogen_1, hydrogen_2, hydroxylated_structure.find_next_bond_nr())
 
     structures = hydroxylated_structure.split_disconnected_structures()
 
     for s in structures:
         if oxygen.nr in s.atoms:
             return s
+
+
 def methylation(target_atom, structure: Structure) -> Structure:
     """
     Returns the structure thats methylated at the target atom.
@@ -396,7 +418,6 @@ def methylation(target_atom, structure: Structure) -> Structure:
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-
 
     methyl_group = read_smiles('C')
     methyl_group.add_attributes(ATTRIBUTES, boolean=True)
@@ -424,19 +445,21 @@ def methylation(target_atom, structure: Structure) -> Structure:
         if carbon.nr in s.atoms:
             return s
 
+
 def find_OH_two_modules_upstream(structure: Structure):
     """
     Returns the O atom that is connected to the first hydroxygroup two modules upstream (also if chain contains double bonds)
     structure: PIKAChU Structure object
     """
-    bonds= find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA,structure)
+    bonds = find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA, structure)
     if not bonds:
-        bonds= find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA,structure)
+        bonds = find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA, structure)
     if not bonds:
-        bonds= find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND,structure)
+        bonds = find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND, structure)
     if not bonds:
-        bonds= find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND_SHIFTED,structure)
+        bonds = find_bonds(HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND_SHIFTED, structure)
     return bonds
+
 
 def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -444,15 +467,20 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
 
     structure: PIKAChU Structure object
     """
-    #reduce Ketogroup first
-    structure_oh=ketoreduction(structure, KRDomainSubtype(1))
-    oh_bond=find_OH_two_modules_upstream(structure_oh)
+    # reduce Ketogroup first
+    structure_oh, did_reduction = ketoreduction(structure, KRDomainSubtype(1))
+    if not did_reduction:
+        return structure, False
+
+    oh_bond = find_OH_two_modules_upstream(structure_oh)
     if not oh_bond:
         print("No hydroxy group two modules upstream availiable")
         return structure, False
-    oh_bond=oh_bond[0]
-    h_bond=find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]
-    structure_oh=internal_condensation(structure_oh, oh_bond, h_bond)[0]
+
+    oh_bond = oh_bond[0]
+    h_bond = find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]
+    structure_oh = internal_condensation(structure_oh, oh_bond, h_bond)[0]
+
     return structure_oh, True
 
 
@@ -463,16 +491,17 @@ def alpha_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-    #find atom to add methylgroup
-    alpha_c=find_atoms(RECENT_ALPHA_C, structure)
+    # find atom to add methylgroup
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)
     if alpha_c:
         if alpha_c[0].has_neighbour("H"):
-            structure=methylation(alpha_c[0],structure)
+            structure = methylation(alpha_c[0], structure)
             return structure, True
         else:
             return structure, False
     else:
         return structure, False
+
 
 def beta_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -481,16 +510,17 @@ def beta_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-    #find atom to add methylgroup
-    beta_c=find_atoms(RECENT_BETA_C, structure)
+    # find atom to add methylgroup
+    beta_c = find_atoms(RECENT_BETA_C, structure)
     if beta_c:
         if beta_c[0].has_neighbour("H"):
-            structure=methylation(beta_c[0],structure)
+            structure = methylation(beta_c[0], structure)
             return structure, True
         else:
             return structure, False
     else:
         return structure, False
+
 
 def beta_hydroxy_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -499,17 +529,18 @@ def beta_hydroxy_methyl_transferase(structure: Structure) -> Tuple[Structure, bo
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-    #find atom to add methylgroup
+    # find atom to add methylgroup
 
-    beta_c_oh=find_atoms(RECENT_BETA_C_OH, structure)
+    beta_c_oh = find_atoms(RECENT_BETA_C_OH, structure)
     if beta_c_oh:
         if beta_c_oh[0].has_neighbour("H"):
-            structure=methylation(beta_c_oh[0],structure)
+            structure = methylation(beta_c_oh[0], structure)
             return structure, True
         else:
             return structure, False
     else:
         return structure, False
+
 
 def alpha_hydroxylase(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -519,15 +550,16 @@ def alpha_hydroxylase(structure: Structure) -> Tuple[Structure, bool]:
     target_atom:  PIKAChU atom object
     """
     #find atom to add methylgroup
-    alpha_c=find_atoms(RECENT_ALPHA_C, structure)
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)
     if alpha_c:
         if alpha_c[0].has_neighbour("H"):
-            structure=hydroxylation(alpha_c[0],structure)
+            structure = hydroxylation(alpha_c[0], structure)
             return structure, True
         else:
             return structure, False
     else:
         return structure, False
+
 
 def alpha_L_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -536,12 +568,12 @@ def alpha_L_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-    #find atom to add methylgroup
-    alpha_c=find_atoms(RECENT_ALPHA_C, structure)
+    # find atom to add methylgroup
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)
     if alpha_c:
         if alpha_c[0].has_neighbour("H"):
-            structure=methylation(alpha_c[0],structure)
-            alpha_c=alpha_c[0]
+            structure = methylation(alpha_c[0], structure)
+            alpha_c = alpha_c[0]
             structure.refresh_structure()
             h_atom = alpha_c.get_neighbour('H')
             c_atoms = alpha_c.get_neighbours('C')
@@ -555,7 +587,7 @@ def alpha_L_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
             if not len(top_cs) == 1:
                 return structure, False
             top_c = top_cs[0]
-            if not top_c in c_atoms:
+            if top_c not in c_atoms:
                 return structure, False
 
             bottom_c = None
@@ -581,7 +613,8 @@ def alpha_L_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     else:
         return structure, False
 
-def gamma_beta_dehydratase(chain_intermediate: Structure, chirality = None) -> Tuple[Structure, bool]:
+
+def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tuple[Structure, bool]:
     """
     Performs the dehydratase reaction on the PKS chain intermediate wuth shifted double bonds, returns
     the reaction product as a PIKAChU Structure object
@@ -656,19 +689,33 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality = None) -> T
 
     chain_intermediate.refresh_structure()
 
-    #implement stereochemistry
+    # implement stereochemistry
     if chirality:
-        main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C,chain_intermediate)[0]
-        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C,chain_intermediate)[0]
-        main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_H,chain_intermediate)
+        main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
+        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C, chain_intermediate)[0]
+        main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_H, chain_intermediate)
         if not main_chain_top_h:
-            main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_METHYL,chain_intermediate)[0]
+            main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_METHYL, chain_intermediate)[0]
         else:
-            main_chain_top_h=main_chain_top_h[0]
-        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_H,chain_intermediate)[0]
-        if chirality=="E":
-            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'trans',main_chain_top_h:'cis'},main_chain_bottom_h:{main_chain_top_c:'cis',main_chain_top_h:'trans'}}
-        if chirality=="Z":
-            double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'cis',main_chain_top_h:'trans'},main_chain_bottom_h:{main_chain_top_c:'trans',main_chain_top_h:'cis'}}
+            main_chain_top_h = main_chain_top_h[0]
+        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_H, chain_intermediate)[0]
+        if chirality == "E":
+            double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
+                                                          main_chain_bottom_h: 'cis'},
+                                       main_chain_top_h: {main_chain_bottom_c: 'cis',
+                                                          main_chain_bottom_h: 'trans'},
+                                       main_chain_bottom_c: {main_chain_top_c: 'trans',
+                                                             main_chain_top_h: 'cis'},
+                                       main_chain_bottom_h: {main_chain_top_c: 'cis',
+                                                             main_chain_top_h: 'trans'}}
+        if chirality == "Z":
+            double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
+                                                          main_chain_bottom_h: 'cis'},
+                                       main_chain_top_h: {main_chain_bottom_c: 'cis',
+                                                          main_chain_bottom_h: 'trans'},
+                                       main_chain_bottom_c: {main_chain_top_c: 'cis',
+                                                             main_chain_top_h: 'trans'},
+                                       main_chain_bottom_h: {main_chain_top_c: 'trans',
+                                                             main_chain_top_h: 'cis'}}
     chain_intermediate.refresh_structure()
     return chain_intermediate, True

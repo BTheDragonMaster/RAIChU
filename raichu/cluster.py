@@ -10,7 +10,8 @@ from raichu.drawing.bubbles import draw_bubbles
 
 
 from raichu.substrate import PKSSubstrate
-from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE, TRANSATOR_CLADE_TO_ELONGATING
+from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE, \
+    TRANSATOR_CLADE_TO_ELONGATING
 from raichu.domain.domain import TailoringDomain
 
 
@@ -24,7 +25,6 @@ class Cluster:
         self.cyclised_products = []
         self.module_mechanisms = []
         self.handle_transat()
-
 
     def handle_transat(self):
         for i, module in enumerate(self.modules):
@@ -52,8 +52,8 @@ class Cluster:
                                 self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
                                                                                          dummy_domain_subtype))
                 if module.synthesis_domain:
-                    if TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]==False:
-                        self.modules[i].synthesis_domain.is_elongating==False
+                    if not TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]:
+                        self.modules[i].synthesis_domain.is_elongating = False
                 self.modules[i].recognition_domain.substrate = substrate
 
     def compute_structures(self, compute_cyclic_products=True):

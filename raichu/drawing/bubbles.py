@@ -26,15 +26,8 @@ def draw_rectangle(gene_name, x, y, width, height=12, text_colour='white'):
     rectangle = f"""<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="black" />"""
     text_x = x + width / 2
     text_y = y + height / 2
-    text = f"""<text 
-            x="{text_x}" 
-            y="{text_y}"
-            fill="{text_colour}"
-            text-anchor="middle"
-            font-family="verdana"
-            font-size = "{8}">
-            <tspan y="{text_y}" dy="0.35em">{gene_name}</tspan>
-            </text>"""
+    text = f"""<text x="{text_x}" y="{text_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{8}">\
+<tspan y="{text_y}" dy="0.35em">{gene_name}</tspan></text>"""
 
     svg_rect = f"""<g id="gene_banner_{gene_name}">"""
     svg_rect += rectangle
@@ -49,17 +42,12 @@ def draw_line(start_x, end_x, y=4):
     return line
 
 
-def make_module_text(start_x, end_x, y, module_nr):
+def make_module_text(start_x, end_x, y, module_nr, offset_1=True):
+    if offset_1:
+        module_nr += 1
     text_x = start_x + (end_x - start_x)/2
-    text = f"""<text 
-                x="{text_x}" 
-                y="{y}"
-                fill="'black"
-                text-anchor="middle"
-                font-family="verdana"
-                font-size = "{12}">
-                <tspan y="{y}" dy="0.35em">Module {module_nr}</tspan>
-                </text>"""
+    text = f"""<text x="{text_x}" y="{y}" fill="'black" text-anchor="middle" font-family="verdana" font-size = "{12}">\
+<tspan y="{y}" dy="0.35em">Module {module_nr}</tspan></text>"""
     return text
 
 
@@ -155,7 +143,6 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
             if domain.gene not in genes:
                 genes.append(domain.gene)
             if current_gene and domain.gene != current_gene:
-                print("===", domain.type.name)
                 width = gene_end - gene_start
                 gene_rects.append(draw_rectangle(current_gene, gene_start, bubble_height - 75, width))
                 gene_start = current_x - 15
@@ -199,29 +186,19 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
             if not domain.used:
                 text_colour = TRANSPARENT_TEXT_COLOURS[domain.type.name]
 
-            text = f"""<text 
-            x="{current_x}" 
-            y="{current_y}"
-            fill="{text_colour}"
-            text-anchor="middle"
-            font-family="verdana"
-            font-size = "{13}">
-            <tspan y="{current_y}" dy="0.35em">{abbreviation}</tspan>
-            </text>"""
+            text = f"""<text x="{current_x}" y="{current_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{13}">\
+<tspan y="{current_y}" dy="0.35em">{abbreviation}</tspan></text>"""
 
             texts.append(text)
             if domain.supertype.name == "CARRIER" and domain.used:
                 cp_positions.append((current_x, current_y))
 
             gene_end = current_x + 15
-            print(gene_end)
 
             current_x += delta_x
             if new_gene:
 
                 current_x += min_gene_padding
-
-
 
         # Shift modules based on width of structures
 
@@ -242,21 +219,28 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
 
     svg = ''
 
+    svg += f"""<g id="domain_circles">\n"""
     for i, circle in enumerate(circles):
         text = texts[i]
-        svg += f"""<g id="domain-{i}">"""
-        svg += circle
-        svg += text
-        svg += "</g>"
+        svg += f"""<g id="domain_bubble_{i}">\n"""
+        svg += f"{circle}\n"
+        svg += f"{text}\n"
+        svg += "</g>\n"
+    svg += "</g>\n"
 
-    for line in lines:
-        svg += line
-
+    svg += f"""<g id="gene_rectangles">\n"""
     for rect in gene_rects:
-        svg += rect
+        svg += f"{rect}\n"
+    svg += "</g>\n"
 
-    for module_text in module_texts:
-        svg += module_text
+    svg += f"""<g id="module_labels">\n"""
+    for i, line in enumerate(lines):
+        svg += f"""<g id="module_label_{i}">"""
+        module_text = module_texts[i]
+        svg += f"{line}\n"
+        svg += f"{module_text}\n"
+        svg += "</g>\n"
+    svg += "</g>\n"
 
     return svg, cp_positions, current_x
 

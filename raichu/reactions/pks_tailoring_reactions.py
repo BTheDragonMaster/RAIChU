@@ -45,7 +45,7 @@ HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA=BondDefiner("hydroxyl_group_two_module_
 
 #STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
 
-def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tuple[Structure, bool]:
+def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Structure:
     """
     Performs the ketoreductase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -55,7 +55,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     """
 
     if kr_type.name == 'C1':
-        return chain_intermediate, False
+        return chain_intermediate
 
     chiral_c = None
 
@@ -67,7 +67,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     beta_ketone_bonds = find_bonds(RECENT_ELONGATION, chain_intermediate)
 
     if not len(beta_ketone_bonds) == 1:
-        return chain_intermediate, False
+        return chain_intermediate
 
     beta_ketone_bond = beta_ketone_bonds[0]
 
@@ -193,10 +193,10 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
             raise ValueError(f'KR domain of type {kr_type.name} is not supported by RAIChU or does not exist')
 
     chain_intermediate.refresh_structure()
-    return chain_intermediate, True
+    return chain_intermediate
 
 
-def dehydration(chain_intermediate: Structure, chirality = None) -> Tuple[Structure, bool]:
+def dehydration(chain_intermediate: Structure, chirality = None) -> Structure:
     """
     Performs the dehydratase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -210,7 +210,7 @@ def dehydration(chain_intermediate: Structure, chirality = None) -> Tuple[Struct
     cc_bonds = find_bonds(RECENT_REDUCTION_CC, chain_intermediate)
 
     if not len(co_bonds) == 1 or not len(cc_bonds) == 1:
-        return chain_intermediate, False
+        return chain_intermediate
 
     c1 = None
     c2 = None
@@ -286,10 +286,11 @@ def dehydration(chain_intermediate: Structure, chirality = None) -> Tuple[Struct
             double_bond.chiral_dict={main_chain_top_c:{main_chain_bottom_c:'trans',main_chain_bottom_h:'cis'},main_chain_top_h:{main_chain_bottom_c:'cis',main_chain_bottom_h:'trans'},main_chain_bottom_c:{main_chain_top_c:'cis',main_chain_top_h:'trans'},main_chain_bottom_h:{main_chain_top_c:'trans',main_chain_top_h:'cis'}}
     chain_intermediate.refresh_structure()
     #chain_intermediate.set_connectivities()
-    return chain_intermediate, True
+    return chain_intermediate
 
 
-def enoylreduction(chain_intermediate: Structure, er_subtype: ERDomainSubtype) -> Tuple[Structure, bool]:
+def enoylreduction(chain_intermediate: Structure,
+                   er_subtype: ERDomainSubtype) -> Structure:
     """
     Performs the enoylreductase reaction on the PKS chain intermediate, returns
     the reaction product as a PIKAChU Structure object
@@ -306,7 +307,7 @@ def enoylreduction(chain_intermediate: Structure, er_subtype: ERDomainSubtype) -
     # Find double bond, change to single bond
     double_cc_bonds = find_bonds(RECENT_DEHYDRATION, chain_intermediate)
     if not len(double_cc_bonds) == 1:
-        return chain_intermediate, False
+        return chain_intermediate
 
     double_cc_bond = double_cc_bonds[0]
     double_cc_bond.make_single()
@@ -351,9 +352,7 @@ def enoylreduction(chain_intermediate: Structure, er_subtype: ERDomainSubtype) -
             else:
                 raise ValueError(f"RAIChU does not support ER domain subtype {er_subtype.name}")
 
-    return chain_intermediate, True
-
-
+    return chain_intermediate
 #trans-AT-PKS tailoringReactions
 def hydroxylation(target_atom, structure: Structure) -> Structure:
     """

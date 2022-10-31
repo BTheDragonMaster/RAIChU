@@ -89,8 +89,47 @@ class Cluster:
 
         return spaghetti_svgs + [linear_svg]
 
+    def get_drawings(self, whitespace=30):
+
+        drawings = []
+        widths = []
+
+        for i, structure in enumerate(self.structure_intermediates):
+
+            drawing = RaichuDrawer(structure, dont_show=True)
+            drawing.flip_y_axis()
+            drawing.move_to_positive_coords()
+            drawing.convert_to_int()
+
+            carrier_domain_pos = None
+
+            for atom in drawing.structure.graph:
+                if atom.annotations.domain_type:
+                    carrier_domain_pos = atom.draw.position
+                    atom.draw.positioned = False
+
+            assert carrier_domain_pos
+
+            min_x = 100000000
+            max_x = -100000000
+
+            for atom in drawing.structure.graph:
+                if atom.draw.positioned:
+                    if atom.draw.position.x < min_x:
+                        min_x = atom.draw.position.x
+                    if atom.draw.position.x > max_x:
+                        max_x = atom.draw.position.x
+
+            width = (carrier_domain_pos.x - min_x + 0.5 * whitespace,
+                     max_x - carrier_domain_pos.x + 0.5 * whitespace)
+            widths.append(width)
+            drawings.append(drawing)
+
+        return drawings, widths
+
     def draw_cluster(self):
-        bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self)
+        drawings, widths = self.get_drawings()
+        bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
         max_x = -100000000
         min_y = 100000000
@@ -100,13 +139,9 @@ class Cluster:
         squiggly_svgs = []
         padding = None
 
-        for i, structure in enumerate(self.structure_intermediates):
+        for i, drawing in enumerate(drawings):
 
-            drawing = RaichuDrawer(structure, dont_show=True)
             padding = drawing.options.padding
-            drawing.flip_y_axis()
-            drawing.move_to_positive_coords()
-            drawing.convert_to_int()
 
             carrier_domain_pos = None
 
@@ -150,9 +185,8 @@ class Cluster:
         y1 = 0
         y2 = max_y + padding
 
-        width = max_x - min_x + 2 * padding
-        height = max_y
-
+        width = x2
+        height = y2
 
         svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">"""
         svg_string += bubble_svg

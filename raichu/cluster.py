@@ -127,7 +127,7 @@ class Cluster:
 
         return drawings, widths
 
-    def draw_cluster(self):
+    def draw_cluster(self, as_string=True, out_file=None):
         drawings, widths = self.get_drawings()
         bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
@@ -201,8 +201,14 @@ class Cluster:
             svg_string += squiggly_svg
         svg_string += "</svg>"
 
-        with open('testy.svg', 'w') as svg_out:
-            svg_out.write(svg_string)
+        if as_string:
+            return svg_string
+        else:
+            if out_file is None:
+                raise ValueError("Must provide output svg directory if 'as_string' is set to False.")
+            else:
+                with open(out_file, 'w') as svg_out:
+                    svg_out.write(svg_string)
 
 
 class Mechanism:

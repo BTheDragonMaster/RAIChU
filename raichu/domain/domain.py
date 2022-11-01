@@ -12,6 +12,7 @@ from raichu.domain.domain_types import DomainSuperClass, RecognitionDomainType, 
 
 from dataclasses import dataclass
 
+
 @dataclass
 class Domain:
     supertype: DomainSuperClass

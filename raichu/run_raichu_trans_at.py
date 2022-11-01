@@ -121,10 +121,13 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
 
     return cluster
 
+
 def draw_cluster(cluster_repr: ClusterRepresentation) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.draw_cluster()
+
+
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)

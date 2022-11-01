@@ -64,7 +64,6 @@ class RaichuDrawer(Drawer):
                       (bond.atom_2.type == 'S' and bond.atom_1.annotations.domain_type)):
                     json_bond["type"] = "squiggle"
 
-
         # If the starter unit contains an unknown moiety, number this R1
         for atom in self.structure.graph:
             if atom.type == '*' and not atom.annotations.unknown_index:

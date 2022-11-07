@@ -49,7 +49,7 @@ def make_PKS_module(number_of_domains, TE):
         domains += [DomainRepresentation("gene 1", 'KS', None, None, True, True)]
     if module_type == "PKS_TRANS":
         subtype = random.choice(KS_SUBTYPES)
-        if subtype == "CIS" or subtype == "UNKNOWN":
+        if subtype == "CIS":
             subtype = "DB"
         domains += [DomainRepresentation("gene 1", 'KS', subtype, None, True, True)]
     if TE:
@@ -135,6 +135,6 @@ def create_random_cluster(number_of_modules):
 
 
 if __name__ == "__main__":
-    for i in range(1, 20):
+    for i in range(1, 50):
         cluster_repr = create_random_cluster(random.randint(2,20))
         draw_cluster(cluster_repr,f'demo_cluster_{i}.svg')

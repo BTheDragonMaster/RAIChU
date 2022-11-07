@@ -24,7 +24,7 @@ OUTLINE_COLOURS = {'ACP': '#3d79d6', 'AT': '#df5d5d', 'KS': '#5fc65f',
                    'KR': '#5fbb87', 'DH': '#ca9862', 'ER': '#61bbad',
                    'TE': '#a25ba0', 'KR*': '#5fbb87', 'C': '#5858b6',
                    'A': '#74399b', 'PCP': '#306dd2', 'E': '#5858b6',
-                   'nMT': '#a2a2a2', "UNKNOWN": '#a2a2a2'}
+                   'nMT': '#a2a2a2', "UNKNOWN": '#a2a2a2', 'TD': '#ED96E7'}
 
 TRANSPARENT_FILL_COLOURS = {'ACP': '#c0defb',
                             'PCP': '#c0defb',

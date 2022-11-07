@@ -95,8 +95,9 @@ class PksElongationSubstrate(Enum):
     MALONYL_COA = 2
     METHYLMALONYL_COA = 3
     METHOXYMALONYL_ACP = 4
-    METHYLBUTYRYL_COA_2S = 5
-    METHYLBUTYRYL_COA_2R = 6
+    #TODO: something is wrong with those substrates
+    #METHYLBUTYRYL_COA_2S = 5
+    #METHYLBUTYRYL_COA_2R = 6
     ETHYLMALONYL_COA = 7
 
     @staticmethod

@@ -99,7 +99,6 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
                 genes.add(domain_repr.gene_name)
             domains.append(domain)
             previous_domain = domain
-
         module_type = ModuleType.from_string(module_repr.type)
         if module_type.name == 'PKS':
             if module_repr.subtype is not None:
@@ -132,10 +131,14 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
 
     return cluster
 
-def draw_cluster(cluster_repr: ClusterRepresentation) -> None:
+def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
-    cluster.draw_cluster()
+    if outfile:
+        return cluster.draw_cluster(as_string=False, out_file=outfile)
+    else:
+        cluster.draw_cluster()
+
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)

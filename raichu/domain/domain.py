@@ -135,6 +135,8 @@ class SynthesisDomain(Domain):
                     return pks_elongation(structure, building_block)
                 else:
                     raise ValueError(f"RAIChU does not support domain subtype {self.subtype.name}")
+            else:
+                return structure
         else:
             raise ValueError(f"Unknown type of synthesis domain: {self.type}")
 

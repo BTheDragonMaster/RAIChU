@@ -53,8 +53,7 @@ class Cluster:
                                                                                          dummy_domain_subtype))
                 if module.synthesis_domain:
                     if module.synthesis_domain.subtype and module.synthesis_domain.subtype.name != "UNKNOWN":
-                        if TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]==False:
-                            self.modules[i].synthesis_domain.is_elongating==False
+                        self.modules[i].synthesis_domain.is_elongating = TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]
                 self.modules[i].recognition_domain.substrate = substrate
 
     def compute_structures(self, compute_cyclic_products=True):

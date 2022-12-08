@@ -185,19 +185,18 @@ class KSDomainSubtype(Enum):
     ALPHAME_EDB = 29
     ALPHAME = 30
     ALPHAME_BETA_L_OH = 31
-    TRANS_AT_PKS = 32
-    AA = 33
-    DB = 34
-    RED = 35
-    PYR = 36
-    ALPHAME_BETA_D_OH = 37
-    NON_ELONGATING = 38
-    MEOST = 39
-    BETA_L_OH = 40
-    ZDB = 41
-    KETO = 42
-    ALPHA_OH = 43
-    NON_ELONGATING_PYR = 44
+    AA = 32
+    DB = 33
+    RED = 34
+    PYR = 35
+    ALPHAME_BETA_D_OH = 36
+    NON_ELONGATING = 37
+    MEOST = 38
+    BETA_L_OH = 39
+    ZDB = 40
+    KETO = 41
+    ALPHA_OH = 42
+    NON_ELONGATING_PYR = 43
 
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":

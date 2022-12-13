@@ -8,7 +8,7 @@ from raichu.module import _Module
 
 from raichu.drawing.bubbles import draw_bubbles
 
-
+from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.substrate import PKSSubstrate
 from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE, \
     TRANSATOR_CLADE_TO_ELONGATING
@@ -16,14 +16,16 @@ from raichu.domain.domain import TailoringDomain
 
 
 class Cluster:
-    def __init__(self, modules: List[_Module]) -> None:
+    def __init__(self, modules: List[_Module], tailoring_enzymes_representation = None) -> None:
         self.modules = modules
+        self.tailoring_enzymes_representation = tailoring_enzymes_representation
         self.chain_intermediate = None
 
         self.structure_intermediates = []
         self.linear_product = None
         self.cyclised_products = []
         self.module_mechanisms = []
+        self.tailoring_enzymes = []
         self.handle_transat()
 
     def handle_transat(self):
@@ -75,6 +77,16 @@ class Cluster:
 
     def cyclise_all(self):
         pass
+
+    def initialize_tailoring_enzymes_on_structure(self):
+        for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
+            atoms = [atom for atom in self.linear_product.atoms.values() if str(atom) in tailoring_enzyme_representation.atoms]
+            self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atoms)]
+
+    def do_tailoring(self):
+        self.initialize_tailoring_enzymes_on_structure()
+        for tailoring_enzyme in self.tailoring_enzymes:
+            self.linear_product = tailoring_enzyme.do_tailoring(self.linear_product)
 
     def draw_spaghettis(self):
         spaghetti_svgs = []

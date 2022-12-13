@@ -67,7 +67,6 @@ class TailoringDomain(Domain):
         """
         Performs tailoring reaction
         """
-        #STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
         if self.type.name == 'KR' or self.type.name == 'DUMMY_KR':
             return ketoreduction(structure, self.subtype)
         elif self.type.name == 'DH' or self.type.name == 'DUMMY_DH':

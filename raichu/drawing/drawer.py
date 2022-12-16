@@ -7,9 +7,11 @@ from raichu.central_chain_detection.find_central_chain import find_central_chain
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=True, dpi=100, save_svg=None):
+                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False):
         self.dont_show = dont_show
         self.dpi = dpi
+        self.draw_Cs_in_pink = draw_Cs_in_pink
+        self.add_url = add_url
         if options is None:
             self.options = Options()
         else:
@@ -560,11 +562,11 @@ class RaichuDrawer(Drawer):
             if atom.type == '*' and not atom.annotations.unknown_index:
                 atom.annotations.unknown_index = 1
         for atom in self.structure.graph:
-            if atom.type != 'C' and atom.draw.positioned:
+            if (atom.type != 'C' or self.draw_Cs_in_pink) and atom.draw.positioned:
                 text_h = ''
                 text_h_pos = None
 
-                if atom.type != 'C' or atom.draw.draw_explicit:
+                if atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit:
                     text = atom.type
                 else:
                     text = ''
@@ -592,7 +594,7 @@ class RaichuDrawer(Drawer):
                     atom_draw_position.x += delta_x_r
                     text = fr'$R_{atom.annotations.unknown_index}$'
 
-                if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit):
+                if not atom.charge and (atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit):
 
                     if atom.draw.has_hydrogen:
                         hydrogen_count = 0
@@ -600,7 +602,7 @@ class RaichuDrawer(Drawer):
                             if neighbour.type == 'H' and not neighbour.draw.is_drawn:
                                 hydrogen_count += 1
 
-                        if hydrogen_count:
+                        if hydrogen_count and not (atom.type == 'C' and self.draw_Cs_in_pink):
 
                             if hydrogen_count > 1:
                                 if orientation == 'H_before_atom':
@@ -731,18 +733,36 @@ class RaichuDrawer(Drawer):
                                 horizontal_alignment = 'left'
                                 atom_draw_position.x -= 3
 
-                if text:
-                    plt.text(atom_draw_position.x, atom_draw_position.y,
-                             text,
-                             horizontalalignment=horizontal_alignment,
-                             verticalalignment='center',
-                             color=atom.draw.colour)
-                if text_h:
-                    plt.text(text_h_pos.x, text_h_pos.y,
-                             text_h,
-                             horizontalalignment='center',
-                             verticalalignment='center',
-                             color=atom.draw.colour)
+                atom_color = atom.draw.colour
+                if self.draw_Cs_in_pink:
+                    if atom.type == 'C':
+                        atom_color = "magenta"
+                if self.add_url:
+                    if text:
+                        plt.text(atom_draw_position.x, atom_draw_position.y,
+                                 text, url=str(atom),
+                                 horizontalalignment=horizontal_alignment,
+                                 verticalalignment='center',
+                                 color=atom_color)
+                    if text_h:
+                        plt.text(text_h_pos.x, text_h_pos.y,
+                                 text_h, url=str(atom),
+                                 horizontalalignment='center',
+                                 verticalalignment='center',
+                                 color=atom_color)
+                else:
+                    if text:
+                        plt.text(atom_draw_position.x, atom_draw_position.y,
+                                 text,
+                                 horizontalalignment=horizontal_alignment,
+                                 verticalalignment='center',
+                                 color=atom_color)
+                    if text_h:
+                        plt.text(text_h_pos.x, text_h_pos.y,
+                                 text_h,
+                                 horizontalalignment='center',
+                                 verticalalignment='center',
+                                 color=atom_color)
 
         # If a png filename is included in the initialization of the
         # Raichu_drawer object, don't show the structure, but do save it as a

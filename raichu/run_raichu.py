@@ -45,7 +45,7 @@ class ModuleRepresentation:
 @dataclass
 class ClusterRepresentation:
     modules: List[ModuleRepresentation]
-    tailoring_enzymes: Union[List, None]
+    tailoring_enzymes: Union[List, None] = None
 
 
 @dataclass
@@ -230,4 +230,3 @@ if __name__ == "__main__":
                                           )
 
     draw_cluster(cluster_repr,f'demo_cluster_pks_nrps_hybrid.svg')
-    print(get_spaghettis(cluster_repr)[-1])

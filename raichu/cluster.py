@@ -23,6 +23,7 @@ class Cluster:
 
         self.structure_intermediates = []
         self.linear_product = None
+        self.cyclised_product = None
         self.cyclised_products = []
         self.module_mechanisms = []
         self.tailoring_enzymes = []
@@ -73,8 +74,9 @@ class Cluster:
             self.cyclise_all()
 
     def cyclise(self, atom):
-        cyclic_release(self.linear_product, atom)
-
+        self.cyclised_product = cyclic_release(self.linear_product, atom)
+        return self.cyclised_product
+        
     def cyclise_all(self):
         pass
 

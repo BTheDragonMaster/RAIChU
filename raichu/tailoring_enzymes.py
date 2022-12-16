@@ -4,9 +4,11 @@ from pikachu.chem.structure import Structure
 
 @unique
 class TailoringEnzymeType(Enum):
-    P450_HYDROXYLATION = 1
+    P450 = 1
     METHYLTRANSFERASE = 2
-
+    C_METHYLTRANSFERASE = 3
+    N_METHYLTRANSFERASE = 4
+    O_METHYLTRANSFERASE = 5
     @staticmethod
     def from_string(label: str) -> "TailoringEnzymeType":
         for value in TailoringEnzymeType:
@@ -26,11 +28,11 @@ class TailoringEnzyme:
         """
         Performs tailoring reaction
         """
-        if self.type.name == "P450_HYDROXYLATION":
+        if self.type.name == "P450":
             for atom in self.atoms:
                 atom = structure.get_atom(atom)
                 structure = hydroxylation(atom, structure)
-        elif self.type.name == "METHYLTRANSFERASE":
+        elif "METHYLTRANSFERASE" in self.type.name:
             for atom in self.atoms:
                 atom = structure.get_atom(atom)
                 structure = methylation(atom, structure)

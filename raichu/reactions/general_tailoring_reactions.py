@@ -9,7 +9,29 @@ SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
 N_AMINO = GroupDefiner('N_amino', 'CN', 1)
 O_OH = GroupDefiner('O_oh', 'CO', 1)
-C_CH=GroupDefiner("C_Ch","CC",0)
+C_CH = GroupDefiner("C_Ch", "CC", 0)
+O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
+
+
+def find_o_betapropriolactone(polyketide):
+    """
+    Finds and returns the oxygen atom (PIKAChU atom object) in the -OH group
+    that shouldn't be used by the thioesterase_circular_product function, as
+    this will create a beta-propriolactone compound, which does not occur in
+    polyketide synthesis, if present. Otherwise the function returns None
+
+    polyketide: PIKAChU structure object of a polyketide
+    """
+    o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE, polyketide)
+    if len(o_propriolactone) == 0:
+        return None
+    elif len(o_propriolactone) == 1:
+        return o_propriolactone[0]
+    else:
+        raise ValueError('Error: this molecule is not a polyketide, as the \
+        carbon in the beta ketone/hydroxyl group is bound to an additional \
+         oxygen atom')
+
 
 def find_all_o_n_atoms_for_cyclization(chain_intermediate):
     """Performs all thioesterase reactions on the input chain_intermediate
@@ -50,31 +72,31 @@ def find_all_o_n_atoms_for_cyclization(chain_intermediate):
     # Define -OH group that should not be used to carry out the thioesterase
     # reaction (distance -S and internal -OH group)
     o_not_to_use = find_o_betapropriolactone(chain_intermediate)
-    return o_oh_atoms_filtered, amino_n_atoms_filtered
+    return o_oh_atoms_filtered + amino_n_atoms_filtered
 
 
 def find_atoms_for_tailoring(chain_intermediate, atom_type):
-        """Atoms that can be tailored
+    """Atoms that can be tailored
 
-         chain_intermediate: PIKAChU Structure object of a polyketide/NRP
-         atom_type: type of atom to search for (e.g. C)
-        """
-        # Perform first thioesterase reaction, generating linear polyketide/NRP
-        chain_intermediate.refresh_structure()
-        for atom in chain_intermediate.graph:
-            atom.hybridise()
-        chain_intermediate_copy = chain_intermediate.deepcopy()
-        chain_intermediate_copy.refresh_structure()
-        atoms_filtered = []
-        for atom in chain_intermediate_copy.graph:
-            if atom.type == atom_type:
-                neighbour_types = []
-                for neighbour in atom.neighbours:
-                    neighbour_types.append(neighbour.type)
-                if atom not in atoms_filtered and neighbour_types.count('H') >= 1:
-                    atoms_filtered.append(atom)
+     chain_intermediate: PIKAChU Structure object of a polyketide/NRP
+     atom_type: type of atom to search for (e.g. C)
+    """
+    # Perform first thioesterase reaction, generating linear polyketide/NRP
+    chain_intermediate.refresh_structure()
+    for atom in chain_intermediate.graph:
+        atom.hybridise()
+    chain_intermediate_copy = chain_intermediate.deepcopy()
+    chain_intermediate_copy.refresh_structure()
+    atoms_filtered = []
+    for atom in chain_intermediate_copy.graph:
+        if atom.type == atom_type:
+            neighbour_types = []
+            for neighbour in atom.neighbours:
+                neighbour_types.append(neighbour.type)
+            if atom not in atoms_filtered and neighbour_types.count('H') >= 1:
+                atoms_filtered.append(atom)
 
-        return atoms_filtered
+    return atoms_filtered
 
 
 def hydroxylation(target_atom, structure):
@@ -101,8 +123,10 @@ def hydroxylation(target_atom, structure):
     hydroxylated_structure.break_bond(bond_1)
     hydroxylated_structure.break_bond(bond_2)
 
-    hydroxylated_structure.make_bond(oxygen, target_atom, hydroxylated_structure.find_next_bond_nr())
-    hydroxylated_structure.make_bond(hydrogen_1, hydrogen_2,hydroxylated_structure.find_next_bond_nr())
+    hydroxylated_structure.make_bond(
+        oxygen, target_atom, hydroxylated_structure.find_next_bond_nr())
+    hydroxylated_structure.make_bond(
+        hydrogen_1, hydrogen_2, hydroxylated_structure.find_next_bond_nr())
 
     structures = hydroxylated_structure.split_disconnected_structures()
 
@@ -118,7 +142,6 @@ def methylation(target_atom, structure):
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-
 
     methyl_group = read_smiles('C')
     methyl_group.add_attributes(ATTRIBUTES, boolean=True)
@@ -137,8 +160,10 @@ def methylation(target_atom, structure):
     methylated_structure.break_bond(bond_1)
     methylated_structure.break_bond(bond_2)
 
-    methylated_structure.make_bond(carbon, target_atom, methylated_structure.find_next_bond_nr())
-    methylated_structure.make_bond(hydrogen_1, hydrogen_2, methylated_structure.find_next_bond_nr())
+    methylated_structure.make_bond(
+        carbon, target_atom, methylated_structure.find_next_bond_nr())
+    methylated_structure.make_bond(
+        hydrogen_1, hydrogen_2, methylated_structure.find_next_bond_nr())
 
     structures = methylated_structure.split_disconnected_structures()
 

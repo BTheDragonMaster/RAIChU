@@ -56,6 +56,8 @@ class TailoringRepresentation:
 
 def make_domain(domain_repr: DomainRepresentation, substrate: str, strict: bool = True) -> Domain:
     domain_class = DOMAIN_TO_SUPERTYPE.get(domain_repr.type)
+    if not domain_repr.name:
+        domain_repr.name = domain_repr.type
     if domain_class:
         if domain_class == RecognitionDomain:
             domain = domain_class(domain_repr.type, substrate, domain_subtype=domain_repr.subtype,

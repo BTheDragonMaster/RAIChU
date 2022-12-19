@@ -244,16 +244,17 @@ class LinearPKSModule(_Module):
         super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_CIS")
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:
-        if structure is None:
-            assert self.is_starter_module
-            starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-            label_pk_central_chain(starter_unit)
-            structure = attach_to_domain_pk(starter_unit)
-        else:
-            structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+        if self.recognition_domain:
+            if structure is None:
+                assert self.is_starter_module
+                starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                label_pk_central_chain(starter_unit)
+                structure = attach_to_domain_pk(starter_unit)
+            else:
+                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-        structure = self.do_pks_tailoring(structure)
-        # RaichuDrawer(structure).draw_structure()
+            structure = self.do_pks_tailoring(structure)
+            # RaichuDrawer(structure).draw_structure()
         return structure
 
 
@@ -475,14 +476,15 @@ class TransATPKSModule(_Module):
         return structure
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:
-        if structure is None:
-            assert self.is_starter_module
-            starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-            label_pk_central_chain(starter_unit)
-            structure = attach_to_domain_pk(starter_unit)
-        else:
-            structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
-        structure = self.do_pks_tailoring(structure)
+        if self.recognition_domain:
+            if structure is None:
+                    assert self.is_starter_module
+                    starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                    label_pk_central_chain(starter_unit)
+                    structure = attach_to_domain_pk(starter_unit)
+            else:
+                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+            structure = self.do_pks_tailoring(structure)
         return structure
 
 
@@ -492,13 +494,14 @@ class NRPSModule(_Module):
         super().__init__(nr, "NRPS", domains, starter=starter, terminator=terminator)
 
     def run_module(self, structure=None) -> Structure:
-        if structure is None:
-            assert self.is_starter_module
-            starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-            label_nrp_central_chain(starter_unit)
-            structure = attach_to_domain_nrp(starter_unit)
-        else:
-            structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+        if self.recognition_domain:
+            if structure is None:
+                assert self.is_starter_module
+                starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                label_nrp_central_chain(starter_unit)
+                structure = attach_to_domain_nrp(starter_unit)
+            else:
+                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-        structure = self.do_nrps_tailoring(structure)
+            structure = self.do_nrps_tailoring(structure)
         return structure

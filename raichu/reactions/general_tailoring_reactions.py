@@ -82,20 +82,59 @@ def cyclisation(structure, atom1, atom2):
     h_bond = cyclisation_site_1.get_bond(h_atom)
     assert h_bond
     cyclisation_site_2 = structure.get_atom(atom2)
-    if cyclisation_site_2.type == ('C'):
-        h_atom = cyclisation_site_2.get_neighbour('H')
-        assert c_atom
-        c_bond = cyclisation_site_2.get_bond(h_atom)
-        assert c_bond
-    else:
-        c_atom = cyclisation_site_2.get_neighbour('C')
-        assert c_atom
-        c_bond = cyclisation_site_2.get_bond(c_atom)
-        assert c_bond
+    c_atom = cyclisation_site_2.get_neighbour('C')
+    assert c_atom
+    c_bond = cyclisation_site_2.get_bond(c_atom)
+    assert c_bond
 
     cyclic_product, water = internal_condensation(structure, c_bond, h_bond)
 
     return cyclic_product
+
+def oxidative_bond_formation(atom1, atom2, structure):
+    """Performs cyclisation
+
+     atom1: PIKAChU atom to be used in cyclisation
+     atom2: PIKAChU atom to be used in cyclisation 
+     structure: PIKAChU Structure object to perform cyclization on
+    """
+    
+    cyclisation_site_1 = structure.get_atom(atom1)
+    h_atom = cyclisation_site_1.get_neighbour('H')
+    assert h_atom
+    h_bond = cyclisation_site_1.get_bond(h_atom)
+    assert h_bond
+    cyclisation_site_2 = structure.get_atom(atom2)
+    h_atom_2 = cyclisation_site_2.get_neighbour('H')
+    assert h_atom_2
+    h_bond_2 = cyclisation_site_2.get_bond(h_atom_2)
+    assert h_bond_2
+
+    structure.break_bond(h_bond)
+    structure.break_bond(h_bond_2)
+
+    # Create the bonds
+
+    structure.make_bond(cyclisation_site_1, cyclisation_site_2, structure.find_next_bond_nr())
+    structure.make_bond(h_atom, h_atom_2, structure.find_next_bond_nr())
+
+    # Put the h2 and the product into different Structure instances
+
+    structures = structure.split_disconnected_structures()
+
+    h2 = None
+    product = None
+
+    # Find out which of the structures is your product and which is your h2
+
+    for structure in structures:
+        if h_atom in structure.graph:
+            h2 = structure
+        elif cyclisation_site_1 in structure.graph:
+            structure.refresh_structure(find_cycles=True)
+            product = structure
+
+    return product
 
 
 def proteolytic_cleavage(bond, structure, structure_to_keep: str = "follower"):

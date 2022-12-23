@@ -81,10 +81,13 @@ class RiPP_Cluster:
     def initialize_tailoring_enzymes_on_structure(self):
         if self.tailoring_enzymes_representation:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
-                atoms = [atom for atom in self.self.chain_intermediate.atoms.values() if str(atom) in tailoring_enzyme_representation.atoms]
-                if len(atoms<tailoring_enzyme_representation.atoms):
-                    raise ValueError(f"Non-existing atoms for tailoring")
-                self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atoms)]
+                atom_array = []
+                for atoms_for_reaction in tailoring_enzyme_representation.atoms:
+                    atoms_for_reaction_initialized = [atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
+                    if len(atoms_for_reaction_initialized)<len(atoms_for_reaction):
+                        raise ValueError(f"Non-existing atoms for tailoring")
+                    atom_array += [atoms_for_reaction_initialized]
+                self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
 
     def do_tailoring(self):
         self.initialize_tailoring_enzymes_on_structure()

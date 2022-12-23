@@ -10,6 +10,7 @@ from raichu.domain.domain_types import TailoringDomainType, TerminationDomainTyp
     SynthesisDomainType, RecognitionDomainType
 from dataclasses import dataclass
 from raichu.reactions.chain_release import find_all_o_n_atoms_for_cyclization
+from raichu.reactions.general_tailoring_reactions import find_atoms_for_tailoring
 
 
 DOMAIN_TO_SUPERTYPE = {}
@@ -42,7 +43,7 @@ class CleavageSiteRepresentation:
 class TailoringRepresentation:
     gene_name: str
     type: str
-    atoms: List[str]
+    atoms: List[List[str]] # Some tailoring reactions involve more than one atom
     
     
 @dataclass
@@ -156,6 +157,9 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
 def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
+    cluster.do_tailoring()
+    tailored_product = cluster.draw_spaghettis()[-1]
+    print (tailored_product)
     if outfile:
         return cluster.draw_cluster(as_string=False, out_file=outfile)
     else:
@@ -167,7 +171,6 @@ def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.draw_product()
     ripp_cluster.do_macrocyclization()
     ripp_cluster.draw_product()
-    print(find_all_o_n_atoms_for_cyclization(ripp_cluster.chain_intermediate))
     ripp_cluster.do_proteolytic_claevage()
     ripp_cluster.draw_product()
     
@@ -255,7 +258,7 @@ if __name__ == "__main__":
                                                                                      False)
                                                                 ]),
 
-                                          ], [TailoringRepresentation("gene_7", "METHYLTRANSFERASE", ["C_21","C_6"])]
+                                          ], [TailoringRepresentation("gene_7", "P450_OXIDATIVE_BOND_FORMATION", [["C_34","C_36"]])]
                                           )
-
-    draw_ripp_structure(ripp_cluster)
+    draw_cluster(cluster_repr, "nrps_cluster.svg")
+   # draw_ripp_structure(ripp_cluster)

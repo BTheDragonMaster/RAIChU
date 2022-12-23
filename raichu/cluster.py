@@ -81,10 +81,11 @@ class Cluster:
         pass
 
     def initialize_tailoring_enzymes_on_structure(self):
-        for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
-            atoms = [atom for atom in self.linear_product.atoms.values() if str(atom) in tailoring_enzyme_representation.atoms]
-            self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atoms)]
-
+        if tailoring_enzyme_representation:
+            for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
+                atoms = [atom for atom in self.linear_product.atoms.values() if str(atom) in tailoring_enzyme_representation.atoms]
+                self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atoms)]
+            
     def do_tailoring(self):
         self.initialize_tailoring_enzymes_on_structure()
         for tailoring_enzyme in self.tailoring_enzymes:

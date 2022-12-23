@@ -1,78 +1,130 @@
 from typing import Tuple
 
 from pikachu.reactions.functional_groups import find_atoms, find_bonds, combine_structures, BondDefiner, GroupDefiner
-from raichu.reactions.general import initialise_atom_attributes
+from pikachu.reactions.basic_reactions import internal_condensation, condensation
 from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
+from raichu.data.molecular_moieties import CO_BOND, N_AMINO, O_OH, O_BETAPROPRIOLACTONE, SH_BOND, C_CH, C_TERMINAL_OH, N_AMINO_ACID, B_N_AMINO_ACID
+from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
+from raichu.reactions.general import label_rest_groups, initialise_atom_attributes, reset_nrp_annotations
 
-SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
-CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
-N_AMINO = GroupDefiner('N_amino', 'CN', 1)
-O_OH = GroupDefiner('O_oh', 'CO', 1)
-C_CH = GroupDefiner("C_Ch", "CC", 0)
-O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
-
-
-def find_o_betapropriolactone(polyketide):
+def ribosomal_elongation(amino_acid, chain_intermediate, amino_acid_number=None):
     """
-    Finds and returns the oxygen atom (PIKAChU atom object) in the -OH group
-    that shouldn't be used by the thioesterase_circular_product function, as
-    this will create a beta-propriolactone compound, which does not occur in
-    polyketide synthesis, if present. Otherwise the function returns None
-
-    polyketide: PIKAChU structure object of a polyketide
+    Returns the ribosomal condensation product as a PIKAChU Structure object
+    
+    amino_acid_number: Type and number of amino acid in peptide (e.g. A14)
+    amino_acid: PIKAChU Structure object of the amino acid
+    chain_intermediate: PIKAChU Structure object of the ripp intermediate
     """
-    o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE, polyketide)
-    if len(o_propriolactone) == 0:
-        return None
-    elif len(o_propriolactone) == 1:
-        return o_propriolactone[0]
+
+    # Initialize annotations in all atoms in amino acid
+    initialise_atom_attributes(amino_acid)
+    for atom in amino_acid.atoms.values():
+        atom.amino_acid = amino_acid_number
+    amino_acid.atoms
+    oh_bond = find_bonds(C_TERMINAL_OH, chain_intermediate)
+    assert len(oh_bond)==1
+    oh_bond = oh_bond[0]
+
+    # Label rest groups
+    label_rest_groups(amino_acid, chain_intermediate)
+
+
+    # Find amino group of amino acid or beta-amino acid
+    n_atoms_aa = find_atoms(N_AMINO_ACID, amino_acid)
+    if not n_atoms_aa:
+        n_atoms_aa = find_atoms(B_N_AMINO_ACID, amino_acid)
+
+    assert len(n_atoms_aa) == 1
+
+    n_atom = n_atoms_aa[0]
+    h_bond = None
+
+    for bond in n_atom.bonds:
+        for neighbour in bond.neighbours:
+            if neighbour.type == 'H':
+                h_bond = bond
+                break
+
+    assert h_bond
+
+    # Label atoms in amino acid that end up in central peptide chain
+    label_nrp_central_chain(amino_acid)
+
+    # Reset chiral_c_ep and n_atom_nmeth AtomAnnotations attribute for all atoms in the intermediate;
+    # This way, only the newly incorporated amino acid is labelled for tailoring
+    reset_nrp_annotations(chain_intermediate)
+
+    # Carry out condensation reaction using build-in PIKAChU function
+    condensation_product = condensation(chain_intermediate, amino_acid, oh_bond, h_bond)[0]
+
+    # Refresh condensation product
+    condensation_product.refresh_structure(find_cycles=True)
+
+    # Initialize annotations for atoms that don't have any yet
+    initialise_atom_attributes(condensation_product)
+
+    return condensation_product
+
+
+def cyclisation(structure, atom1, atom2):
+    """Performs cyclisation
+
+     atom1: PIKAChU atom to be used in cyclisation that will remain in final product
+     atom2: PIKAChU atom to be used in cyclisation that will be removed from final product -> needs to be oxygen
+     structure: PIKAChU Structure object to perform cyclization on
+    """
+    if atom2.type != 'O':
+        atom1, atom2 = atom2, atom1
+    cyclisation_site_1 = structure.get_atom(atom1)
+    h_atom = cyclisation_site_1.get_neighbour('H')
+    assert h_atom
+    h_bond = cyclisation_site_1.get_bond(h_atom)
+    assert h_bond
+    cyclisation_site_2 = structure.get_atom(atom2)
+    if cyclisation_site_2.type == ('C'):
+        h_atom = cyclisation_site_2.get_neighbour('H')
+        assert c_atom
+        c_bond = cyclisation_site_2.get_bond(h_atom)
+        assert c_bond
     else:
-        raise ValueError('Error: this molecule is not a polyketide, as the \
-        carbon in the beta ketone/hydroxyl group is bound to an additional \
-         oxygen atom')
+        c_atom = cyclisation_site_2.get_neighbour('C')
+        assert c_atom
+        c_bond = cyclisation_site_2.get_bond(c_atom)
+        assert c_bond
+
+    cyclic_product, water = internal_condensation(structure, c_bond, h_bond)
+
+    return cyclic_product
 
 
-def find_all_o_n_atoms_for_cyclization(chain_intermediate):
-    """Performs all thioesterase reactions on the input chain_intermediate
-     using all internal amino and -OH groups except for the -OH group that
-     leads to the formation of a beta-propriolactone compound, which does not
-     occur in polyketide synthesis. Returns a list of PIKAChU Structure objects
-     of all possible thioesterase products.
+def proteolytic_cleavage(bond, structure, structure_to_keep: str = "follower"):
+    """Performs proteolytic cleavage
 
-     chain_intermediate: PIKAChU Structure object of a polyketide/NRP
+     bond: exact PIKAChU bond object to cleave
+     structure: PIKAChU Structure object to perform cleavage on
+     structure_to_keep: determines if the leading or the following peptide should be kept ("leader" or "follower")
     """
-    # Perform first thioesterase reaction, generating linear polyketide/NRP
-    chain_intermediate.refresh_structure()
-    for atom in chain_intermediate.graph:
-        atom.hybridise()
-    chain_intermediate_copy = chain_intermediate.deepcopy()
-    # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
-    chain_intermediate_copy.refresh_structure()
-    o_oh_atoms = find_atoms(O_OH, chain_intermediate_copy)
-    o_oh_atoms_filtered = []
-    for atom in o_oh_atoms:
-        if atom not in o_oh_atoms_filtered and any(neighbour.type == 'H' for neighbour in atom.neighbours):
-            o_oh_atoms_filtered.append(atom)
+    carbon = bond.get_neighbour('C')
+    nitrogen = bond.get_neighbour('N')
+    structure.break_bond(bond)
+    oxygen = structure.add_atom('O', [carbon])
+    initialise_atom_attributes(structure)
+    structure.add_atom('H', [oxygen])
+    structure.add_atom('H', [nitrogen])
 
-    # Find amino gruops in polyketide/NRP, perform cyclization for each group
-    chain_intermediate_copy = chain_intermediate.deepcopy()
-    chain_intermediate_copy.refresh_structure()
-    chain_intermediate.set_connectivities()
-    chain_intermediate.set_atom_neighbours()
-    amino_n_atoms_filtered = []
-    for atom in chain_intermediate_copy.graph:
-        if atom.type == 'N':
-            n_neighbour_types = []
-            for neighbour in atom.neighbours:
-                n_neighbour_types.append(neighbour.type)
-            if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
-                amino_n_atoms_filtered.append(atom)
+    initialise_atom_attributes(structure)
 
-    # Define -OH group that should not be used to carry out the thioesterase
-    # reaction (distance -S and internal -OH group)
-    o_not_to_use = find_o_betapropriolactone(chain_intermediate)
-    return o_oh_atoms_filtered + amino_n_atoms_filtered
+    structures = structure.split_disconnected_structures()
+    for structure in structures:
+        if structure_to_keep == "leader":
+            if carbon in structure.graph:
+                structure.refresh_structure()
+                return structure
+        if structure_to_keep == "follower":
+            if nitrogen in structure.graph:
+                structure.refresh_structure()
+                return structure
 
 
 def find_atoms_for_tailoring(chain_intermediate, atom_type):

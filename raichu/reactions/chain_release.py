@@ -249,3 +249,45 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
             RaichuDrawer(product)
 
     return list_product_drawings
+
+
+def find_all_o_n_atoms_for_cyclization(chain_intermediate):
+    """Performs all thioesterase reactions on the input chain_intermediate
+     using all internal amino and -OH groups except for the -OH group that
+     leads to the formation of a beta-propriolactone compound, which does not
+     occur in polyketide synthesis. Returns a list of PIKAChU Structure objects
+     of all possible thioesterase products.
+
+     chain_intermediate: PIKAChU Structure object of a polyketide/NRP
+    """
+    # Perform first thioesterase reaction, generating linear polyketide/NRP
+    chain_intermediate.refresh_structure()
+    for atom in chain_intermediate.graph:
+        atom.hybridise()
+    chain_intermediate_copy = chain_intermediate.deepcopy()
+    # Find OH groups in polyketide/NRP, perform cyclization for each -OH group
+    chain_intermediate_copy.refresh_structure()
+    o_oh_atoms = find_atoms(O_OH, chain_intermediate_copy)
+    o_oh_atoms_filtered = []
+    for atom in o_oh_atoms:
+        if atom not in o_oh_atoms_filtered and any(neighbour.type == 'H' for neighbour in atom.neighbours):
+            o_oh_atoms_filtered.append(atom)
+
+    # Find amino gruops in polyketide/NRP, perform cyclization for each group
+    chain_intermediate_copy = chain_intermediate.deepcopy()
+    chain_intermediate_copy.refresh_structure()
+    chain_intermediate.set_connectivities()
+    chain_intermediate.set_atom_neighbours()
+    amino_n_atoms_filtered = []
+    for atom in chain_intermediate_copy.graph:
+        if atom.type == 'N':
+            n_neighbour_types = []
+            for neighbour in atom.neighbours:
+                n_neighbour_types.append(neighbour.type)
+            if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
+                amino_n_atoms_filtered.append(atom)
+
+    # Define -OH group that should not be used to carry out the thioesterase
+    # reaction (distance -S and internal -OH group)
+    o_not_to_use = find_o_betapropriolactone(chain_intermediate)
+    return o_oh_atoms_filtered + amino_n_atoms_filtered

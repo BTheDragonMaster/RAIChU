@@ -128,6 +128,11 @@ class NRPSSubstrate(Substrate):
         super().__init__(name, smiles)
 
 
+class RibosomeSubstrate(Substrate):
+    def __init__(self, name: str) -> None:
+        smiles = get_smiles(name)
+        super().__init__(name, smiles)
+
 class PKSSubstrate(Substrate):
     def __init__(self, name: str) -> None:
         smiles = _PKS_TO_SMILES.get(name, None)

@@ -1,6 +1,7 @@
 from typing import List, Union
 
 from raichu.cluster import Cluster
+from raichu.ripp import RiPP_Cluster
 from raichu.domain.domain import TailoringDomain, CarrierDomain, SynthesisDomain, RecognitionDomain, \
     TerminationDomain, UnknownDomain, Domain
 from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, IterativePKSModule, TransATPKSModule,\
@@ -8,6 +9,7 @@ from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, Iterati
 from raichu.domain.domain_types import TailoringDomainType, TerminationDomainType, CarrierDomainType, \
     SynthesisDomainType, RecognitionDomainType
 from dataclasses import dataclass
+from raichu.reactions.chain_release import find_all_o_n_atoms_for_cyclization
 
 
 DOMAIN_TO_SUPERTYPE = {}
@@ -23,7 +25,26 @@ for domain_name in TerminationDomainType.__members__:
     DOMAIN_TO_SUPERTYPE[domain_name] = TerminationDomain
 DOMAIN_TO_SUPERTYPE["UNKNOWN"] = UnknownDomain
 
+@dataclass
+class MacrocyclizationRepresentation:
+    atom1: str
+    atom2: str
+    
+    
+@dataclass
+class CleavageSiteRepresentation:
+    position_amino_acid: str
+    position_index: int
+    structure_to_keep: str
 
+
+@dataclass
+class TailoringRepresentation:
+    gene_name: str
+    type: str
+    atoms: List[str]
+    
+    
 @dataclass
 class DomainRepresentation:
     gene_name: Union[str, None]
@@ -45,14 +66,9 @@ class ModuleRepresentation:
 @dataclass
 class ClusterRepresentation:
     modules: List[ModuleRepresentation]
-    tailoring_enzymes: Union[List, None] = None
+    tailoring_enzymes: Union[List[TailoringRepresentation], None] = None
+    
 
-
-@dataclass
-class TailoringRepresentation:
-    gene_name: str
-    type: str
-    atoms: List[str]
 
 def make_domain(domain_repr: DomainRepresentation, substrate: str, strict: bool = True) -> Domain:
     domain_class = DOMAIN_TO_SUPERTYPE.get(domain_repr.type)
@@ -145,6 +161,16 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
     else:
         cluster.draw_cluster()
 
+def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
+    ripp_cluster.make_peptide()
+    ripp_cluster.do_tailoring()
+    ripp_cluster.draw_product()
+    ripp_cluster.do_macrocyclization()
+    ripp_cluster.draw_product()
+    print(find_all_o_n_atoms_for_cyclization(ripp_cluster.chain_intermediate))
+    ripp_cluster.do_proteolytic_claevage()
+    ripp_cluster.draw_product()
+    
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)
@@ -158,6 +184,7 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
     return spaghettis
 
 if __name__ == "__main__":
+    ripp_cluster = RiPP_Cluster("best_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "leader")], macrocyclisations= [MacrocyclizationRepresentation("O_11","N_161")])
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
                                                                                      True),
@@ -231,4 +258,4 @@ if __name__ == "__main__":
                                           ], [TailoringRepresentation("gene_7", "METHYLTRANSFERASE", ["C_21","C_6"])]
                                           )
 
-    draw_cluster(cluster_repr,f'demo_cluster_pks_nrps_hybrid.svg')
+    draw_ripp_structure(ripp_cluster)

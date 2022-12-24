@@ -3,10 +3,10 @@ from pikachu.reactions.functional_groups import find_bonds
 from pikachu.general import read_smiles
 
 from raichu.substrate import RibosomeSubstrate
-from raichu.reactions.nrps_elongation_reactions import nrps_elongation
 from raichu.data.molecular_moieties import PEPTIDE_BOND
 from raichu.data.attributes import AMINOACID_ONE_LETTER_TO_NAME
-from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, cyclisation, ribosomal_elongation
+from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, cyclisation
+from raichu.reactions.ripp_reactions import ribosomal_elongation
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
 
@@ -95,10 +95,17 @@ class RiPP_Cluster:
             self.chain_intermediate = tailoring_enzyme.do_tailoring(self.chain_intermediate)
             
             
-    def draw_product(self):
-        assert self.chain_intermediate
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=False)
-        drawing.draw_structure()
-        svg_string = drawing.save_svg_string()
-        
-        return svg_string
+    def draw_product(self, as_string=True, out_file=None):
+            assert self.chain_intermediate
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True)
+            drawing.draw_structure()
+            svg_string = drawing.save_svg_string()
+            if as_string:
+                return svg_string
+            else:
+                if out_file is None:
+                    raise ValueError("Must provide output svg directory if 'as_string' is set to False.")
+                else:
+                    with open(out_file, 'w') as svg_out:
+                        svg_out.write(svg_string)
+

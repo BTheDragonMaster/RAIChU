@@ -95,6 +95,7 @@ class Cluster:
         self.initialize_tailoring_enzymes_on_structure()
         for tailoring_enzyme in self.tailoring_enzymes:
             self.linear_product = tailoring_enzyme.do_tailoring(self.linear_product)
+            self.chain_intermediate = self.linear_product
 
     def draw_spaghettis(self):
         spaghetti_svgs = []
@@ -230,6 +231,19 @@ class Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
+    def draw_product(self, as_string=True, out_file=None):
+            assert self.chain_intermediate
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False)
+            drawing.draw_structure()
+            svg_string = drawing.save_svg_string()
+            if as_string:
+                return svg_string
+            else:
+                if out_file is None:
+                    raise ValueError("Must provide output svg directory if 'as_string' is set to False.")
+                else:
+                    with open(out_file, 'w') as svg_out:
+                        svg_out.write(svg_string)
 
 class Mechanism:
     def __init__(self):

@@ -15,13 +15,16 @@ class RiPP_Cluster:
         self.gene_name = gene_name_precursor
         self.amino_acid_seqence = amino_acid_sequence.upper()
         self.cleavage_sites = cleavage_sites
+        self.cleavage_bonds = []
         self.macrocyclisations = macrocyclisations
         self.tailoring_enzymes_representation = tailoring_enzymes_representation
         self.chain_intermediate = None
         self.linear_product = None
+        self.tailored_product = None
         self.cyclised_product = None
         self.final_product = None
         self.tailoring_enzymes = []
+        self.initialized_macrocyclization_atoms = []
         
     def make_peptide(self):
         for index, amino_acid in enumerate(self.amino_acid_seqence):
@@ -32,49 +35,48 @@ class RiPP_Cluster:
                 raise ValueError(f"Unknown amino acid: {amino_acid}")
             substrate = RibosomeSubstrate(name)
             building_block = read_smiles(substrate.smiles)
-            if self.chain_intermediate:
-                self.chain_intermediate = ribosomal_elongation(building_block, self.chain_intermediate, amino_acid_number=name_amino_acid)
+            if self.linear_product:
+                self.linear_product = ribosomal_elongation(building_block, self.linear_product, amino_acid_number=name_amino_acid)
             else:
-                self.chain_intermediate = building_block
-        self.linear_product = self.chain_intermediate
+                self.linear_product = building_block
+        self.chain_intermediate = self.linear_product
+        self.initialize_cleavage_sites_on_structure()
+        self.initialize_macrocyclization_on_structure()
+        self.initialize_tailoring_enzymes_on_structure()
     
-    def initialize_cleavage_sites_on_structure(self) -> list:
-        cleavage_bonds = []
+    def initialize_cleavage_sites_on_structure(self) -> list:  
         for cleavage_site in self.cleavage_sites:
             amino_acid_cleavage = cleavage_site.position_amino_acid
             number_cleavage = cleavage_site.position_index
             if self.amino_acid_seqence[number_cleavage-1] == amino_acid_cleavage:
-                peptide_bonds = find_bonds(PEPTIDE_BOND, self.chain_intermediate)
+                peptide_bonds = find_bonds(PEPTIDE_BOND, self.linear_product)
                 peptide_bonds = sorted(peptide_bonds, key = lambda bond: bond.nr, reverse= True)
                 cleavage_bond = peptide_bonds[number_cleavage] 
-                cleavage_bonds += [[cleavage_bond, cleavage_site.structure_to_keep]]
+                self.cleavage_bonds += [[cleavage_bond, cleavage_site.structure_to_keep]]
             else:
                 raise ValueError(f"No {AMINOACID_ONE_LETTER_TO_NAME[amino_acid_cleavage]} in position {number_cleavage} for cleavage.")
-        return cleavage_bonds
             
     
     def do_proteolytic_claevage(self):
-        cleavage_bonds = self.initialize_cleavage_sites_on_structure()
-        for bond, structure_to_keep in cleavage_bonds:
+        for bond, structure_to_keep in self.cleavage_bonds:
             self.chain_intermediate = proteolytic_cleavage(bond, self.chain_intermediate, structure_to_keep=structure_to_keep)
         self.final_product = self.chain_intermediate
      
      
     def initialize_macrocyclization_on_structure(self) -> list(list()):
-        initialized_macrocyclization_atoms = []
         if self.macrocyclisations:
             for cyclization in self.macrocyclisations:
-                atoms = [atom for atom in self.chain_intermediate.atoms.values() if str(atom) in [cyclization.atom1, cyclization.atom2]]
+                atoms = [atom for atom in self.linear_product.atoms.values() if str(atom) in [cyclization.atom1, cyclization.atom2]]
                 if len(atoms)<2:
                     raise ValueError(f"Non-existing atoms for cyclization")
-                initialized_macrocyclization_atoms += [atoms]
-        return initialized_macrocyclization_atoms
+                self.initialized_macrocyclization_atoms += [atoms]
 
 
     def do_macrocyclization(self):
-        macrocyclizations_atoms = self.initialize_macrocyclization_on_structure()
-        for macrocyclization_atoms in macrocyclizations_atoms:
-            self.chain_intermediate = cyclisation(self.chain_intermediate, macrocyclization_atoms[0], macrocyclization_atoms[1])
+        for macrocyclization_atoms in self.initialized_macrocyclization_atoms:
+            atom1 = self.chain_intermediate.get_atom(macrocyclization_atoms[0])
+            atom2 = self.chain_intermediate.get_atom(macrocyclization_atoms[1])
+            self.chain_intermediate = cyclisation(self.chain_intermediate, atom1, atom2)
         self.cyclised_product = self.chain_intermediate
      
         
@@ -83,21 +85,21 @@ class RiPP_Cluster:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
                 atom_array = []
                 for atoms_for_reaction in tailoring_enzyme_representation.atoms:
-                    atoms_for_reaction_initialized = [atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
+                    atoms_for_reaction_initialized = [atom for atom in self.linear_product.atoms.values() if str(atom) in atoms_for_reaction]
                     if len(atoms_for_reaction_initialized)<len(atoms_for_reaction):
                         raise ValueError(f"Non-existing atoms for tailoring")
                     atom_array += [atoms_for_reaction_initialized]
                 self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
 
     def do_tailoring(self):
-        self.initialize_tailoring_enzymes_on_structure()
         for tailoring_enzyme in self.tailoring_enzymes:
-            self.chain_intermediate = tailoring_enzyme.do_tailoring(self.chain_intermediate)
+            self.tailored_product = tailoring_enzyme.do_tailoring(self.chain_intermediate)
+            self.chain_intermediate = self.tailored_product
             
             
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

@@ -22,8 +22,19 @@ def double_bond_reduction(atom1, atom2, structure):
     assert atom2.type == 'C'
     cc_bond = atom1.get_bond(atom2)
     assert cc_bond
-    if cc_bond.type=="double" :
+    if cc_bond.type=="double":
         cc_bond.make_single()
+        for neighbour in cc_bond.neighbours:        cc_bond.combine_p_orbitals()
+        cc_bond.set_bond_summary()
+        structure.add_atom('H', [neighbour])
+    #TODO: make way to "dearomatise" aromtaic bonds
+    if cc_bond.type=="aromatic":
+        cc_bond.type = 'single'
+        atom1.aromatic = False
+        atom2.aromatic = False
+        atom1.reset_hybridisation()
+        atom2.reset_hybridisation()
+        cc_bond.aromatic_system = None
         for neighbour in cc_bond.neighbours:
             structure.add_atom('H', [neighbour])
     return structure
@@ -31,7 +42,7 @@ def double_bond_reduction(atom1, atom2, structure):
 def epoxidation(atom1, atom2, structure):
     """
     Returns the epoxidated product as a PIKAChU Structure object
-    
+    ["C_35","C_98"],
     atom1: C atom1 to be epoxidated
     atom2: C atom2 to be epoxidated, needs to be neighbour of atom1
     structure: PIKAChU Structure object of the ripp intermediate

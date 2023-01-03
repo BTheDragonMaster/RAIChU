@@ -12,7 +12,6 @@ from dataclasses import dataclass
 from raichu.reactions.chain_release import find_all_o_n_atoms_for_cyclization
 from raichu.reactions.general_tailoring_reactions import find_atoms_for_tailoring
 
-
 DOMAIN_TO_SUPERTYPE = {}
 for domain_name in TailoringDomainType.__members__:
     DOMAIN_TO_SUPERTYPE[domain_name] = TailoringDomain
@@ -158,8 +157,7 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
-    tailored_product = cluster.draw_spaghettis()[-1]
-    print (tailored_product)
+    cluster.draw_product(as_string=False, out_file="tailoring_test.svg")
     if outfile:
         return cluster.draw_cluster(as_string=False, out_file=outfile)
     else:
@@ -167,12 +165,15 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
 
 def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.make_peptide()
+    print(ripp_cluster.cleavage_bonds)
+    ripp_cluster.draw_product(as_string=False, out_file="peptide_test_ripp.svg")
     ripp_cluster.do_tailoring()
-    ripp_cluster.draw_product()
+    ripp_cluster.draw_product(as_string=False, out_file="tailoring_test_ripp.svg")
     ripp_cluster.do_macrocyclization()
-    ripp_cluster.draw_product()
+    ripp_cluster.draw_product(as_string=False, out_file="macrocyclisation_test_ripp.svg")
+    print(ripp_cluster.cleavage_bonds)
     ripp_cluster.do_proteolytic_claevage()
-    ripp_cluster.draw_product()
+    ripp_cluster.draw_product(as_string=False, out_file="cleavage_test_ripp.svg")
     
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
@@ -187,7 +188,8 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
     return spaghettis
 
 if __name__ == "__main__":
-    ripp_cluster = RiPP_Cluster("best_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "leader")], macrocyclisations= [MacrocyclizationRepresentation("O_11","N_161")])
+    ripp_cluster = RiPP_Cluster("best_ripp(tryptodubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
+                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION",[["N_46","C_34"],["C_74","N_107"]])])
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
                                                                                      True),
@@ -258,7 +260,7 @@ if __name__ == "__main__":
                                                                                      False)
                                                                 ]),
 
-                                          ], [TailoringRepresentation("gene_7", "P450_OXIDATIVE_BOND_FORMATION", [["C_34","C_36"]])]
+                                          ], [TailoringRepresentation("gene_7", "P450_EPOXIDATION", [["C_41","C_35"]])]
                                           )
-    draw_cluster(cluster_repr, "nrps_cluster.svg")
-   # draw_ripp_structure(ripp_cluster)
+    draw_cluster(cluster_repr)
+    draw_ripp_structure(ripp_cluster)

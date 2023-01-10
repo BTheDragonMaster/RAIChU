@@ -197,6 +197,7 @@ class KSDomainSubtype(Enum):
     KETO = 41
     ALPHA_OH = 42
     NON_ELONGATING_PYR = 43
+    MISCELLANEOUS = 44
 
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":

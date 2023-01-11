@@ -57,3 +57,49 @@ def find_central_chain(pks_nrps_attached):
 
     return central_chain
 
+
+def find_central_chain_not_attached(pks_nrps):
+    """Identifies the central chain atoms in the input structure from the
+    in_central_chain Atom attribute, and returns these Atom objects as a list
+
+    pks_nrps: PIKAChU Structure object, input (hybrid) PK/NRP structure
+    """
+    # Find atoms in the structure inside a cycle
+    pks_nrps.find_cycles()
+    for atom in pks_nrps.graph:
+        if atom.in_ring(pks_nrps):
+            atom.inside_ring = True
+        else:
+            atom.inside_ring = False
+
+    # Identify starting point central chain attached NRP/PK
+    carbon = None
+    for atom in pks_nrps.graph:
+        if atom.type == 'C' and atom.annotations.in_central_chain and [neighbour.type for neighbour in atom.neighbours].count("O") == 2:
+            carbon = atom
+        if not atom.annotations.in_central_chain:
+            atom.annotations.in_central_chain = False
+    assert carbon
+
+    central_chain = [carbon]
+    visited = [carbon]
+    atom_central_chain = carbon
+    end_atom = False
+
+    # Identify complete central chain from in_central_chain Atom attributes
+    while not end_atom:
+        for neighbour in atom_central_chain.neighbours:
+            if neighbour.annotations.in_central_chain and neighbour not in visited:
+                central_chain.append(neighbour)
+                visited.append(neighbour)
+                atom_central_chain = neighbour
+            elif not neighbour.annotations.in_central_chain:
+                neighbours = []
+                for next_atom in atom_central_chain.neighbours:
+                    neighbours.append(next_atom)
+                if all(atom in visited for atom in neighbours):
+                    end_atom = True
+                else:
+                    visited.append(neighbour)
+
+    return central_chain

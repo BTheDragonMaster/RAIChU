@@ -2,16 +2,17 @@ from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
 
-from raichu.central_chain_detection.find_central_chain import find_central_chain
+from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached
 
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False):
+                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False, draw_straightened=False):
         self.dont_show = dont_show
         self.dpi = dpi
         self.draw_Cs_in_pink = draw_Cs_in_pink
         self.add_url = add_url
+        self.draw_straightened = draw_straightened
         if options is None:
             self.options = Options()
         else:
@@ -110,7 +111,7 @@ class RaichuDrawer(Drawer):
                         atom_draw_position.x += delta_x_r
                         text = fr'$R_{atom.annotations.unknown_index}$'
 
-                    if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit or draw_Cs_in_pink):
+                    if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit or self.draw_Cs_in_pink):
 
                         if atom.draw.has_hydrogen:
                             hydrogen_count = 0
@@ -249,10 +250,10 @@ class RaichuDrawer(Drawer):
                                     horizontal_alignment = 'left'
                                     atom_draw_position.x -= 3
                     atom_color = atom.draw.colour
-                    if draw_Cs_in_pink:
+                    if self.draw_Cs_in_pink:
                         if atom.type == 'C':
                             atom_color = "magenta"
-                    if add_url:
+                    if self.add_url:
                         if text:
                             plt.text(atom_draw_position.x, atom_draw_position.y,
                                      text, url=str(atom),
@@ -906,6 +907,13 @@ class RaichuDrawer(Drawer):
                 is_nrp = True
             else:
                 is_polyketide = True
+        elif self.structure.find_substructures(
+                Smiles('[H]OC(C)=O').smiles_to_structure()):
+            if self.structure.find_substructures(
+                    Smiles('[H]OC(CN)=O').smiles_to_structure()):
+                is_nrp = True
+            else:
+                is_polyketide = True
 
         attached_to_domain = False
         for atom in self.structure.graph:
@@ -920,37 +928,58 @@ class RaichuDrawer(Drawer):
 
         ### NRPS + PK code: Force pk/peptide backbone to be drawn straight:
         # If struct=PK/NRP, find central chain and attached domain
-        if attached_to_domain and (is_nrp or is_polyketide):
-            backbone_atoms = find_central_chain(self.structure)
-            pcp = None
-            for atom in self.structure.graph:
-                if atom.annotations.domain_type:
-                    pcp = atom
+        if attached_to_domain and (is_nrp or is_polyketide) or self.draw_straightened and (is_nrp or is_polyketide):
+            if not attached_to_domain:
+                backbone_atoms = find_central_chain_not_attached(self.structure)
+            else:
+                backbone_atoms = find_central_chain(self.structure)
+            if attached_to_domain:
+                pcp = None
+                for atom in self.structure.graph:
+                    if atom.annotations.domain_type:
+                        pcp = atom
 
-            assert pcp
+                assert pcp
 
-            # Fix position of the S and C atom and the S-C angle
-            sulphur = backbone_atoms[0]
-            first_carbon = backbone_atoms[1]
+                # Fix position of the S and C atom and the S-C angle
+                sulphur = backbone_atoms[0]
+                first_carbon = backbone_atoms[1]
 
-            sulphur.draw.position.x = first_carbon.draw.position.x
-            sulphur.draw.position.y = first_carbon.draw.position.y + 15
+                sulphur.draw.position.x = first_carbon.draw.position.x
+                sulphur.draw.position.y = first_carbon.draw.position.y + 15
 
-            angle = get_angle(first_carbon.draw.position,
-                              sulphur.draw.position)
-            angle_degrees = round(math.degrees(angle), 3)
+                angle = get_angle(first_carbon.draw.position,
+                                sulphur.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
 
-            correct_angle_deg = -120
-            delta_angle_deg = correct_angle_deg - angle_degrees
-            delta_angle_rad = math.radians(delta_angle_deg)
+                correct_angle_deg = -120
+                delta_angle_deg = correct_angle_deg - angle_degrees
+                delta_angle_rad = math.radians(delta_angle_deg)
 
-            self.rotate_subtree(sulphur, first_carbon, delta_angle_rad,
-                                first_carbon.draw.position)
+                self.rotate_subtree(sulphur, first_carbon, delta_angle_rad,
+                                    first_carbon.draw.position)
 
-            # Fix position domain straight above sulphur atom
-            pcp.draw.position.x = sulphur.draw.position.x
-            pcp.draw.position.y = sulphur.draw.position.y + 15
+                # Fix position domain straight above sulphur atom
+                pcp.draw.position.x = sulphur.draw.position.x
+                pcp.draw.position.y = sulphur.draw.position.y + 15
+            else:
+                # Fix position of the O and C atom and the O-C angle if not attached to acp
+                oxygen = backbone_atoms[0]
+                first_carbon = backbone_atoms[1]
 
+                oxygen.draw.position.x = first_carbon.draw.position.x
+                oxygen.draw.position.y = first_carbon.draw.position.y + 15
+
+                angle = get_angle(first_carbon.draw.position,
+                                  oxygen.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
+
+                correct_angle_deg = -120
+                delta_angle_deg = correct_angle_deg - angle_degrees
+                delta_angle_rad = math.radians(delta_angle_deg)
+
+                self.rotate_subtree(oxygen, first_carbon, delta_angle_rad,
+                                    first_carbon.draw.position)
             # Rotate all other bonds in peptide backbone of NRP
             i = 0
             fixed_atoms = set()
@@ -1228,17 +1257,17 @@ class RaichuDrawer(Drawer):
                                                 delta_angle_rad,
                                                 atom.draw.position)
                 i += 1
-
+            if attached_to_domain:
             # If the drawer rotated the entire structure, correct this
-            angle = get_angle(pcp.draw.position,
-                              sulphur.draw.position)
-            angle_degrees = round(math.degrees(angle), 3)
-            if angle_degrees != 90.0:
-                correct_angle_deg = 90
-                delta_angle_deg = correct_angle_deg - angle_degrees
-                delta_angle_rad = math.radians(delta_angle_deg)
-                self.rotate_subtree(sulphur, pcp, delta_angle_rad,
-                                    pcp.draw.position)
+                angle = get_angle(pcp.draw.position,
+                                sulphur.draw.position)
+                angle_degrees = round(math.degrees(angle), 3)
+                if angle_degrees != 90.0:
+                    correct_angle_deg = 90
+                    delta_angle_deg = correct_angle_deg - angle_degrees
+                    delta_angle_rad = math.radians(delta_angle_deg)
+                    self.rotate_subtree(sulphur, pcp, delta_angle_rad,
+                                        pcp.draw.position)
 
             # Fix rotation bulky sidechains so carboxyl groups dont need to move
             i = 1
@@ -1323,8 +1352,10 @@ class RaichuDrawer(Drawer):
                 if bond.atom_1.annotations.in_central_chain or\
                         bond.atom_2.annotations.in_central_chain:
                     central_chain_bonds.add(bond)
-
-            self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
+            if attached_to_domain:
+                self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
+            else:
+                self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=oxygen)
             self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     # End NRPS rotation code

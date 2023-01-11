@@ -99,7 +99,7 @@ class RiPP_Cluster:
             
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False, draw_straightened=True)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

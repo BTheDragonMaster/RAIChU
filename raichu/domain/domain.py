@@ -127,6 +127,8 @@ class SynthesisDomain(Domain):
             if self.is_elongating:
                 building_block = read_smiles(substrate.smiles)
                 return nrps_elongation(building_block, structure)
+            else:
+                return structure
         elif self.type.name == 'KS' or self.type.name == "DUMMY_KS":
             if self.is_elongating:
                 if self.subtype is None or self.subtype.name in [v.name for v in KSDomainSubtype]:

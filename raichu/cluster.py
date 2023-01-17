@@ -34,26 +34,35 @@ class Cluster:
             if module.type.name == "PKS" and module.subtype.name == "PKS_TRANS":
                 substrate = PKSSubstrate("MALONYL_COA")
                 if i < len(self.modules) - 1:
-                    next_module = self.modules[i + 1]
+                    j = i + 1
+                    next_module = self.modules[j]
+                    if next_module.is_broken:
+                        while next_module.is_broken:
+                            next_module = self.modules[j]
+                            j += 1
                     if next_module.type.name == "PKS":
                         if module.is_starter_module and next_module.subtype.name == "PKS_TRANS":
-                            if next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
-                                substrate_name = TRANSATOR_CLADE_TO_STARTER_SUBSTRATE.get(next_module.synthesis_domain.subtype.name)
-                                if substrate_name is not None:
-                                    substrate = PKSSubstrate(substrate_name)
+                            if next_module.synthesis_domain:
+                                if next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
+                                    substrate_name = TRANSATOR_CLADE_TO_STARTER_SUBSTRATE.get(next_module.synthesis_domain.subtype.name)
+                                    if substrate_name is not None:
+                                        substrate = PKSSubstrate(substrate_name)
+                                    else:
+                                        substrate = PKSSubstrate("ACETYL_COA")
                                 else:
                                     substrate = PKSSubstrate("ACETYL_COA")
                             else:
                                 substrate = PKSSubstrate("ACETYL_COA")
-                                # TODO: Transfer names of substrates to a dictionary in raichu.substrate
+                                    # TODO: Transfer names of substrates to a dictionary in raichu.substrate
                         elif module.is_starter_module:
                             substrate = PKSSubstrate("ACETYL_COA")
-                        if not module.is_termination_module and next_module.subtype.name == "PKS_TRANS" and next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
-                            # Ignore tailoring domains in the module itself
-                            module.tailoring_domains = []
-                            for dummy_domain_type, dummy_domain_subtype in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[next_module.synthesis_domain.subtype.name]:
-                                self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
-                                                                                         dummy_domain_subtype))
+                        if next_module.synthesis_domain:
+                            if not module.is_termination_module and next_module.subtype.name == "PKS_TRANS" and next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
+                                # Ignore tailoring domains in the module itself
+                                module.tailoring_domains = []
+                                for dummy_domain_type, dummy_domain_subtype in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[next_module.synthesis_domain.subtype.name]:
+                                    self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
+                                                                                             dummy_domain_subtype))
                 if module.synthesis_domain:
                     if module.synthesis_domain.subtype and module.synthesis_domain.subtype.name != "UNKNOWN":
                         self.modules[i].synthesis_domain.is_elongating = TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]
@@ -76,7 +85,7 @@ class Cluster:
     def cyclise(self, atom):
         self.cyclised_product = cyclic_release(self.linear_product, atom)
         return self.cyclised_product
-        
+
     def cyclise_all(self):
         pass
 
@@ -90,7 +99,7 @@ class Cluster:
                             raise ValueError(f"Non-existing atoms for tailoring")
                         atom_array += [atoms_for_reaction_initialized]
                     self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
-                
+
     def do_tailoring(self):
         self.initialize_tailoring_enzymes_on_structure()
         for tailoring_enzyme in self.tailoring_enzymes:

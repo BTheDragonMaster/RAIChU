@@ -112,6 +112,7 @@ class _Module:
 
         self.tailoring_domains = []
 
+        self.is_broken = False
         self.is_starter_module = starter
         self.is_termination_module = terminator
 
@@ -158,12 +159,9 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
                     else:
                         raise ValueError("Cannot have more than one used termination domain in one \
 module. Remove a domain or set the 'used' or 'active' flag to False")
-
+        # I would rather implement a "dont do anything"- broken module
         if not self.is_starter_module and not self.synthesis_domain:
-            if self.type.name == 'NRPS':
-                self.synthesis_domain = SynthesisDomain('C')
-            elif self.type.name == 'PKS':
-                self.synthesis_domain = SynthesisDomain('KS')
+            self.is_broken = True
 
         if self.is_termination_module and not self.termination_domain:
             self.termination_domain = TerminationDomain("DUMMY_TE")
@@ -244,18 +242,20 @@ class LinearPKSModule(_Module):
         super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_CIS")
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:
-        if self.recognition_domain:
-            if structure is None:
-                assert self.is_starter_module
-                starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-                label_pk_central_chain(starter_unit)
-                structure = attach_to_domain_pk(starter_unit)
-            else:
-                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+        if self.is_broken:
+            return structure
+        else:
+            if self.recognition_domain:
+                if structure is None:
+                    assert self.is_starter_module
+                    starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                    label_pk_central_chain(starter_unit)
+                    structure = attach_to_domain_pk(starter_unit)
+                else:
+                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-            structure = self.do_pks_tailoring(structure)
-            # RaichuDrawer(structure).draw_structure()
-        return structure
+                structure = self.do_pks_tailoring(structure)
+            return structure
 
 
 class IterativePKSModule(_Module):
@@ -476,16 +476,19 @@ class TransATPKSModule(_Module):
         return structure
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:
-        if self.recognition_domain:
-            if structure is None:
-                    assert self.is_starter_module
-                    starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-                    label_pk_central_chain(starter_unit)
-                    structure = attach_to_domain_pk(starter_unit)
-            else:
-                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
-            structure = self.do_pks_tailoring(structure)
-        return structure
+        if self.is_broken:
+            return structure
+        else:
+            if self.recognition_domain:
+                if structure is None:
+                        assert self.is_starter_module
+                        starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                        label_pk_central_chain(starter_unit)
+                        structure = attach_to_domain_pk(starter_unit)
+                else:
+                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+                structure = self.do_pks_tailoring(structure)
+                return structure
 
 
 class NRPSModule(_Module):
@@ -494,14 +497,17 @@ class NRPSModule(_Module):
         super().__init__(nr, "NRPS", domains, starter=starter, terminator=terminator)
 
     def run_module(self, structure=None) -> Structure:
-        if self.recognition_domain:
-            if structure is None:
-                assert self.is_starter_module
-                starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
-                label_nrp_central_chain(starter_unit)
-                structure = attach_to_domain_nrp(starter_unit)
-            else:
-                structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+        if self.is_broken:
+            return structure
+        else:
+            if self.recognition_domain:
+                if structure is None:
+                    assert self.is_starter_module
+                    starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                    label_nrp_central_chain(starter_unit)
+                    structure = attach_to_domain_nrp(starter_unit)
+                else:
+                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
-            structure = self.do_nrps_tailoring(structure)
-        return structure
+                structure = self.do_nrps_tailoring(structure)
+            return structure

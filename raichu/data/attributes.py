@@ -27,3 +27,12 @@ AMINOACID_ONE_LETTER_TO_NAME = {"A": "alanine",
                                 "W": "tryptophan",
                                 "Y": "tyrosine",
                                 "V": "valine"}
+PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES = {
+    "DIMETHYLALLYL": r"CC=C(C)C",
+    "GERANYL": r"C\C=C(/C)CCC=C(C)C",
+    "FARNESYL": r"C\C=C(/C)CC\C=C(/C)CCC=C(C)C",
+    "GERANYLGERANYL": r"CC(C)=CCC\C(C)=C\CC\C=C(/C)CCC=C(C)C",
+    "SQUALENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C=C(/CC/C=C(/CCC=C(C)C)\C)\C)/C)/C)C",
+    "PHYTOENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C(=C/C=C\C=C(/C)\CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)/C)/C)/C)C"
+
+}

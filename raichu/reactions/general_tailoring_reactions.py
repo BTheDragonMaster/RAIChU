@@ -9,26 +9,6 @@ from raichu.central_chain_detection.label_central_chain import label_nrp_central
 from raichu.reactions.general import label_rest_groups, initialise_atom_attributes, reset_nrp_annotations
 
 
-def double_bond_shift(structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2):
-    """
-    Returns the reduced product as a PIKAChU Structure object
-    
-    old_double_bond_atom1: C atom1 in old double bond
-    old_double_bond_atom2: C atom2 in old double bond
-    new_double_bond_atom1: C atom1 in new double bond
-    new_double_bond_atom2: C atom2 in new double bond
-    structure: PIKAChU Structure object of the ripp intermediate
-    """
-    new_double_bond = structure.bond_lookup[new_double_bond_atom1][new_double_bond_atom2]
-    assert new_double_bond
-    print(new_double_bond)
-    structure = double_bond_reduction(
-        old_double_bond_atom1, old_double_bond_atom2, structure)
-    structure = single_bond_oxidation(new_double_bond_atom1, new_double_bond_atom2, structure)
-
-    
-    return structure
-
 def dephosphorylation(structure):
     """
     Returns the dephosphorylated product as a PIKAChU Structure object
@@ -49,6 +29,27 @@ def dephosphorylation(structure):
         structure.add_atom('H', [carbon])
         initialise_atom_attributes(structure)
     structure.refresh_structure(find_cycles=True)
+    return structure
+
+
+def double_bond_shift(structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2):
+    """
+    Returns the reduced product as a PIKAChU Structure object
+    
+    old_double_bond_atom1: C atom1 in old double bond
+    old_double_bond_atom2: C atom2 in old double bond
+    new_double_bond_atom1: C atom1 in new double bond
+    new_double_bond_atom2: C atom2 in new double bond
+    structure: PIKAChU Structure object of the ripp intermediate
+    """
+    new_double_bond = structure.bond_lookup[new_double_bond_atom1][new_double_bond_atom2]
+    assert new_double_bond
+    print(new_double_bond)
+    structure = double_bond_reduction(
+        old_double_bond_atom1, old_double_bond_atom2, structure)
+    structure = single_bond_oxidation(
+        new_double_bond_atom1, new_double_bond_atom2, structure)
+
     return structure
 
 
@@ -328,38 +329,41 @@ def hydroxylation(target_atom, structure):
             return s
 
 
-def methylation(target_atom, structure):
+def addition(target_atom, structure_to_add, structure):
     """
-    Returns the structure thats methylated at the target atom.
+    Returns the structure that has a group added at the target atom.
 
+    structure_to_add: SMILES of structure, atom to be added needs to be at first position
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
-
-    methyl_group = read_smiles('C')
-    methyl_group.add_attributes(ATTRIBUTES, boolean=True)
-    carbon = methyl_group.atoms[0]
-    hydrogen_1 = methyl_group.atoms[1]
-    bond_1 = carbon.get_bond(hydrogen_1)
+    FIRST_ATOM = GroupDefiner("first_atom", structure_to_add, 0)
+    group_to_add = read_smiles(structure_to_add)
+    group_to_add.add_attributes(ATTRIBUTES, boolean=True)
+    atom_to_add = find_atoms(FIRST_ATOM, group_to_add)[0]
+    hydrogen_1 = atom_to_add.get_neighbour('H')
+    bond_1 = atom_to_add.get_bond(hydrogen_1)
 
     hydrogen_2 = target_atom.get_neighbour('H')
     if not hydrogen_2:
-        raise Exception("Can't methylate this atom!")
+        raise Exception("Can't add to this atom!")
 
     bond_2 = target_atom.get_bond(hydrogen_2)
 
-    methylated_structure = combine_structures([structure, methyl_group])
+    combined_structure = combine_structures([structure, group_to_add])
 
-    methylated_structure.break_bond(bond_1)
-    methylated_structure.break_bond(bond_2)
+    combined_structure.break_bond(bond_1)
+    combined_structure.break_bond(bond_2)
 
-    methylated_structure.make_bond(
-        carbon, target_atom, methylated_structure.find_next_bond_nr())
-    methylated_structure.make_bond(
-        hydrogen_1, hydrogen_2, methylated_structure.find_next_bond_nr())
+    combined_structure.make_bond(
+        atom_to_add, target_atom, combined_structure.find_next_bond_nr())
+    combined_structure.make_bond(
+        hydrogen_1, hydrogen_2, combined_structure.find_next_bond_nr())
 
-    structures = methylated_structure.split_disconnected_structures()
+    structures = combined_structure.split_disconnected_structures()
 
-    for s in structures:
-        if carbon.nr in s.atoms:
-            return s
+    for structure in structures:
+        if atom_to_add.nr in structure.atoms:
+            return structure
+
+

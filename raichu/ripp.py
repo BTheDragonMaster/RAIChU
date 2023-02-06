@@ -98,7 +98,7 @@ class RiPP_Cluster:
                         raise ValueError(f"Non-existing atoms for tailoring")
                     atom_array += [atoms_for_reaction_initialized]
                 self.tailoring_enzymes += [TailoringEnzyme(
-                    tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
+                    tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array, tailoring_enzyme_representation.substrate)]
 
 
     def do_tailoring(self):

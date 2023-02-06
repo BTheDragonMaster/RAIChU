@@ -63,7 +63,9 @@ class Terpene_Cluster:
                     if len(atoms_for_reaction_initialized)<len(atoms_for_reaction):
                         raise ValueError(f"Non-existing atoms for tailoring")
                     atom_array += [atoms_for_reaction_initialized]
-                self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
+                    self.tailoring_enzymes += [TailoringEnzyme(
+                        tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array, tailoring_enzyme_representation.substrate)]
+
 
     def do_tailoring(self):
         for tailoring_enzyme in self.tailoring_enzymes:
@@ -73,7 +75,7 @@ class Terpene_Cluster:
             
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=False)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True, draw_straightened=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

@@ -99,7 +99,9 @@ def double_bond_reduction(atom1, atom2, structure):
     double_bond = atom1.get_bond(atom2)
     assert double_bond
     if double_bond.type == "aromatic":
-        structure.kekulise()
+        structure = structure.kekulise()
+        atom1 = structure.get_atom(atom1)
+        double_bond = atom1.get_bond(atom2)
         double_bond.make_single()
         double_bond.set_bond_summary()
         for neighbour in double_bond.neighbours:
@@ -250,7 +252,10 @@ def proteolytic_cleavage(bond, structure, structure_to_keep: str = "follower"):
      structure_to_keep: determines if the leading or the following peptide should be kept ("leader" or "follower")
     """
     carbon = bond.get_neighbour('C')
+    assert carbon
     nitrogen = bond.get_neighbour('N')
+    assert nitrogen
+    print(carbon, nitrogen)
     structure.break_bond(bond)
     oxygen = structure.add_atom('O', [carbon])
     initialise_atom_attributes(structure)

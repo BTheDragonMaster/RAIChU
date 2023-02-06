@@ -202,7 +202,7 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
 if __name__ == "__main__":
     ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
-                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION",[["N_46","C_34"],["C_74","N_107"]])])
+                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
     terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations= [MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type= "Class_1",
                                       tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
 
@@ -279,5 +279,5 @@ if __name__ == "__main__":
                                           ], [TailoringRepresentation("gene_7", "P450_EPOXIDATION", [["C_41","C_35"]])]
                                           )
     #draw_cluster(cluster_repr)
-   # draw_ripp_structure(ripp_cluster)
-    draw_terpene_structure(terpene_cluster)
+    draw_ripp_structure(ripp_cluster)
+   # draw_terpene_structure(terpene_cluster)

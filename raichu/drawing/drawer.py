@@ -442,11 +442,14 @@ class RaichuDrawer(Drawer):
                         self.plot_chiral_bond(orientation, chiral_center, line,
                                               ax, midpoint)
                     else:
-                        if (bond.atom_1.type == 'S' and
-                                bond.atom_2.annotations.domain_type or
-                                (bond.atom_2.type == 'S' and
-                                 bond.atom_1.annotations.domain_type)):
-                            self.plot_halflines_s_domain(line, ax, midpoint)
+                        if hasattr(bond.atom_1.annotations, "domain_type") and hasattr(bond.atom_2.annotations, "domain_type"):
+                            if (bond.atom_1.type == 'S' and
+                                    bond.atom_2.annotations.domain_type or
+                                    (bond.atom_2.type == 'S' and
+                                    bond.atom_1.annotations.domain_type)):
+                                self.plot_halflines_s_domain(line, ax, midpoint)
+                            else:
+                                self.plot_halflines(line, ax, midpoint)
                         else:
                             self.plot_halflines(line, ax, midpoint)
                 elif bond.type == 'double':
@@ -921,9 +924,11 @@ class RaichuDrawer(Drawer):
             if atom.type == 'S':
                 sulphur = atom
                 for neighbour in sulphur.neighbours:
-                    if neighbour.annotations.domain_type:
-                        attached_to_domain = True
-                        domain = neighbour
+                    print(type(neighbour.annotations))
+                    if hasattr(neighbour.annotations, "domain_type"):
+                        if neighbour.annotations.domain_type:
+                            attached_to_domain = True
+                            domain = neighbour
 
         self.structure.refresh_structure()
 

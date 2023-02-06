@@ -4,7 +4,7 @@ from pikachu.general import read_smiles
 
 from raichu.substrate import RibosomeSubstrate
 from raichu.data.molecular_moieties import PEPTIDE_BOND
-from raichu.data.attributes import AMINOACID_ONE_LETTER_TO_NAME
+from raichu.data.attributes import AMINOACID_ONE_LETTER_TO_NAME, AMINOACID_ONE_LETTER_TO_SMILES
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, cyclisation
 from raichu.reactions.ripp_reactions import ribosomal_elongation
 from raichu.tailoring_enzymes import TailoringEnzyme
@@ -27,18 +27,15 @@ class RiPP_Cluster:
         self.initialized_macrocyclization_atoms = []
         
     def make_peptide(self):
+        smiles_peptide_chain = ""
         for index, amino_acid in enumerate(self.amino_acid_seqence):
-            name_amino_acid = f'{amino_acid}{index+1}'
-            if amino_acid in AMINOACID_ONE_LETTER_TO_NAME:
-                name = AMINOACID_ONE_LETTER_TO_NAME[amino_acid]
+            if amino_acid in AMINOACID_ONE_LETTER_TO_SMILES:
+                substrate = AMINOACID_ONE_LETTER_TO_SMILES[amino_acid]
             else:
                 raise ValueError(f"Unknown amino acid: {amino_acid}")
-            substrate = RibosomeSubstrate(name)
-            building_block = read_smiles(substrate.smiles)
-            if self.linear_product:
-                self.linear_product = ribosomal_elongation(building_block, self.linear_product, amino_acid_number=name_amino_acid)
-            else:
-                self.linear_product = building_block
+            smiles_peptide_chain += str(substrate)
+        smiles_peptide_chain += "O"
+        self.linear_product = read_smiles(smiles_peptide_chain)
         self.chain_intermediate = self.linear_product
         self.initialize_cleavage_sites_on_structure()
         self.initialize_macrocyclization_on_structure()
@@ -50,7 +47,7 @@ class RiPP_Cluster:
             number_cleavage = cleavage_site.position_index
             if self.amino_acid_seqence[number_cleavage-1] == amino_acid_cleavage:
                 peptide_bonds = find_bonds(PEPTIDE_BOND, self.linear_product)
-                peptide_bonds = sorted(peptide_bonds, key = lambda bond: bond.nr, reverse= True)
+                peptide_bonds = sorted(peptide_bonds, key = lambda bond: bond.nr)
                 cleavage_bond = peptide_bonds[number_cleavage] 
                 self.cleavage_bonds += [[cleavage_bond, cleavage_site.structure_to_keep]]
             else:
@@ -109,7 +106,7 @@ class RiPP_Cluster:
             
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False, draw_straightened=False)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True, draw_straightened=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

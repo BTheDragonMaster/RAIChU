@@ -1,7 +1,9 @@
 from typing import List, Union
 
+from pikachu.drawing.drawing import *
 from raichu.cluster import Cluster
 from raichu.ripp import RiPP_Cluster
+from raichu.terpene import Terpene_Cluster
 from raichu.domain.domain import TailoringDomain, CarrierDomain, SynthesisDomain, RecognitionDomain, \
     TerminationDomain, UnknownDomain, Domain
 from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, IterativePKSModule, TransATPKSModule,\
@@ -165,16 +167,26 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
 
 def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.make_peptide()
-    print(ripp_cluster.cleavage_bonds)
     ripp_cluster.draw_product(as_string=False, out_file="peptide_test_ripp.svg")
     ripp_cluster.do_tailoring()
     ripp_cluster.draw_product(as_string=False, out_file="tailoring_test_ripp.svg")
     ripp_cluster.do_macrocyclization()
     ripp_cluster.draw_product(as_string=False, out_file="macrocyclisation_test_ripp.svg")
-    print(ripp_cluster.cleavage_bonds)
     ripp_cluster.do_proteolytic_claevage()
     ripp_cluster.draw_product(as_string=False, out_file="cleavage_test_ripp.svg")
-    
+
+
+def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
+    terpene_cluster.create_precursor()
+    terpene_cluster.draw_product(
+        as_string=False, out_file="precursor_test_terpene.svg")
+    terpene_cluster.do_macrocyclization()
+    terpene_cluster.draw_product(
+        as_string=False, out_file="macroyclisation_test_terpene.svg")
+    terpene_cluster.do_tailoring()
+    terpene_cluster.draw_product(
+        as_string=False, out_file="tailoring_test_terpene.svg")
+
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)
@@ -188,8 +200,11 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
     return spaghettis
 
 if __name__ == "__main__":
-    ripp_cluster = RiPP_Cluster("best_ripp(tryptodubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
+    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
                                 tailoring_enzymes_representation=[TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION",[["N_46","C_34"],["C_74","N_107"]])])
+    terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations= [MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type= "Class_1",
+                                      tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase","ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13","C_14", "C_14", "C_15"]])])
+
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
                                                                                      True),
@@ -264,3 +279,4 @@ if __name__ == "__main__":
                                           )
     draw_cluster(cluster_repr)
     draw_ripp_structure(ripp_cluster)
+    draw_terpene_structure(terpene_cluster)

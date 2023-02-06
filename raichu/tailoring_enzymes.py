@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from raichu.reactions.general_tailoring_reactions import hydroxylation, methylation, oxidative_bond_formation, epoxidation, double_bond_reduction
+from raichu.reactions.general_tailoring_reactions import hydroxylation, methylation, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
 from pikachu.chem.structure import Structure
 
 @unique
@@ -12,6 +12,7 @@ class TailoringEnzymeType(Enum):
     P450_OXIDATIVE_BOND_FORMATION = 6
     P450_EPOXIDATION = 7
     REDUCTASE_DOUBLE_BOND_REDUCTION = 8
+    ISOMERASE_DOUBLE_BOND_SHIFT = 9
     @staticmethod
     def from_string(label: str) -> "TailoringEnzymeType":
         for value in TailoringEnzymeType:
@@ -56,6 +57,14 @@ class TailoringEnzyme:
                 atom1 = structure.get_atom(atoms[0])
                 atom2 = structure.get_atom(atoms[1])
                 structure = double_bond_reduction(atom1, atom2, structure)
+        elif self.type.name == "ISOMERASE_DOUBLE_BOND_SHIFT":
+            for atoms in self.atoms:
+                old_double_bond_atom1 = structure.get_atom(atoms[0])
+                old_double_bond_atom2 = structure.get_atom(atoms[1])
+                new_double_bond_atom1 = structure.get_atom(atoms[2])
+                new_double_bond_atom2 = structure.get_atom(atoms[3])
+                structure = double_bond_shift(
+                    structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2)
         
         
         return structure

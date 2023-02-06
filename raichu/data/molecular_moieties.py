@@ -94,10 +94,10 @@ B_LEAVING_BOND = BondDefiner('beta leaving bond', 'NCCC(=O)O', 3, 5)
 AMINO_FATTY_ACID = read_smiles('CCCCCCCC(=O)O')
 ACID_C1 = GroupDefiner('C1 atom (fatty) acid', 'CC(=O)O', 0)
 ACID_C2 = GroupDefiner('C2 atom (fatty) acid', 'CC(=O)O', 1)
-
 COABOND = BondDefiner('CoA_bond', 'CC(NCCC(NCCSC)=O)=O', 8, 9)
 
 PEPTIDE_BOND = BondDefiner('peptide_bond', 'CC(=O)NC', 1, 3)
+CC_DOUBLE_BOND = BondDefiner('cc_double_bond', 'C=C', 0, 1)
 C_TERMINAL_OH = BondDefiner('c_terminal_oh', 'NCC(O)=O', 2, 3)
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 SC_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
@@ -106,8 +106,10 @@ N_AMINO = GroupDefiner('N_amino', 'CN', 1)
 O_OH = GroupDefiner('O_oh', 'CO', 1)
 C_CH = GroupDefiner("C_Ch", "CC", 0)
 
-
-
 O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
 O_BETAPROPRIOLACTONE_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 4)
 O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 0)
+
+
+PYROPHOSPHATE_BOND = BondDefiner(
+    "pyrophosphate_bond", "COP", 0, 1)

@@ -590,8 +590,9 @@ class RaichuDrawer(Drawer):
                 else:
                     text = ''
 
-                if atom.annotations.domain_type:
-                    text = atom.annotations.domain_type
+                if hasattr(atom.annotations, "domain_type"):
+                    if atom.annotations.domain_type:
+                        text = atom.annotations.domain_type
 
                 horizontal_alignment = 'center'
 
@@ -983,6 +984,7 @@ class RaichuDrawer(Drawer):
             # Rotate all other bonds in peptide backbone of NRP
             i = 0
             fixed_atoms = set()
+            first_angle_cyclic = 60.0
             while i < (len(backbone_atoms) - 1):
                 atom1 = backbone_atoms[i]
                 atom2 = backbone_atoms[i + 1]
@@ -1032,6 +1034,7 @@ class RaichuDrawer(Drawer):
 
                 # Fix bond angle backbone atoms if second backbone atom (one
                 # with larger position.x) is inside ring, and the first is not
+                
                 elif atom2 != backbone_atoms[-1] and atom2.inside_ring and not atom1.inside_ring and \
                         backbone_atoms[i + 2].inside_ring:
                     if atom2 not in fixed_atoms:
@@ -1062,10 +1065,11 @@ class RaichuDrawer(Drawer):
                         elif angle_degrees == 60.0:
                             first_angle_cyclic = 60.0
                         i += 1
-
+            
                 # Other way around... (first one in ring, after cycle)
                 elif atom1.inside_ring and not atom2.inside_ring and \
                         backbone_atoms[i - 1].inside_ring:
+                    print(atom1, atom2)
                     if first_angle_cyclic == 60.0:
                         correct_angle_deg = 120.0
                     elif first_angle_cyclic == 120.0:

@@ -40,6 +40,13 @@ _PKS_TO_SMILES = {"WILDCARD": r"SC(C([*])C(O)=O)=O",
                   "METHOXYFORMYL_COA": r"COC(S)=O"
                   }
 
+_TERPENE_PRECURSOR_TO_SMILES = {
+    "GERANYL_PYROPHOSPHATE": r"O=P(O)(O)OP(=O)(OC/C=C(/CC\C=C(/C)C)C)O",
+    "FARNESYL_PYROPHOSPHATE": r"CC(=CCC/C(=C/CC/C(=C/COP(=O)(O)OP(=O)(O)O)/C)/C)C",
+    "GERANYLGERANYL_PYROPHOSPHATE": r"O=P(O)(O)OP(=O)(O)OC/C=C(/CC\C=C(/C)CC\C=C(/C)CC\C=C(/C)C)C",
+    "SQUALENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C=C(/CC/C=C(/CCC=C(C)C)\C)\C)/C)/C)C",
+    "PHYTOENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C(=C/C=C\C=C(/C)\CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)/C)/C)/C)C"
+}
 
 @unique
 class PksStarterSubstrate(Enum):
@@ -145,3 +152,12 @@ class PKSSubstrate(Substrate):
             self.elongation_monomer = None
         else:
             raise ValueError(f"PKS substrate {self.name} is not recognised by RAIChU.")
+
+
+class TerpeneCyclaseSubstrate(Substrate):
+    def __init__(self, name: str) -> None:
+        smiles = _TERPENE_PRECURSOR_TO_SMILES.get(name, None)
+        if smiles is None:
+            raise ValueError(
+                f"Cannot fetch SMILES string for terpene cyclase substrate {name}.")
+        super().__init__(name, smiles)

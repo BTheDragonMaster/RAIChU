@@ -79,17 +79,27 @@ class RiPP_Cluster:
             self.chain_intermediate = cyclisation(self.chain_intermediate, atom1, atom2)
         self.cyclised_product = self.chain_intermediate
      
-        
+
     def initialize_tailoring_enzymes_on_structure(self):
         if self.tailoring_enzymes_representation:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
                 atom_array = []
                 for atoms_for_reaction in tailoring_enzyme_representation.atoms:
-                    atoms_for_reaction_initialized = [atom for atom in self.linear_product.atoms.values() if str(atom) in atoms_for_reaction]
-                    if len(atoms_for_reaction_initialized)<len(atoms_for_reaction):
+                    atoms_for_reaction_initialized = [
+                        atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
+                    atoms_for_reaction_initialized_updated = []
+                    for atom in atoms_for_reaction:
+                        for atom_initialized in atoms_for_reaction_initialized:
+                            if str(atom_initialized) == atom:
+                                atoms_for_reaction_initialized_updated.append(
+                                    atom_initialized)
+                    atoms_for_reaction_initialized = atoms_for_reaction_initialized_updated
+                    if len(atoms_for_reaction_initialized) < len(atoms_for_reaction):
                         raise ValueError(f"Non-existing atoms for tailoring")
                     atom_array += [atoms_for_reaction_initialized]
-                self.tailoring_enzymes += [TailoringEnzyme(tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
+                self.tailoring_enzymes += [TailoringEnzyme(
+                    tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array)]
+
 
     def do_tailoring(self):
         for tailoring_enzyme in self.tailoring_enzymes:
@@ -99,7 +109,7 @@ class RiPP_Cluster:
             
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False, draw_straightened=True)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=False, draw_Cs_in_pink=False, draw_straightened=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

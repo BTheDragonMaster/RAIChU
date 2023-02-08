@@ -1,5 +1,5 @@
 from enum import Enum, unique
-from raichu.reactions.general_tailoring_reactions import dephosphorylation, hydroxylation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
+from raichu.reactions.general_tailoring_reactions import remove_atom, remove_group_at_bond, single_bond_oxidation, dephosphorylation, hydroxylation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles, structure_to_smiles
 from raichu.substrate import TerpeneCyclaseSubstrate
@@ -18,6 +18,15 @@ class TailoringEnzymeType(Enum):
     PRENYLTRANSFERASE = 10
     ACETYLTRANSFERASE = 11
     ACYLTRANSFERASE = 12
+    AMINOTRANSFERASE = 13
+    OXIDASE_DOUBLE_BOND_FORMATION = 14
+    REDUCTASE_KETO_REDUCTION = 15
+    ALCOHOLE_DEHYDROGENASE = 16
+    DEHYDRATASE = 17
+    DECARBOXYLASE = 18
+    MONOAMINE_OXIDASE = 19
+    
+    
     @staticmethod
     def from_string(label: str) -> "TailoringEnzymeType":
         for value in TailoringEnzymeType:
@@ -84,6 +93,11 @@ class TailoringEnzyme:
                 atom1 = structure.get_atom(atoms[0])
                 atom2 = structure.get_atom(atoms[1])
                 structure = double_bond_reduction(atom1, atom2, structure)
+        elif self.type.name == "OXIDASE_DOUBLE_BOND_FORMATION":
+            for atoms in self.atoms:
+                atom1 = structure.get_atom(atoms[0])
+                atom2 = structure.get_atom(atoms[1])
+                structure = single_bond_oxidation(atom1, atom2, structure)
         elif self.type.name == "ISOMERASE_DOUBLE_BOND_SHIFT":
             for atoms in self.atoms:
                 old_double_bond_atom1 = structure.get_atom(atoms[0])
@@ -92,6 +106,58 @@ class TailoringEnzyme:
                 new_double_bond_atom2 = structure.get_atom(atoms[3])
                 structure = double_bond_shift(
                     structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2)
-        
+        elif self.type.name == "AMINOTRANSFERASE":
+            for atom in self.atoms:
+                atom1 = atom[0] #only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                oxygen = atom1.get_neighbour('O')
+                structure = double_bond_reduction(atom1, oxygen, structure)
+                oxygen = structure.get_atom(oxygen)
+                structure = remove_atom(oxygen, structure)
+                atom = structure.get_atom(atom)
+                structure = addition(atom, "N", structure)
+        elif self.type.name == "REDUCTASE_KETO_REDUCTION":
+            for atom in self.atoms:
+                atom1 = atom[0] #only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                if atom1.type != "O":
+                    print(f"Can not perform KETO_REDUCTION on atom {atom1}, since there is no oxygen to be reduced.")
+                    continue
+                atom2 = atom1.get_neighbour('C')
+                structure = double_bond_reduction(atom1, atom2, structure)
+        elif self.type.name == "ALCOHOLE_DEHYDROGENASE":
+            for atom in self.atoms:
+                atom1 = atom[0] #only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                if atom1.type != "O":
+                    print(f"Can not perform ALCOHOLE_DEHYDROGENASE on atom {atom1}, since there is no oxygen to be reduced.")
+                    continue
+                atom2 = atom1.get_neighbour('C')
+                structure = single_bond_oxidation(atom1, atom2, structure)
+        elif self.type.name == "DECARBOXYLASE":
+            for atom in self.atoms:
+                atom1 = atom[0] #only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                structure = remove_atom(atom1, structure)     
+        elif self.type.name == "DEHYDRATASE":
+            for atoms in self.atoms:
+                atom1 = structure.get_atom(atoms[0])
+                atom2 = structure.get_atom(atoms[1])
+                oxygen = atom1.get_neighbour('O')
+                if not oxygen:
+                    oxygen = atom2.get_neighbour('O')
+                if not oxygen:
+                    print(f"Can not perform DEHYDRATASE on atoms {atom1} and {atom2}, since there is no hydroxygroup to be removed.")
+                    continue
+                structure = remove_atom(oxygen, structure)
+                structure = single_bond_oxidation(atom1, atom2, structure)
+        elif self.type.name == "MONOAMINE_OXYDASE":
+            for atom in self.atoms:
+                atom1 = atom[0] #only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                if atom1.type != "N":
+                    print(f"Can not perform MONOAMINE_OXYDASE on atom {atom1}, since there is no nitrogen to be removed.")
+                    continue
+                structure = remove_atom(atom1, structure) 
         
         return structure

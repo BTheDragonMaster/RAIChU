@@ -8,12 +8,53 @@ from raichu.data.molecular_moieties import CO_BOND, N_AMINO, O_OH, O_BETAPROPRIO
 from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 from raichu.reactions.general import label_rest_groups, initialise_atom_attributes, reset_nrp_annotations
 
+def remove_atom(atom, structure):
+    """
+    Returns the product without the grup attached to the atom as a PIKAChU Structure object
+    
+    structure: PIKAChU Structure object of the intermediate
+    atom: atom to be removed
+    """
+    atom= structure.get_atom(atom)
+    carbon = atom.get_neighbour('C')
+    bond = atom.get_bond(carbon)
+    structure.break_bond(bond)
+    structure_1, structure_2 = structure.split_disconnected_structures()
+    if carbon in structure_1.graph:
+        structure = structure_1
+    else:
+        structure = structure_2
+    structure.add_atom('H', [carbon])
+    initialise_atom_attributes(structure)
+    structure.refresh_structure(find_cycles=True)
+    return structure
+
+
+def remove_group_at_bond(bond, structure):
+    """
+    Returns the product without the grup attached to the bond as a PIKAChU Structure object
+    
+    structure: PIKAChU Structure object of the intermediate
+    bond: PIKAChU bond to be broken
+    """
+    carbon = bond.get_neighbour('C')
+    structure.break_bond(bond)
+    structure_1, structure_2 = structure.split_disconnected_structures()
+    if carbon in structure_1.graph:
+        structure = structure_1
+    else:
+        structure = structure_2
+    structure.add_atom('H', [carbon])
+    initialise_atom_attributes(structure)
+    structure.refresh_structure(find_cycles=True)
+    return structure
+
 
 def dephosphorylation(structure):
     """
     Returns the dephosphorylated product as a PIKAChU Structure object
     
-    structure: PIKAChU Structure object of the ripp intermediate
+    structure: PIKAChU Structure object of the intermediate
     """
     pyrophosphate_bonds = find_bonds(
         PYROPHOSPHATE_BOND, structure)
@@ -40,7 +81,7 @@ def double_bond_shift(structure, old_double_bond_atom1, old_double_bond_atom2, n
     old_double_bond_atom2: C atom2 in old double bond
     new_double_bond_atom1: C atom1 in new double bond
     new_double_bond_atom2: C atom2 in new double bond
-    structure: PIKAChU Structure object of the ripp intermediate
+    structure: PIKAChU Structure object of the intermediate
     """
     new_double_bond = structure.bond_lookup[new_double_bond_atom1][new_double_bond_atom2]
     assert new_double_bond
@@ -59,7 +100,7 @@ def single_bond_oxidation(atom1, atom2, structure):
     
     atom1: C atom1 in single bond
     atom2: C atom2 in single bond
-    structure: PIKAChU Structure object of the ripp intermediate
+    structure: PIKAChU Structure object of the intermediate
     """
     single_bond = atom1.get_bond(atom2)
     # remove h atoms
@@ -94,7 +135,7 @@ def double_bond_reduction(atom1, atom2, structure):
     
     atom1: C atom1 in double bond
     atom2: C atom2 in double bond
-    structure: PIKAChU Structure object of the ripp intermediate
+    structure: PIKAChU Structure object of the intermediate
     """
     double_bond = atom1.get_bond(atom2)
     assert double_bond
@@ -124,7 +165,7 @@ def epoxidation(atom1, atom2, structure):
     ["C_35","C_98"],
     atom1: C atom1 to be epoxidated
     atom2: C atom2 to be epoxidated, needs to be neighbour of atom1
-    structure: PIKAChU Structure object of the ripp intermediate
+    structure: PIKAChU Structure object of the intermediate
     """
     assert atom1.type == 'C'
     assert atom2.type == 'C'

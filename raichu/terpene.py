@@ -59,9 +59,10 @@ class Terpene_Cluster:
                             if str(atom_initialized) == atom:
                                 atoms_for_reaction_initialized_updated.append(
                                     atom_initialized)
+                                break
+                        else:
+                            print(f"Non-existing atoms for tailoring {str(atom_initialized)}. RAIChU will skip this tailoring reaction.")
                     atoms_for_reaction_initialized = atoms_for_reaction_initialized_updated
-                    if len(atoms_for_reaction_initialized)<len(atoms_for_reaction):
-                        raise ValueError(f"Non-existing atoms for tailoring")
                     atom_array += [atoms_for_reaction_initialized]
                     self.tailoring_enzymes += [TailoringEnzyme(
                         tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array, tailoring_enzyme_representation.substrate)]

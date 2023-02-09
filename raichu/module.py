@@ -8,8 +8,7 @@ from raichu.domain.domain import Domain, TailoringDomain, RecognitionDomain, \
 from raichu.central_chain_detection.label_central_chain import label_pk_central_chain, label_nrp_central_chain
 from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
-from pikachu.drawing.drawing import Drawer
-from raichu.drawing.drawer import RaichuDrawer
+from raichu.substrate import PKSSubstrate
 
 @unique
 class ModuleType(Enum):
@@ -264,8 +263,25 @@ class IterativePKSModule(_Module):
         self.iterations = iterations
 
     def run_module(self, structure=None):
-        self.do_pks_tailoring(structure)
-        raise NotImplementedError
+        if self.is_broken:
+            return structure
+        else:
+            for i in range(0, self.iterations):
+                if self.recognition_domain:
+                    # make new substrate to enable reuse of substrate
+                    substrate = PKSSubstrate(self.recognition_domain.substrate_name)
+                    if structure is None:
+                        assert self.is_starter_module
+                        starter_unit = read_smiles(
+                            substrate.smiles)
+                        label_pk_central_chain(starter_unit)
+                        structure = attach_to_domain_pk(starter_unit)
+                    else:
+                        structure = self.synthesis_domain.do_elongation(
+                            structure, substrate)
+
+                    structure = self.do_pks_tailoring(structure)
+            return structure
 
 
 class TransATPKSModule(_Module):

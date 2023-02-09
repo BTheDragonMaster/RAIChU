@@ -50,7 +50,7 @@ class Terpene_Cluster:
         if self.tailoring_enzymes_representation:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
                 atom_array = []
-                for atoms_for_reaction in tailoring_enzyme_representation.atoms:
+                for atoms_for_reaction in tailoring_enzyme_representation.modification_sites:
                     atoms_for_reaction_initialized = [
                         atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
                     atoms_for_reaction_initialized_updated = []

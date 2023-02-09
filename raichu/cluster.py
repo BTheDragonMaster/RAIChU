@@ -93,17 +93,21 @@ class Cluster:
         if self.tailoring_enzymes_representation:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
                 atom_array = []
-                for atoms_for_reaction in tailoring_enzyme_representation.atoms:
+                for atoms_for_reaction in tailoring_enzyme_representation.modification_sites:
                     atoms_for_reaction_initialized = [
                         atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
+                    # sort atoms by occurence in original atoms list
                     atoms_for_reaction_initialized_updated = []
                     for atom in atoms_for_reaction:
+                        atom_initialized = None
                         for atom_initialized in atoms_for_reaction_initialized:
                             if str(atom_initialized) == atom:
                                 atoms_for_reaction_initialized_updated.append(
                                     atom_initialized)
                                 break
                         else:
+                            if not atom_initialized:
+                                atom_initialized = atoms_for_reaction[0]
                             print(f"Non-existing atoms for tailoring {str(atom_initialized)}. RAIChU will skip this tailoring reaction.")
                     atom_array += [atoms_for_reaction_initialized]
                 self.tailoring_enzymes += [TailoringEnzyme(

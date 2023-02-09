@@ -45,27 +45,22 @@ class Terpene_Cluster:
                 atom1, atom2, self.chain_intermediate)
         self.cyclised_product = self.chain_intermediate
      
-        
     def initialize_tailoring_enzymes_on_structure(self):
         if self.tailoring_enzymes_representation:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
-                atom_array = []
+                modification_sites = []
                 for atoms_for_reaction in tailoring_enzyme_representation.modification_sites:
-                    atoms_for_reaction_initialized = [
-                        atom for atom in self.chain_intermediate.atoms.values() if str(atom) in atoms_for_reaction]
-                    atoms_for_reaction_initialized_updated = []
-                    for atom in atoms_for_reaction:
-                        for atom_initialized in atoms_for_reaction_initialized:
-                            if str(atom_initialized) == atom:
-                                atoms_for_reaction_initialized_updated.append(
-                                    atom_initialized)
-                                break
-                        else:
-                            print(f"Non-existing atoms for tailoring {str(atom_initialized)}. RAIChU will skip this tailoring reaction.")
-                    atoms_for_reaction_initialized = atoms_for_reaction_initialized_updated
-                    atom_array += [atoms_for_reaction_initialized]
-                    self.tailoring_enzymes += [TailoringEnzyme(
-                        tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, atom_array, tailoring_enzyme_representation.substrate)]
+                    atoms_for_reaction_with_numbers = map(
+                        lambda atom: [int(''.join(filter(str.isdigit, atom))), atom], atoms_for_reaction)
+                    atoms_in_structure = map(
+                        str, self.chain_intermediate.atoms.values())
+                    atoms_for_reaction_initialized = [self.chain_intermediate.atoms[atom[0]] if atom[1] in atoms_in_structure else print(
+                        f"Non-existing atom for tailoring {str(atom[1])}. RAIChU will skip this tailoring reaction.") for atom in atoms_for_reaction_with_numbers]
+                    atoms_for_reaction_initialized = list(
+                        filter(lambda atom: atom is not None, atoms_for_reaction_initialized))
+                    modification_sites += [atoms_for_reaction_initialized]
+                self.tailoring_enzymes += [TailoringEnzyme(
+                    tailoring_enzyme_representation.gene_name, tailoring_enzyme_representation.type, modification_sites, tailoring_enzyme_representation.substrate)]
 
 
     def do_tailoring(self):

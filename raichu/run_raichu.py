@@ -192,8 +192,6 @@ def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)
-    # for module in cluster.modules:
-    #     print(module.domains)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
     cluster.draw_cluster()
@@ -231,5 +229,5 @@ if __name__ == "__main__":
                                           [TailoringRepresentation("gene_7", "P450_EPOXIDATION", [["C_41","C_35"]])]
                                           )
     draw_cluster(cluster_repr)
-    #draw_ripp_structure(ripp_cluster)
-   # draw_terpene_structure(terpene_cluster)
+    draw_ripp_structure(ripp_cluster)
+    draw_terpene_structure(terpene_cluster)

@@ -1,12 +1,10 @@
-from pikachu.chem.structure import Structure
 from pikachu.reactions.functional_groups import find_bonds
 from pikachu.general import read_smiles
 
-from raichu.substrate import RibosomeSubstrate
+
 from raichu.data.molecular_moieties import PEPTIDE_BOND
 from raichu.data.attributes import AMINOACID_ONE_LETTER_TO_NAME, AMINOACID_ONE_LETTER_TO_SMILES
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, cyclisation
-from raichu.reactions.ripp_reactions import ribosomal_elongation
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
 

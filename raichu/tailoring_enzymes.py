@@ -1,8 +1,5 @@
 from enum import Enum, unique
-from raichu.reactions.general_tailoring_reactions import remove_atom, remove_group_at_bond, single_bond_oxidation, dephosphorylation, hydroxylation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
-from pikachu.chem.structure import Structure
-from pikachu.general import read_smiles, structure_to_smiles
-from raichu.substrate import TerpeneCyclaseSubstrate
+from raichu.reactions.general_tailoring_reactions import remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
 @unique
 class TailoringEnzymeType(Enum):

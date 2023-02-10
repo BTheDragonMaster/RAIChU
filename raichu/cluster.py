@@ -96,8 +96,8 @@ class Cluster:
                 for atoms_for_reaction in tailoring_enzyme_representation.modification_sites:
                     atoms_for_reaction_with_numbers = map(
                         lambda atom: [int(''.join(filter(str.isdigit, atom))), atom], atoms_for_reaction)
-                    atoms_in_structure = map(
-                        str, self.chain_intermediate.atoms.values())
+                    atoms_in_structure = list(map(
+                        str, self.chain_intermediate.atoms.values()))
                     atoms_for_reaction_initialized = [self.chain_intermediate.atoms[atom[0]] if atom[1] in atoms_in_structure else print(
                         f"Non-existing atom for tailoring {str(atom[1])}. RAIChU will skip this tailoring reaction.") for atom in atoms_for_reaction_with_numbers]
                     atoms_for_reaction_initialized = list(

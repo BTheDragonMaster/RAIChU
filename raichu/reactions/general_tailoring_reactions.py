@@ -312,10 +312,8 @@ def find_atoms_for_tailoring(chain_intermediate, atom_type):
 
     for atom in chain_intermediate.graph:
         atom.hybridise()
-    chain_intermediate_copy = chain_intermediate.deepcopy()
-    chain_intermediate_copy.refresh_structure()
     atoms_filtered = []
-    for atom in chain_intermediate_copy.graph:
+    for atom in chain_intermediate.graph:
         if atom.type == atom_type:
             neighbour_types = []
             for neighbour in atom.neighbours:

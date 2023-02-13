@@ -12,8 +12,7 @@ from raichu.domain.domain_types import TailoringDomainType, TerminationDomainTyp
     SynthesisDomainType, RecognitionDomainType
 from dataclasses import dataclass
 from raichu.alkaloid import Alkaloid_Cluster
-from raichu.reactions.chain_release import find_all_o_n_atoms_for_cyclization
-from raichu.reactions.general_tailoring_reactions import find_atoms_for_tailoring
+from raichu.tailoring_enzymes import TailoringEnzyme, TailoringEnzymeType
 
 DOMAIN_TO_SUPERTYPE = {}
 for domain_name in TailoringDomainType.__members__:
@@ -177,6 +176,7 @@ def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.draw_product(as_string=False, out_file="macrocyclisation_test_ripp.svg")
     ripp_cluster.do_proteolytic_claevage()
     ripp_cluster.draw_product(as_string=False, out_file="cleavage_test_ripp.svg")
+    
 
 
 def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
@@ -189,6 +189,8 @@ def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
     terpene_cluster.do_tailoring()
     terpene_cluster.draw_product(
         as_string=False, out_file="tailoring_test_terpene.svg")
+    print(get_tailoring_sites(terpene_cluster.chain_intermediate))
+    
 
 
 def draw_alkaloid_structure(alkaloid_cluster: Terpene_Cluster) -> None:
@@ -209,6 +211,14 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
     spaghettis = cluster.draw_spaghettis()
 
     return spaghettis
+
+def get_tailoring_sites(structure):
+    tailoring_sites = {}
+    for enzyme_type in TailoringEnzymeType:
+        tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
+        tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(
+            structure)
+    return tailoring_sites
 
 if __name__ == "__main__":
     ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
@@ -251,7 +261,7 @@ if __name__ == "__main__":
                                                                                      True)
                                                                 ], 5)]
                                           )
-    draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
-    draw_ripp_structure(ripp_cluster)
+    #draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    #draw_ripp_structure(ripp_cluster)
     draw_terpene_structure(terpene_cluster)
-    draw_alkaloid_structure(alkaloid_cluster)
+    #draw_alkaloid_structure(alkaloid_cluster)

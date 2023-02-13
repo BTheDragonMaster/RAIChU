@@ -219,9 +219,14 @@ if __name__ == "__main__":
     alkaloid_cluster = Alkaloid_Cluster("phenylalanine",
                                         tailoring_enzymes_representation=[TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
                                                                           TailoringRepresentation(
+                                                                              "pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
+                                                                          TailoringRepresentation(
+                                                                              "pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),
+                                                                          TailoringRepresentation(
                                                                               "pseudo_hydroxylase", "P450_HYDROXYLATION", [["C_6"]]),
                                                                           TailoringRepresentation(
-                                                                              "methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"]])
+                                                                              "methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"], ["O_25"]]),
+                                                                          
                                                                           ])
 
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
@@ -244,10 +249,9 @@ if __name__ == "__main__":
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'ACP', None, None, True,
                                                                                      True)
-                                                                ], 5)],
-                                          [TailoringRepresentation("gene_7", "P450_EPOXIDATION", [["C_41","C_35"]])]
+                                                                ], 5)]
                                           )
-    #draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
-    #draw_ripp_structure(ripp_cluster)
-    #draw_terpene_structure(terpene_cluster)
+    draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    draw_ripp_structure(ripp_cluster)
+    draw_terpene_structure(terpene_cluster)
     draw_alkaloid_structure(alkaloid_cluster)

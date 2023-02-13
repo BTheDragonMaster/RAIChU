@@ -198,6 +198,6 @@ class TailoringEnzyme:
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
                 if self.substrate in ["F", "Cl", "Br", "I"]:
-                    structure = addition(atom, self.substrate, structure)
+                    structure = addition(atom1, self.substrate, structure)
         
         return structure

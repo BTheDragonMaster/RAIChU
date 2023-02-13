@@ -338,9 +338,9 @@ def addition(target_atom, structure_to_add, structure):
     group_to_add = read_smiles(structure_to_add)
     group_to_add.add_attributes(ATTRIBUTES, boolean=True)
     atom_to_add = find_atoms(FIRST_ATOM, group_to_add)[0]
+    target_atom = structure.get_atom(target_atom)
     hydrogen_1 = atom_to_add.get_neighbour('H')
     bond_1 = atom_to_add.get_bond(hydrogen_1)
-
     hydrogen_2 = target_atom.get_neighbour('H')
     if not hydrogen_2:
         raise Exception("Can't add to this atom!")

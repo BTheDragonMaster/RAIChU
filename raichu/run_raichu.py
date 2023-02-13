@@ -11,6 +11,7 @@ from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, Iterati
 from raichu.domain.domain_types import TailoringDomainType, TerminationDomainType, CarrierDomainType, \
     SynthesisDomainType, RecognitionDomainType
 from dataclasses import dataclass
+from raichu.alkaloid import Alkaloid_Cluster
 from raichu.reactions.chain_release import find_all_o_n_atoms_for_cyclization
 from raichu.reactions.general_tailoring_reactions import find_atoms_for_tailoring
 
@@ -189,6 +190,16 @@ def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
     terpene_cluster.draw_product(
         as_string=False, out_file="tailoring_test_terpene.svg")
 
+
+def draw_alkaloid_structure(alkaloid_cluster: Terpene_Cluster) -> None:
+    alkaloid_cluster.make_scaffold()
+    alkaloid_cluster.draw_product(
+        as_string=False, out_file="precursor_test_alkaloid.svg")
+    alkaloid_cluster.do_tailoring()
+    alkaloid_cluster.draw_product(
+        as_string=False, out_file="tailoring_test_alkaloid.svg")
+
+
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
 
     cluster = build_cluster(cluster_repr)
@@ -204,6 +215,14 @@ if __name__ == "__main__":
                                 tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
     terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations= [MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type= "Class_1",
                                       tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
+
+    alkaloid_cluster = Alkaloid_Cluster("phenylalanine",
+                                        tailoring_enzymes_representation=[TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
+                                                                          TailoringRepresentation(
+                                                                              "pseudo_hydroxylase", "P450_HYDROXYLATION", [["C_6"]]),
+                                                                          TailoringRepresentation(
+                                                                              "methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"]])
+                                                                          ])
 
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
@@ -228,6 +247,7 @@ if __name__ == "__main__":
                                                                 ], 5)],
                                           [TailoringRepresentation("gene_7", "P450_EPOXIDATION", [["C_41","C_35"]])]
                                           )
-    draw_cluster(cluster_repr)
-    draw_ripp_structure(ripp_cluster)
-    draw_terpene_structure(terpene_cluster)
+    #draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    #draw_ripp_structure(ripp_cluster)
+    #draw_terpene_structure(terpene_cluster)
+    draw_alkaloid_structure(alkaloid_cluster)

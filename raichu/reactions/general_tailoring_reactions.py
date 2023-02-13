@@ -326,42 +326,6 @@ def find_atoms_for_tailoring(chain_intermediate, atom_type):
     return atoms_filtered
 
 
-def hydroxylation(target_atom, structure):
-    """
-    Returns the hydroxylated structure thats hydroxylated at the target atom.
-
-    structure: PIKAChU Structure object
-    target_atom:  PIKAChU atom object
-    """
-
-    hydroxyl_group = read_smiles('o')
-    hydroxyl_group.add_attributes(ATTRIBUTES, boolean=True)
-    oxygen = hydroxyl_group.atoms[0]
-    hydrogen_1 = hydroxyl_group.atoms[1]
-    bond_1 = oxygen.get_bond(hydrogen_1)
-    hydrogen_2 = target_atom.get_neighbour('H')
-    if not hydrogen_2:
-        raise Exception("Can't oxidate this atom!")
-
-    bond_2 = target_atom.get_bond(hydrogen_2)
-
-    hydroxylated_structure = combine_structures([structure, hydroxyl_group])
-
-    hydroxylated_structure.break_bond(bond_1)
-    hydroxylated_structure.break_bond(bond_2)
-
-    hydroxylated_structure.make_bond(
-        oxygen, target_atom, hydroxylated_structure.find_next_bond_nr())
-    hydroxylated_structure.make_bond(
-        hydrogen_1, hydrogen_2, hydroxylated_structure.find_next_bond_nr())
-
-    structures = hydroxylated_structure.split_disconnected_structures()
-
-    for s in structures:
-        if oxygen.nr in s.atoms:
-            return s
-
-
 def addition(target_atom, structure_to_add, structure):
     """
     Returns the structure that has a group added at the target atom.
@@ -383,7 +347,7 @@ def addition(target_atom, structure_to_add, structure):
 
     bond_2 = target_atom.get_bond(hydrogen_2)
 
-    combined_structure = combine_structures([structure, group_to_add])
+    combined_structure = combine_structures([group_to_add, structure])
 
     combined_structure.break_bond(bond_1)
     combined_structure.break_bond(bond_2)
@@ -394,7 +358,8 @@ def addition(target_atom, structure_to_add, structure):
         hydrogen_1, hydrogen_2, combined_structure.find_next_bond_nr())
 
     structures = combined_structure.split_disconnected_structures()
-
     for structure in structures:
         if atom_to_add.nr in structure.atoms:
+            structure.refresh_structure()
+            initialise_atom_attributes(structure)
             return structure

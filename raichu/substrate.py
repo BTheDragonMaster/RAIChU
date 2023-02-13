@@ -136,7 +136,7 @@ class NRPSSubstrate(Substrate):
         super().__init__(name, smiles)
 
 
-class RibosomeSubstrate(Substrate):
+class AminoAcidSubstrate(Substrate):
     def __init__(self, name: str) -> None:
         smiles = get_smiles(name)
         super().__init__(name, smiles)

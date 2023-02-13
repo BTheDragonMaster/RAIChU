@@ -48,24 +48,24 @@ class TailoringEnzyme:
         if len(self.modification_sites)==0:
             return structure
         if self.type.name == "P450_HYDROXYLATION":
-            for atoms in self.modification_sites:
-                if len(atoms) == 0:
+            for atom in self.modification_sites:
+                if len(atom) == 0:
                     continue
-                atom = atoms[0] #only one atom is hydroxylated at a time
+                atom = atom[0] #only one atom is hydroxylated at a time
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "O", structure)
         elif self.type.name in ["METHYLTRANSFERASE", "C_METHYLTRANSFERASE", "N_METHYLTRANSFERASE", "O_METHYLTRANSFERASE"]:
-            for atoms in self.modification_sites:
-                if len(atoms) == 0:
+            for atom in self.modification_sites:
+                if len(atom) == 0:
                     continue
-                atom = atoms[0] #only one atom is methylated at a time
+                atom = atom[0] #only one atom is methylated at a time
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "C", structure)
         elif self.type.name == "PRENYLTRANSFERASE":
-            for atoms in self.modification_sites:
-                if len(atoms) == 0:
+            for atom in self.modification_sites:
+                if len(atom) == 0:
                     continue
-                atom = atoms[0]  # only one atom is methylated at a time
+                atom = atom[0]  # only one atom is methylated at a time
                 atom = structure.get_atom(atom)
                 if self.substrate not in PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES:
                     raise ValueError(
@@ -74,17 +74,17 @@ class TailoringEnzyme:
                 structure = addition(
                     atom, substrate, structure)
         elif self.type.name == "ACETYLTRANSFERASE":
-            for atoms in self.modification_sites:
-                if len(atoms) == 0:
+            for atom in self.modification_sites:
+                if len(atom) == 0:
                     continue
-                atom = atoms[0]  # only one atom is methylated at a time
+                atom = atom[0]  # only one atom is methylated at a time
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "[H]C(C)=O", structure)
         elif self.type.name == "ACYLTRANSFERASE":
-            for atoms in self.modification_sites:
-                if len(atoms) == 0:
+            for atom in self.modification_sites:
+                if len(atom) == 0:
                     continue
-                atom = atoms[0]  # only one atom is methylated at a time
+                atom = atom[0]  # only one atom is methylated at a time
                 atom = structure.get_atom(atom)
                 if self.substrate:
                     structure = addition(atom, self.substrate, structure)
@@ -128,7 +128,7 @@ class TailoringEnzyme:
                     structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2)
         elif self.type.name == "AMINOTRANSFERASE":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
@@ -140,7 +140,7 @@ class TailoringEnzyme:
                 structure = addition(atom, "N", structure)
         elif self.type.name == "REDUCTASE_KETO_REDUCTION":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
@@ -151,7 +151,7 @@ class TailoringEnzyme:
                 structure = double_bond_reduction(atom1, atom2, structure)
         elif self.type.name == "ALCOHOLE_DEHYDROGENASE":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
@@ -162,7 +162,7 @@ class TailoringEnzyme:
                 structure = single_bond_oxidation(atom1, atom2, structure)
         elif self.type.name == "DECARBOXYLASE":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
@@ -183,7 +183,7 @@ class TailoringEnzyme:
                 structure = single_bond_oxidation(atom1, atom2, structure)
         elif self.type.name == "MONOAMINE_OXYDASE":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
@@ -193,7 +193,7 @@ class TailoringEnzyme:
                 structure = remove_atom(atom1, structure) 
         elif self.type.name == "HALOGENASE":
             for atom in self.modification_sites:
-                if len(atoms) == 0:
+                if len(atom) == 0:
                     continue
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)

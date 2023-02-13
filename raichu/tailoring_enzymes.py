@@ -22,6 +22,7 @@ class TailoringEnzymeType(Enum):
     DEHYDRATASE = 17
     DECARBOXYLASE = 18
     MONOAMINE_OXIDASE = 19
+    HALOGENASE = 20
     
     
     @staticmethod
@@ -190,5 +191,13 @@ class TailoringEnzyme:
                     print(f"Can not perform MONOAMINE_OXYDASE on atom {atom1}, since there is no nitrogen to be removed.")
                     continue
                 structure = remove_atom(atom1, structure) 
+        elif self.type.name == "HALOGENASE":
+            for atom in self.modification_sites:
+                if len(atoms) == 0:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                if self.substrate in ["F", "Cl", "Br", "I"]:
+                    structure = addition(atom, self.substrate, structure)
         
         return structure

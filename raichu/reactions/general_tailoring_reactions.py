@@ -227,13 +227,13 @@ def oxidative_bond_formation(atom1, atom2, structure):
 
     # Create the bonds
     structure.make_bond(cyclisation_site_1, cyclisation_site_2, structure.find_next_bond_nr())
-
-    # remove from chirality dict
     structure.make_bond(h_atom, h_atom_2, structure.find_next_bond_nr())
+    # remove from chirality dict
+    
     cyclisation_site_1 = structure.get_atom(cyclisation_site_1)
     cyclisation_site_2 = structure.get_atom(cyclisation_site_2)
 
-    # update chiral_dict
+    # update chiral_dict -remove with new pikachu update
     bonds_atom_1 = cyclisation_site_1.get_bonds()
     bonds_atom_2 = cyclisation_site_2.get_bonds()
 

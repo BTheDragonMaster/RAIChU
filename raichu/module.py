@@ -117,9 +117,12 @@ class _Module:
 
         for domain in self.domains:
             if self.type.name == 'NRPS':
-                assert domain.type.name in [v.name for v in NRPSDomainType]
+                if domain.type.name not in [v.name for v in NRPSDomainType]:
+                    raise ValueError(f'Unknown NRPS domain type {domain.type.name}')
             if self.type.name == 'PKS':
-                assert domain.type.name in [v.name for v in PKSDomainType]
+                if domain.type.name not in [v.name for v in PKSDomainType]:
+                    raise ValueError(
+                        f'Unknown PKS domain type {domain.type.name}')
 
             if domain.used and domain.active:
                 if isinstance(domain, TailoringDomain):

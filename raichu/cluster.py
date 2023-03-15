@@ -24,6 +24,7 @@ class Cluster:
         self.structure_intermediates = []
         self.linear_product = None
         self.cyclised_product = None
+        self.tailored_product = None
         self.cyclised_products = []
         self.module_mechanisms = []
         self.tailoring_enzymes = []
@@ -57,16 +58,17 @@ class Cluster:
                         elif module.is_starter_module:
                             substrate = PKSSubstrate("ACETYL_COA")
                         if next_module.synthesis_domain:
-                            if not module.is_termination_module and next_module.subtype.name == "PKS_TRANS" and next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
+                            if not module.is_termination_module and next_module.subtype.name == "PKS_TRANS" and next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN" and next_module.synthesis_domain.subtype.name != "MISCELLANEOUS" and next_module.synthesis_domain.subtype.name != "NON_ELONGATING":
                                 # Ignore tailoring domains in the module itself
                                 module.tailoring_domains = []
                                 for dummy_domain_type, dummy_domain_subtype in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[next_module.synthesis_domain.subtype.name]:
                                     self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
                                                                                              dummy_domain_subtype))
                 if module.synthesis_domain:
-                    if module.synthesis_domain.subtype and module.synthesis_domain.subtype.name != "UNKNOWN":
+                    if module.synthesis_domain.subtype and module.synthesis_domain.subtype.name != "UNKNOWN" and module.synthesis_domain.subtype.name != "MISCELLANEOUS":
                         self.modules[i].synthesis_domain.is_elongating = TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]
                 self.modules[i].recognition_domain.substrate = substrate
+
 
     def compute_structures(self, compute_cyclic_products=True):
         for module in self.modules:
@@ -75,6 +77,7 @@ class Cluster:
             self.chain_intermediate = structure
             if module.is_termination_module:
                 self.linear_product = module.release_chain(structure)
+                self.chain_intermediate = self.linear_product
                 break
         else:
             raise ValueError("Cluster must contain at least one termination module.")
@@ -83,7 +86,7 @@ class Cluster:
             self.cyclise_all()
 
     def cyclise(self, atom):
-        self.cyclised_product = cyclic_release(self.linear_product, atom)
+        self.cyclised_product = cyclic_release(self.chain_intermediate, atom)
         return self.cyclised_product
 
     def cyclise_all(self):

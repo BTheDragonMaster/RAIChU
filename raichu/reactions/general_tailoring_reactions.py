@@ -168,7 +168,7 @@ def epoxidation(atom1, atom2, structure):
     assert atom1.type == 'C'
     assert atom2.type == 'C'
     double_bond_reduction(atom1, atom2, structure)
-    structure = hydroxylation(atom1, structure)
+    structure = addition(atom1, "O", structure)
     initialise_atom_attributes(structure)
     structure.refresh_structure()
     # find O atom

@@ -220,6 +220,17 @@ def get_tailoring_sites(structure):
             structure)
     return tailoring_sites
 
+
+def get_tailoring_sites_atom_names(structure):
+    tailoring_sites = {}
+    for enzyme_type in TailoringEnzymeType:
+        tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
+        print([type(atom) for atom in tailoring_enzyme.get_possible_sites(
+            structure)])
+        tailoring_sites[enzyme_type.name] = [str(atom) if type(atom) != list else [str(subatom) for subatom in atom] for atom in tailoring_enzyme.get_possible_sites(
+            structure)]
+    return tailoring_sites
+
 if __name__ == "__main__":
     ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
                                 tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
@@ -259,9 +270,20 @@ if __name__ == "__main__":
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'ACP', None, None, True,
                                                                                      True)
-                                                                ], 5)]
+                                                                ], 5),
+                                         ModuleRepresentation("PKS", "PKS_CIS", "METHYLMALONYL_COA",
+                                                              [DomainRepresentation("Gene 1", 'KS',
+                                                                                    None, None, True,
+                                                                                    True),
+                                                               DomainRepresentation("Gene 1", 'AT', None, None, True,
+                                                                                    True),
+                                                               DomainRepresentation("Gene 1", 'TE',
+                                                                                    None, None, True,
+                                                                                    True)
+  
+                                                               ])]
                                           )
-    #draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
     #draw_ripp_structure(ripp_cluster)
     draw_terpene_structure(terpene_cluster)
     #draw_alkaloid_structure(alkaloid_cluster)

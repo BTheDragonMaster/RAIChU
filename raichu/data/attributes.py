@@ -33,8 +33,8 @@ AMINOACID_ONE_LETTER_TO_SMILES = {"A": "N[C@@]([H])(C)C(=O)", "C": "N[C@@]([H])(
                                   "F": "N[C@@]([H])(Cc1ccccc1)C(=O)", "G": "NCC(=O)", "H": "N[C@@]([H])(CC1=CN=C-N1)C(=O)",
                                   "I": "N[C@@]([H])([C@]([H])(CC)C)C(=O)", "K": "N[C@@]([H])(CCCCN)C(=O)",
                                   "L": "N[C@@]([H])(CC(C)C)C(=O)", "M": "N[C@@]([H])(CCSC)C(=O)",
-                                  "N": "N[C@@]([H])(CC(=O)N)C(=O) ", "P": "N1[C@@]([H])(CCC1)C(=O)",
-                                  "Q": "N[C@@]([H])(CCC(=O)N)C(=O) ", "R": "N[C@@]([H])(CCCNC(=N)N)C(=O)",
+                                  "N": "N[C@@]([H])(CC(=O)N)C(=O)", "P": "N1[C@@]([H])(CCC1)C(=O)",
+                                  "Q": "N[C@@]([H])(CCC(=O)N)C(=O)", "R": "N[C@@]([H])(CCCNC(=N)N)C(=O)",
                                   "S": "N[C@@]([H])(CO)C(=O)", "T": "N[C@@]([H])([C@]([H])(O)C)C(=O)",
                                   "V": "N[C@@]([H])(C(C)C)C(=O)", "W": "N[C@@]([H])(CC(=CN2)C1=C2C=CC=C1)C(=O)",
                                   "Y": "N[C@@]([H])(Cc1ccc(O)cc1)C(=O)"}

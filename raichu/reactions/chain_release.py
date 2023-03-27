@@ -287,7 +287,4 @@ def find_all_o_n_atoms_for_cyclization(chain_intermediate):
             if atom not in amino_n_atoms_filtered and n_neighbour_types.count('H') == 2 and n_neighbour_types.count('C') == 1:
                 amino_n_atoms_filtered.append(atom)
 
-    # Define -OH group that should not be used to carry out the thioesterase
-    # reaction (distance -S and internal -OH group)
-    o_not_to_use = find_o_betapropriolactone(chain_intermediate)
     return o_oh_atoms_filtered + amino_n_atoms_filtered

@@ -3,6 +3,7 @@ from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
 
 from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached
+from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 
 
 class RaichuDrawer(Drawer):
@@ -63,7 +64,7 @@ class RaichuDrawer(Drawer):
                     json_bond["chiral"] = True
                     json_bond["wedge_orientation"] = orientation
                     json_bond["wedge_origin"] = chiral_center.nr
-                elif (bond.atom_1.type == 'S' and bond.atom_2.annotations.domain_type or \
+                elif (bond.atom_1.type == 'S' and bond.atom_2.annotations.domain_type or
                       (bond.atom_2.type == 'S' and bond.atom_1.annotations.domain_type)):
                     json_bond["type"] = "squiggle"
 
@@ -95,11 +96,14 @@ class RaichuDrawer(Drawer):
 
                     orientation = self.get_hydrogen_text_orientation(atom)
                     if orientation == 'H_above_atom':
-                        text_h_pos = Vector(atom.draw.position.x, atom.draw.position.y + 6)
+                        text_h_pos = Vector(
+                            atom.draw.position.x, atom.draw.position.y + 6)
                     if orientation == 'H_below_atom':
-                        text_h_pos = Vector(atom.draw.position.x, atom.draw.position.y - 6)
+                        text_h_pos = Vector(
+                            atom.draw.position.x, atom.draw.position.y - 6)
 
-                    atom_draw_position = Vector(atom.draw.position.x, atom.draw.position.y)
+                    atom_draw_position = Vector(
+                        atom.draw.position.x, atom.draw.position.y)
 
                     if atom.type == '*':
                         neighbouring_c = atom.get_neighbour('C')
@@ -107,7 +111,8 @@ class RaichuDrawer(Drawer):
                         # In order to not let the number of the sidechain overlap
                         # with the bond, move Rx symbol along hor. axis depending on
                         # if group is added to the left or right of the chain
-                        delta_x_r = self.get_delta_x_sidechain(atom, neighbouring_c)
+                        delta_x_r = self.get_delta_x_sidechain(
+                            atom, neighbouring_c)
                         atom_draw_position.x += delta_x_r
                         text = fr'$R_{atom.annotations.unknown_index}$'
 
@@ -129,7 +134,8 @@ class RaichuDrawer(Drawer):
                                         atom_draw_position.x += 3
                                     elif orientation == 'H_below_atom' or orientation == 'H_above_atom':
                                         text = atom.type
-                                        text_h = r'$H_{hydrogens}$'.format(hydrogens=hydrogen_count)
+                                        text_h = r'$H_{hydrogens}$'.format(
+                                            hydrogens=hydrogen_count)
 
                                     else:
                                         text = r'${atom_type}H_{hydrogens}$'.format(hydrogens=hydrogen_count,
@@ -192,7 +198,8 @@ class RaichuDrawer(Drawer):
                                     horizontal_alignment = 'right'
                                     atom_draw_position.x += 3
                                 elif orientation == 'H_above_atom' or orientation == 'H_below_atom':
-                                    text_h = r'$H_{hydrogens}$'.format(hydrogens=hydrogen_count)
+                                    text_h = r'$H_{hydrogens}$'.format(
+                                        hydrogens=hydrogen_count)
                                     if abs(atom.charge) > 1:
                                         text = r'${atom_type}^{charge}{charge_symbol}$'.format(atom_type=atom.type,
                                                                                                charge=atom.charge,
@@ -280,7 +287,6 @@ class RaichuDrawer(Drawer):
                                      verticalalignment='center',
                                      color=atom_color)
 
-
         # If a png filename is included in the initialization of the
         # Raichu_drawer object, don't show the structure, but do save it as a
         # png image to the provided filename
@@ -321,7 +327,8 @@ class RaichuDrawer(Drawer):
 
                     average_distance = len(shortest_path) / 2
 
-                    distance_metric = abs(average_distance - distance_1) + abs(average_distance - distance_2)
+                    distance_metric = abs(
+                        average_distance - distance_1) + abs(average_distance - distance_2)
 
                     if self.bond_is_rotatable(bond) and bond not in masked_bonds:
                         rotatable_bonds.append(bond)
@@ -347,8 +354,10 @@ class RaichuDrawer(Drawer):
             for best_bond in best_bonds:
                 if self.total_overlap_score > self.options.overlap_sensitivity:
 
-                    subtree_size_1 = self.get_subgraph_size(best_bond.atom_1, {best_bond.atom_2})
-                    subtree_size_2 = self.get_subgraph_size(best_bond.atom_2, {best_bond.atom_1})
+                    subtree_size_1 = self.get_subgraph_size(
+                        best_bond.atom_1, {best_bond.atom_2})
+                    subtree_size_2 = self.get_subgraph_size(
+                        best_bond.atom_2, {best_bond.atom_1})
 
                     if subtree_size_1 < subtree_size_2:
                         rotating_atom = best_bond.atom_1
@@ -362,7 +371,8 @@ class RaichuDrawer(Drawer):
                     scores = [overlap_score]
 
                     for i in range(12):
-                        self.rotate_subtree(rotating_atom, parent_atom, math.radians(30), parent_atom.draw.position)
+                        self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                            30), parent_atom.draw.position)
                         new_overlap_score, _, _ = self.get_overlap_score()
                         scores.append(new_overlap_score)
 
@@ -380,7 +390,8 @@ class RaichuDrawer(Drawer):
 
                     self.total_overlap_score = best_score
 
-                    self.rotate_subtree(rotating_atom, parent_atom, math.radians(30 * best_i + 1), parent_atom.draw.position)
+                    self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                        30 * best_i + 1), parent_atom.draw.position)
 
     def draw_structure(self):
         min_x = 100000000
@@ -404,7 +415,7 @@ class RaichuDrawer(Drawer):
         self.line_width = 2
 
         fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) /
-        50.0, (height + 2 * self.options.padding) / 50.0), dpi=self.dpi)
+                                        50.0, (height + 2 * self.options.padding) / 50.0), dpi=self.dpi)
 
         ax.set_aspect('equal', adjustable='box')
         ax.axis('off')
@@ -446,8 +457,9 @@ class RaichuDrawer(Drawer):
                             if (bond.atom_1.type == 'S' and
                                     bond.atom_2.annotations.domain_type or
                                     (bond.atom_2.type == 'S' and
-                                    bond.atom_1.annotations.domain_type)):
-                                self.plot_halflines_s_domain(line, ax, midpoint)
+                                     bond.atom_1.annotations.domain_type)):
+                                self.plot_halflines_s_domain(
+                                    line, ax, midpoint)
                             else:
                                 self.plot_halflines(line, ax, midpoint)
                         else:
@@ -477,7 +489,7 @@ class RaichuDrawer(Drawer):
 
                         else:
                             bond_neighbours = bond.atom_1.drawn_neighbours +\
-                                              bond.atom_2.drawn_neighbours
+                                bond.atom_2.drawn_neighbours
                             if bond_neighbours:
                                 vectors = [atom.draw.position for atom in
                                            bond_neighbours]
@@ -601,11 +613,14 @@ class RaichuDrawer(Drawer):
 
                 orientation = self.get_hydrogen_text_orientation(atom)
                 if orientation == 'H_above_atom':
-                    text_h_pos = Vector(atom.draw.position.x, atom.draw.position.y + 6)
+                    text_h_pos = Vector(
+                        atom.draw.position.x, atom.draw.position.y + 6)
                 if orientation == 'H_below_atom':
-                    text_h_pos = Vector(atom.draw.position.x, atom.draw.position.y - 6)
+                    text_h_pos = Vector(
+                        atom.draw.position.x, atom.draw.position.y - 6)
 
-                atom_draw_position = Vector(atom.draw.position.x, atom.draw.position.y)
+                atom_draw_position = Vector(
+                    atom.draw.position.x, atom.draw.position.y)
 
                 if atom.type == '*':
                     neighbouring_c = atom.get_neighbour('C')
@@ -613,7 +628,8 @@ class RaichuDrawer(Drawer):
                     # In order to not let the number of the sidechain overlap
                     # with the bond, move Rx symbol along hor. axis depending on
                     # if group is added to the left or right of the chain
-                    delta_x_r = self.get_delta_x_sidechain(atom, neighbouring_c)
+                    delta_x_r = self.get_delta_x_sidechain(
+                        atom, neighbouring_c)
                     atom_draw_position.x += delta_x_r
                     text = fr'$R_{atom.annotations.unknown_index}$'
 
@@ -635,7 +651,8 @@ class RaichuDrawer(Drawer):
                                     atom_draw_position.x += 3
                                 elif orientation == 'H_below_atom' or orientation == 'H_above_atom':
                                     text = atom.type
-                                    text_h = r'$H_{hydrogens}$'.format(hydrogens=hydrogen_count)
+                                    text_h = r'$H_{hydrogens}$'.format(
+                                        hydrogens=hydrogen_count)
 
                                 else:
                                     text = r'${atom_type}H_{hydrogens}$'.format(hydrogens=hydrogen_count,
@@ -698,7 +715,8 @@ class RaichuDrawer(Drawer):
                                 horizontal_alignment = 'right'
                                 atom_draw_position.x += 3
                             elif orientation == 'H_above_atom' or orientation == 'H_below_atom':
-                                text_h = r'$H_{hydrogens}$'.format(hydrogens=hydrogen_count)
+                                text_h = r'$H_{hydrogens}$'.format(
+                                    hydrogens=hydrogen_count)
                                 if abs(atom.charge) > 1:
                                     text = r'${atom_type}^{charge}{charge_symbol}$'.format(atom_type=atom.type,
                                                                                            charge=atom.charge,
@@ -804,7 +822,6 @@ class RaichuDrawer(Drawer):
             plt.clf()
             plt.close()
 
-
     def process_structure(self):
         self.position()
         self.structure.refresh_structure()
@@ -899,7 +916,6 @@ class RaichuDrawer(Drawer):
                                         self.total_overlap_score = new_overlap_score
                         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
 
-
         # substructure search to see if structure is a polyketide or NRP
 
         is_polyketide = False
@@ -924,7 +940,6 @@ class RaichuDrawer(Drawer):
             if atom.type == 'S':
                 sulphur = atom
                 for neighbour in sulphur.neighbours:
-                    print(type(neighbour.annotations))
                     if hasattr(neighbour.annotations, "domain_type"):
                         if neighbour.annotations.domain_type:
                             attached_to_domain = True
@@ -932,11 +947,14 @@ class RaichuDrawer(Drawer):
 
         self.structure.refresh_structure()
 
-        ### NRPS + PK code: Force pk/peptide backbone to be drawn straight:
+        # NRPS + PK code: Force pk/peptide backbone to be drawn straight:
         # If struct=PK/NRP, find central chain and attached domain
         if attached_to_domain and (is_nrp or is_polyketide) or self.draw_straightened and (is_nrp or is_polyketide):
             if not attached_to_domain:
-                backbone_atoms = find_central_chain_not_attached(self.structure)
+                if is_nrp:
+                    label_nrp_central_chain(self.structure)
+                backbone_atoms = find_central_chain_not_attached(
+                    self.structure)
             else:
                 backbone_atoms = find_central_chain(self.structure)
             if attached_to_domain:
@@ -955,7 +973,7 @@ class RaichuDrawer(Drawer):
                 sulphur.draw.position.y = first_carbon.draw.position.y + 15
 
                 angle = get_angle(first_carbon.draw.position,
-                                sulphur.draw.position)
+                                  sulphur.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
 
                 correct_angle_deg = -120
@@ -1014,7 +1032,6 @@ class RaichuDrawer(Drawer):
                     if atom1.draw.position.x > backbone_atoms[i - 2].draw.position.x:
                         first_atom_cycle = None
                         for next_atom in atom1.neighbours:
-                            print(next_atom, next_atom.type)
                             if next_atom.type != 'H' and next_atom not in backbone_atoms:
                                 first_atom_cycle = next_atom
                         assert first_atom_cycle
@@ -1022,7 +1039,8 @@ class RaichuDrawer(Drawer):
                             masked = {atom1, atom2}
                             for atom in self.traverse_substructure(
                                     first_atom_cycle, masked):
-                                delta_x = 2 * (atom1.draw.position.x - atom.draw.position.x)
+                                delta_x = 2 * \
+                                    (atom1.draw.position.x - atom.draw.position.x)
                                 atom.draw.position.x += delta_x
 
                     if atom1.draw.position.x < backbone_atoms[i - 2].draw.position.x:
@@ -1034,25 +1052,26 @@ class RaichuDrawer(Drawer):
                         if atom1.draw.position.x < first_atom_cycle.draw.position.x:
                             masked = {atom1, atom2}
                             for atom in self.traverse_substructure(first_atom_cycle, masked):
-                                delta_x = 2 * (atom.draw.position.x - atom1.draw.position.x)
+                                delta_x = 2 * \
+                                    (atom.draw.position.x - atom1.draw.position.x)
                                 atom.draw.position.x -= delta_x
 
                 # Fix bond angle backbone atoms if second backbone atom (one
                 # with larger position.x) is inside ring, and the first is not
-                
+
                 elif atom2 != backbone_atoms[-1] and atom2.inside_ring and not atom1.inside_ring and \
                         backbone_atoms[i + 2].inside_ring:
                     if atom2 not in fixed_atoms:
                         if round(math.degrees(get_angle(
                                 backbone_atoms[i - 1].draw.position,
                                 backbone_atoms[i].draw.position)),
-                                 3) == 120.0:
+                                3) == 120.0:
                             correct_angle_deg = 60.0
                             first_angle_cyclic = 60.0
                         elif round(math.degrees(get_angle(
                                 backbone_atoms[i - 1].draw.position,
                                 backbone_atoms[i].draw.position)),
-                                   3) == 60.0:
+                                3) == 60.0:
                             correct_angle_deg = 120.0
                             first_angle_cyclic = 120.0
                         else:
@@ -1070,11 +1089,10 @@ class RaichuDrawer(Drawer):
                         elif angle_degrees == 60.0:
                             first_angle_cyclic = 60.0
                         i += 1
-            
+
                 # Other way around... (first one in ring, after cycle)
                 elif atom1.inside_ring and not atom2.inside_ring and \
                         backbone_atoms[i - 1].inside_ring:
-                    print(atom1, atom2)
                     if first_angle_cyclic == 60.0:
                         correct_angle_deg = 120.0
                     elif first_angle_cyclic == 120.0:
@@ -1092,12 +1110,12 @@ class RaichuDrawer(Drawer):
                         if round(math.degrees(get_angle(
                                 backbone_atoms[i - 1].draw.position,
                                 backbone_atoms[i].draw.position)),
-                                 3) == 120.0:
+                                3) == 120.0:
                             correct_angle_deg = 60.0
                         elif round(math.degrees(get_angle(
                                 backbone_atoms[i - 1].draw.position,
                                 backbone_atoms[i].draw.position)),
-                                   3) == 60.0:
+                                3) == 60.0:
                             correct_angle_deg = 120.0
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
@@ -1111,7 +1129,7 @@ class RaichuDrawer(Drawer):
                                         backbone_atoms[
                                             i - 1].draw.position,
                                         backbone_atoms[i].draw.position)),
-                                         3) == 120:
+                                        3) == 120:
                                     correct_angle_deg = 60.0
                                     delta_angle_deg = correct_angle_deg - angle_degrees
                                     delta_angle_rad = math.radians(
@@ -1127,7 +1145,7 @@ class RaichuDrawer(Drawer):
                                         backbone_atoms[
                                             i - 1].draw.position,
                                         backbone_atoms[i].draw.position)),
-                                         3) == 60:
+                                        3) == 60:
                                     correct_angle_deg = 120.0
                                     delta_angle_deg = correct_angle_deg - angle_degrees
                                     delta_angle_rad = math.radians(
@@ -1214,7 +1232,7 @@ class RaichuDrawer(Drawer):
                             for next_atom in atom_neighbours:
                                 if next_atom.type == 'O':
                                     if \
-                                    self.structure.bond_lookup[next_atom][atom].type == 'single':
+                                            self.structure.bond_lookup[next_atom][atom].type == 'single':
                                         hydroxyl = next_atom
                                         angle2 = get_angle(
                                             atom.draw.position,
@@ -1234,8 +1252,8 @@ class RaichuDrawer(Drawer):
                                                             delta_angle_rad,
                                                             atom.draw.position)
                                     elif \
-                                    self.structure.bond_lookup[next_atom][
-                                        atom].type == 'double':
+                                        self.structure.bond_lookup[next_atom][
+                                            atom].type == 'double':
                                         carbonyl = next_atom
                                         angle2 = get_angle(
                                             atom.draw.position,
@@ -1267,9 +1285,9 @@ class RaichuDrawer(Drawer):
                                                 atom.draw.position)
                 i += 1
             if attached_to_domain:
-            # If the drawer rotated the entire structure, correct this
+                # If the drawer rotated the entire structure, correct this
                 angle = get_angle(pcp.draw.position,
-                                sulphur.draw.position)
+                                  sulphur.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
                 if angle_degrees != 90.0:
                     correct_angle_deg = 90
@@ -1297,9 +1315,9 @@ class RaichuDrawer(Drawer):
                                 types.append(further_atom_neighbour.type)
                             if further_atom.type == 'C' and further_atom not in backbone_atoms and (
                                     (types.count(
-                                            'C') == 3) or (
-                                            types.count('O') == 2 and
-                                            types.count('H') == 0) or
+                                        'C') == 3) or (
+                                        types.count('O') == 2 and
+                                        types.count('H') == 0) or
                                     (types.count('N') == 1 and
                                      types.count('O') == 1 and
                                      types.count('H') == 0) or
@@ -1362,15 +1380,18 @@ class RaichuDrawer(Drawer):
                         bond.atom_2.annotations.in_central_chain:
                     central_chain_bonds.add(bond)
             if attached_to_domain:
-                self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=sulphur)
+                self.finetune_overlap_resolution(
+                    masked_bonds=central_chain_bonds, highest_atom=sulphur)
             else:
-                self.finetune_overlap_resolution(masked_bonds=central_chain_bonds, highest_atom=oxygen)
+                self.finetune_overlap_resolution(
+                    masked_bonds=central_chain_bonds, highest_atom=oxygen)
             self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     # End NRPS rotation code
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
-        truncated_line = line.get_truncated_line(self.options.short_bond_length)
+        truncated_line = line.get_truncated_line(
+            self.options.short_bond_length)
         self.plot_line_dashed(truncated_line, ax, color='#a6a6a6')
 
     def plot_line_dashed(self, line, ax, color='grey'):
@@ -1396,6 +1417,7 @@ class RaichuDrawer(Drawer):
             delta_x = 0.0
 
         return delta_x
+
 
 def get_angle(vector1, vector2):
     difference = Vector.subtract_vectors(vector1, vector2)

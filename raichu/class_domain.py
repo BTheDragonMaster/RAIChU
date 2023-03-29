@@ -98,5 +98,28 @@ def make_scaffold_domain(domain_type):
     return structure
 
 
+def make_scaffold_peptide(type):
+    """
+    Returns a Domain of the input type containing the appropriate nr in the
+    Structure object
 
+    domain_type: Str, domain type
+    next_atom_nr: Int, 'atom nr' of the domain in the structure
+    """
+    structure = Structure()
 
+    domain = CarrierDomain('I', 0, None, 0, False)
+
+    structure.add_disconnected_atom(domain)
+    if type == "Follower":
+
+        oxygen = Atom('N', 1, None, 0, False)
+        structure.add_bond(domain, oxygen, 'single', 0)
+
+    if type == "Leader":
+
+        oxygen = Atom('O', 1, None, 0, False)
+        structure.add_bond(domain, oxygen, 'single', 0)
+    structure.refine_structure()
+    domain.annotations.set_annotation('domain_type', type)
+    return structure

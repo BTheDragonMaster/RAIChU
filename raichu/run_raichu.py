@@ -11,7 +11,7 @@ from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, Iterati
 from raichu.domain.domain_types import TailoringDomainType, TerminationDomainType, CarrierDomainType, \
     SynthesisDomainType, RecognitionDomainType
 from dataclasses import dataclass
-# from raichu.alkaloid import Alkaloid_Cluster
+from raichu.alkaloid import Alkaloid_Cluster
 from raichu.tailoring_enzymes import TailoringEnzyme, TailoringEnzymeType
 
 DOMAIN_TO_SUPERTYPE = {}
@@ -180,17 +180,9 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
 
 def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.make_peptide()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="peptide_test_ripp.svg")
     ripp_cluster.do_tailoring()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="tailoring_test_ripp.svg")
-    ripp_cluster.do_macrocyclization()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="macrocyclisation_test_ripp.svg")
-    ripp_cluster.do_proteolytic_claevage()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="cleavage_test_ripp.svg")
+    ripp_cluster.draw_precursor_with_modified_product(fold=5, size=7,as_string= False,out_file= "svg_ripp_test.svg")
+
 
 
 def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
@@ -239,31 +231,30 @@ def get_tailoring_sites_atom_names(structure):
     tailoring_sites = {}
     for enzyme_type in TailoringEnzymeType:
         tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
-        print([type(atom) for atom in tailoring_enzyme.get_possible_sites(
-            structure)])
         tailoring_sites[enzyme_type.name] = [str(atom) if type(atom) != list else [str(subatom) for subatom in atom] for atom in tailoring_enzyme.get_possible_sites(
             structure)]
     return tailoring_sites
 
 
 if __name__ == "__main__":
-    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
-                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "TGLTPHQAYLGIPLPFAGDDAEassgyfyawyiwyrfPHQAYLG", "awyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
+                                #tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])]
+                                )
     terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type="Class_1",
-                                      tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
+                                      tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
 
-    # alkaloid_cluster = Alkaloid_Cluster("phenylalanine",
-    #                                     tailoring_enzymes_representation=[TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
-    #                                                                       TailoringRepresentation(
-    #                                                                           "pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
-    #                                                                       TailoringRepresentation(
-    #                                                                           "pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),
-    #                                                                       TailoringRepresentation(
-    #                                                                           "pseudo_hydroxylase", "P450_HYDROXYLATION", [["C_6"]]),
-    #                                                                       TailoringRepresentation(
-    #                                                                           "methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"], ["O_25"]]),
+    alkaloid_cluster = Alkaloid_Cluster("phenylalanine",
+                                        tailoring_enzymes_representation=[TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
+                                                                          TailoringRepresentation(
+                                                                              "pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
+                                                                          TailoringRepresentation(
+                                                                              "pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),
+                                                                          TailoringRepresentation(
+                                                                              "pseudo_hydroxylase", "HYDROXYLATION", [["C_6"]]),
+                                                                          TailoringRepresentation(
+                                                                              "methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"], ["O_25"]]),
 
-    #                                                                       ])
+                                                                          ])
 
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
@@ -285,21 +276,10 @@ if __name__ == "__main__":
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'ACP', None, None, True,
                                                                                      True)
-                                                                ], 5),
-                                         ModuleRepresentation("PKS", "PKS_CIS", "METHYLMALONYL_COA",
-                                                              [DomainRepresentation("Gene 1", 'KS',
-                                                                                    None, None, True,
-                                                                                    True),
-                                                               DomainRepresentation("Gene 1", 'AT', None, None, True,
-                                                                                    True),
-                                                               DomainRepresentation("Gene 1", 'TE',
-                                                                                    None, None, True,
-                                                                                    True)
-
-                                                               ])]
+                                                                ], 5)]
                                          )
-    # draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
-    # draw_ripp_structure(ripp_cluster)
-    ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
+    #draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    draw_ripp_structure(ripp_cluster)
+    
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)

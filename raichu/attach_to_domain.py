@@ -6,7 +6,9 @@ from pikachu.general import read_smiles
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
+RIPP_N = GroupDefiner('N atom to attach to leader', 'NCC=O', 0)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
+AMINO_ACID_BACKBONE_N_TERMINUS = read_smiles('NCC(=O)N')
 B_AMINO_ACID_BACKBONE = read_smiles('NCCC(=O)O')
 ASP_ACID_C = GroupDefiner('Asp', 'NC(C=O)CC(O)=O', 5)
 B_NRP_C = GroupDefiner('Beta C atom to attach to PCP domain', 'NCCC(O)=O', 3)
@@ -119,6 +121,91 @@ def attach_to_domain_nrp(nrp):
 
     structure = condensation(nrp, domain, hydroxyl_bond, hydrogen_bond)[0]
 
+    initialise_atom_attributes(structure)
+
+    return structure
+
+
+def attach_to_follower_ripp(ripp):
+    initialise_atom_attributes(ripp)
+
+    # Create domain
+    domain = make_scaffold_peptide('Follower')
+    print(domain.atoms)
+    # Remove OH group from carboxylic acid in NRP, to allow attachment
+    # to domain
+
+    if ripp.find_substructures(AMINO_ACID_BACKBONE):
+        locations_c_to_domain = find_atoms(NRP_C, ripp)
+        assert len(locations_c_to_domain) == 1
+        c_atom_to_domain = locations_c_to_domain[0]
+    elif ripp.find_substructures(B_AMINO_ACID_BACKBONE):
+        locations_c_to_domain = find_atoms(B_NRP_C, ripp)
+        asp_acid_cs = find_atoms(ASP_ACID_C, ripp)
+        mal_amino_cs = find_atoms(MAL_AMINO, ripp)
+
+        for asp_acid_c in asp_acid_cs:
+            if asp_acid_c in locations_c_to_domain:
+                locations_c_to_domain.remove(asp_acid_c)
+        for mal_amino_c in mal_amino_cs:
+            if mal_amino_c in locations_c_to_domain:
+                locations_c_to_domain.remove(mal_amino_c)
+        assert len(locations_c_to_domain) == 1
+        c_atom_to_domain = locations_c_to_domain[0]
+    else:
+        c_atom_to_domain = None
+        for atom in ripp.graph:
+            if atom.annotations.c2_acid:
+                c_atom_to_domain = atom
+
+    assert c_atom_to_domain
+
+    oxygens = c_atom_to_domain.get_neighbours('O')
+
+    hydroxyl_oxygen = None
+    hydroxyl_bond = None
+
+    hydrogen_bond = domain.bond_lookup[domain.atoms[1]][domain.atoms[2]]
+
+    assert hydrogen_bond.has_neighbour('N')
+    assert hydrogen_bond.has_neighbour('H')
+
+    for oxygen in oxygens:
+        bond = c_atom_to_domain.get_bond(oxygen)
+        if bond.type == 'single' and oxygen.has_neighbour('H'):
+            hydroxyl_oxygen = oxygen
+            hydroxyl_bond = bond
+            break
+
+    assert hydroxyl_oxygen and hydroxyl_bond
+
+    structure = condensation(ripp, domain, hydroxyl_bond, hydrogen_bond)[0]
+
+    initialise_atom_attributes(structure)
+
+    return structure
+
+
+def attach_to_leader_ripp(ripp):
+    initialise_atom_attributes(ripp)
+
+    # Create domain
+    domain = make_scaffold_peptide('Leader')
+    if ripp.find_substructures(AMINO_ACID_BACKBONE_N_TERMINUS):
+        locations_n_to_domain = find_atoms(RIPP_N, ripp)
+        for nitrogen in locations_n_to_domain:
+            if len(nitrogen.get_neighbours('H'))==2:
+                n_atom_to_domain = nitrogen
+                break
+    assert n_atom_to_domain
+    print (n_atom_to_domain.neighbours)
+    oxygen_bond = domain.bond_lookup[domain.atoms[0]][domain.atoms[1]]
+
+    assert oxygen_bond.has_neighbour('O')
+    hydrogen = n_atom_to_domain.get_neighbours('H')[0]
+    nitrogen_bond = n_atom_to_domain.get_bond(hydrogen)
+    assert nitrogen_bond
+    structure = condensation(domain, ripp, oxygen_bond, nitrogen_bond)[0]
     initialise_atom_attributes(structure)
 
     return structure

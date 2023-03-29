@@ -1,19 +1,21 @@
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
+from pikachu.general import structure_to_smiles
 
-from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached
+from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, find_central_chain_ripp
 from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False, draw_straightened=False):
+                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False, draw_straightened=False, horizontal = False):
         self.dont_show = dont_show
         self.dpi = dpi
         self.draw_Cs_in_pink = draw_Cs_in_pink
         self.add_url = add_url
         self.draw_straightened = draw_straightened
+        self.horizontal = horizontal
         if options is None:
             self.options = Options()
         else:
@@ -920,6 +922,7 @@ class RaichuDrawer(Drawer):
 
         is_polyketide = False
         is_nrp = False
+        is_ripp = False
         if self.structure.find_substructures(
                 Smiles('SC(=O)').smiles_to_structure()):
             if self.structure.find_substructures(
@@ -928,15 +931,23 @@ class RaichuDrawer(Drawer):
             else:
                 is_polyketide = True
         elif self.structure.find_substructures(
-                Smiles('[H]OC(C)=O').smiles_to_structure()):
+                Smiles('OC(C)=O').smiles_to_structure()):
             if self.structure.find_substructures(
-                    Smiles('[H]OC(CN)=O').smiles_to_structure()):
+                    Smiles('OC(CN)=O').smiles_to_structure()):
                 is_nrp = True
             else:
                 is_polyketide = True
 
         attached_to_domain = False
         for atom in self.structure.graph:
+            if atom.type == 'I':
+                if atom.annotations.domain_type == "Leader":
+                    attached_to_domain = True
+                    domain = atom
+                    is_ripp = True
+                if atom.annotations.domain_type == "Follower":
+                    is_ripp = True
+                    attached_to_domain = True
             if atom.type == 'S':
                 sulphur = atom
                 for neighbour in sulphur.neighbours:
@@ -944,17 +955,19 @@ class RaichuDrawer(Drawer):
                         if neighbour.annotations.domain_type:
                             attached_to_domain = True
                             domain = neighbour
-
         self.structure.refresh_structure()
 
         # NRPS + PK code: Force pk/peptide backbone to be drawn straight:
         # If struct=PK/NRP, find central chain and attached domain
-        if attached_to_domain and (is_nrp or is_polyketide) or self.draw_straightened and (is_nrp or is_polyketide):
+        if attached_to_domain and (is_nrp or is_polyketide or is_ripp) or self.draw_straightened:
             if not attached_to_domain:
-                if is_nrp:
+                if is_nrp or is_ripp:
                     label_nrp_central_chain(self.structure)
                 backbone_atoms = find_central_chain_not_attached(
                     self.structure)
+            elif is_ripp:
+                label_nrp_central_chain(self.structure)
+                backbone_atoms = find_central_chain_ripp(self.structure)
             else:
                 backbone_atoms = find_central_chain(self.structure)
             if attached_to_domain:
@@ -968,12 +981,12 @@ class RaichuDrawer(Drawer):
                 # Fix position of the S and C atom and the S-C angle
                 sulphur = backbone_atoms[0]
                 first_carbon = backbone_atoms[1]
-
                 sulphur.draw.position.x = first_carbon.draw.position.x
                 sulphur.draw.position.y = first_carbon.draw.position.y + 15
 
                 angle = get_angle(first_carbon.draw.position,
                                   sulphur.draw.position)
+                
                 angle_degrees = round(math.degrees(angle), 3)
 
                 correct_angle_deg = -120
@@ -1371,7 +1384,47 @@ class RaichuDrawer(Drawer):
                                                 atom, delta_angle_rad,
                                                 atom.draw.position)
                 i += 1
-
+            if self.horizontal and attached_to_domain:
+                if not is_ripp:
+                    self.rotate_subtree(first_carbon, sulphur, 1.5707,
+                                        sulphur.draw.position)
+                    self.rotate_subtree(pcp, sulphur, 1.5707,
+                        sulphur.draw.position)
+                if is_ripp:
+                    domains = [
+                        atom.annotations.domain_type for atom in self.structure.graph if atom.annotations.domain_type]
+                    print(domains)
+                    if "Leader" in domains:
+                        self.rotate_subtree(first_carbon, sulphur, 1.5707,
+                                            sulphur.draw.position)
+                        self.rotate_subtree(pcp, sulphur, 1.5707,
+                                        sulphur.draw.position)
+                        for atom in self.structure.graph:
+                            if atom.annotations.domain_type:
+                                if atom.annotations.domain_type == "Follower":
+                                    follower = atom
+                                    nitrogen_follower = atom.get_neighbours("N")[0]
+                                    carbon = nitrogen_follower.get_neighbours("C")[0]
+                                    self.rotate_subtree(nitrogen_follower, carbon, 2.094,
+                                                        carbon.draw.position)
+                                    self.rotate_subtree(follower, nitrogen_follower, -1.5707,
+                                                        nitrogen_follower.draw.position)
+                                    break
+                    else:
+                        self.rotate_subtree(first_carbon, sulphur, -1.5707,
+                                            sulphur.draw.position)
+                        for atom in self.structure.graph:
+                            if atom.annotations.domain_type:
+                                if atom.annotations.domain_type == "Follower":
+                                    follower = atom
+                                    nitrogen_follower = atom.get_neighbours("N")[
+                                        0]
+                                    carbon = nitrogen_follower.get_neighbours("C")[
+                                        0]
+                                    self.rotate_subtree(follower, nitrogen_follower, -1.5707,
+                                                        nitrogen_follower.draw.position)
+                                    break
+                        
             # self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
             central_chain_bonds = set()
@@ -1385,6 +1438,7 @@ class RaichuDrawer(Drawer):
             else:
                 self.finetune_overlap_resolution(
                     masked_bonds=central_chain_bonds, highest_atom=oxygen)
+           
             self.resolve_secondary_overlaps(sorted_overlap_scores)
 
     # End NRPS rotation code

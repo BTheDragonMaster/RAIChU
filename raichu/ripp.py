@@ -2,6 +2,7 @@ import math
 
 from pikachu.reactions.functional_groups import find_bonds
 from pikachu.general import read_smiles
+from pikachu.math_functions import Vector
 
 
 from raichu.data.molecular_moieties import PEPTIDE_BOND
@@ -10,6 +11,7 @@ from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, c
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
 from raichu.drawing.colours import AMINO_ACID_FILL_COLOURS, AMINO_ACID_OUTLINE_COLOURS
+from raichu.attach_to_domain import attach_to_follower_ripp, attach_to_leader_ripp
 
 
 def make_circle(x_coord, y_coord, size, amino_acid):
@@ -126,7 +128,7 @@ class RiPP_Cluster:
 
     def draw_product(self, as_string=True, out_file=None):
         assert self.chain_intermediate
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=True)
+        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=True, horizontal=False)
         drawing.draw_structure()
         svg_string = drawing.save_svg_string()
         if as_string:
@@ -139,39 +141,61 @@ class RiPP_Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
-    def draw_precursor(self, fold=10, size = 14, as_string=True, out_file = None):
-        amino_acid_sequence = self.full_amino_acid_sequence
-        current_y = math.ceil(len(amino_acid_sequence)/fold)*size*3
-        current_x = fold*size*2+size
-        # set begin of chain so that last amino acid is forward
-        forward = False
+    def draw_precursor(self, fold=10, size=14, as_string=True, out_file=None, amino_acid_sequence=None, leader=True, x_translation=0, y_translation=0):
+        if amino_acid_sequence == None:
+            amino_acid_sequence = self.full_amino_acid_sequence
+        # set begin of chain so that last amino acid is forward 
         circles = []
         texts = []
         text_colour = "#000000"
-        # reverse sequence to go backwards
-        amino_acid_sequence = amino_acid_sequence[::-1]
-        for index, amino_acid in enumerate(amino_acid_sequence):
-            # TODO: create dictionary for amino acid colors
-            circles.append(make_circle(current_x, current_y, size, amino_acid))
-            text = f"""<text x="{current_x}" y="{current_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{13}">\
-                <tspan y="{current_y}" dy="0.35em">{amino_acid}</tspan></text>"""
-            texts.append(text)
-            step = size*2
-            if index % fold == 0 and index != 0:
-                forward = not forward
-            if (index % fold > fold-2 or index % fold < 1) and index > 2:
-                step = 2**(1/2) * step/2
-                current_y -= step
-            if forward:
-                current_x += step
-            else:
-                current_x -= step
+        if leader:
+            current_y = math.ceil(len(amino_acid_sequence)/fold)*size*(1+2**0.5)+y_translation+size
+            current_x = fold*size*2+x_translation+size*0.5
+            forward = False
+            # reverse sequence to go backwards
+            amino_acid_sequence = amino_acid_sequence[::-1]
+            for index, amino_acid in enumerate(amino_acid_sequence):
+                # TODO: create dictionary for amino acid colors
+                circles.append(make_circle(current_x, current_y, size, amino_acid))
+                text = f"""<text x="{current_x}" y="{current_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{10}">\
+                    <tspan y="{current_y}" dy="0.35em">{amino_acid}</tspan></text>"""
+                texts.append(text)
+                step = size*2
+                if index % fold == 0 and index != 0:
+                    forward = not forward
+                if (index % fold > fold-2 or index % fold < 1) and index > 2:
+                    step = 2**(1/2) * step/2
+                    current_y -= step
+                if forward:
+                    current_x += step
+                else:
+                    current_x -= step
+        
+        if not leader:
+            current_y = size+y_translation
+            current_x = size+x_translation
+            forward = True
+            for index, amino_acid in enumerate(amino_acid_sequence):
+                circles.append(make_circle(current_x, current_y, size, amino_acid))
+                text = f"""<text x="{current_x}" y="{current_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{10}">\
+                    <tspan y="{current_y}" dy="0.35em">{amino_acid}</tspan></text>"""
+                texts.append(text)
+                step = size*2
+                if index % fold == 0 and index != 0:
+                    forward = not forward
+                if (index % fold > fold-2 or index % fold < 1) and index > 2:
+                    step = 2**(1/2) * step/2
+                    current_y += step
+                if forward:
+                    current_x += step
+                else:
+                    current_x -= step
 
         svg = ''
-        svg += f"""<g id="domain_circles">\n"""
+        svg += f"""<g id="domain_circles_{leader}">\n"""
         for i, circle in enumerate(circles):
             text = texts[i]
-            svg += f"""<g id="domain_bubble_{i}">\n"""
+            svg += f"""<g id="domain_bubble_{i}_{leader}">\n"""
             svg += f"{circle}\n"
             svg += f"{text}\n"
             svg += "</g>\n"
@@ -179,7 +203,7 @@ class RiPP_Cluster:
         if as_string:
             return svg
         else:
-            svg_string = f"""<svg width="{fold*size*2+size*2}" height="{math.ceil(len(amino_acid_sequence)/fold)*size*3+size}" viewBox="{0} {0} {fold*size*2+size} {math.ceil(len(amino_acid_sequence)/fold)*size*3+size}" xmlns="http://www.w3.org/2000/svg">\n"""
+            svg_string = f"""<svg width="{fold*size*2+size*2}" height="{math.ceil(len(amino_acid_sequence)/fold)*size*(2+2**0.5)+size}" viewBox="{0} {0} {fold*size*2+size} {math.ceil(len(amino_acid_sequence)/fold)*size*3+size}" xmlns="http://www.w3.org/2000/svg">\n"""
             svg_string += svg
             svg_string += "</svg>"
             if out_file is None:
@@ -189,4 +213,94 @@ class RiPP_Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
-    # def draw_precursor_with_modified_product(self, fold = 10):
+    def draw_precursor_with_modified_product(self, fold=10, size = 14, as_string=True, out_file = None):
+        leader_pos = Vector(0, 0)
+        follower_pos = None
+        amino_acid_sequence_without_core= self.full_amino_acid_sequence.split(
+            self.amino_acid_seqence__for_structure_prediction)
+        if len(amino_acid_sequence_without_core)!=2:
+            raise ValueError("Core peptide not in precursor.")
+        [amino_acid_sequence_leader,
+        amino_acid_sequence_follower] = amino_acid_sequence_without_core
+        
+        if len(amino_acid_sequence_follower) > 0:
+            self.chain_intermediate = attach_to_follower_ripp(
+                self.chain_intermediate)
+        if len(amino_acid_sequence_leader) > 0:
+            self.chain_intermediate = attach_to_leader_ripp(
+                self.chain_intermediate)
+        svg_bubbles_leader = self.draw_precursor(fold=fold, size = size, as_string=True, amino_acid_sequence=amino_acid_sequence_leader, leader=True)
+        position_x_first_bubble_leader = min([fold,len(amino_acid_sequence_leader)])*size*2+size*0.5
+        position_y_first_bubble_leader = max(math.ceil(
+            len(amino_acid_sequence_leader)/fold)*size*(1+2**0.5), 100)+size
+        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
+                               draw_Cs_in_pink=False, draw_straightened=True, horizontal=True)
+        drawing.flip_y_axis()
+        drawing.move_to_positive_coords()
+        drawing.convert_to_int()
+        drawing.draw_structure()
+        svg_style = drawing.svg_style
+        padding = drawing.options.padding
+        x_translation_leader = 0
+        y_translation_leader = 0
+        max_x = 0
+        max_y = 0
+        for atom in drawing.structure.graph:
+            if atom.draw.position.x > max_x:
+                max_x = atom.draw.position.x
+            if atom.draw.position.y > max_y:
+                max_y = atom.draw.position.y
+            if atom.annotations.domain_type:
+                if atom.annotations.domain_type == "Follower":
+                    nitrogen = atom.get_neighbours("N")[0]
+                    follower_pos = nitrogen.draw.position
+                    #atom.draw.color = 'transparent'
+                    atom.draw.positioned = False
+                if atom.annotations.domain_type == "Leader":
+                    leader_pos = atom.draw.position
+                    #atom.draw.is_drawn = False
+                    atom.draw.positioned = False
+        if leader_pos:
+            x_translation_leader = position_x_first_bubble_leader - leader_pos.x
+            y_translation_leader = position_y_first_bubble_leader - leader_pos.y
+            drawing.move_structure(x_translation_leader, y_translation_leader)
+            svg = drawing.draw_svg()
+        if follower_pos:
+            x_translation = -position_x_first_bubble_leader + leader_pos.x + follower_pos.x + size
+            y_translation = follower_pos.y -size
+            svg_bubbles_follower = self.draw_precursor(
+                fold=fold, size=size, as_string=True, amino_acid_sequence=amino_acid_sequence_follower, leader=False, x_translation=x_translation, y_translation=y_translation)
+        else:
+            svg_bubbles_follower = ""
+
+
+        x1 = 0   
+        x2 = x_translation + 2 * size * min(len(amino_acid_sequence_follower), fold) + 2*size
+        y1 = 0
+        y2 = max(max_y, (y_translation_leader + max_y + 10),
+                 y_translation + size + math.ceil(len(amino_acid_sequence_follower)/fold) * size * (1+2**0.5))
+
+        svg_string = f"""<svg width="{x2}" height="{y2}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
+        if svg_style:
+            svg_string += f"{svg_style}\n"
+        svg_string += svg_bubbles_leader
+        if follower_pos:
+            svg_string += svg_bubbles_follower
+        svg_string += svg
+        # add connections
+        svg_string += f"""<line x1="{position_x_first_bubble_leader+size}" y1="{position_y_first_bubble_leader}" x2="{position_x_first_bubble_leader+size+5}" y2="{position_y_first_bubble_leader}" stroke = "black" />"""
+        svg_string += f"""<line x1="{x_translation -3}" y1="{position_y_first_bubble_leader}" x2="{x_translation}" y2="{position_y_first_bubble_leader}" stroke = "black" />"""
+        svg_string += "</svg>"
+
+        if as_string:
+            return svg_string
+        else:
+            if out_file is None:
+                raise ValueError(
+                    "Must provide output svg directory if 'as_string' is set to False.")
+            else:
+                with open(out_file, 'w') as svg_out:
+                    svg_out.write(svg_string)
+
+
+        

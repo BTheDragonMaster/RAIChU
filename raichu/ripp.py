@@ -144,7 +144,7 @@ class RiPP_Cluster:
     def draw_precursor(self, fold=10, size=14, as_string=True, out_file=None, amino_acid_sequence=None, leader=True, x_translation=0, y_translation=0):
         if amino_acid_sequence == None:
             amino_acid_sequence = self.full_amino_acid_sequence
-        # set begin of chain so that last amino acid is forward 
+        # set begin of chain so that last amino acid is forward
         circles = []
         texts = []
         text_colour = "#000000"
@@ -170,7 +170,7 @@ class RiPP_Cluster:
                     current_x += step
                 else:
                     current_x -= step
-        
+
         if not leader:
             current_y = size+y_translation
             current_x = size+x_translation
@@ -233,8 +233,8 @@ class RiPP_Cluster:
         position_x_first_bubble_leader = min([fold,len(amino_acid_sequence_leader)])*size*2+size*0.5
         position_y_first_bubble_leader = max(math.ceil(
             len(amino_acid_sequence_leader)/fold)*size*(1+2**0.5), 100)+size
-        drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url,
-                               draw_Cs_in_pink=draw_Cs_in_pink, draw_straightened=True, horizontal=True)
+        drawing = RaichuDrawer(structure, dont_show=True, add_url=True,
+                                draw_straightened=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
         drawing.flip_y_axis()
         drawing.move_to_positive_coords()
         drawing.convert_to_int()
@@ -260,13 +260,12 @@ class RiPP_Cluster:
                     #atom.draw.is_drawn = False
                     atom.draw.positioned = False
 
-        if leader_pos:
-            x_translation_leader = position_x_first_bubble_leader - leader_pos.x
-            y_translation_leader = position_y_first_bubble_leader - leader_pos.y
-            drawing.move_structure(x_translation_leader, y_translation_leader)
-            svg = drawing.draw_svg()
-        x_translation = -position_x_first_bubble_leader + max_x
-        y_translation = max_y/2
+        x_translation_leader = position_x_first_bubble_leader - leader_pos.x
+        y_translation_leader = position_y_first_bubble_leader - leader_pos.y
+        drawing.move_structure(x_translation_leader, y_translation_leader)
+        svg = drawing.draw_svg()
+        x_translation = -position_x_first_bubble_leader + leader_pos.x + size
+        y_translation = -position_y_first_bubble_leader +size
         if follower_pos:
             x_translation = -position_x_first_bubble_leader + leader_pos.x + follower_pos.x + size
             y_translation = follower_pos.y -size
@@ -276,7 +275,7 @@ class RiPP_Cluster:
             svg_bubbles_follower = ""
 
 
-        x1 = 0   
+        x1 = 0
         x2 = x_translation + 2 * size * min(len(amino_acid_sequence_follower), fold) + 2*size
         y1 = 0
         y2 = max(max_y, (y_translation_leader + max_y + 10),
@@ -303,6 +302,3 @@ class RiPP_Cluster:
             else:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
-
-
-        

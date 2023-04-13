@@ -213,7 +213,7 @@ class RiPP_Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
-    def draw_precursor_with_modified_product(self, fold=10, size = 14, as_string=True, out_file = None):
+    def draw_precursor_with_modified_product(self, fold=10, size = 14, as_string=True, out_file = None, draw_Cs_in_pink = False):
         leader_pos = Vector(0, 0)
         follower_pos = None
         amino_acid_sequence_without_core= self.full_amino_acid_sequence.split(
@@ -222,25 +222,24 @@ class RiPP_Cluster:
             raise ValueError("Core peptide not in precursor.")
         [amino_acid_sequence_leader,
         amino_acid_sequence_follower] = amino_acid_sequence_without_core
-        
+        structure = self.chain_intermediate.deepcopy()
         if len(amino_acid_sequence_follower) > 0:
-            self.chain_intermediate = attach_to_follower_ripp(
-                self.chain_intermediate)
+            structure = attach_to_follower_ripp(
+                structure)
         if len(amino_acid_sequence_leader) > 0:
-            self.chain_intermediate = attach_to_leader_ripp(
-                self.chain_intermediate)
+            structure = attach_to_leader_ripp(
+                structure)
         svg_bubbles_leader = self.draw_precursor(fold=fold, size = size, as_string=True, amino_acid_sequence=amino_acid_sequence_leader, leader=True)
         position_x_first_bubble_leader = min([fold,len(amino_acid_sequence_leader)])*size*2+size*0.5
         position_y_first_bubble_leader = max(math.ceil(
             len(amino_acid_sequence_leader)/fold)*size*(1+2**0.5), 100)+size
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
-                               draw_Cs_in_pink=False, draw_straightened=True, horizontal=True)
+        drawing = RaichuDrawer(structure, dont_show=True, add_url=True,
+                                draw_straightened=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
         drawing.flip_y_axis()
         drawing.move_to_positive_coords()
         drawing.convert_to_int()
         drawing.draw_structure()
         svg_style = drawing.svg_style
-        padding = drawing.options.padding
         x_translation_leader = 0
         y_translation_leader = 0
         max_x = 0
@@ -260,11 +259,13 @@ class RiPP_Cluster:
                     leader_pos = atom.draw.position
                     #atom.draw.is_drawn = False
                     atom.draw.positioned = False
-        if leader_pos:
-            x_translation_leader = position_x_first_bubble_leader - leader_pos.x
-            y_translation_leader = position_y_first_bubble_leader - leader_pos.y
-            drawing.move_structure(x_translation_leader, y_translation_leader)
-            svg = drawing.draw_svg()
+
+        x_translation_leader = position_x_first_bubble_leader - leader_pos.x
+        y_translation_leader = position_y_first_bubble_leader - leader_pos.y
+        drawing.move_structure(x_translation_leader, y_translation_leader)
+        svg = drawing.draw_svg()
+        x_translation = -position_x_first_bubble_leader + leader_pos.x + size
+        y_translation = -position_y_first_bubble_leader +size
         if follower_pos:
             x_translation = -position_x_first_bubble_leader + leader_pos.x + follower_pos.x + size
             y_translation = follower_pos.y -size

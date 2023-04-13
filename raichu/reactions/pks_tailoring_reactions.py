@@ -52,7 +52,6 @@ HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA = BondDefiner("hydroxyl_group_two_modu
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA = BondDefiner("hydroxyl_group_two_module_upstream_beta",
                                                        "OCCCCCCC(S)=O", 0, 1)
 
-
 # STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
 
 def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tuple[Structure, bool]:

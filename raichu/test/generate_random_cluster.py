@@ -51,8 +51,7 @@ def make_PKS_module(number_of_domains, TE):
         if subtype == "CIS":
             subtype = "DB"
         domains += [DomainRepresentation("gene 1", 'KS', subtype, None, True, True)]
-    if TE:
-        domains += [DomainRepresentation("gene 1", 'TD', None, None, True, True)]
+
     list_domains = random.sample(TAILORING_DOMAINS_PKS, number_of_domains-2)
     for domain_type in list_domains:
         if domain_type in ["ACP", "AT", "TE", "KS", "UNKNOWN", "TD"]:
@@ -68,24 +67,25 @@ def make_PKS_module(number_of_domains, TE):
         domain = DomainRepresentation("gene 1", domain_type, subtype, None, active, used)
         domains += [domain]
     domains += [DomainRepresentation("gene 1", 'ACP', None, None, True, True)]
+    if TE:
+        domains += [DomainRepresentation("gene 1", 'TE', None, None, True, True)]
     substrate = random.choice(PKS_ELONGATION)
     module = ModuleRepresentation("PKS", module_type, substrate, domains)
     return module
 
 def make_trans_AT_PKS_module(number_of_domains, TE):
-    module_type = "PKS_TRANS"
+    module_type = random.choices(["PKS_CIS", "PKS_TRANS"], weights=[20,80])[0]
+
+    print(module_type)
     domains = []
     if module_type == "PKS_CIS":
         domains += [DomainRepresentation("gene 1", 'AT', None, None, True, True)]
         domains += [DomainRepresentation("gene 1", 'KS', None, None, True, True)]
     if module_type == "PKS_TRANS":
         subtype = random.choice(KS_SUBTYPES)
-        print(subtype)
         if subtype == "CIS":
             subtype = "DB"
         domains += [DomainRepresentation("gene 1", 'KS', subtype, None, True, True)]
-    if TE:
-        domains += [DomainRepresentation("gene 1", 'TD', None, None, True, True)]
     list_domains = random.sample(TAILORING_DOMAINS_PKS, number_of_domains-2)
     for domain_type in list_domains:
         if domain_type in ["ACP", "AT", "TE", "KS", "UNKNOWN", "TD"]:
@@ -101,6 +101,8 @@ def make_trans_AT_PKS_module(number_of_domains, TE):
         domain = DomainRepresentation("gene 1", domain_type, subtype, None, active, used)
         domains += [domain]
     domains += [DomainRepresentation("gene 1", 'ACP', None, None, True, True)]
+    if TE:
+        domains += [DomainRepresentation("gene 1", 'TD', None, None, True, True)]
     substrate = random.choice(PKS_ELONGATION)
     module = ModuleRepresentation("PKS", module_type, substrate, domains)
     return module
@@ -128,8 +130,6 @@ def make_NRPS_module(number_of_domains, TE):
     domains = []
     domains += [DomainRepresentation("gene 1", 'C', None, None, True, True)]
     domains += [DomainRepresentation("gene 1", 'A', None, None, True, True)]
-    if TE:
-        domains += [DomainRepresentation("gene 1", 'TE', None, None, True, True)]
     list_domains = random.sample(TAILORING_DOMAINS_NRPS, number_of_domains-2)
     for domain_type in list_domains:
         if domain_type in ["C", "A", "TE", "PCP", "UNKNOWN", "TD"]:
@@ -140,6 +140,8 @@ def make_NRPS_module(number_of_domains, TE):
         domain = DomainRepresentation("gene 1", domain_type, subtype, None, active, used)
         domains += [domain]
     domains += [DomainRepresentation("gene 1", 'PCP', None, None, True, True)]
+    if TE:
+        domains += [DomainRepresentation("gene 1", 'TE', None, None, True, True)]
     substrate = random.choice(AMINO_ACIDS)
     module = ModuleRepresentation("NRPS", module_type, substrate, domains)
     return module
@@ -174,16 +176,16 @@ def create_random_cluster_trans_at(number_of_modules):
     else:
         modules += [make_PKS_module_starter(random.randint(2,7))]
     for i in range(0,number_of_modules-2):
-        type = random.choices (["nrps", "pks"], weights=[20,80])
+        type = random.choices (["nrps", "pks"], weights=[20,80])[0]
         if type == "nrps":
             modules += [make_NRPS_module(random.randint(2,7), False)]
         else:
-            modules += [make_trans_AT_PKS_module(random.randint(4,7), False)]
+            modules += [make_trans_AT_PKS_module(random.randint(9,12), False)]
     type_termination = random.choice (["nrps", "pks"])
     if type_termination == "nrps":
         modules += [make_NRPS_module(random.randint(2,7), True)]
     else:
-        modules += [make_trans_AT_PKS_module(random.randint(4,7), True)]
+        modules += [make_trans_AT_PKS_module(random.randint(5,9), True)]
     cluster_representation = ClusterRepresentation(modules)
     return cluster_representation
 

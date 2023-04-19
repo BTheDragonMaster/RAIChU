@@ -973,9 +973,12 @@ class RaichuDrawer(Drawer):
             if attached_to_domain:
                 pcp = None
                 for atom in self.structure.graph:
-                    if atom.annotations.domain_type:
+                    if atom.annotations.domain_type :
                         pcp = atom
-
+                for atom in self.structure.graph:
+                    if atom.annotations.domain_type:
+                        if atom.annotations.domain_type == "Leader":
+                            pcp = atom
                 assert pcp
 
                 # Fix position of the S and C atom and the S-C angle
@@ -1393,7 +1396,6 @@ class RaichuDrawer(Drawer):
                 if is_ripp:
                     domains = [
                         atom.annotations.domain_type for atom in self.structure.graph if atom.annotations.domain_type]
-                    print(domains)
                     if "Leader" in domains:
                         self.rotate_subtree(first_carbon, sulphur, 1.5707,
                                             sulphur.draw.position)
@@ -1405,6 +1407,7 @@ class RaichuDrawer(Drawer):
                                     follower = atom
                                     nitrogen_follower = atom.get_neighbours("N")[0]
                                     carbon = nitrogen_follower.get_neighbours("C")[0]
+                                    print(first_carbon, pcp, follower,sulphur,nitrogen_follower,carbon)
                                     self.rotate_subtree(nitrogen_follower, carbon, 2.094,
                                                         carbon.draw.position)
                                     self.rotate_subtree(follower, nitrogen_follower, -1.5707,

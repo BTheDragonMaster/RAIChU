@@ -30,7 +30,7 @@ AMINOACID_ONE_LETTER_TO_NAME = {"A": "alanine",
 
 AMINOACID_ONE_LETTER_TO_SMILES = {"A": "N[C@@]([H])(C)C(=O)", "C": "N[C@@]([H])(CS)C(=O)",
                                   "D": "N[C@@]([H])(CC(=O)O)C(=O)", "E": "N[C@@]([H])(CCC(=O)O)C(=O)",
-                                  "F": "N[C@@]([H])(Cc1ccccc1)C(=O)", "G": "NCC(=O)", "H": "N[C@@]([H])(CC1=CN=C-N1)C(=O)",
+                                  "F": "N[C@@]([H])(Cc1ccccc1)C(=O)", "G": "NCC(=O)", "H": "N[C@@]([H])(CC1=CN=CN1)C(=O)",
                                   "I": "N[C@@]([H])([C@]([H])(CC)C)C(=O)", "K": "N[C@@]([H])(CCCCN)C(=O)",
                                   "L": "N[C@@]([H])(CC(C)C)C(=O)", "M": "N[C@@]([H])(CCSC)C(=O)",
                                   "N": "N[C@@]([H])(CC(=O)N)C(=O)", "P": "N1[C@@]([H])(CCC1)C(=O)",

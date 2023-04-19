@@ -80,12 +80,22 @@ def find_central_chain_ripp(ripp_attached):
 
     # Identify starting point central chain attached NRP/PK
     nitrogen = None
-    for atom in ripp_attached.graph:
-        if atom.type == 'N' and any(neighbour.annotations.domain_type
-                                    for neighbour in atom.neighbours):
-            nitrogen = atom
-        if not atom.annotations.in_central_chain:
-            atom.annotations.in_central_chain = False
+    domains = [
+        atom.annotations.domain_type for atom in ripp_attached.graph if atom.annotations.domain_type]
+    if "Leader" in domains:
+        for atom in ripp_attached.graph:
+            if atom.annotations.domain_type:
+                if atom.annotations.domain_type == "Leader":
+                    nitrogen = atom.get_neighbour("N")
+            if not atom.annotations.in_central_chain:
+                atom.annotations.in_central_chain = False
+    else:
+        for atom in ripp_attached.graph:
+            if atom.type == 'N' and any(neighbour.annotations.domain_type
+                                        for neighbour in atom.neighbours):
+                nitrogen = atom
+            if not atom.annotations.in_central_chain:
+                atom.annotations.in_central_chain = False
     assert nitrogen
 
     central_chain = [nitrogen]
@@ -126,17 +136,17 @@ def find_central_chain_not_attached(pks_nrps):
             atom.inside_ring = False
 
     # Identify starting point central chain attached NRP/PK
-    carbon = None
+    nitrogen = None
     for atom in pks_nrps.graph:
-        if atom.type == 'C' and atom.annotations.in_central_chain and [neighbour.type for neighbour in atom.neighbours].count("O") == 2:
-            carbon = atom
+        if atom.type == 'N' and atom.annotations.in_central_chain and [neighbour.type for neighbour in atom.neighbours].count("H") == 2:
+            nitrogen = atom
         if not atom.annotations.in_central_chain:
             atom.annotations.in_central_chain = False
-    assert carbon
+    assert nitrogen
 
-    central_chain = [carbon]
-    visited = [carbon]
-    atom_central_chain = carbon
+    central_chain = [nitrogen]
+    visited = [nitrogen]
+    atom_central_chain = nitrogen
     end_atom = False
 
     # Identify complete central chain from in_central_chain Atom attributes

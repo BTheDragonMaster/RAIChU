@@ -165,7 +165,7 @@ class RiPP_Cluster:
                     forward = not forward
                 if (index % fold > fold-2 or index % fold < 1) and index > 2:
                     step = 2**(1/2) * step/2
-                    current_y -= step
+                    current_y += step
                 if forward:
                     current_x += step
                 else:
@@ -233,7 +233,7 @@ class RiPP_Cluster:
         position_x_first_bubble_leader = min([fold,len(amino_acid_sequence_leader)])*size*2+size*0.5
         position_y_first_bubble_leader = max(math.ceil(
             len(amino_acid_sequence_leader)/fold)*size*(1+2**0.5), 100)+size
-        drawing = RaichuDrawer(structure, dont_show=True, add_url=True,
+        drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url,
                                 draw_straightened=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
         drawing.flip_y_axis()
         drawing.move_to_positive_coords()
@@ -264,7 +264,7 @@ class RiPP_Cluster:
         y_translation_leader = position_y_first_bubble_leader - leader_pos.y
         drawing.move_structure(x_translation_leader, y_translation_leader)
         svg = drawing.draw_svg()
-        x_translation = -position_x_first_bubble_leader + leader_pos.x + size
+        x_translation = position_x_first_bubble_leader + leader_pos.x + size
         y_translation = -position_y_first_bubble_leader +size
         if follower_pos:
             x_translation = -position_x_first_bubble_leader + leader_pos.x + follower_pos.x + size
@@ -278,9 +278,8 @@ class RiPP_Cluster:
         x1 = 0
         x2 = x_translation + 2 * size * min(len(amino_acid_sequence_follower), fold) + 2*size
         y1 = 0
-        y2 = max(max_y, (y_translation_leader + max_y + 10),
-                 y_translation + size + math.ceil(len(amino_acid_sequence_follower)/fold) * size * (1+2**0.5))
-
+        y2 = max(max_y, (math.ceil(len(amino_acid_sequence_leader)/fold) * size * (1+2**0.5) + max_y + 10),
+                 -y_translation + size + math.ceil(len(amino_acid_sequence_follower)/fold) * size * (1+2**0.5))
         svg_string = f"""<svg width="{x2}" height="{y2}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
         if svg_style:
             svg_string += f"{svg_style}\n"

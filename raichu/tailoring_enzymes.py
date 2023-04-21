@@ -253,7 +253,7 @@ class TailoringEnzyme:
 
         elif self.type.name == "KETO_REDUCTION":
             oxygens = find_atoms(KETO_GROUP, structure)
-            possible_sites.extend([oxygen.get_neighbour("C") for oxygen in oxygens])
+            possible_sites.extend([oxygen.get_neighbour("O") for oxygen in oxygens])
         
         elif self.type.name == "ALCOHOLE_DEHYDROGENASE":
             possible_sites.extend(

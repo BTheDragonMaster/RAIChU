@@ -15,6 +15,92 @@ B_NRP_C = GroupDefiner('Beta C atom to attach to PCP domain', 'NCCC(O)=O', 3)
 MAL_AMINO = GroupDefiner('malonyl_starter_amino', 'NC(=O)CC(O)=O', 4)
 
 
+def condensation_with_reverse_numbering(structure_1, structure_2, oh_bond, h_bond):
+    """
+    Returns condensed product of structure 1 and structure 2, and a water molecule, where the numbering of structure 1 is kept
+
+    Input
+    ----------
+    structure_1: Structure object, structure containing -OH leaving group
+    structure_2: Structure object, structure containing -H leaving group
+    oh_bond: Bond object, bond attached to -OH leaving group
+    h_bond: Bond object, bond attached to -H leaving group
+
+    Returns
+    -------
+    list of [product, water], both Structure objects, with product the condensed product of structure 1 and structure 2
+        and water a water molecule.
+
+    """
+
+    # Ensure that the defined OH-bond actually has an -OH leaving group
+    o_atom = None
+    o_neighbour = None
+
+    for atom in oh_bond.neighbours:
+        if not o_atom and atom.type == 'O' and atom.has_neighbour('H'):
+            o_atom = atom
+        else:
+            o_neighbour = atom
+
+    if not o_atom:
+        raise Exception(
+            f"The selected bond {oh_bond} does not attach to an -OH leaving group.")
+
+    # Ensure that the defined H-bond actually has an -H leaving group
+
+    h_atom = None
+    h_neighbour = None
+
+    for atom in h_bond.neighbours:
+        if not h_atom and atom.type == 'H':
+            h_atom = atom
+        else:
+            h_neighbour = atom
+
+    if not h_atom:
+        raise Exception(
+            f"The selected bond {h_bond} does not attach to an -H leaving group.")
+
+    # Break the bonds between the leaving groups and the rest of the product
+
+    structure_1.break_bond(oh_bond)
+    structure_2.break_bond(h_bond)
+
+    # Put the two structures into the same object
+    structure = combine_structures([structure_2, structure_1])
+    # Retrieve the atoms that have to form bonds: h_atom with o_atom to form water, and h_neighbour with o_neighbour
+    # to form the product
+
+    h_atom = structure.get_atom(h_atom)
+    o_atom = structure.get_atom(o_atom)
+    h_neighbour = structure.get_atom(h_neighbour)
+    o_neighbour = structure.get_atom(o_neighbour)
+
+    # Create the bonds
+
+    structure.make_bond(h_atom, o_atom, structure.find_next_bond_nr())
+    structure.make_bond(h_neighbour, o_neighbour,
+                        structure.find_next_bond_nr())
+
+    # Put the water and the product into different Structure instances
+
+    structures = structure.split_disconnected_structures()
+
+    water = None
+    product = None
+
+    # Find out which of the structures is your product and which is your water
+
+    for structure in structures:
+        if h_atom in structure.graph:
+            water = structure
+        elif h_neighbour in structure.graph:
+            structure.refresh_structure(find_cycles=True)
+            product = structure
+
+    return [product, water]
+
 def attach_to_domain_pk(polyketide):
     """
     Attaches the sulphur atom in the input polyketide to a PKS domain and
@@ -131,7 +217,6 @@ def attach_to_follower_ripp(ripp):
 
     # Create domain
     domain = make_scaffold_peptide('Follower')
-    print(domain.atoms)
     # Remove OH group from carboxylic acid in NRP, to allow attachment
     # to domain
 
@@ -178,11 +263,8 @@ def attach_to_follower_ripp(ripp):
             break
 
     assert hydroxyl_oxygen and hydroxyl_bond
-
-    structure = condensation(ripp, domain, hydroxyl_bond, hydrogen_bond)[0]
-
+    structure = condensation_with_reverse_numbering(ripp, domain, hydroxyl_bond, hydrogen_bond)[0]
     initialise_atom_attributes(structure)
-
     return structure
 
 
@@ -198,14 +280,14 @@ def attach_to_leader_ripp(ripp):
                 n_atom_to_domain = nitrogen
                 break
     assert n_atom_to_domain
-    print (n_atom_to_domain.neighbours)
     oxygen_bond = domain.bond_lookup[domain.atoms[0]][domain.atoms[1]]
 
     assert oxygen_bond.has_neighbour('O')
     hydrogen = n_atom_to_domain.get_neighbours('H')[0]
     nitrogen_bond = n_atom_to_domain.get_bond(hydrogen)
     assert nitrogen_bond
-    structure = condensation(domain, ripp, oxygen_bond, nitrogen_bond)[0]
+    structure = condensation(
+        domain, ripp, oxygen_bond, nitrogen_bond)[0]
     initialise_atom_attributes(structure)
 
     return structure

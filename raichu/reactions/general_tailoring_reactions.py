@@ -4,11 +4,12 @@ from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
 from raichu.data.molecular_moieties import PYROPHOSPHATE_BOND
 from raichu.reactions.general import initialise_atom_attributes
+from raichu.drawing.drawer import RaichuDrawer
 
 
 def remove_atom(atom, structure):
     """
-    Returns the product without the grup attached to the atom as a PIKAChU Structure object
+    Returns the product without the group attached to the atom as a PIKAChU Structure object
 
     structure: PIKAChU Structure object of the intermediate
     atom: atom to be removed
@@ -16,6 +17,7 @@ def remove_atom(atom, structure):
     atom = structure.get_atom(atom)
     carbon = atom.get_neighbour('C')
     bond = atom.get_bond(carbon)
+    assert bond
     structure.break_bond(bond)
     structure_1, structure_2 = structure.split_disconnected_structures()
     if carbon in structure_1.graph:
@@ -99,7 +101,7 @@ def single_bond_oxidation(atom1, atom2, structure):
     atom2: C atom2 in single bond
     structure: PIKAChU Structure object of the intermediate
     """
-    single_bond = atom1.get_bond(atom2)
+    
     # remove h atoms
     for selected_atom in [atom1, atom2]:
         bond_to_break = None
@@ -116,7 +118,9 @@ def single_bond_oxidation(atom1, atom2, structure):
 
         assert bond_to_break and hydrogen
         structure.break_bond(bond_to_break)
-
+    atom1 = structure.get_atom(atom1)
+    atom2 = structure.get_atom(atom2)
+    single_bond = structure.bond_lookup[atom1][atom2]
     single_bond.make_double()
     structures = structure.split_disconnected_structures()
     for structure in structures:
@@ -346,7 +350,6 @@ def addition(target_atom, structure_to_add, structure):
     bond_2 = target_atom.get_bond(hydrogen_2)
 
     combined_structure = combine_structures([group_to_add, structure])
-
     combined_structure.break_bond(bond_1)
     combined_structure.break_bond(bond_2)
 
@@ -354,7 +357,6 @@ def addition(target_atom, structure_to_add, structure):
         atom_to_add, target_atom, combined_structure.find_next_bond_nr())
     combined_structure.make_bond(
         hydrogen_1, hydrogen_2, combined_structure.find_next_bond_nr())
-
     structures = combined_structure.split_disconnected_structures()
     for structure in structures:
         if atom_to_add.nr in structure.atoms:
@@ -363,16 +365,27 @@ def addition(target_atom, structure_to_add, structure):
             return structure
 
 
+def cyclodehydration(structure, atom1, oxygen):
+    initialise_atom_attributes(structure)
+    carbon = oxygen.get_neighbour("C")
+    nitrogen = carbon.get_neighbour("N")
+    structure = double_bond_reduction(carbon, oxygen, structure)
+    structure = oxidative_bond_formation(carbon, atom1, structure)
+    structure = remove_atom(oxygen, structure)
+    structure = single_bond_oxidation(carbon, nitrogen, structure)
+    structure.refresh_structure()
+    initialise_atom_attributes(structure)
+    return structure
+
 def macrolactam_formation(structure, o_oh_carboxyl):
-    """Performs the thioesterase reactions on the input chain_intermediate
+    """Performs the macrolactam formation on the input chain_intermediate
      using the -OH group defined by the input O-atom participating in that
-     internal -OH group, returns the circular product as PIKAChU Structure
+     internal -OH group and the N-terminus, returns the circular product as PIKAChU Structure
      object.
 
      chain_intermediate: PIKAChU Structure object of a polyketide
-     o_oh_n_amino: PIKAChU Atom object of the O-atom in the -OH group or N-atom
-     in the amino group that the function should use to perform the
-     thioesterase reaction.
+     o_oh_carboxyl: PIKAChU Atom object of the O-atom in the -OH group that the function should use to perform the
+     macrolactame reaction.
     """
     cyclisation_site = structure.get_atom(o_oh_carboxyl)
     c_atom = cyclisation_site.get_neighbour('C')

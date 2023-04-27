@@ -118,6 +118,8 @@ O_BETAPROPRIOLACTONE_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 4)
 O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 0)
 ASPARTIC_ACID = GroupDefiner('aspartic_acid', 'NC(CC(O)=O)C=O', 4)
 GLUTAMIC_ACID = GroupDefiner('glutamic_acid', 'NC(CCC(O)=O)C=O', 5)
-
+CYSTEINE = GroupDefiner('cysteine', 'NC(CS)C=O', 3)
+SERINE = GroupDefiner('serine', 'NC(CO)C=O', 3)
+THREONINE = GroupDefiner('threonine', 'CC(O)C(N)C=O', 2)
 PYROPHOSPHATE_BOND = BondDefiner(
     "pyrophosphate_bond", "COP", 0, 1)

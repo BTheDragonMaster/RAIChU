@@ -1,9 +1,8 @@
 from enum import Enum, unique
-from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation
+from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
-from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID
+from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE
 from pikachu.reactions.functional_groups import find_atoms, find_bonds, combine_structures, GroupDefiner
-from raichu.reactions.chain_release import cyclic_release
 @unique
 class TailoringEnzymeType(Enum):
     METHYLTRANSFERASE = 1
@@ -29,6 +28,7 @@ class TailoringEnzymeType(Enum):
     PEPTIDASE = 21
     PROTEASE = 22
     MACROLACTAM_SYNTHETASE = 23
+    CYCLODEHYDRATION = 24
 
     
     
@@ -216,7 +216,37 @@ class TailoringEnzyme:
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
                 structure = macrolactam_formation(structure, atom1)
+        elif self.type.name == "CYCLODEHYDRATION":
+            for atom in self.modification_sites:
+                if len(atom) == 0:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                break_all = False
+                for neighbour_1 in atom1.neighbours:
+                    if neighbour_1.type == "C":
+                        for neighbour_2 in neighbour_1.neighbours:
+                          if neighbour_2.type == "C":
+                                nitrogen = neighbour_2.get_neighbour("N")
+                                if nitrogen:
+                                    carbon = nitrogen.get_neighbour("C")
+                                    oxygen = carbon.get_neighbour("O")
+                                    if carbon and nitrogen:
+                                        structure = cyclodehydration(
+                                            structure, atom1, oxygen)
+                                        # breaking out of all loops
+                                        break_all = True
+                                        break
+                        if break_all:
+                            break
+                else:
+                    raise ValueError(
+                        f"Can not perform CYCLODEHYDRATION on atom {atom1}, since there is downstream amino acid.")
         return structure
+
+
+
+
     
     def get_possible_sites(self, structure):
         possible_sites = []
@@ -296,4 +326,8 @@ class TailoringEnzyme:
             asp_glu_oxygen = find_atoms(
                 ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
             possible_sites.append(asp_glu_oxygen)
+        elif self.type.name == "CYCLODEHYDRATION":
+            cys_ser_thr_x = find_atoms(
+                CYSTEINE, structure) + find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
+            possible_sites.append(cys_ser_thr_x)
         return possible_sites

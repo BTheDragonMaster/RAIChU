@@ -89,8 +89,8 @@ class RiPP_Cluster:
 
     def do_macrocyclization(self):
         self.initialize_macrocyclization_on_structure()
-        for macrocyclization_atoms in self.initialized_macrocyclization_atoms:
-            if [str(atom) for atom in self.initialized_macrocyclization_atoms] != self.macrocyclisations:
+        for index, macrocyclization_atoms in enumerate(self.initialized_macrocyclization_atoms):
+            if [str(atom) for atom in macrocyclization_atoms] != [self.macrocyclisations[index].atom1, self.macrocyclisations[index].atom2]:
                 raise ValueError(
                     f'Not all atoms {str(self.initialized_macrocyclization_atoms)} for macrocyclisation exist in the structure.')
             atom1 = self.chain_intermediate.get_atom(macrocyclization_atoms[0])

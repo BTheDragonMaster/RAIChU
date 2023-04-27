@@ -78,7 +78,7 @@ def find_central_chain_ripp(ripp_attached):
         else:
             atom.inside_ring = False
 
-    # Identify starting point central chain attached NRP/PK
+    # Identify starting point central chain
     nitrogen = None
     domains = [
         atom.annotations.domain_type for atom in ripp_attached.graph if atom.annotations.domain_type]
@@ -125,7 +125,7 @@ def find_central_chain_not_attached(pks_nrps):
     """Identifies the central chain atoms in the input structure from the
     in_central_chain Atom attribute, and returns these Atom objects as a list
 
-    pks_nrps: PIKAChU Structure object, input (hybrid) PK/NRP structure
+    pks_nrps: PIKAChU Structure object, input (hybrid) PK/NRP/RiPP structure
     """
     # Find atoms in the structure inside a cycle
     pks_nrps.find_cycles()
@@ -136,17 +136,17 @@ def find_central_chain_not_attached(pks_nrps):
             atom.inside_ring = False
 
     # Identify starting point central chain attached NRP/PK
-    nitrogen = None
+    carbon = None
     for atom in pks_nrps.graph:
-        if atom.type == 'N' and atom.annotations.in_central_chain and [neighbour.type for neighbour in atom.neighbours].count("H") == 2:
-            nitrogen = atom
+        if atom.type == 'C' and atom.annotations.in_central_chain and [neighbour.type for neighbour in atom.neighbours].count("O") == 2:
+            carbon = atom
         if not atom.annotations.in_central_chain:
             atom.annotations.in_central_chain = False
-    assert nitrogen
+    assert carbon
 
-    central_chain = [nitrogen]
-    visited = [nitrogen]
-    atom_central_chain = nitrogen
+    central_chain = [carbon]
+    visited = [carbon]
+    atom_central_chain = carbon
     end_atom = False
 
     # Identify complete central chain from in_central_chain Atom attributes

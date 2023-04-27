@@ -1,8 +1,9 @@
 from enum import Enum, unique
-from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift
+from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
-from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL
+from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID
 from pikachu.reactions.functional_groups import find_atoms, find_bonds, combine_structures, GroupDefiner
+from raichu.reactions.chain_release import cyclic_release
 @unique
 class TailoringEnzymeType(Enum):
     METHYLTRANSFERASE = 1
@@ -27,6 +28,8 @@ class TailoringEnzymeType(Enum):
     HALOGENASE = 20
     PEPTIDASE = 21
     PROTEASE = 22
+    MACROLACTAM_SYNTHETASE = 23
+
     
     
     @staticmethod
@@ -206,7 +209,13 @@ class TailoringEnzyme:
                 atom1 = structure.get_atom(atoms[0])
                 atom2 = structure.get_atom(atoms[1])
                 structure = proteolytic_cleavage(atom1.get_bond(atom2), structure)
-                
+        elif self.type.name == "MACROLACTAM_SYNTHETASE":
+            for atom in self.modification_sites:
+                if len(atom) == 0:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom1 = structure.get_atom(atom1)
+                structure = macrolactam_formation(structure, atom1)
         return structure
     
     def get_possible_sites(self, structure):
@@ -283,4 +292,8 @@ class TailoringEnzyme:
                 PEPTIDE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
+        elif self.type.name == "MACROLACTAM_SYNTHETASE":
+            asp_glu_oxygen = find_atoms(
+                ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
+            possible_sites.append(asp_glu_oxygen)
         return possible_sites

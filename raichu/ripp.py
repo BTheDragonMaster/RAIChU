@@ -12,7 +12,7 @@ from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
 from raichu.drawing.colours import AMINO_ACID_FILL_COLOURS, AMINO_ACID_OUTLINE_COLOURS
 from raichu.attach_to_domain import attach_to_follower_ripp, attach_to_leader_ripp
-
+from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 
 def make_circle(x_coord, y_coord, size, amino_acid):
     """Easy function to draw circle for the domain visualization. Returns
@@ -55,6 +55,8 @@ class RiPP_Cluster:
             smiles_peptide_chain += str(substrate)
         smiles_peptide_chain += "O"
         self.linear_product = read_smiles(smiles_peptide_chain)
+        label_nrp_central_chain(
+            self.linear_product, module_type='elongation')
         self.chain_intermediate = self.linear_product
 
     def initialize_cleavage_sites_on_structure(self) -> list:
@@ -126,9 +128,10 @@ class RiPP_Cluster:
                     self.chain_intermediate)
                 self.chain_intermediate = self.tailored_product
 
-    def draw_product(self, as_string=True, out_file=None):
+    def draw_product(self, as_string=True, out_file=None, draw_straightened = True):
         assert self.chain_intermediate
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=True, horizontal=False)
+        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
+                               draw_Cs_in_pink=False, draw_straightened=draw_straightened, horizontal=False)
         drawing.draw_structure()
         svg_string = drawing.save_svg_string()
         if as_string:

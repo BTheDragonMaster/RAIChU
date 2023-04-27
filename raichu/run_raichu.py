@@ -238,8 +238,6 @@ def get_tailoring_sites_atom_names(structure):
     tailoring_sites = {}
     for enzyme_type in TailoringEnzymeType:
         tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
-        print([type(atom) for atom in tailoring_enzyme.get_possible_sites(
-            structure)])
         tailoring_sites[enzyme_type.name] = [str(atom) if type(atom) != list else [str(subatom) for subatom in atom] for atom in tailoring_enzyme.get_possible_sites(
             structure)]
     return tailoring_sites
@@ -248,6 +246,10 @@ def get_tailoring_sites_atom_names(structure):
 if __name__ == "__main__":
     ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
                                 tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+    lasso_peptide_cluster = RiPP_Cluster("A1S42_RS12075", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF",
+                                         tailoring_enzymes_representation=[TailoringRepresentation("lasB", "PROTEASE", [["N_180", "C_178"]]), TailoringRepresentation("lasC", "MACROLACTAM_SYNTHETASE", [["O_261"]])]
+                                )
+
     terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type="Class_1",
                                       tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
 
@@ -299,6 +301,15 @@ if __name__ == "__main__":
                                          )
     # draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
     # draw_ripp_structure(ripp_cluster)
-    ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
+    #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
+    
+    lasso_peptide_cluster.make_peptide()
+    #print(get_tailoring_sites_atom_names(lasso_peptide_cluster.chain_intermediate))
+    lasso_peptide_cluster.draw_product(
+        as_string=False, out_file="peptide_test_lasso_peptide.svg")
+    lasso_peptide_cluster.do_tailoring()
+    lasso_peptide_cluster.draw_product(
+        as_string=False, out_file="final_product_test_lasso_peptide.svg", draw_straightened= False)
+    #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)

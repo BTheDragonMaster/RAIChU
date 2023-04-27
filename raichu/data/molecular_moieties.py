@@ -116,7 +116,8 @@ KETO_GROUP = BondDefiner('keto_group', 'C=O', 0, 1)
 O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
 O_BETAPROPRIOLACTONE_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 4)
 O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 0)
-
+ASPARTIC_ACID = GroupDefiner('aspartic_acid', 'NC(CC(O)=O)C=O', 4)
+GLUTAMIC_ACID = GroupDefiner('glutamic_acid', 'NC(CCC(O)=O)C=O', 5)
 
 PYROPHOSPHATE_BOND = BondDefiner(
     "pyrophosphate_bond", "COP", 0, 1)

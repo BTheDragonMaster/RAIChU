@@ -361,3 +361,33 @@ def addition(target_atom, structure_to_add, structure):
             structure.refresh_structure()
             initialise_atom_attributes(structure)
             return structure
+
+
+def macrolactam_formation(structure, o_oh_carboxyl):
+    """Performs the thioesterase reactions on the input chain_intermediate
+     using the -OH group defined by the input O-atom participating in that
+     internal -OH group, returns the circular product as PIKAChU Structure
+     object.
+
+     chain_intermediate: PIKAChU Structure object of a polyketide
+     o_oh_n_amino: PIKAChU Atom object of the O-atom in the -OH group or N-atom
+     in the amino group that the function should use to perform the
+     thioesterase reaction.
+    """
+    cyclisation_site = structure.get_atom(o_oh_carboxyl)
+    c_atom = cyclisation_site.get_neighbour('C')
+    assert c_atom
+    oh_bond = cyclisation_site.get_bond(c_atom)
+    assert oh_bond
+    terminal_nitrogen = None
+    for atom in structure.graph:
+        if atom.annotations.in_central_chain and atom.type == "N" and [neighbour.type for neighbour in atom.neighbours].count("H") == 2:
+            terminal_nitrogen = atom
+    assert terminal_nitrogen 
+    h_atom = terminal_nitrogen.get_neighbour('H')
+    h_bond = terminal_nitrogen.get_bond(h_atom)
+    cyclic_product, water = internal_condensation(
+        structure, oh_bond, h_bond)
+    cyclic_product.refresh_structure()
+    initialise_atom_attributes(cyclic_product)
+    return cyclic_product

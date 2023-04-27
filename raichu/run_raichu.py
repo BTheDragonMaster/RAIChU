@@ -253,13 +253,22 @@ if __name__ == "__main__":
                                                                )
     lanthipeptide_type_III_cluster_catenulipeptin = RiPP_Cluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
                                                                 tailoring_enzymes_representation=[TailoringRepresentation(
-                                                                    "Caci_4239", "LANTHIONINE_SYNTHETASE", [["C_43", "C_63"], ["S_92", "C_63"], ["C_122", "C_143"], ["S_169", "C_143"]])]
+                                                                    "Caci_4239", "LANTHIONINE_SYNTHETASE", [["C_43", "C_63"], ["S_92", "C_63"], ["C_122", "C_143"], ["S_169", "C_143"]])
+                                                                    ]
                                                                 )
-
+    thiopeptide_cluster_thiomuracin = RiPP_Cluster(
+        "tpdA", "MDLSDLPMDVFELADDGVAVESLTAGHGMTEVGASCNCFCYICCSCSSA", "SCNCFCYICCSCSS", 
+        tailoring_enzymes_representation=[TailoringRepresentation(
+            "tpdD", "THREONINE_SERINE_DEHYDRATASE", [['O_104'], ['O_90'], ['O_4'], ['O_111']]), TailoringRepresentation(
+            "tpdE", "CYCLODEHYDRATION", [['S_97'], ['S_11'], ['S_76'], ['S_46'], ['S_83'], ['S_27']]),
+            TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]],)
+            ]
+        )
     cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASTSIAPFCSYDGVDASTSIAPFCSYDD", "TSIAPFC", 
                                                   macrocyclisations=[MacrocyclizationRepresentation("N_0","O_59")],
                                                   tailoring_enzymes_representation=[TailoringRepresentation("truD", "CYCLODEHYDRATION", [
-                                                                                                            ["S_56"]]), TailoringRepresentation("truF", "PRENYLTRANSFERASE", [['O_13'], ['O_5']], "3_METHYL_1_BUTENYL")]
+                                                                                                            ["S_56"]]), TailoringRepresentation("truF", "PRENYLTRANSFERASE", [['O_13'], ['O_5']], "3_METHYL_1_BUTENYL")
+                                                                                                            ]
                                 )
 
     lasso_peptide_cluster = RiPP_Cluster("A1S42_RS12075", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF",
@@ -330,14 +339,26 @@ if __name__ == "__main__":
     # cyanobactin_cluster_trunkamide.do_macrocyclization()
     # cyanobactin_cluster_trunkamide.draw_product(
     #     as_string=False, out_file="final_peptide_test_cyanobactin_peptide.svg", draw_straightened=False)
-    lanthipeptide_type_I_cluster_catenulipeptin.make_peptide()
-    # print(get_tailoring_sites_atom_names(
-    #     lanthipeptide_type_III_cluster_catenulipeptin.chain_intermediate))
-    lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
-        as_string=False, out_file="peptide_test_lanthipeptide_peptide.svg")
-    lanthipeptide_type_I_cluster_catenulipeptin.do_tailoring()
-    lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
-        as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
+    # lanthipeptide_type_I_cluster_catenulipeptin.make_peptide()
+    # # print(get_tailoring_sites_atom_names(
+    # #     lanthipeptide_type_III_cluster_catenulipeptin.chain_intermediate))
+    # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
+    #     as_string=False, out_file="peptide_test_lanthipeptide_peptide.svg")
+    # lanthipeptide_type_I_cluster_catenulipeptin.do_tailoring()
+    # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
+    #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
+    
+    thiopeptide_cluster_thiomuracin.make_peptide()
+    print(get_tailoring_sites_atom_names(
+        thiopeptide_cluster_thiomuracin.chain_intermediate))
+    thiopeptide_cluster_thiomuracin.draw_product(
+        as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
+    thiopeptide_cluster_thiomuracin.do_tailoring()
+    thiopeptide_cluster_thiomuracin.draw_product(
+        as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
+    print(get_tailoring_sites_atom_names(
+        thiopeptide_cluster_thiomuracin.chain_intermediate))
     #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)
+

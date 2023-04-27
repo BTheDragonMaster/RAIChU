@@ -33,6 +33,8 @@ class TailoringEnzymeType(Enum):
     THREONINE_SERINE_DEHYDRATASE = 25
     LANTHIPEPTIDE_CYCLASE = 26
     LANTHIONINE_SYNTHETASE = 27
+    THIOPEPTIDE_CYCLASE = 28
+
     
     
     @staticmethod
@@ -243,8 +245,32 @@ class TailoringEnzyme:
                         if break_all:
                             break
                 else:
-                    raise ValueError(
-                        f"Can not perform CYCLODEHYDRATION on atom {atom1}, since there is downstream amino acid.")
+                    print("ERROR")
+        elif self.type.name == "THIOPEPTIDE_CYCLASE":
+            for atoms in self.modification_sites:
+                if len(atoms) != 2:
+                    continue
+                carbon_1 = structure.get_atom(atoms[0])
+                carbon_2_candidates = carbon_1.get_neighbours("C")
+                for carbon_2_candidate in carbon_2_candidates:
+                    if carbon_2_candidate.has_neighbour("N"):
+                        carbon_2 = carbon_2_candidate
+                assert carbon_2
+                carbon_3 = structure.get_atom(atoms[1])
+                carbon_4_candidates = carbon_3.get_neighbours("C")
+                for carbon_4_candidate in carbon_4_candidates:
+                    if carbon_4_candidate.has_neighbour("N"):
+                        carbon_4 = carbon_4_candidate
+                assert carbon_4
+                nitrogen = carbon_4.get_neighbour("N")
+                carbon_5 = [carbon for carbon in nitrogen.get_neighbours("C") if carbon !=carbon_4][0]
+                assert nitrogen, carbon_5
+                oxygen = carbon_5.get_neighbour("O")
+                structure = double_bond_reduction(carbon_1, carbon_2, structure)
+                structure = double_bond_reduction(carbon_5, oxygen, structure)
+                structure = double_bond_shift(structure, carbon_3,carbon_4,carbon_4,nitrogen)
+                structure = oxidative_bond_formation(carbon_1,carbon_3, structure)
+                structure = oxidative_bond_formation(carbon_2, carbon_5, structure)
         elif self.type.name == "THREONINE_SERINE_DEHYDRATASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:

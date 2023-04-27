@@ -121,5 +121,7 @@ GLUTAMIC_ACID = GroupDefiner('glutamic_acid', 'NC(CCC(O)=O)C=O', 5)
 CYSTEINE = GroupDefiner('cysteine', 'NC(CS)C=O', 3)
 SERINE = GroupDefiner('serine', 'NC(CO)C=O', 3)
 THREONINE = GroupDefiner('threonine', 'CC(O)C(N)C=O', 2)
+REDUCED_SERINE = GroupDefiner('reduced_serine', 'NC(=C)C=O', 2)
+REDUCED_THREONINE = GroupDefiner('reduced_threonine', 'C=CC(N)C=O', 0)
 PYROPHOSPHATE_BOND = BondDefiner(
     "pyrophosphate_bond", "COP", 0, 1)

@@ -246,6 +246,11 @@ def get_tailoring_sites_atom_names(structure):
 if __name__ == "__main__":
     ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", "mkaekslkayawyiwy", cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
                                 tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+    lanthipeptide_type_III_cluster_catenulipeptin = RiPP_Cluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
+                                                                 tailoring_enzymes_representation=[TailoringRepresentation(
+                                                                     "Caci_4239", "LANTHIONINE_SYNTHETASE", [["C_43", "C_63"], ["S_92", "C_63"], ["C_122", "C_143"], ["S_169", "C_143"]])]
+                                                                )
+
     cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASTSIAPFCSYDGVDASTSIAPFCSYDD", "TSIAPFC", 
                                                   macrocyclisations=[MacrocyclizationRepresentation("N_0","O_59")],
                                                   tailoring_enzymes_representation=[TailoringRepresentation("truD", "CYCLODEHYDRATION", [
@@ -309,17 +314,25 @@ if __name__ == "__main__":
     # draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
     
-    cyanobactin_cluster_trunkamide.make_peptide()
+    # cyanobactin_cluster_trunkamide.make_peptide()
+    # # print(get_tailoring_sites_atom_names(
+    # #     cyanobactin_cluster_trunkamide.chain_intermediate))
+    # cyanobactin_cluster_trunkamide.draw_product(
+    #     as_string=False, out_file="peptide_test_cyanobactin_peptide.svg")
+    # cyanobactin_cluster_trunkamide.do_tailoring()
+    # cyanobactin_cluster_trunkamide.draw_product(
+    #     as_string=False, out_file="tailored_test_cyanobactin_peptide.svg", draw_straightened=False)
+    # cyanobactin_cluster_trunkamide.do_macrocyclization()
+    # cyanobactin_cluster_trunkamide.draw_product(
+    #     as_string=False, out_file="final_peptide_test_cyanobactin_peptide.svg", draw_straightened=False)
+    lanthipeptide_type_III_cluster_catenulipeptin.make_peptide()
     # print(get_tailoring_sites_atom_names(
-    #     cyanobactin_cluster_trunkamide.chain_intermediate))
-    cyanobactin_cluster_trunkamide.draw_product(
-        as_string=False, out_file="peptide_test_cyanobactin_peptide.svg")
-    cyanobactin_cluster_trunkamide.do_tailoring()
-    cyanobactin_cluster_trunkamide.draw_product(
-        as_string=False, out_file="tailored_test_cyanobactin_peptide.svg", draw_straightened=False)
-    cyanobactin_cluster_trunkamide.do_macrocyclization()
-    cyanobactin_cluster_trunkamide.draw_product(
-        as_string=False, out_file="final_peptide_test_cyanobactin_peptide.svg", draw_straightened=False)
+    #     lanthipeptide_type_III_cluster_catenulipeptin.chain_intermediate))
+    lanthipeptide_type_III_cluster_catenulipeptin.draw_product(
+        as_string=False, out_file="peptide_test_lanthipeptide_peptide.svg")
+    lanthipeptide_type_III_cluster_catenulipeptin.do_tailoring()
+    lanthipeptide_type_III_cluster_catenulipeptin.draw_product(
+        as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
     #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)

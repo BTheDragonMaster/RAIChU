@@ -31,7 +31,7 @@ class TailoringEnzymeType(Enum):
     MACROLACTAM_SYNTHETASE = 23
     CYCLODEHYDRATION = 24
     THREONINE_SERINE_DEHYDRATASE = 25
-    LATHIPEPTIDE_CYCLASE = 26
+    LANTHIPEPTIDE_CYCLASE = 26
     LANTHIONINE_SYNTHETASE = 27
     
     
@@ -266,7 +266,7 @@ class TailoringEnzyme:
                 if structure.get_atom(atoms[0]).type == "S":
                     sulfur = structure.get_atom(atoms[0])
                     carbon_1 = structure.get_atom(atoms[1])
-                    carbon_2_candidates = carbon_1.get_neigbours("C")
+                    carbon_2_candidates = carbon_1.get_neighbours("C")
                     for carbon_2_candidate in carbon_2_candidates:
                         if carbon_2_candidate.has_neighbour("N"):
                             carbon_2 = carbon_2_candidate

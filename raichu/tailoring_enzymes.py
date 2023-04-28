@@ -1,8 +1,8 @@
 from enum import Enum, unique
 import itertools
-from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration
+from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration, change_chirality, excise_from_structure
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
-from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE
+from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE, C1_AMINO_ACID_ATTACHED, ARGININE_SECONDARY_N
 from pikachu.reactions.functional_groups import find_atoms, find_bonds, combine_structures, GroupDefiner
 @unique
 class TailoringEnzymeType(Enum):
@@ -34,6 +34,9 @@ class TailoringEnzymeType(Enum):
     LANTHIPEPTIDE_CYCLASE = 26
     LANTHIONINE_SYNTHETASE = 27
     THIOPEPTIDE_CYCLASE = 28
+    AMINO_ACID_EPIMERASE = 29
+    SPLICEASE = 30
+    ARGINASE = 31
 
     
     
@@ -245,7 +248,7 @@ class TailoringEnzyme:
                         if break_all:
                             break
                 else:
-                    print("ERROR")
+                    raise ValueError("No downstream amino acid for cyclodehydration availiable.")
         elif self.type.name == "THIOPEPTIDE_CYCLASE":
             for atoms in self.modification_sites:
                 if len(atoms) != 2:
@@ -347,6 +350,42 @@ class TailoringEnzyme:
                         structure = remove_atom(oxygen_2, structure)
                     structure = oxidative_bond_formation(
                         carbon, carbon_2, structure)
+        elif self.type.name == "AMINO_ACID_EPIMERASE":
+            # atom needs to be amino acid alpha atom
+            for atom in self.modification_sites:
+                if len(atom) == 0:
+                    continue
+                carbon = structure.get_atom(atom[0])
+                assert carbon.type == "C"
+                structure = change_chirality(carbon, structure)
+        
+        elif self.type.name == "SPLICEASE":
+            for atoms in self.modification_sites:
+                if len(atoms) != 2:
+                    continue
+                carbon_1 = structure.get_atom(atoms[0])
+                carbon_2 = structure.get_atom(atoms[1])
+                structure = excise_from_structure(
+                    carbon_1, carbon_2, structure)
+        elif self.type.name == "ARGINASE":
+            # atom needs to be arginine secondary nitrogen
+            for atom in self.modification_sites:
+                if len(atom) == 0:
+                    continue
+                nitrogen = structure.get_atom(atom[0])
+                assert nitrogen.type == "N"
+                carbon = [carbon for carbon in nitrogen.get_neighbours("C") if [atom.type for atom in carbon.neighbours].count("N") == 3][0]
+                bond = nitrogen.get_bond(carbon)
+                assert bond
+                structure.break_bond(bond)
+                structure_1, structure_2 = structure.split_disconnected_structures()
+                if nitrogen in structure_1.graph:
+                    structure = structure_1
+                else:
+                    structure = structure_2
+                structure.add_atom('H', [nitrogen])
+                structure.refresh_structure(find_cycles=True)
+
                 
         return structure
 
@@ -361,7 +400,7 @@ class TailoringEnzyme:
         elif self.type.name in ["C_METHYLTRANSFERASE", "N_METHYLTRANSFERASE", "O_METHYLTRANSFERASE"]:
                 atom = self.type.name.split("_")[0]
                 possible_sites.extend(find_atoms_for_tailoring(structure, atom))
-        elif self.type.name in ["METHYLTRANSFERASE", "PRENYLTRANSFERASE", "ACETYLTRANSFERASE", "ACYLTRANSFERASE", "OXIDATIVE_BOND_FORMATION", "HALOGENASE"]:
+        elif self.type.name in ["METHYLTRANSFERASE", "PRENYLTRANSFERASE", "ACETYLTRANSFERASE", "ACYLTRANSFERASE", "OXIDATIVE_BOND_FORMATION", "HALOGENASE", "SPLICEASE"]:
             possible_sites.extend(
                 find_atoms_for_tailoring(structure, "C"))
             possible_sites.extend(
@@ -456,4 +495,10 @@ class TailoringEnzyme:
             combinations.extend([list(t)
                                  for t in itertools.product(ser_thr_c, ser_thr_c)])
             possible_sites.extend(combinations)
+        elif self.type.name == "AMINO_ACID_EPIMERASE":
+            alpha_cs_amino_acid_backbone = find_atoms(C1_AMINO_ACID_ATTACHED, structure)
+            possible_sites.extend(alpha_cs_amino_acid_backbone)
+        elif self.type.name == "ARGINASE":
+            arginine_n = find_atoms(ARGININE_SECONDARY_N, structure)
+            possible_sites.extend(arginine_n)
         return possible_sites

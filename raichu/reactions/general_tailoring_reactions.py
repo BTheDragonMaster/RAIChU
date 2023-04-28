@@ -7,6 +7,84 @@ from raichu.reactions.general import initialise_atom_attributes
 from raichu.drawing.drawer import RaichuDrawer
 
 
+def excise_from_structure(atom1, atom2, structure):
+    """
+    Returns the product without the group between atoms as a PIKAChU Structure object
+
+    structure: PIKAChU Structure object of the intermediate
+    atom1: last atom in structure on one side
+    atom2. last atom in structure on other side
+    """
+    # find exact bonds  to the atoms between:
+    
+
+    traveling_atom = atom1
+    target = atom2
+    visited = []
+    dead_ends = []
+    atom_before = None
+    while traveling_atom != target:
+            if all(atom in visited for atom in traveling_atom.neighbours):
+                dead_ends.append(traveling_atom)
+                
+                traveling_options = [
+                    atom for atom in traveling_atom.neighbours if atom not in dead_ends]
+                if len(traveling_options) > 0:
+                    traveling_atom = traveling_options[0]
+                else:
+                    raise ValueError(f"Atoms are not connected")
+            else:
+                neighbour = [atom for atom in traveling_atom.neighbours if atom not in visited][0]
+                visited.append(neighbour)
+                atom_before = traveling_atom
+                traveling_atom = neighbour
+    atom_before_atom2 = atom_before
+    bond_to_break_2 = atom2.get_bond(atom_before_atom2)
+
+    visited = []
+    dead_ends = []
+    atom_before = None
+    traveling_atom = atom2
+    target = atom1
+    while traveling_atom != target:
+        if all(atom in visited for atom in traveling_atom.neighbours):
+            dead_ends.append(traveling_atom)
+
+            traveling_options = [
+                atom for atom in traveling_atom.neighbours if atom not in dead_ends]
+            if len(traveling_options) > 0:
+                traveling_atom = traveling_options[0]
+            else:
+                raise ValueError(f"Atoms are not connected")
+        else:
+            neighbour = [
+                atom for atom in traveling_atom.neighbours if atom not in visited][0]
+            visited.append(neighbour)
+            atom_before = traveling_atom
+            traveling_atom = neighbour
+    atom_before_atom1 = atom_before
+    bond_to_break_1 = atom1.get_bond(atom_before_atom1)
+    structure.break_bond(bond_to_break_1)
+    structure.break_bond(bond_to_break_2)
+    structure.make_bond(atom1, atom2, structure.find_next_bond_nr())
+    structures = structure.split_disconnected_structures()
+    for structure in structures:
+        if atom1 in structure.graph:
+            return structure
+
+
+
+    
+def change_chirality(carbon, structure):
+    carbon = structure.get_atom(carbon)
+    if carbon.chiral == 'clockwise':
+        carbon.chiral = "counterclockwise"
+    elif carbon.chiral == "counterclockwise":
+        carbon.chiral = "clockwise"
+    initialise_atom_attributes(structure)
+    structure.refresh_structure(find_cycles=True)
+    return structure
+
 def remove_atom(atom, structure):
     """
     Returns the product without the group attached to the atom as a PIKAChU Structure object

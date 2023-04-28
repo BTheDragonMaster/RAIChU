@@ -274,6 +274,10 @@ if __name__ == "__main__":
     lasso_peptide_cluster = RiPP_Cluster("A1S42_RS12075", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF",
                                          tailoring_enzymes_representation=[TailoringRepresentation("lasB", "PROTEASE", [["N_180", "C_178"]]), TailoringRepresentation("lasC", "MACROLACTAM_SYNTHETASE", [["O_261"]])]
                                 )
+    sancti_peptide_cluster_thurincin = RiPP_Cluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS", "DWTCWSCLVCAACSVELLNLVTAATGASTAS",
+                                                    tailoring_enzymes_representation=[TailoringRepresentation(
+                                                        "thnB", "OXIDATIVE_BOND_FORMATION", [['S_109', "C_222"], ['S_66', "C_203"], ['S_90', "C_182"], ['S_37', "C_156"]])]
+                                    )
 
     terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE", macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")], terpene_cyclase_type="Class_1",
                                       tailoring_enzymes_representation=[TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT", [["C_13", "C_14", "C_14", "C_15"]]), TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE", [["C_16"]], "DIMETHYLALLYL")])
@@ -348,16 +352,27 @@ if __name__ == "__main__":
     # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
     #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
     
-    thiopeptide_cluster_thiomuracin.make_peptide()
+    # thiopeptide_cluster_thiomuracin.make_peptide()
+    # print(get_tailoring_sites_atom_names(
+    #     thiopeptide_cluster_thiomuracin.chain_intermediate))
+    # thiopeptide_cluster_thiomuracin.draw_product(
+    #     as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
+    # thiopeptide_cluster_thiomuracin.do_tailoring()
+    # thiopeptide_cluster_thiomuracin.draw_product(
+    #     as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
+    # print(get_tailoring_sites_atom_names(
+    #     thiopeptide_cluster_thiomuracin.chain_intermediate))
+    
+    sancti_peptide_cluster_thurincin.make_peptide()
     print(get_tailoring_sites_atom_names(
-        thiopeptide_cluster_thiomuracin.chain_intermediate))
-    thiopeptide_cluster_thiomuracin.draw_product(
-        as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
-    thiopeptide_cluster_thiomuracin.do_tailoring()
-    thiopeptide_cluster_thiomuracin.draw_product(
-        as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
+    sancti_peptide_cluster_thurincin.chain_intermediate))
+    sancti_peptide_cluster_thurincin.draw_product(
+        as_string=False, out_file="peptide_test_sancti_peptide.svg")
+    sancti_peptide_cluster_thurincin.do_tailoring()
+    sancti_peptide_cluster_thurincin.draw_product(
+        as_string=False, out_file="tailored_test_sancti_peptide.svg", draw_straightened=False)
     print(get_tailoring_sites_atom_names(
-        thiopeptide_cluster_thiomuracin.chain_intermediate))
+        sancti_peptide_cluster_thurincin.chain_intermediate))
     #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)

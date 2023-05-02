@@ -3,10 +3,12 @@ import itertools
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration, change_chirality, excise_from_structure
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
 from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE, C1_AMINO_ACID_ATTACHED, ARGININE_SECONDARY_N
-from pikachu.reactions.functional_groups import find_atoms, find_bonds, combine_structures, GroupDefiner
+from pikachu.reactions.functional_groups import find_atoms, find_bonds
+
+
 @unique
 class TailoringEnzymeType(Enum):
-    
+
     #Transferation
     METHYLTRANSFERASE = 1
     C_METHYLTRANSFERASE = 2
@@ -44,12 +46,9 @@ class TailoringEnzymeType(Enum):
     LANTHIPEPTIDE_CYCLASE = 28
     LANTHIONINE_SYNTHETASE = 29
     THIOPEPTIDE_CYCLASE = 30
-    
+
     #Epimerization
     AMINO_ACID_EPIMERASE = 31
-
-
-
 
     @staticmethod
     def from_string(label: str) -> "TailoringEnzymeType":
@@ -176,14 +175,14 @@ class TailoringEnzyme:
                     raise ValueError(f"Can not perform KETO_REDUCTION on atom {atom1}, since there is no oxygen to be reduced.")
                 carbon_1 = atom1.get_neighbour('C')
                 structure = double_bond_reduction(atom1, carbon_1, structure)
-        elif self.type.name == "ALCOHOLE_DEHYDROGENASE":
+        elif self.type.name == "ALCOHOL_DEHYDROGENASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
                 atom1 = atom[0] #only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
                 if atom1.type != "O":
-                    raise ValueError(f"Can not perform ALCOHOLE_DEHYDROGENASE on atom {atom1}, since there is no oxygen to be reduced.")
+                    raise ValueError(f"Can not perform ALCOHOL_DEHYDROGENASE on atom {atom1}, since there is no oxygen to be reduced.")
                 carbon_1 = atom1.get_neighbour('C')
                 structure = single_bond_oxidation(atom1, carbon_1, structure)
         elif self.type.name == "DECARBOXYLASE":
@@ -268,12 +267,14 @@ class TailoringEnzyme:
                     continue
                 carbon_1 = structure.get_atom(atoms[0])
                 carbon_2_candidates = carbon_1.get_neighbours("C")
+                carbon_2 = None
                 for carbon_2_candidate in carbon_2_candidates:
                     if carbon_2_candidate.has_neighbour("N"):
                         carbon_2 = carbon_2_candidate
                 assert carbon_2
                 carbon_3 = structure.get_atom(atoms[1])
                 carbon_4_candidates = carbon_3.get_neighbours("C")
+                carbon_4 = None
                 for carbon_4_candidate in carbon_4_candidates:
                     if carbon_4_candidate.has_neighbour("N"):
                         carbon_4 = carbon_4_candidate
@@ -295,6 +296,7 @@ class TailoringEnzyme:
                 atom1 = structure.get_atom(atom1)
                 carbon_1 = atom1.get_neighbour("C")
                 carbon_2_candidates = carbon_1.get_neighbours("C")
+                carbon_2 = None
                 for carbon_2_candidate in carbon_2_candidates:
                     if carbon_2_candidate.has_neighbour("N"):
                         carbon_2 = carbon_2_candidate
@@ -309,6 +311,7 @@ class TailoringEnzyme:
                     sulfur = structure.get_atom(atoms[0])
                     carbon_1 = structure.get_atom(atoms[1])
                     carbon_2_candidates = carbon_1.get_neighbours("C")
+                    carbon_2 = None
                     for carbon_2_candidate in carbon_2_candidates:
                         if carbon_2_candidate.has_neighbour("N"):
                             carbon_2 = carbon_2_candidate
@@ -318,12 +321,14 @@ class TailoringEnzyme:
                 if structure.get_atom(atoms[0]).type == "C":
                     carbon_1_1 = structure.get_atom(atoms[0])
                     carbon_1_2_candidates = carbon_1_1.get_neighbours("C")
+                    carbon_1_2 = None
                     for carbon_1_2_candidate in carbon_1_2_candidates:
                         if carbon_1_2_candidate.has_neighbour("N"):
                             carbon_1_2 = carbon_1_2_candidate
                     assert carbon_1_2
                     carbon_2_1 = structure.get_atom(atoms[1])#already cyclized carbon
                     carbon_2_2_candidates = carbon_2_1.get_neighbours("C")
+                    carbon_2_2 = None
                     for carbon_2_2_candidate in carbon_2_2_candidates:
                         if carbon_2_2_candidate.has_neighbour("N"):
                             carbon_2_2 = carbon_2_2_candidate
@@ -353,6 +358,7 @@ class TailoringEnzyme:
                     carbon_1 = structure.get_atom(atoms[1])
                     oxygen = carbon_1.get_neighbour("O")
                     carbon_2_candidates = carbon_1.get_neighbours("C")
+                    carbon_2 = None
                     for carbon_2_candidate in carbon_2_candidates:
                         if carbon_2_candidate.has_neighbour("N"):
                             carbon_2 = carbon_2_candidate
@@ -402,10 +408,6 @@ class TailoringEnzyme:
 
         return structure
 
-
-
-
-
     def get_possible_sites(self, structure):
         possible_sites = []
         if self.type.name in ["HYDROXYLATION",]:
@@ -452,7 +454,7 @@ class TailoringEnzyme:
             oxygens = find_atoms(KETO_GROUP, structure)
             possible_sites.extend([oxygen.get_neighbour("O") for oxygen in oxygens])
 
-        elif self.type.name == "ALCOHOLE_DEHYDROGENASE":
+        elif self.type.name == "ALCOHOL_DEHYDROGENASE":
             possible_sites.extend(
                 find_atoms_for_tailoring(structure, "O"))
 

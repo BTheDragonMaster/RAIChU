@@ -94,13 +94,13 @@ class Cluster:
 
     def initialize_modification_sites_on_structure(self, modification_sites):
             modification_sites_initialized = []
-            for atoms_for_reaction in modification_sites:
-                atoms_for_reaction_with_numbers = map(
-                    lambda atom: [int(''.join(filter(str.isdigit, atom))), atom], atoms_for_reaction)
+            for atom_representations_for_reaction in modification_sites:
+                atom_indices_and_types = map(
+                    lambda atom: [int(''.join(filter(str.isdigit, atom))), atom], atom_representations_for_reaction)
                 atoms_in_structure = list(map(
                     str, self.chain_intermediate.atoms.values()))
                 atoms_for_reaction_initialized = [self.chain_intermediate.atoms[atom[0]]
-                                                    for atom in atoms_for_reaction_with_numbers if atom[1] in atoms_in_structure]
+                                                  for atom in atom_indices_and_types if atom[1] in atoms_in_structure]
                 atoms_for_reaction_initialized = list(
                     filter(lambda atom: atom is not None, atoms_for_reaction_initialized))
                 modification_sites_initialized += [
@@ -112,7 +112,7 @@ class Cluster:
             for tailoring_enzyme_representation in self.tailoring_enzymes_representation:
                 modification_sites = self.initialize_modification_sites_on_structure(
                     tailoring_enzyme_representation.modification_sites)
-                if [[str(atom) for atom in atoms_for_reaction]for atoms_for_reaction in modification_sites] != tailoring_enzyme_representation.modification_sites:
+                if [[str(atom) for atom in atoms_for_reaction] for atoms_for_reaction in modification_sites] != tailoring_enzyme_representation.modification_sites:
                     raise ValueError(
                         f'Not all atoms {tailoring_enzyme_representation.modification_sites} for {tailoring_enzyme_representation.type} exist in the structure.')
                 tailoring_enzyme = TailoringEnzyme(

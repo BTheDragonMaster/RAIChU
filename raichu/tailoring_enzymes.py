@@ -20,19 +20,17 @@ class TailoringEnzymeType(Enum):
     AMINOTRANSFERASE = 10
     HALOGENASE = 11
 
-    #Bond modification
+    #Oxidoreduction
     DOUBLE_BOND_REDUCTION = 12
     DOUBLE_BOND_SHIFT = 13
     DOUBLE_BOND_FORMATION = 14
-    PEPTIDASE = 15
-    PROTEASE = 16
-
-    #Oxidoreduction
-    KETO_REDUCTION = 17
-    ALCOHOLE_DEHYDROGENASE = 18
-    MONOAMINE_OXIDASE = 19
+    KETO_REDUCTION = 15
+    ALCOHOLE_DEHYDROGENASE = 16
 
     #Elimination
+    PEPTIDASE = 17
+    PROTEASE = 18
+    MONOAMINE_OXIDASE = 19
     DEHYDRATASE = 20
     THREONINE_SERINE_DEHYDRATASE = 21
     DECARBOXYLASE = 22
@@ -152,6 +150,8 @@ class TailoringEnzyme:
                 old_double_bond_atom2 = structure.get_atom(atoms[1])
                 new_double_bond_atom1 = structure.get_atom(atoms[2])
                 new_double_bond_atom2 = structure.get_atom(atoms[3])
+                if len(set(atoms)) == len(atoms):
+                    raise ValueError("The bonds need to be adjacent to perform a dauble bond shift.")
                 structure = double_bond_shift(
                     structure, old_double_bond_atom1, old_double_bond_atom2, new_double_bond_atom1, new_double_bond_atom2)
         elif self.type.name == "AMINOTRANSFERASE":
@@ -206,7 +206,7 @@ class TailoringEnzyme:
                     raise ValueError(f"Can not perform DEHYDRATASE on atoms {atom1} and {carbon_1}, since there is no hydroxygroup to be removed.")
                 structure = remove_atom(oxygen, structure)
                 structure = single_bond_oxidation(atom1, carbon_1, structure)
-        elif self.type.name == "MONOAMINE_OXYDASE":
+        elif self.type.name == "MONOAMINE_OXIDASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue

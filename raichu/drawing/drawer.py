@@ -118,7 +118,7 @@ class RaichuDrawer(Drawer):
                         atom_draw_position.x += delta_x_r
                         text = fr'$R_{atom.annotations.unknown_index}$'
 
-                    if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit or self.draw_Cs_in_pink):
+                    if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit or self.draw_Cs_in_pink ):
 
                         if atom.draw.has_hydrogen:
                             hydrogen_count = 0
@@ -598,18 +598,21 @@ class RaichuDrawer(Drawer):
             if atom.type == '*' and not atom.annotations.unknown_index:
                 atom.annotations.unknown_index = 1
         for atom in self.structure.graph:
-            if (atom.type != 'C' or self.draw_Cs_in_pink) and atom.draw.positioned:
+            if ((atom.type != 'C' or self.draw_Cs_in_pink) and getattr(atom.annotations,"domain_type", None) not in ["Follower", "Leader"]) and atom.draw.positioned:
                 text_h = ''
                 text_h_pos = None
 
-                if atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit:
+                if (atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit) :
                     text = atom.type
                 else:
                     text = ''
 
-                if hasattr(atom.annotations, "domain_type"):
-                    if atom.annotations.domain_type:
+                if hasattr(atom.annotations, "domain_type") and atom.annotations.domain_type:
+                    if atom.annotations.domain_type in ["Follower", "Leader"]:
+                        text = ""
+                    else:
                         text = atom.annotations.domain_type
+                        
 
                 horizontal_alignment = 'center'
 
@@ -635,7 +638,7 @@ class RaichuDrawer(Drawer):
                     atom_draw_position.x += delta_x_r
                     text = fr'$R_{atom.annotations.unknown_index}$'
 
-                if not atom.charge and (atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit):
+                if not atom.charge and (atom.type != 'C' or self.draw_Cs_in_pink or atom.draw.draw_explicit) and getattr(atom.annotations, "domain_type", None) not in ["Follower", "Leader"]:
 
                     if atom.draw.has_hydrogen:
                         hydrogen_count = 0
@@ -643,7 +646,7 @@ class RaichuDrawer(Drawer):
                             if neighbour.type == 'H' and not neighbour.draw.is_drawn:
                                 hydrogen_count += 1
 
-                        if hydrogen_count and not (atom.type == 'C' and self.draw_Cs_in_pink):
+                        if hydrogen_count and not (atom.type == 'C' and self.draw_Cs_in_pink or getattr(atom.annotations, "domain_type", None) in ["Follower", "Leader"]):
 
                             if hydrogen_count > 1:
                                 if orientation == 'H_before_atom':
@@ -1407,10 +1410,9 @@ class RaichuDrawer(Drawer):
                                     follower = atom
                                     nitrogen_follower = atom.get_neighbours("N")[0]
                                     carbon = nitrogen_follower.get_neighbours("C")[0]
-                                    print(first_carbon, pcp, follower,sulphur,nitrogen_follower,carbon)
-                                    self.rotate_subtree(nitrogen_follower, carbon, 2.094,
+                                    self.rotate_subtree(nitrogen_follower, carbon, -2.094,
                                                         carbon.draw.position)
-                                    self.rotate_subtree(follower, nitrogen_follower, -1.5707,
+                                    self.rotate_subtree(follower, nitrogen_follower, - 0.5,
                                                         nitrogen_follower.draw.position)
                                     break
                     else:
@@ -1428,7 +1430,7 @@ class RaichuDrawer(Drawer):
                                                         nitrogen_follower.draw.position)
                                     break
                         
-            # self.resolve_primary_overlaps()
+            self.resolve_primary_overlaps()
             self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
             central_chain_bonds = set()
             for bond in self.structure.bonds.values():

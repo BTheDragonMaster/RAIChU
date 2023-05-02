@@ -256,7 +256,7 @@ if __name__ == "__main__":
     proteusins_cluster_polytheonamide_a = RiPP_Cluster(
         "poyA", "MADSDNTPTSRKDFETAIIAKAWKDPEYLRRLRSNPREVLQEELEALHPGAQLPDDLGISIHEEDENHVHLVMPRHPQNVSDQTLTDDDLDQAAGGTGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT", 
         "TGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT", tailoring_enzymes_representation=[TailoringRepresentation("rSAM epimerase", "AMINO_ACID_EPIMERASE", [['C_269'], ['C_144'], ['C_284'], ['C_163'], ['C_36'], ['C_301'], ['C_52'], ['C_90'],  ['C_185'],  ['C_316'], ['C_66'], ['C_204'], ['C_334'], ['C_84'],  ['C_221'], ['C_353'], ['C_104'], ['C_233'], ['C_252']])])
-    sliceotide_cluster = RiPP_Cluster("plpA", "NVSVNMNQTT", "NVSVNMNQTTR", tailoring_enzymes_representation=[TailoringRepresentation(
+    sliceotide_cluster = RiPP_Cluster("plpA", "NNVNVNVNVSVNMNQTTRTSTTS", "NVSVNMNQTTR", tailoring_enzymes_representation=[TailoringRepresentation(
         "rSAM epimerase", "SPLICEASE", [["C_30", "C_22"]]), TailoringRepresentation("arginase", "ARGINASE", [['N_93']])])
     thiopeptide_cluster_thiomuracin = RiPP_Cluster(
         "tpdA", "MDLSDLPMDVFELADDGVAVESLTAGHGMTEVGASCNCFCYICCSCSSA", "SCNCFCYICCSCSS", 
@@ -381,14 +381,15 @@ if __name__ == "__main__":
     # proteusins_cluster_polytheonamide_a.draw_product(
     #     as_string=False, out_file="tailored_test_proteusin_peptide.svg", draw_straightened=False)
     sliceotide_cluster.make_peptide()
-    print(get_tailoring_sites_atom_names(
-        sliceotide_cluster.chain_intermediate))
-    sliceotide_cluster.draw_product(
-        as_string=False, out_file="peptide_test_sliceotide_cluster.svg")
-    sliceotide_cluster.do_tailoring()
-    sliceotide_cluster.draw_product(
-        as_string=False, out_file="tailored_test_sliceotide_cluster.svg", draw_straightened=False)
-    #lasso_peptide_cluster.do_tailoring()
+    sliceotide_cluster.draw_precursor_with_modified_product(as_string=False, out_file="bubble_test.svg")
+    # print(get_tailoring_sites_atom_names(
+    #     sliceotide_cluster.chain_intermediate))
+    # sliceotide_cluster.draw_product(
+    #     as_string=False, out_file="peptide_test_sliceotide_cluster.svg")
+    # sliceotide_cluster.do_tailoring()
+    # sliceotide_cluster.draw_product(
+    #     as_string=False, out_file="tailored_test_sliceotide_cluster.svg", draw_straightened=False)
+    # #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
     # draw_alkaloid_structure(alkaloid_cluster)
 

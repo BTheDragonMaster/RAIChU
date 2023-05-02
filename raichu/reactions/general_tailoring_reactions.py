@@ -72,8 +72,6 @@ def excise_from_structure(atom1, atom2, structure):
         if atom1 in structure.graph:
             return structure
 
-
-
     
 def change_chirality(carbon, structure):
     carbon = structure.get_atom(carbon)
@@ -84,6 +82,7 @@ def change_chirality(carbon, structure):
     initialise_atom_attributes(structure)
     structure.refresh_structure(find_cycles=True)
     return structure
+
 
 def remove_atom(atom, structure):
     """
@@ -454,6 +453,7 @@ def cyclodehydration(structure, atom1, oxygen):
     structure.refresh_structure()
     initialise_atom_attributes(structure)
     return structure
+
 
 def macrolactam_formation(structure, o_oh_carboxyl):
     """Performs the macrolactam formation on the input chain_intermediate

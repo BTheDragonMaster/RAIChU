@@ -17,7 +17,7 @@ class Terpene_Cluster:
         self.cyclised_product = None
         self.final_product = None
         self.initialized_macrocyclization_atoms = []
-        
+
     def create_precursor(self) -> Structure:
         substrate = TerpeneCyclaseSubstrate(self.precursor)
         self.chain_intermediate = read_smiles(substrate.smiles)
@@ -42,7 +42,7 @@ class Terpene_Cluster:
             self.chain_intermediate = oxidative_bond_formation(
                 atom1, atom2, self.chain_intermediate)
         self.cyclised_product = self.chain_intermediate
-     
+
     def initialize_modification_sites_on_structure(self, modification_sites):
             modification_sites_initialized = []
             for atoms_for_reaction in modification_sites:
@@ -71,11 +71,11 @@ class Terpene_Cluster:
                 self.tailored_product = tailoring_enzyme.do_tailoring(
                     self.chain_intermediate)
                 self.chain_intermediate = self.tailored_product
-            
-            
+
+
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True, draw_straightened=False)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:
@@ -86,4 +86,3 @@ class Terpene_Cluster:
                 else:
                     with open(out_file, 'w') as svg_out:
                         svg_out.write(svg_string)
-

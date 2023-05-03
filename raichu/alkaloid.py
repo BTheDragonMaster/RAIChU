@@ -52,7 +52,7 @@ class Alkaloid_Cluster:
             for atom in self.chain_intermediate.graph:
                 if atom.chiral:
                     atom.chiral = False
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=True, draw_straightened=False)
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=False)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

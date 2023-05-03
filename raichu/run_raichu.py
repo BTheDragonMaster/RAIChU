@@ -170,7 +170,7 @@ def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
-    cluster.draw_product(as_string=False, out_file="tailoring_test.svg")
+    cluster.draw_product(as_string=False, out_file = "s")
     if outfile:
         return cluster.draw_cluster(as_string=False, out_file=outfile)
     else:
@@ -246,9 +246,11 @@ def get_tailoring_sites_atom_names(structure):
 
 if __name__ == "__main__":
     # atropopeptide
-    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", "mkaekslkayawyiwy",
+    ripp_cluster = RiPP_Cluster("trpA", "mkaekslkayawyiwy", "mkaekslkayawyiwy",
                                 cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
-                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+                                tailoring_enzymes_representation=[
+                                    TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), 
+                                    TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
     lanthipeptide_type_I_cluster_catenulipeptin = RiPP_Cluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
                                                                tailoring_enzymes_representation=[TailoringRepresentation(
                                                                    "Caci_4239", "THREONINE_SERINE_DEHYDRATASE", [['O_64'], ['O_144']]), TailoringRepresentation(
@@ -259,14 +261,13 @@ if __name__ == "__main__":
     proteusins_cluster_polytheonamide_a = RiPP_Cluster(
         "poyA", "MADSDNTPTSRKDFETAIIAKAWKDPEYLRRLRSNPREVLQEELEALHPGAQLPDDLGISIHEEDENHVHLVMPRHPQNVSDQTLTDDDLDQAAGGTGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT",
         "TGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT", tailoring_enzymes_representation=[TailoringRepresentation("rSAM epimerase", "AMINO_ACID_EPIMERASE", [['C_269'], ['C_144'], ['C_284'], ['C_163'], ['C_36'], ['C_301'], ['C_52'], ['C_90'],  ['C_185'],  ['C_316'], ['C_66'], ['C_204'], ['C_334'], ['C_84'],  ['C_221'], ['C_353'], ['C_104'], ['C_233'], ['C_252']])])
-    sliceotide_cluster = RiPP_Cluster("plpA", "HGGVGFNVSVNMNQTTRFGVGHHS", "NVSVNMNQTTR", tailoring_enzymes_representation=[TailoringRepresentation(
+    sliceotide_cluster = RiPP_Cluster("plpA", "NVSVNMNQTTRVSVNMNQTNVSVNVSVNMNQTNVSVNVSVNMNQTNVSVNVSVN", "NVSVNMNQTTR", tailoring_enzymes_representation=[TailoringRepresentation(
         "rSAM epimerase", "SPLICEASE", [["C_30", "C_22"]]), TailoringRepresentation("arginase", "ARGINASE", [['N_93']])])
-    thiopeptide_cluster_thiomuracin = RiPP_Cluster(
-        "tpdA", "MDLSDLPMDVFELADDGVAVESLTAGHGMTEVGASCNCFCYICCSCSSA", "SCNCFCYICCSCSS",
-        tailoring_enzymes_representation=[TailoringRepresentation(
-            "tpdD", "THREONINE_SERINE_DEHYDRATASE", [['O_104'], ['O_90'], ['O_4'], ['O_111']]), TailoringRepresentation(
-            "tpdE", "CYCLODEHYDRATION", [['S_97'], ['S_11'], ['S_76'], ['S_46'], ['S_83'], ['S_27']]),
-            TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]],)
+    thiopeptide_cluster_thiomuracin = RiPP_Cluster("tpdA", "MDLSDLPMDVFELADDGVAVESLTAGHGMTEVGASCNCFCYICCSCSSA", "SCNCFCYICCSCSS",
+        tailoring_enzymes_representation=[
+            TailoringRepresentation("tpdD", "THREONINE_SERINE_DEHYDRATASE", [['O_104'], ['O_90'], ['O_4'], ['O_111']]), 
+            TailoringRepresentation("tpdE", "CYCLODEHYDRATION", [['S_97'], ['S_11'], ['S_76'], ['S_46'], ['S_83'], ['S_27']]),
+            TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]])
             ]
         )
     cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASTSIAPFCSYDGVDASTSIAPFCSYDD", "TSIAPFC",
@@ -287,22 +288,16 @@ if __name__ == "__main__":
                                       macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")],
                                       terpene_cyclase_type="Class_1",
                                       tailoring_enzymes_representation=[
-                                          TailoringRepresentation("pseudo_isomerase", "ISOMERASE_DOUBLE_BOND_SHIFT",
-                                                                  [["C_13", "C_14", "C_14", "C_15"]]),
-                                          TailoringRepresentation("prenyltransferase", "PRENYLTRANSFERASE",
-                                                                  [["C_16"]], "DIMETHYLALLYL")])
+                                          TailoringRepresentation("pseudo_isomerase", "DOUBLE_BOND_SHIFT",
+                                                                  [["C_13", "C_14", "C_14", "C_15"]])])
 
-    alkaloid_cluster = Alkaloid_Cluster("phenylalanine",
-                                        tailoring_enzymes_representation=[TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
-                                                                          TailoringRepresentation(
-                                                                              "pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
-                                                                          TailoringRepresentation(
-                                                                              "pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),
-                                                                          TailoringRepresentation(
-                                                                              "pseudo_hydroxylase", "HYDROXYLATION", [["C_6"]]),
-                                                                          TailoringRepresentation("methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"], ["O_25"]]),
-
-                                                                          ])
+    alkaloid_cluster = Alkaloid_Cluster("phenylalanine",tailoring_enzymes_representation=[
+                            TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
+                            TailoringRepresentation("pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
+                            TailoringRepresentation("pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),
+                            TailoringRepresentation("pseudo_hydroxylase", "HYDROXYLATION", [["C_6"]]),
+                            TailoringRepresentation("methyltransferase", "METHYLTRANSFERASE", [["N_12"], ["C_7"], ["O_25"]]),
+                                                                                            ])
 
     cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_CIS", "ACETYL_COA",
                                                                [DomainRepresentation("Gene 1", 'AT', None, None, True,
@@ -337,7 +332,73 @@ if __name__ == "__main__":
 
                                                                ])]
                                          )
-    # draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+    trans_at_ks_cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_TRANS", "ACETYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'AT', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ACP', None, None, True,
+                                                                                    True)
+                                                            ]),
+                                        ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'KS',
+                                                                                    "BETA_D_OH", None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'DH', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ER', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ACP', None, None, True,
+                                                                                    True)
+                                                            ]),
+                                        ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'KS',
+                                                                                    "BETA_D_OH", None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'DH', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ER', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ACP', None, None, True,
+                                                                                    True)
+                                                            ]),
+                                        ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'KS',
+                                                                                    "BETA_D_OH", None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'DH', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ER', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ACP', None, None, True,
+                                                                                    True)
+                                                            ]),
+                                        ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'KS',
+                                                                                    "PYR", None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'AT', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'AT', None, None, True,
+                                                                                    False),
+                                                            DomainRepresentation("Gene 1", 'DH', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ER', None, None, True,
+                                                                                    True),
+                                                            DomainRepresentation("Gene 1", 'ACP', None, None, True,
+                                                                                    True)
+                                                            ]),
+                                        ModuleRepresentation("PKS", "PKS_CIS", "METHYLMALONYL_COA",
+                                                            [DomainRepresentation("Gene 1", 'KS',
+                                                                                None, None, True,
+                                                                                True),
+                                                            DomainRepresentation("Gene 1", 'AT', None, None, True,
+                                                                                True),
+                                                            DomainRepresentation("Gene 1", 'TE',
+                                                                                None, None, True,
+                                                                                True)
+
+                                                            ])]
+                                        )
+    #draw_cluster(trans_at_ks_cluster_repr, outfile = "iterative_pks.svg")
     # draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
@@ -362,41 +423,42 @@ if __name__ == "__main__":
     #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
 
     # thiopeptide_cluster_thiomuracin.make_peptide()
-    # print(get_tailoring_sites_atom_names(
-    #     thiopeptide_cluster_thiomuracin.chain_intermediate))
+    # # print(get_tailoring_sites_atom_names(
+    # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
     # thiopeptide_cluster_thiomuracin.draw_product(
     #     as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
     # thiopeptide_cluster_thiomuracin.do_tailoring()
     # thiopeptide_cluster_thiomuracin.draw_product(
     #     as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
-    # print(get_tailoring_sites_atom_names(
-    #     thiopeptide_cluster_thiomuracin.chain_intermediate))
+    # # print(get_tailoring_sites_atom_names(
+    # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
 
-    # sancti_peptide_cluster_thurincin.make_peptide()
-    # print(get_tailoring_sites_atom_names(
-    # sancti_peptide_cluster_thurincin.chain_intermediate))
-    # sancti_peptide_cluster_thurincin.draw_product(
-    #     as_string=False, out_file="peptide_test_sancti_peptide.svg")
-    # sancti_peptide_cluster_thurincin.do_tailoring()
-    # sancti_peptide_cluster_thurincin.draw_product(
-    #     as_string=False, out_file="tailored_test_sancti_peptide.svg", draw_straightened=False)
-    # print(get_tailoring_sites_atom_names(
-    #     sancti_peptide_cluster_thurincin.chain_intermediate))
-    # proteusins_cluster_polytheonamide_a.make_peptide()
-    # proteusins_cluster_polytheonamide_a.draw_product(
-    #     as_string=False, out_file="peptide_test_proteusin_peptide.svg")
-    # proteusins_cluster_polytheonamide_a.do_tailoring()
-    # proteusins_cluster_polytheonamide_a.draw_product(
-    #     as_string=False, out_file="tailored_test_proteusin_peptide.svg", draw_straightened=False)
+    # # sancti_peptide_cluster_thurincin.make_peptide()
+    # # print(get_tailoring_sites_atom_names(
+    # # sancti_peptide_cluster_thurincin.chain_intermediate))
+    # # sancti_peptide_cluster_thurincin.draw_product(
+    # #     as_string=False, out_file="peptide_test_sancti_peptide.svg")
+    # # sancti_peptide_cluster_thurincin.do_tailoring()
+    # # sancti_peptide_cluster_thurincin.draw_product(
+    # #     as_string=False, out_file="tailored_test_sancti_peptide.svg", draw_straightened=False)
+    # # print(get_tailoring_sites_atom_names(
+    # #     sancti_peptide_cluster_thurincin.chain_intermediate))
+    # # proteusins_cluster_polytheonamide_a.make_peptide()
+    # # proteusins_cluster_polytheonamide_a.draw_product(
+    # #     as_string=False, out_file="peptide_test_proteusin_peptide.svg")
+    # # proteusins_cluster_polytheonamide_a.do_tailoring()
+    # # proteusins_cluster_polytheonamide_a.draw_product(
+    # #     as_string=False, out_file="tailored_test_proteusin_peptide.svg", draw_straightened=False)
     # sliceotide_cluster.make_peptide()
-    # print(get_tailoring_sites_atom_names(
-    #     sliceotide_cluster.chain_intermediate))
-    # sliceotide_cluster.draw_product(
-    #     as_string=False, out_file="peptide_test_sliceotide_cluster.svg")
+    # sliceotide_cluster.draw_product(as_string=False, out_file = "ripp-test.svg")
+    # # print(get_tailoring_sites_atom_names(
+    # #     sliceotide_cluster.chain_intermediate))
+    # # sliceotide_cluster.draw_product(
+    # #     as_string=False, out_file="peptide_test_sliceotide_cluster.svg")
     # sliceotide_cluster.draw_precursor_with_modified_product(as_string=False, out_file="bubbles.svg")
     # sliceotide_cluster.do_tailoring()
     # sliceotide_cluster.draw_product(
     #     as_string=False, out_file="tailored_test_sliceotide_cluster.svg", draw_straightened=False)
     #lasso_peptide_cluster.do_tailoring()
-    # draw_terpene_structure(terpene_cluster)
-    draw_alkaloid_structure(alkaloid_cluster)
+    draw_terpene_structure(terpene_cluster)
+    #draw_alkaloid_structure(alkaloid_cluster)

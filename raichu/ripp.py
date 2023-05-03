@@ -128,10 +128,14 @@ class RiPP_Cluster:
                     self.chain_intermediate)
                 self.chain_intermediate = self.tailored_product
 
-    def draw_product(self, as_string=True, out_file=None, draw_straightened = True):
+    def draw_product(self, as_string=True, out_file=None, draw_straightened = True, draw_Cs_in_pink = True):
         assert self.chain_intermediate
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
-                               draw_Cs_in_pink=False, draw_straightened=draw_straightened, horizontal=False)
+        if not self.cyclised_product:
+            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
+                                   draw_straightened=draw_straightened, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
+        else:
+           drawing = RaichuDrawer(structure, dont_show=True, add_url=True,
+                                  draw_straightened=False, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
         drawing.draw_structure()
         svg_string = drawing.save_svg_string()
         if as_string:
@@ -226,14 +230,19 @@ class RiPP_Cluster:
         [amino_acid_sequence_leader,
         amino_acid_sequence_follower] = amino_acid_sequence_without_core
         structure = self.chain_intermediate.deepcopy()
+        
         if len(amino_acid_sequence_follower) > 0:
             structure = attach_to_follower_ripp(
                 structure)
         if len(amino_acid_sequence_leader) > 0:
             structure = attach_to_leader_ripp(
                 structure)
-        drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url,
-                                draw_straightened=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
+        if not self.cyclised_product:
+            drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url,
+                                    draw_straightened=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
+        else:
+           drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url,
+                                  draw_straightened=False, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
         drawing.flip_y_axis()
         drawing.move_to_positive_coords()
         drawing.convert_to_int()

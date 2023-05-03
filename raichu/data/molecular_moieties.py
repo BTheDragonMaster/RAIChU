@@ -1,6 +1,6 @@
 import os
 
-from pikachu.general import read_smiles, draw_structure
+from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner
 from raichu.reactions.general import initialise_atom_attributes
 
@@ -127,3 +127,8 @@ REDUCED_SERINE = GroupDefiner('reduced_serine', 'NC(=C)C=O', 2)
 REDUCED_THREONINE = GroupDefiner('reduced_threonine', 'C=CC(N)C=O', 0)
 PYROPHOSPHATE_BOND = BondDefiner(
     "pyrophosphate_bond", "COP", 0, 1)
+ATTACHED_SERINE_OX = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 0)
+ATTACHED_CYSTEINE_OX = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 0)
+ATTACHED_SERINE_O = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 5)
+ATTACHED_CYSTEINE_S = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 5)
+

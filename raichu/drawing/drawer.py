@@ -1,15 +1,18 @@
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 from pikachu.smiles.smiles import Smiles
+from pikachu.general import read_smiles
 from pikachu.general import structure_to_smiles
 
-from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, find_central_chain_ripp
+from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, \
+    find_central_chain_ripp, reorder_central_chain
 from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 
 
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
-                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False, draw_straightened=False, horizontal = False):
+                 coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False,
+                 draw_straightened=False, horizontal=False):
         self.dont_show = dont_show
         self.dpi = dpi
         self.draw_Cs_in_pink = draw_Cs_in_pink
@@ -394,6 +397,23 @@ class RaichuDrawer(Drawer):
 
                     self.rotate_subtree(rotating_atom, parent_atom, math.radians(
                         30 * best_i + 1), parent_atom.draw.position)
+
+    def draw(self, coords_only: bool = False) -> None:
+
+        if not self.options.draw_hydrogens:
+            self.hide_hydrogens()
+
+        self.get_atom_nr_to_atom()
+        self.define_rings()
+
+        if not self.multiple:
+            self.process_structure()
+            self.linearise()
+            self.set_chiral_bonds()
+            if not coords_only:
+                self.draw_structure()
+        else:
+            self.restore_ring_information()
 
     def draw_structure(self):
         min_x = 100000000
@@ -827,105 +847,71 @@ class RaichuDrawer(Drawer):
             plt.clf()
             plt.close()
 
-    def process_structure(self):
-        self.position()
-        self.structure.refresh_structure()
-        self.restore_ring_information()
-        self.resolve_primary_overlaps()
-        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+    def place_ring_atoms(self, backbone_atoms, atom_1, atom_2):
+        pass
 
-        for i in range(self.options.overlap_resolution_iterations):
-            for bond in self.drawn_bonds:
-                if self.bond_is_rotatable(bond):
+    def place_top_atom(self, backbone_atoms, attached_to_domain):
+        attachment_point = None
+        if attached_to_domain:
+            for atom in self.structure.graph:
+                if atom.annotations.domain_type:
+                    attachment_point = atom
 
-                    tree_depth_1 = self.get_subgraph_size(bond.atom_1,
-                                                          {bond.atom_2})
-                    tree_depth_2 = self.get_subgraph_size(bond.atom_2,
-                                                          {bond.atom_1})
+            assert attachment_point
 
-                    atom_1 = bond.atom_2
-                    atom_2 = bond.atom_1
+            # Fix position of the S and C atom and the S-C angle
+            top_atom = backbone_atoms[0]
+            first_carbon = backbone_atoms[1]
+            top_atom.draw.position.x = first_carbon.draw.position.x
+            top_atom.draw.position.y = first_carbon.draw.position.y + 15
 
-                    if tree_depth_1 > tree_depth_2:
-                        atom_1 = bond.atom_1
-                        atom_2 = bond.atom_2
+            angle = get_angle(first_carbon.draw.position,
+                              top_atom.draw.position)
 
-                    subtree_overlap_score, _ = self.get_subtree_overlap_score(
-                        atom_2, atom_1, atom_to_scores)
+            angle_degrees = round(math.degrees(angle), 3)
 
-                    if subtree_overlap_score > self.options.overlap_sensitivity:
-                        neighbours_2 = atom_2.drawn_neighbours[:]
-                        neighbours_2.remove(atom_1)
+            correct_angle_deg = -120
+            delta_angle_deg = correct_angle_deg - angle_degrees
+            delta_angle_rad = math.radians(delta_angle_deg)
 
-                        if len(neighbours_2) == 1:
-                            neighbour = neighbours_2[0]
-                            angle = neighbour.draw.position.get_rotation_away_from_vector(
-                                atom_1.draw.position, atom_2.draw.position,
-                                math.radians(120))
+            self.rotate_subtree(top_atom, first_carbon, delta_angle_rad,
+                                first_carbon.draw.position)
 
-                            self.rotate_subtree(neighbour, atom_2, angle,
-                                                atom_2.draw.position)
+            # Fix position domain straight above sulphur atom
+            attachment_point.draw.position.x = top_atom.draw.position.x
+            attachment_point.draw.position.y = top_atom.draw.position.y + 15
+        else:
+            # Fix position of the O and C atom and the O-C angle if not attached to acp
 
-                            new_overlap_score, _, _ = self.get_overlap_score()
-                            if new_overlap_score > self.total_overlap_score:
-                                self.rotate_subtree(neighbour, atom_2,
-                                                    -angle,
-                                                    atom_2.draw.position)
-                            else:
-                                self.total_overlap_score = new_overlap_score
+            # TODO: FIX
 
-                        elif len(neighbours_2) == 2:
-                            if atom_2.draw.rings and atom_1.draw.rings:
-                                continue
+            top_atom = backbone_atoms[0]
+            first_carbon = backbone_atoms[1]
 
-                            neighbour_1 = neighbours_2[0]
-                            neighbour_2 = neighbours_2[1]
-                            if len(neighbour_1.draw.rings) == 1 and len(
-                                    neighbour_2.draw.rings) == 1:
-                                # If the neighbours are in different rings,
-                                # or in rings at all, do nothing
-                                if neighbour_1.draw.rings[0] != \
-                                        neighbour_2.draw.rings[0]:
-                                    continue
-                                elif neighbour_1.draw.rings or neighbour_2.draw.rings:
-                                    continue
-                                else:
-                                    angle_1 = neighbour_1.draw.position.get_rotation_away_from_vector(
-                                        atom_1.position, atom_2.position,
-                                        math.radians(120))
-                                    angle_2 = neighbour_2.draw.position.get_rotation_away_from_vector(
-                                        atom_1.position, atom_2.position,
-                                        math.radians(120))
+            # top_atom.draw.position.x = first_carbon.draw.position.x
+            # top_atom.draw.position.y = first_carbon.draw.position.y + 15
+            #
+            # angle = get_angle(first_carbon.draw.position,
+            #                   top_atom.draw.position)
+            # angle_degrees = round(math.degrees(angle), 3)
+            #
+            # correct_angle_deg = -120
+            # delta_angle_deg = correct_angle_deg - angle_degrees
+            # delta_angle_rad = math.radians(delta_angle_deg)
+            #
+            # self.rotate_subtree(top_atom, first_carbon, delta_angle_rad,
+            #                     first_carbon.draw.position)
 
-                                    self.rotate_subtree(neighbour_1,
-                                                        atom_2,
-                                                        angle_1,
-                                                        atom_2.position)
-                                    self.rotate_subtree(neighbour_2,
-                                                        atom_2,
-                                                        angle_2,
-                                                        atom_2.position)
+        return top_atom, attachment_point, first_carbon
 
-                                    new_overlap_score, _, _ = self.get_overlap_score()
-
-                                    if new_overlap_score > self.total_overlap_score:
-                                        self.rotate_subtree(neighbour_1,
-                                                            atom_2,
-                                                            -angle_1,
-                                                            atom_2.position)
-                                        self.rotate_subtree(neighbour_2,
-                                                            atom_2,
-                                                            -angle_2,
-                                                            atom_2.position)
-                                    else:
-                                        self.total_overlap_score = new_overlap_score
-                        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+    def linearise(self):
 
         # substructure search to see if structure is a polyketide or NRP
 
         is_polyketide = False
         is_nrp = False
         is_ripp = False
+
         if self.structure.find_substructures(
                 Smiles('SC(=O)').smiles_to_structure()):
             if self.structure.find_substructures(
@@ -942,11 +928,11 @@ class RaichuDrawer(Drawer):
                 is_polyketide = True
 
         attached_to_domain = False
+
         for atom in self.structure.graph:
             if atom.type == 'I':
                 if atom.annotations.domain_type == "Leader":
                     attached_to_domain = True
-                    domain = atom
                     is_ripp = True
                 if atom.annotations.domain_type == "Follower":
                     is_ripp = True
@@ -957,79 +943,39 @@ class RaichuDrawer(Drawer):
                     if hasattr(neighbour.annotations, "domain_type"):
                         if neighbour.annotations.domain_type:
                             attached_to_domain = True
-                            domain = neighbour
+
         self.structure.refresh_structure()
 
         # NRPS + PK code: Force pk/peptide backbone to be drawn straight:
-        # If struct=PK/NRP, find central chain and attached domain
+        # If struct=PK/NRP/RiPP, find central chain and attached domain
         if attached_to_domain and (is_nrp or is_polyketide or is_ripp) or self.draw_straightened:
             if not attached_to_domain:
                 if is_nrp or is_ripp:
                     label_nrp_central_chain(self.structure)
-                backbone_atoms = find_central_chain_not_attached(
-                    self.structure)
+                backbone_atoms = find_central_chain_not_attached(self.structure)
             elif is_ripp:
                 label_nrp_central_chain(self.structure)
                 backbone_atoms = find_central_chain_ripp(self.structure)
             else:
                 backbone_atoms = find_central_chain(self.structure)
-            if attached_to_domain:
-                pcp = None
-                for atom in self.structure.graph:
-                    if atom.annotations.domain_type :
-                        pcp = atom
-                for atom in self.structure.graph:
-                    if atom.annotations.domain_type:
-                        if atom.annotations.domain_type == "Leader":
-                            pcp = atom
-                assert pcp
 
-                # Fix position of the S and C atom and the S-C angle
-                sulphur = backbone_atoms[0]
-                first_carbon = backbone_atoms[1]
-                sulphur.draw.position.x = first_carbon.draw.position.x
-                sulphur.draw.position.y = first_carbon.draw.position.y + 15
+            backbone_atoms, rings, atom_to_ring_length, stop_atom = reorder_central_chain(backbone_atoms, self.structure)
+            top_atom, attachment_point, first_carbon = self.place_top_atom(backbone_atoms, attached_to_domain)
 
-                angle = get_angle(first_carbon.draw.position,
-                                  sulphur.draw.position)
-                
-                angle_degrees = round(math.degrees(angle), 3)
-
-                correct_angle_deg = -120
-                delta_angle_deg = correct_angle_deg - angle_degrees
-                delta_angle_rad = math.radians(delta_angle_deg)
-
-                self.rotate_subtree(sulphur, first_carbon, delta_angle_rad,
-                                    first_carbon.draw.position)
-
-                # Fix position domain straight above sulphur atom
-                pcp.draw.position.x = sulphur.draw.position.x
-                pcp.draw.position.y = sulphur.draw.position.y + 15
-            else:
-                # Fix position of the O and C atom and the O-C angle if not attached to acp
-                oxygen = backbone_atoms[0]
-                first_carbon = backbone_atoms[1]
-
-                oxygen.draw.position.x = first_carbon.draw.position.x
-                oxygen.draw.position.y = first_carbon.draw.position.y + 15
-
-                angle = get_angle(first_carbon.draw.position,
-                                  oxygen.draw.position)
-                angle_degrees = round(math.degrees(angle), 3)
-
-                correct_angle_deg = -120
-                delta_angle_deg = correct_angle_deg - angle_degrees
-                delta_angle_rad = math.radians(delta_angle_deg)
-
-                self.rotate_subtree(oxygen, first_carbon, delta_angle_rad,
-                                    first_carbon.draw.position)
             # Rotate all other bonds in peptide backbone of NRP
             i = 0
             fixed_atoms = set()
             first_angle_cyclic = 60.0
+
+            last_angle_degrees = None
+
             while i < (len(backbone_atoms) - 1):
                 atom1 = backbone_atoms[i]
                 atom2 = backbone_atoms[i + 1]
+
+                if atom1 == stop_atom or atom2 == stop_atom:
+                    break
+
                 angle = get_angle(atom1.draw.position, atom2.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
 
@@ -1037,43 +983,49 @@ class RaichuDrawer(Drawer):
                 if i == (len(backbone_atoms) - 2):
                     last_angle_degrees = angle_degrees
 
-                # Special case for amino acids with cyclic backbone (proline)
-                if atom1.inside_ring and atom2.inside_ring:
-                    if angle_degrees != 90.0:
-                        correct_angle_deg = 90
-                        delta_angle_deg = correct_angle_deg - angle_degrees
-                        delta_angle_rad = math.radians(delta_angle_deg)
-                        self.rotate_subtree(atom2, atom1, delta_angle_rad,
-                                            atom1.draw.position)
-                    i += 1
+                # Special case for amino acids with cyclic backbone (like proline)
+                if atom1 in atom_to_ring_length and atom2 in atom_to_ring_length and \
+                        atom1.get_ring_index() == atom2.get_ring_index():
+                    ring_length = atom_to_ring_length[atom1]
+                    if ring_length == 2:
+                        if angle_degrees != 90.0:
+                            correct_angle_deg = 90
+                            delta_angle_deg = correct_angle_deg - angle_degrees
+                            delta_angle_rad = math.radians(delta_angle_deg)
+                            self.rotate_subtree(atom2, atom1, delta_angle_rad,
+                                                atom1.draw.position)
+                        i += 1
 
                     # Flip cyclic backbone amino acid if necessary
-                    if atom1.draw.position.x > backbone_atoms[i - 2].draw.position.x:
-                        first_atom_cycle = None
-                        for next_atom in atom1.neighbours:
-                            if next_atom.type != 'H' and next_atom not in backbone_atoms:
-                                first_atom_cycle = next_atom
-                        assert first_atom_cycle
-                        if atom1.draw.position.x > first_atom_cycle.draw.position.x:
-                            masked = {atom1, atom2}
-                            for atom in self.traverse_substructure(
-                                    first_atom_cycle, masked):
-                                delta_x = 2 * \
-                                    (atom1.draw.position.x - atom.draw.position.x)
-                                atom.draw.position.x += delta_x
+                        if atom1.draw.position.x > backbone_atoms[i - 2].draw.position.x:
+                            first_atom_cycle = None
+                            for next_atom in atom1.neighbours:
+                                if next_atom.type != 'H' and next_atom not in backbone_atoms:
+                                    first_atom_cycle = next_atom
 
-                    if atom1.draw.position.x < backbone_atoms[i - 2].draw.position.x:
-                        first_atom_cycle = None
-                        for next_atom in atom1.neighbours:
-                            if next_atom.type != 'H' and next_atom not in backbone_atoms:
-                                first_atom_cycle = next_atom
-                        assert first_atom_cycle
-                        if atom1.draw.position.x < first_atom_cycle.draw.position.x:
-                            masked = {atom1, atom2}
-                            for atom in self.traverse_substructure(first_atom_cycle, masked):
-                                delta_x = 2 * \
-                                    (atom.draw.position.x - atom1.draw.position.x)
-                                atom.draw.position.x -= delta_x
+                            assert first_atom_cycle
+
+                            if atom1.draw.position.x > first_atom_cycle.draw.position.x:
+                                masked = {atom1, atom2}
+                                for atom in self.traverse_substructure(
+                                        first_atom_cycle, masked):
+                                    delta_x = 2 * \
+                                        (atom1.draw.position.x - atom.draw.position.x)
+                                    atom.draw.position.x += delta_x
+
+                        if atom1.draw.position.x < backbone_atoms[i - 2].draw.position.x:
+                            first_atom_cycle = None
+                            for next_atom in atom1.neighbours:
+                                if next_atom.type != 'H' and next_atom not in backbone_atoms:
+                                    first_atom_cycle = next_atom
+                            # TODO: add exception for cycle with 3 members in the backbone
+                            assert first_atom_cycle
+                            if atom1.draw.position.x < first_atom_cycle.draw.position.x:
+                                masked = {atom1, atom2}
+                                for atom in self.traverse_substructure(first_atom_cycle, masked):
+                                    delta_x = 2 * \
+                                        (atom.draw.position.x - atom1.draw.position.x)
+                                    atom.draw.position.x -= delta_x
 
                 # Fix bond angle backbone atoms if second backbone atom (one
                 # with larger position.x) is inside ring, and the first is not
@@ -1094,7 +1046,7 @@ class RaichuDrawer(Drawer):
                             correct_angle_deg = 120.0
                             first_angle_cyclic = 120.0
                         else:
-                            print('should not happen!!!')
+                            raise Exception("Impossible angle.")
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad,
@@ -1116,6 +1068,9 @@ class RaichuDrawer(Drawer):
                         correct_angle_deg = 120.0
                     elif first_angle_cyclic == 120.0:
                         correct_angle_deg = 60.0
+                    else:
+                        raise Exception("Impossible angle")
+
                     if angle_degrees != correct_angle_deg:
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
@@ -1136,6 +1091,8 @@ class RaichuDrawer(Drawer):
                                 backbone_atoms[i].draw.position)),
                                 3) == 60.0:
                             correct_angle_deg = 120.0
+                        else:
+                            raise Exception("Impossible angle.")
                         delta_angle_deg = correct_angle_deg - angle_degrees
                         delta_angle_rad = math.radians(delta_angle_deg)
                         self.rotate_subtree(atom2, atom1, delta_angle_rad,
@@ -1242,16 +1199,14 @@ class RaichuDrawer(Drawer):
 
                     # If bond is directly connected to sidechain, check&rotate
                     if connected_to_sidechain:
-                        angle = get_angle(atom.draw.position,
-                                          first_atom_sidechain.draw.position)
+                        angle = get_angle(atom.draw.position, first_atom_sidechain.draw.position)
                         angle_degrees = round(math.degrees(angle), 3)
                         # Check if it is a terminal carboxylic acid group
                         if atom_neighbour_types.count('O') == 2 and len(
                                 atom_neighbour_types) == 3:
                             for next_atom in atom_neighbours:
                                 if next_atom.type == 'O':
-                                    if \
-                                            self.structure.bond_lookup[next_atom][atom].type == 'single':
+                                    if self.structure.bond_lookup[next_atom][atom].type == 'single':
                                         hydroxyl = next_atom
                                         angle2 = get_angle(
                                             atom.draw.position,
@@ -1263,6 +1218,8 @@ class RaichuDrawer(Drawer):
                                             correct_angle_deg = 60.0
                                         elif last_angle_degrees == 60.0:
                                             correct_angle_deg = 120.0
+                                        else:
+                                            raise Exception("Impossible angle")
                                         delta_angle_deg = correct_angle_deg - angle_degrees2
                                         delta_angle_rad = math.radians(
                                             delta_angle_deg)
@@ -1297,6 +1254,8 @@ class RaichuDrawer(Drawer):
                                 correct_angle_deg = 120
                             elif sidechain_orientation == 'diagonal_right':
                                 correct_angle_deg = 60
+                            else:
+                                raise Exception("Impossible angle.")
                             delta_angle_deg = correct_angle_deg - angle_degrees
                             delta_angle_rad = math.radians(delta_angle_deg)
                             self.rotate_subtree(first_atom_sidechain, atom,
@@ -1305,15 +1264,15 @@ class RaichuDrawer(Drawer):
                 i += 1
             if attached_to_domain:
                 # If the drawer rotated the entire structure, correct this
-                angle = get_angle(pcp.draw.position,
-                                  sulphur.draw.position)
+                angle = get_angle(attachment_point.draw.position,
+                                  top_atom.draw.position)
                 angle_degrees = round(math.degrees(angle), 3)
                 if angle_degrees != 90.0:
                     correct_angle_deg = 90
                     delta_angle_deg = correct_angle_deg - angle_degrees
                     delta_angle_rad = math.radians(delta_angle_deg)
-                    self.rotate_subtree(sulphur, pcp, delta_angle_rad,
-                                        pcp.draw.position)
+                    self.rotate_subtree(top_atom, attachment_point, delta_angle_rad,
+                                        attachment_point.draw.position)
 
             # Fix rotation bulky sidechains so carboxyl groups dont need to move
             i = 1
@@ -1352,6 +1311,8 @@ class RaichuDrawer(Drawer):
                                     correct_angle_deg = 160
                                 elif further_atom.draw.position.x < first_atom_sidechain.draw.position.x:
                                     correct_angle_deg = 20
+                                else:
+                                    raise Exception("Impossible angle")
                                 delta_angle_deg = correct_angle_deg - angle_bulky_sidechain
                                 delta_angle_rad = math.radians(
                                     delta_angle_deg)
@@ -1392,18 +1353,18 @@ class RaichuDrawer(Drawer):
                 i += 1
             if self.horizontal and attached_to_domain:
                 if not is_ripp:
-                    self.rotate_subtree(first_carbon, sulphur, 1.5707,
-                                        sulphur.draw.position)
-                    self.rotate_subtree(pcp, sulphur, 1.5707,
-                        sulphur.draw.position)
+                    self.rotate_subtree(first_carbon, top_atom, 1.5707,
+                                        top_atom.draw.position)
+                    self.rotate_subtree(attachment_point, top_atom, 1.5707,
+                        top_atom.draw.position)
                 if is_ripp:
                     domains = [
                         atom.annotations.domain_type for atom in self.structure.graph if atom.annotations.domain_type]
                     if "Leader" in domains:
-                        self.rotate_subtree(first_carbon, sulphur, 1.5707,
-                                            sulphur.draw.position)
-                        self.rotate_subtree(pcp, sulphur, 1.5707,
-                                        sulphur.draw.position)
+                        self.rotate_subtree(first_carbon, top_atom, 1.5707,
+                                            top_atom.draw.position)
+                        self.rotate_subtree(attachment_point, top_atom, 1.5707,
+                                            top_atom.draw.position)
                         for atom in self.structure.graph:
                             if atom.annotations.domain_type:
                                 if atom.annotations.domain_type == "Follower":
@@ -1416,8 +1377,8 @@ class RaichuDrawer(Drawer):
                                                         nitrogen_follower.draw.position)
                                     break
                     else:
-                        self.rotate_subtree(first_carbon, sulphur, -1.5707,
-                                            sulphur.draw.position)
+                        self.rotate_subtree(first_carbon, top_atom, -1.5707,
+                                            top_atom.draw.position)
                         for atom in self.structure.graph:
                             if atom.annotations.domain_type:
                                 if atom.annotations.domain_type == "Follower":
@@ -1437,12 +1398,9 @@ class RaichuDrawer(Drawer):
                 if bond.atom_1.annotations.in_central_chain or\
                         bond.atom_2.annotations.in_central_chain:
                     central_chain_bonds.add(bond)
-            if attached_to_domain:
-                self.finetune_overlap_resolution(
-                    masked_bonds=central_chain_bonds, highest_atom=sulphur)
-            else:
-                self.finetune_overlap_resolution(
-                    masked_bonds=central_chain_bonds, highest_atom=oxygen)
+
+            self.finetune_overlap_resolution(
+                masked_bonds=central_chain_bonds, highest_atom=top_atom)
            
             self.resolve_secondary_overlaps(sorted_overlap_scores)
 

@@ -3,7 +3,7 @@ from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
 from raichu.reactions.pks_tailoring_reactions import ketoreduction, enoylreduction, dehydration, alpha_L_methyl_transferase,alpha_methyl_transferase,smallest_cyclisation,alpha_hydroxylase,gamma_beta_dehydratase,beta_hydroxy_methyl_transferase,beta_methyl_transferase
-from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate
+from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate, nrps_cyclodehydration
 from raichu.reactions.pks_elongation_reactions import pks_elongation
 from raichu.reactions.nrps_elongation_reactions import nrps_elongation
 from raichu.reactions.chain_release import release_linear_reduction, release_linear_thioesterase
@@ -99,6 +99,8 @@ class TailoringDomain(Domain):
             return epimerize(structure)
         elif self.type.name == 'nMT':
             return n_methylate(structure)
+        elif self.type.name == 'CYC':
+            return nrps_cyclodehydration(structure)
         else:
             raise Warning(f"Tailoring domain {self.domain_name} not recognised by RAIChU. Ignored.")
 

@@ -337,7 +337,45 @@ if __name__ == "__main__":
 
                                                                ])]
                                          )
-    # draw_cluster(cluster_repr, outfile = "iterative_pks.svg")
+
+    cluster_nrps = ClusterRepresentation([ModuleRepresentation("NRPS", None, "valine",
+                                                               [DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True)
+                                                                ]),
+                                          ModuleRepresentation("NRPS", None, "phenylalanine",
+                                                               [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True)
+                                                                ]),
+                                          ModuleRepresentation("NRPS", None, "serine",
+                                                               [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
+                                                                # DomainRepresentation("Gene 1", 'CYC', None, None, True,
+                                                                #                      True),
+                                                                DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True)
+                                                                ]),
+                                          ModuleRepresentation("NRPS", None, "valine",
+                                                               [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'TE', None, None, True,
+                                                                                     True)
+                                                                ]),
+
+                                                                ]
+                                         )
+    draw_cluster(cluster_nrps, outfile="cyc_test.svg")
     # draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
@@ -373,6 +411,7 @@ if __name__ == "__main__":
     #     thiopeptide_cluster_thiomuracin.chain_intermediate))
 
     # sancti_peptide_cluster_thurincin.make_peptide()
+    # sancti_peptide_cluster_thurincin.draw_precursor_with_modified_product(as_string=False, out_file="bubbles.svg")
     # print(get_tailoring_sites_atom_names(
     # sancti_peptide_cluster_thurincin.chain_intermediate))
     # sancti_peptide_cluster_thurincin.draw_product(
@@ -399,4 +438,96 @@ if __name__ == "__main__":
     #     as_string=False, out_file="tailored_test_sliceotide_cluster.svg", draw_straightened=False)
     #lasso_peptide_cluster.do_tailoring()
     # draw_terpene_structure(terpene_cluster)
-    draw_alkaloid_structure(alkaloid_cluster)
+    # draw_alkaloid_structure(alkaloid_cluster)
+
+    trans_at_ks_cluster_repr = ClusterRepresentation([ModuleRepresentation("PKS", "PKS_TRANS", "ACETYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'AT', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
+                                                      ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 "BETA_D_OH", None,
+                                                                                                 True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'DH', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ER', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
+                                                      ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 "BETA_D_OH", None,
+                                                                                                 True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'DH', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ER', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
+                                                      ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 "BETA_D_OH", None,
+                                                                                                 True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'DH', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ER', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
+                                                      # ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                      #                      [DomainRepresentation("Gene 1", 'KS',
+                                                      #                                            "PYR", None, True,
+                                                      #                                            True),
+                                                      #                       DomainRepresentation("Gene 1", 'AT', None,
+                                                      #                                            None, True,
+                                                      #                                            True),
+                                                      #                       DomainRepresentation("Gene 1", 'AT', None,
+                                                      #                                            None, True,
+                                                      #                                            False),
+                                                      #                       DomainRepresentation("Gene 1", 'DH', None,
+                                                      #                                            None, True,
+                                                      #                                            True),
+                                                      #                       DomainRepresentation("Gene 1", 'ER', None,
+                                                      #                                            None, True,
+                                                      #                                            True),
+                                                      #                       DomainRepresentation("Gene 1", 'ACP', None,
+                                                      #                                            None, True,
+                                                      #                                            True)
+                                                      #                       ]),
+                                                      ModuleRepresentation("PKS", "PKS_CIS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 None, None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'AT', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'TE',
+                                                                                                 None, None, True,
+                                                                                                 True)
+
+                                                                            ])
+                                                      ]
+                                                     )
+    draw_cluster(trans_at_ks_cluster_repr, outfile="iterative_pks.svg")

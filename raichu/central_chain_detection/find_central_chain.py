@@ -4,6 +4,63 @@ from pikachu.general import read_smiles
 from raichu.central_chain_detection.label_central_chain import label_pk_central_chain
 
 
+def reorder_central_chain(central_chain, drawer):
+    stop_linearising = None
+    rings = []
+    current_ring = []
+    current_ring_index = None
+
+    for i, atom in enumerate(central_chain):
+        if atom.inside_ring:
+            ring_index = atom.get_ring_index(drawer.structure)
+            if (current_ring and ring_index == current_ring_index) or not current_ring:
+                current_ring.append(atom)
+                current_ring_index = ring_index
+            else:
+                rings.append(current_ring)
+                current_ring = [atom]
+                current_ring_index = ring_index
+
+    rings.append(current_ring)
+    new_rings = []
+
+    for ring in rings:
+
+        if len(ring) > 3:
+            alternative_path = []
+            for atom in drawer.traverse_substructure(ring[0], {ring[-1]}):
+                alternative_path.append(atom)
+            alternative_path.append(ring[-1])
+            if len(alternative_path) <= 3:
+                new_backbone = []
+                path_added = False
+                for atom in central_chain:
+                    if atom not in ring:
+                        new_backbone.append(atom)
+                    elif not path_added:
+                        new_backbone += alternative_path
+
+                central_chain = new_backbone
+                new_rings.append(alternative_path)
+            else:
+                stop_linearising = ring[2]
+                break
+        else:
+            new_rings.append(ring)
+
+    rings = new_rings
+    atom_to_ring_length = {}
+    for ring in rings:
+        for atom in ring:
+            atom_to_ring_length[atom] = len(ring)
+
+    return central_chain, rings, atom_to_ring_length, stop_linearising
+
+
+
+
+
+
 def find_central_chain(pks_nrps_attached):
     """Identifies the central chain atoms in the input structure from the
     in_central_chain Atom attribute, and returns these Atom objects as a list

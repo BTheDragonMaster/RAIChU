@@ -27,10 +27,7 @@ def reorder_central_chain(central_chain, drawer):
     for ring in rings:
 
         if len(ring) > 3:
-            alternative_path = []
-            for atom in drawer.traverse_substructure(ring[0], {ring[-1]}):
-                alternative_path.append(atom)
-            alternative_path.append(ring[-1])
+            alternative_path = drawer.find_shortest_path(ring[0], ring[-1], path_type='atom')
             if len(alternative_path) <= 3:
                 new_backbone = []
                 path_added = False
@@ -39,7 +36,7 @@ def reorder_central_chain(central_chain, drawer):
                         new_backbone.append(atom)
                     elif not path_added:
                         new_backbone += alternative_path
-
+                        path_added = True
                 central_chain = new_backbone
                 new_rings.append(alternative_path)
             else:
@@ -49,16 +46,12 @@ def reorder_central_chain(central_chain, drawer):
             new_rings.append(ring)
 
     rings = new_rings
-    atom_to_ring_length = {}
+    atom_to_ring = {}
     for ring in rings:
         for atom in ring:
-            atom_to_ring_length[atom] = len(ring)
+            atom_to_ring[atom] = ring
 
-    return central_chain, rings, atom_to_ring_length, stop_linearising
-
-
-
-
+    return central_chain, rings, atom_to_ring, stop_linearising
 
 
 def find_central_chain(pks_nrps_attached):
@@ -146,6 +139,8 @@ def find_central_chain_ripp(ripp_attached):
                     nitrogen = atom.get_neighbour("N")
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
+
+        reverse_at_end = True
     else:
         for atom in ripp_attached.graph:
             if atom.type == 'N' and any(neighbour.annotations.domain_type
@@ -153,6 +148,8 @@ def find_central_chain_ripp(ripp_attached):
                 nitrogen = atom
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
+
+        reverse_at_end = False
     assert nitrogen
 
     central_chain = [nitrogen]
@@ -175,6 +172,9 @@ def find_central_chain_ripp(ripp_attached):
                     end_atom = True
                 else:
                     visited.append(neighbour)
+
+    if reverse_at_end:
+        central_chain.reverse()
 
     return central_chain
 

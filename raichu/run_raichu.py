@@ -226,12 +226,19 @@ def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
     return spaghettis
 
 
-def get_tailoring_sites(structure):
+def get_tailoring_sites(structure, enzyme_name='all', out_file=None):
     tailoring_sites = {}
-    for enzyme_type in TailoringEnzymeType:
-        tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
-        tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(
-            structure)
+    if enzyme_name == 'all':
+        for enzyme_type in TailoringEnzymeType:
+            tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
+            tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(
+                structure)
+    else:
+        for enzyme_type in TailoringEnzymeType:
+            if enzyme_type.name == enzyme_name:
+                tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
+                tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(structure, out_file=out_file)
+
     return tailoring_sites
 
 
@@ -352,7 +359,7 @@ if __name__ == "__main__":
                                                                 DomainRepresentation("Gene 1", 'PCP', None, None, True,
                                                                                      True)
                                                                 ]),
-                                          ModuleRepresentation("NRPS", None, "serine",
+                                          ModuleRepresentation("NRPS", None, "proline",
                                                                [DomainRepresentation("Gene 1", 'C', None, None, True,
                                                                                      True),
                                                                 # DomainRepresentation("Gene 1", 'CYC', None, None, True,
@@ -375,7 +382,7 @@ if __name__ == "__main__":
 
                                                                 ]
                                          )
-    draw_cluster(cluster_nrps, outfile="cyc_test.svg")
+    # draw_cluster(cluster_nrps, outfile="cyc_test.svg")
     # draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
@@ -398,8 +405,12 @@ if __name__ == "__main__":
     # lanthipeptide_type_I_cluster_catenulipeptin.do_tailoring()
     # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
     #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
-
+    #
     # thiopeptide_cluster_thiomuracin.make_peptide()
+    # get_tailoring_sites(thiopeptide_cluster_thiomuracin.chain_intermediate, enzyme_name="CYCLODEHYDRATION",
+    #                     out_file="cyclodehydration.svg")
+    # thiopeptide_cluster_thiomuracin.draw_precursor_with_modified_product(as_string=False, out_file="bubbles.svg")
+
     # print(get_tailoring_sites_atom_names(
     #     thiopeptide_cluster_thiomuracin.chain_intermediate))
     # thiopeptide_cluster_thiomuracin.draw_product(
@@ -493,26 +504,41 @@ if __name__ == "__main__":
                                                                                                  None, True,
                                                                                                  True)
                                                                             ]),
-                                                      # ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
-                                                      #                      [DomainRepresentation("Gene 1", 'KS',
-                                                      #                                            "PYR", None, True,
-                                                      #                                            True),
-                                                      #                       DomainRepresentation("Gene 1", 'AT', None,
-                                                      #                                            None, True,
-                                                      #                                            True),
-                                                      #                       DomainRepresentation("Gene 1", 'AT', None,
-                                                      #                                            None, True,
-                                                      #                                            False),
-                                                      #                       DomainRepresentation("Gene 1", 'DH', None,
-                                                      #                                            None, True,
-                                                      #                                            True),
-                                                      #                       DomainRepresentation("Gene 1", 'ER', None,
-                                                      #                                            None, True,
-                                                      #                                            True),
-                                                      #                       DomainRepresentation("Gene 1", 'ACP', None,
-                                                      #                                            None, True,
-                                                      #                                            True)
-                                                      #                       ]),
+                                                      ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 "BETA_D_OH", None,
+                                                                                                 True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'DH', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ER', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
+                                                      ModuleRepresentation("PKS", "PKS_TRANS", "METHYLMALONYL_COA",
+                                                                           [DomainRepresentation("Gene 1", 'KS',
+                                                                                                 "PYR", None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'AT', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'AT', None,
+                                                                                                 None, True,
+                                                                                                 False),
+                                                                            DomainRepresentation("Gene 1", 'DH', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ER', None,
+                                                                                                 None, True,
+                                                                                                 True),
+                                                                            DomainRepresentation("Gene 1", 'ACP', None,
+                                                                                                 None, True,
+                                                                                                 True)
+                                                                            ]),
                                                       ModuleRepresentation("PKS", "PKS_CIS", "METHYLMALONYL_COA",
                                                                            [DomainRepresentation("Gene 1", 'KS',
                                                                                                  None, None, True,

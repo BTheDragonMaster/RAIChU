@@ -155,7 +155,7 @@ def label_pk_central_chain(pk_starter_unit):
             atom.annotations.in_central_chain = False
 
 
-def label_nrp_central_chain(peptide, module_type='elongation'):
+def label_nrp_central_chain(peptide, module_type='elongation', is_ripp=False):
     initialise_atom_attributes(peptide)
 
     as_normal = False
@@ -181,7 +181,7 @@ def label_nrp_central_chain(peptide, module_type='elongation'):
             c1_atoms_aa[0].annotations.in_central_chain = True
             c1_atoms_aa[0].annotations.chiral_c_ep = True
             c2_atoms_aa[0].annotations.in_central_chain = True
-        if peptide.find_substructures(AMINO_ACID_BACKBONE_ATTACHED):
+        elif is_ripp and peptide.find_substructures(AMINO_ACID_BACKBONE_ATTACHED):
             n_atoms_aa = find_atoms(N_AMINO_ACID_ATTACHED, peptide)
             c1_atoms_aa = find_atoms(C1_AMINO_ACID_ATTACHED, peptide)
             c2_atoms_aa = find_atoms(C2_AMINO_ACID_ATTACHED, peptide)

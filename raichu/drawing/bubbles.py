@@ -139,7 +139,7 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
     for i, module in enumerate(cluster.modules):
         start_x = current_x - 15
         current_y = bubble_height
-        print(i, len(cluster.modules))
+
         for j, domain in enumerate(module.domains):
             if domain.gene not in genes:
                 genes.append(domain.gene)

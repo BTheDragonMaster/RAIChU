@@ -1,3 +1,5 @@
+from pikachu.drawing.drawing import Drawer
+
 from enum import Enum, unique
 import itertools
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration, change_chirality, excise_from_structure
@@ -408,7 +410,7 @@ class TailoringEnzyme:
 
         return structure
 
-    def get_possible_sites(self, structure):
+    def get_possible_sites(self, structure, out_file=None):
         possible_sites = []
         if self.type.name in ["HYDROXYLATION",]:
            possible_sites.extend(find_atoms_for_tailoring(structure, "C"))
@@ -521,5 +523,14 @@ class TailoringEnzyme:
                 find_atoms(REDUCED_THREONINE, structure)
             possible_sites.extend([list(t)for t in itertools.product(ser_thr_c, ser_thr_c)])
             
-            
+        if out_file:
+            drawing = Drawer(structure)
+            site_list = []
+
+            for possible_site in possible_sites:
+                if type(possible_site) == list:
+                    site_list += possible_site
+                else:
+                    site_list.append(possible_site)
+            drawing.write_svg(out_file, numbered_atoms=site_list)
         return possible_sites

@@ -5,7 +5,7 @@ from raichu.reactions.general import initialise_atom_attributes
 from raichu.attach_to_domain import attach_to_domain_pk
 from raichu.data.molecular_moieties import AMINO_FATTY_ACID, AMINO_ACID_BACKBONE, N_AMINO_ACID, C1_AMINO_ACID, \
     C2_AMINO_ACID, BETA_AMINO_ACID_BACKBONE, B_N_AMINO_ACID, B_C1_AMINO_ACID, B_C2_AMINO_ACID, B_C3_AMINO_ACID, \
-    B_LEAVING_BOND, ACID_C1, AMINO_ACID_BACKBONE_ATTACHED, N_AMINO_ACID_ATTACHED, C1_AMINO_ACID_ATTACHED, C2_AMINO_ACID_ATTACHED
+    B_LEAVING_BOND, ACID_C1, OH_AMINO_ACID, N_AMINO_ACID_ATTACHED, C1_AMINO_ACID_ATTACHED, C2_AMINO_ACID_ATTACHED
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 
@@ -155,7 +155,27 @@ def label_pk_central_chain(pk_starter_unit):
             atom.annotations.in_central_chain = False
 
 
-def label_nrp_central_chain(peptide, module_type='elongation', is_ripp=False):
+def label_ripp_central_chain(peptide):
+    initialise_atom_attributes(peptide)
+
+    n_atoms_aa = find_atoms(N_AMINO_ACID_ATTACHED, peptide)
+    c1_atoms_aa = find_atoms(C1_AMINO_ACID_ATTACHED, peptide)
+    c2_atoms_aa = find_atoms(C2_AMINO_ACID_ATTACHED, peptide)
+    oh_atoms_aa = find_atoms(OH_AMINO_ACID, peptide)
+
+    for nitrogen in n_atoms_aa:
+        nitrogen.annotations.in_central_chain = True
+        nitrogen.annotations.n_atom_nmeth = True
+    for carbon in c1_atoms_aa:
+        carbon.annotations.in_central_chain = True
+        carbon.annotations.chiral_c_ep = True
+    for carbon in c2_atoms_aa:
+        carbon.annotations.in_central_chain = True
+    for oxygen in oh_atoms_aa:
+        oxygen.annotations.in_central_chain = True
+
+
+def label_nrp_central_chain(peptide, module_type='elongation'):
     initialise_atom_attributes(peptide)
 
     as_normal = False
@@ -181,18 +201,7 @@ def label_nrp_central_chain(peptide, module_type='elongation', is_ripp=False):
             c1_atoms_aa[0].annotations.in_central_chain = True
             c1_atoms_aa[0].annotations.chiral_c_ep = True
             c2_atoms_aa[0].annotations.in_central_chain = True
-        elif is_ripp and peptide.find_substructures(AMINO_ACID_BACKBONE_ATTACHED):
-            n_atoms_aa = find_atoms(N_AMINO_ACID_ATTACHED, peptide)
-            c1_atoms_aa = find_atoms(C1_AMINO_ACID_ATTACHED, peptide)
-            c2_atoms_aa = find_atoms(C2_AMINO_ACID_ATTACHED, peptide)
-            for nitrogen in n_atoms_aa:
-                nitrogen.annotations.in_central_chain = True
-                nitrogen.annotations.n_atom_nmeth = True
-            for carbon in c1_atoms_aa:
-                carbon.annotations.in_central_chain = True
-                carbon.annotations.chiral_c_ep = True
-            for carbon in c2_atoms_aa:
-                carbon.annotations.in_central_chain = True
+
         elif peptide.find_substructures(BETA_AMINO_ACID_BACKBONE):
             n_atoms_aa = find_atoms(B_N_AMINO_ACID, peptide)
             c1_atoms_aa = find_atoms(B_C1_AMINO_ACID, peptide)

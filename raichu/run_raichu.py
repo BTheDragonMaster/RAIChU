@@ -181,15 +181,19 @@ def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.make_peptide()
     ripp_cluster.draw_product(
         as_string=False, out_file="peptide_test_ripp.svg")
-    ripp_cluster.do_tailoring()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="tailoring_test_ripp.svg")
-    ripp_cluster.do_macrocyclization()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="macrocyclisation_test_ripp.svg")
-    ripp_cluster.do_proteolytic_cleavage()
-    ripp_cluster.draw_product(
-        as_string=False, out_file="cleavage_test_ripp.svg")
+    #
+    ripp_cluster.draw_cluster(as_string=False, out_file='ripp_inline.svg')
+    #
+    # ripp_cluster.do_tailoring()
+    # ripp_cluster.draw_product(
+    #     as_string=False, out_file="tailoring_test_ripp.svg")
+    # ripp_cluster.do_macrocyclization()
+    # ripp_cluster.draw_product(
+    #     as_string=False, out_file="macrocyclisation_test_ripp.svg")
+    # ripp_cluster.do_proteolytic_cleavage()
+    # ripp_cluster.draw_product(
+    #     as_string=False, out_file="cleavage_test_ripp.svg")
+
 
 
 def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
@@ -212,7 +216,6 @@ def draw_alkaloid_structure(alkaloid_cluster: Alkaloid_Cluster) -> None:
     alkaloid_cluster.do_tailoring()
     alkaloid_cluster.draw_product(
         as_string=False, out_file="tailoring_test_alkaloid.svg")
-
 
 
 def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
@@ -253,9 +256,9 @@ def get_tailoring_sites_atom_names(structure):
 
 if __name__ == "__main__":
     # atropopeptide
-    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwy", "mkaekslkayawyiwy",
+    ripp_cluster = RiPP_Cluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwyaha", "slkayawyiwy",
                                 cleavage_sites=[CleavageSiteRepresentation("Y", 10, "follower")],
-                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "REDUCTASE_DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "P450_OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+                                tailoring_enzymes_representation=[TailoringRepresentation("p450", "DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
     lanthipeptide_type_I_cluster_catenulipeptin = RiPP_Cluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
                                                                tailoring_enzymes_representation=[TailoringRepresentation(
                                                                    "Caci_4239", "THREONINE_SERINE_DEHYDRATASE", [['O_64'], ['O_144']]), TailoringRepresentation(
@@ -399,7 +402,7 @@ if __name__ == "__main__":
 
                                                                 ]
                                          )
-    draw_cluster(cluster_nrps, outfile="cyc_test.svg")
+    # draw_cluster(cluster_nrps, outfile="cyc_test.svg")
     draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
@@ -573,4 +576,4 @@ if __name__ == "__main__":
                                                                             ])
                                                       ]
                                                      )
-    draw_cluster(trans_at_ks_cluster_repr, outfile="iterative_pks.svg")
+    # draw_cluster(trans_at_ks_cluster_repr, outfile="iterative_pks.svg")

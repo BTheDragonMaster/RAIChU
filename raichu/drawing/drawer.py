@@ -3,7 +3,7 @@ from pikachu.math_functions import *
 
 from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, \
     find_central_chain_ripp, reorder_central_chain
-from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
+from raichu.central_chain_detection.label_central_chain import label_ripp_central_chain
 
 
 class RaichuDrawer(Drawer):
@@ -17,6 +17,7 @@ class RaichuDrawer(Drawer):
         self.horizontal = horizontal
         self.ripp = ripp
         self.make_linear = make_linear
+        self.line_width = 2
 
         if options is None:
             self.options = Options()
@@ -429,6 +430,8 @@ class RaichuDrawer(Drawer):
             self.restore_ring_information()
 
     def draw_structure(self):
+        # Find the plotting dimensions of the molecule such that the canvas can be scaled to fit the molecule
+
         min_x = 100000000
         max_x = -100000000
         min_y = 100000000
@@ -447,22 +450,18 @@ class RaichuDrawer(Drawer):
 
         height = max_y - min_y
         width = max_x - min_x
-        self.line_width = 2
 
-        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) /
-                                        50.0, (height + 2 * self.options.padding) / 50.0), dpi=self.dpi)
+        fig, ax = plt.subplots(figsize=((width + 2 * self.options.padding) / 50.0,
+                                        (height + 2 * self.options.padding) / 50.0), dpi=100)
 
         ax.set_aspect('equal', adjustable='box')
         ax.axis('off')
 
-        ax.set_xlim(
-            [min_x - self.options.padding, max_x + self.options.padding])
-        ax.set_ylim(
-            [min_y - self.options.padding, max_y + self.options.padding])
-        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0,
-                            hspace=0)
+        ax.set_xlim([min_x - self.options.padding, max_x + self.options.padding])
+        ax.set_ylim([min_y - self.options.padding, max_y + self.options.padding])
+        plt.subplots_adjust(left=0, bottom=0, right=1, top=1, wspace=0, hspace=0)
 
-        params = {'mathtext.default': 'regular', }
+        params = {'mathtext.default': 'regular'}
         plt.rcParams.update(params)
 
         ring_centers_x = []
@@ -476,36 +475,20 @@ class RaichuDrawer(Drawer):
 
         for bond_nr, bond in self.structure.bonds.items():
             if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
-                line = Line(bond.atom_1.draw.position,
-                            bond.atom_2.draw.position, bond.atom_1,
-                            bond.atom_2)
+                line = Line(bond.atom_1.draw.position, bond.atom_2.draw.position, bond.atom_1, bond.atom_2)
                 midpoint = line.get_midpoint()
-                truncated_line = line.get_truncated_line(
-                    self.options.short_bond_length)
+
                 if bond.type == 'single':
                     if bond in self.chiral_bonds:
                         orientation, chiral_center = self.chiral_bond_to_orientation[bond]
-                        self.plot_chiral_bond(orientation, chiral_center, line,
-                                              ax, midpoint)
+                        self.plot_chiral_bond(orientation, chiral_center, line, ax, midpoint)
                     else:
-                        if hasattr(bond.atom_1.annotations, "domain_type") and hasattr(bond.atom_2.annotations, "domain_type"):
-                            if (bond.atom_1.type == 'S' and
-                                    bond.atom_2.annotations.domain_type or
-                                    (bond.atom_2.type == 'S' and
-                                     bond.atom_1.annotations.domain_type)):
-                                self.plot_halflines_s_domain(
-                                    line, ax, midpoint)
-                            else:
-                                self.plot_halflines(line, ax, midpoint)
-                        else:
-                            self.plot_halflines(line, ax, midpoint)
+                        self.plot_halflines(line, ax, midpoint)
                 elif bond.type == 'double':
-                    if not self.is_terminal(
-                            bond.atom_1) and not self.is_terminal(bond.atom_2):
+                    if not self.is_terminal(bond.atom_1) and not self.is_terminal(bond.atom_2):
                         self.plot_halflines(line, ax, midpoint)
 
-                        common_ring_numbers = self.get_common_rings(
-                            bond.atom_1, bond.atom_2)
+                        common_ring_numbers = self.get_common_rings(bond.atom_1, bond.atom_2)
 
                         if common_ring_numbers:
                             common_rings = []
@@ -515,52 +498,38 @@ class RaichuDrawer(Drawer):
                             common_rings.sort(key=lambda x: len(x.members))
                             common_ring = common_rings[0]
                             ring_centre = common_ring.center
-                            second_line = line.double_line_towards_center(
-                                ring_centre, self.options.bond_spacing,
-                                self.options.double_bond_length)
+                            second_line = line.double_line_towards_center(ring_centre, self.options.bond_spacing,
+                                                                          self.options.double_bond_length)
                             second_line_midpoint = second_line.get_midpoint()
-                            self.plot_halflines_double(second_line, ax,
-                                                       second_line_midpoint)
+                            self.plot_halflines_double(second_line, ax, second_line_midpoint)
 
                         else:
-                            bond_neighbours = bond.atom_1.drawn_neighbours +\
-                                bond.atom_2.drawn_neighbours
+                            bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
                             if bond_neighbours:
-                                vectors = [atom.draw.position for atom in
-                                           bond_neighbours]
-                                gravitational_point = Vector.get_average(
-                                    vectors)
-                                second_line = line.double_line_towards_center(
-                                    gravitational_point,
-                                    self.options.bond_spacing,
-                                    self.options.double_bond_length)
+                                vectors = [atom.draw.position for atom in bond_neighbours]
+                                gravitational_point = Vector.get_average(vectors)
+                                second_line = line.double_line_towards_center(gravitational_point,
+                                                                              self.options.bond_spacing,
+                                                                              self.options.double_bond_length)
                                 second_line_midpoint = second_line.get_midpoint()
-                                self.plot_halflines_double(second_line, ax,
-                                                           second_line_midpoint)
+                                self.plot_halflines_double(second_line, ax, second_line_midpoint)
                             else:
                                 print("Shouldn't happen!")
                     else:
-                        if self.is_terminal(bond.atom_1) and self.is_terminal(
-                                bond.atom_2):
-                            dummy_1 = Vector(bond.atom_1.draw.position.x + 1,
-                                             bond.atom_1.draw.position.y + 1)
-                            dummy_2 = Vector(bond.atom_1.draw.position.x - 1,
-                                             bond.atom_1.draw.position.y - 1)
-                            double_bond_line_1 = line.double_line_towards_center(
-                                dummy_1,
-                                self.options.bond_spacing / 2.0,
-                                self.options.double_bond_length)
+                        if self.is_terminal(bond.atom_1) and self.is_terminal(bond.atom_2):
+                            dummy_1 = Vector(bond.atom_1.draw.position.x + 1, bond.atom_1.draw.position.y + 1)
+                            dummy_2 = Vector(bond.atom_1.draw.position.x - 1, bond.atom_1.draw.position.y - 1)
+                            double_bond_line_1 = line.double_line_towards_center(dummy_1,
+                                                                                 self.options.bond_spacing / 2.0,
+                                                                                 self.options.double_bond_length)
                             double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
-                            double_bond_line_2 = line.double_line_towards_center(
-                                dummy_2,
-                                self.options.bond_spacing / 2.0,
-                                self.options.double_bond_length)
+                            double_bond_line_2 = line.double_line_towards_center(dummy_2,
+                                                                                 self.options.bond_spacing / 2.0,
+                                                                                 self.options.double_bond_length)
                             double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
 
-                            self.plot_halflines_double(double_bond_line_1, ax,
-                                                       double_bond_line_1_midpoint)
-                            self.plot_halflines_double(double_bond_line_2, ax,
-                                                       double_bond_line_2_midpoint)
+                            self.plot_halflines_double(double_bond_line_1, ax, double_bond_line_1_midpoint)
+                            self.plot_halflines_double(double_bond_line_2, ax, double_bond_line_2_midpoint)
 
                         else:
 
@@ -572,59 +541,73 @@ class RaichuDrawer(Drawer):
                                 branched_atom = bond.atom_1
 
                             if len(branched_atom.drawn_neighbours) >= 3:
-                                closest_two = self.get_sorted_distances_from_list(
-                                    terminal_atom,
-                                    branched_atom.drawn_neighbours)
+                                closest_two = self.get_sorted_distances_from_list(terminal_atom,
+                                                                                  branched_atom.drawn_neighbours)
                                 closest_atom_1 = closest_two[0][1]
                                 closest_atom_2 = closest_two[1][1]
 
-                                line = Line(terminal_atom.draw.position,
-                                            branched_atom.draw.position,
-                                            terminal_atom, branched_atom)
+                                line = Line(terminal_atom.draw.position, branched_atom.draw.position, terminal_atom,
+                                            branched_atom)
 
-                                bond_1_line = Line(branched_atom.draw.position,
-                                                   closest_atom_1.draw.position,
-                                                   branched_atom,
-                                                   closest_atom_1)
-                                bond_2_line = Line(branched_atom.draw.position,
-                                                   closest_atom_2.draw.position,
-                                                   branched_atom,
-                                                   closest_atom_1)
+                                double_bond_line_1, double_bond_line_2 = line.get_perpendicular_lines(
+                                    self.options.bond_spacing / 2.0)
+                                terminal_atom_pos_1 = double_bond_line_1.get_atom_coords(terminal_atom)
+                                terminal_atom_pos_2 = double_bond_line_2.get_atom_coords(terminal_atom)
 
-                                double_bond_line_1 = line.double_line_towards_center(
-                                    closest_atom_1.draw.position,
-                                    self.options.bond_spacing / 2.0,
-                                    self.options.double_bond_length)
-                                double_bond_line_2 = line.double_line_towards_center(
-                                    closest_atom_2.draw.position,
-                                    self.options.bond_spacing / 2.0,
-                                    self.options.double_bond_length)
+                                closest_atom_to_pos_1 = terminal_atom_pos_1.get_closest_atom(closest_atom_1,
+                                                                                             closest_atom_2)
+                                closest_atom_to_pos_2 = terminal_atom_pos_2.get_closest_atom(closest_atom_1,
+                                                                                             closest_atom_2)
 
-                                double_bond_line_1_midpoint = \
-                                    double_bond_line_1.get_midpoint()
-                                double_bond_line_2_midpoint = \
-                                    double_bond_line_2.get_midpoint()
+                                bond_1_line = Line(branched_atom.draw.position, closest_atom_to_pos_1.draw.position,
+                                                   branched_atom, closest_atom_to_pos_1)
+                                bond_2_line = Line(branched_atom.draw.position, closest_atom_to_pos_2.draw.position,
+                                                   branched_atom, closest_atom_to_pos_2)
 
-                                intersection_1 = double_bond_line_1.find_intersection(
-                                    bond_1_line)
-                                intersection_2 = double_bond_line_2.find_intersection(
-                                    bond_2_line)
+                                double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
+                                double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
 
-                                if terminal_atom.draw.position.x >\
-                                        branched_atom.draw.position.x:
-                                    double_bond_line_1.point_1 = intersection_1
-                                    double_bond_line_2.point_1 = intersection_2
+                                intersection_1 = double_bond_line_1.find_intersection(bond_1_line)
+                                intersection_2 = double_bond_line_2.find_intersection(bond_2_line)
+
+                                if terminal_atom.draw.position.x > branched_atom.draw.position.x:
+                                    # check for parallel lines
+                                    if intersection_1 and intersection_1.x < 100000 and intersection_1.y < 100000:
+                                        double_bond_line_1.point_1 = intersection_1
+                                    if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
+                                        double_bond_line_2.point_1 = intersection_2
+
                                 else:
-                                    double_bond_line_1.point_2 = intersection_1
-                                    double_bond_line_2.point_2 = intersection_2
+                                    # check for parallel lines
+                                    if intersection_1 and intersection_1.x < 100000 and intersection_1.y < 100000:
+                                        double_bond_line_1.point_2 = intersection_1
+                                    if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
+                                        double_bond_line_2.point_2 = intersection_2
 
-                                self.plot_halflines(double_bond_line_1, ax,
-                                                    double_bond_line_1_midpoint)
-                                self.plot_halflines(double_bond_line_2, ax,
-                                                    double_bond_line_2_midpoint)
+                                self.plot_halflines(double_bond_line_1, ax, double_bond_line_1_midpoint)
+                                self.plot_halflines(double_bond_line_2, ax, double_bond_line_2_midpoint)
 
                             else:
-                                pass
+                                self.plot_halflines(line, ax, midpoint)
+
+                                bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
+                                if bond_neighbours:
+                                    vectors = [atom.draw.position for atom in bond_neighbours]
+                                    gravitational_point = Vector.get_average(vectors)
+                                    second_line = line.get_parallel_line(gravitational_point,
+                                                                         self.options.bond_spacing)
+                                    second_line_midpoint = second_line.get_midpoint()
+                                    self.plot_halflines(second_line, ax, second_line_midpoint)
+                                else:
+                                    print("Shouldn't happen!")
+
+                elif bond.type == 'triple':
+                    self.plot_halflines(line, ax, midpoint)
+                    line_1, line_2 = line.get_parallel_lines(self.options.bond_spacing)
+                    line_1_midpoint = line_1.get_midpoint()
+                    line_2_midpoint = line_2.get_midpoint()
+                    self.plot_halflines(line_1, ax, line_1_midpoint)
+                    self.plot_halflines(line_2, ax, line_2_midpoint)
 
         # If the starter unit contains an unknown moiety, number this R1
         for atom in self.structure.graph:
@@ -859,18 +842,13 @@ class RaichuDrawer(Drawer):
             plt.clf()
             plt.close()
 
-    def place_top_atom(self, backbone_atoms):
-        attachment_point = None
+    def place_top_atom(self, backbone_atoms, attachment_point):
 
-        for atom in self.structure.graph:
-            if atom.annotations.domain_type:
-                attachment_point = atom
-
-        assert attachment_point
 
         # Fix position of the S and C atom and the S-C angle
         top_atom = backbone_atoms[0]
         first_carbon = backbone_atoms[1]
+
         top_atom.draw.position.x = first_carbon.draw.position.x
         top_atom.draw.position.y = first_carbon.draw.position.y + 15
 
@@ -919,6 +897,8 @@ class RaichuDrawer(Drawer):
                             backbone_to_placement[ring[1]] = backbone_to_placement[ring[0]]
                         else:
                             backbone_to_placement[atom] = self.get_opposite_placement(previous_placement)
+                    elif hasattr(atom, "domain_type") and atom.annotations.domain_type == "Leader":
+                        backbone_to_placement[atom] = previous_placement
                     else:
                         backbone_to_placement[atom] = self.get_opposite_placement(previous_placement)
 
@@ -966,17 +946,30 @@ class RaichuDrawer(Drawer):
 
     def linearise(self):
 
-        attached_to_domain = False
+        attachment_point = None
+        domains = []
 
         for atom in self.structure.graph:
             if atom.type == 'I':
                 if atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
-                    attached_to_domain = True
+                    domains.append(atom)
+                    # Ensures the follower peptide is set as attachment point if both leader and follower are present
+                    if not attachment_point:
+                        attachment_point = atom
+                    elif attachment_point.annotations.domain_type == "Leader":
+                        attachment_point = atom
+
+        if attachment_point and attachment_point.annotations.domain_type == "Leader":
+            horizontal_rotation = 'anticlockwise'
+        else:
+            horizontal_rotation = 'clockwise'
 
         if self.ripp:
-            label_nrp_central_chain(self.structure, is_ripp=True)
+            label_ripp_central_chain(self.structure)
 
-        if attached_to_domain:
+        self.structure.refresh_structure()
+
+        if attachment_point:
             if self.ripp:
                 backbone_atoms = find_central_chain_ripp(self.structure)
             else:
@@ -984,18 +977,22 @@ class RaichuDrawer(Drawer):
         else:
             backbone_atoms = find_central_chain_not_attached(self.structure)
 
-        if attached_to_domain:
+        if attachment_point:
 
-            self.place_top_atom(backbone_atoms)
+            self.place_top_atom(backbone_atoms, attachment_point)
 
         self.structure.refresh_structure()
 
         backbone, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
+        if len(domains) == 2:
+            for domain in domains:
+                if domain.annotations.domain_type == 'Leader':
+                    backbone.append(domain)
+
         backbone_to_placement = self.get_placements(backbone, atom_to_ring, stop_linearising)
+        print(backbone_to_placement)
 
         i = 0
-        print(backbone_atoms)
-        print(backbone)
 
         while i < len(backbone) - 1:
 
@@ -1035,7 +1032,6 @@ class RaichuDrawer(Drawer):
                     elif atom_2 == atom_to_ring[atom_2][2]:
 
                         ring = atom_to_ring[atom_2]
-                        print(i, ring)
                         ring_atoms = []
                         sidechain_atoms = []
                         for atom in atom_2.get_ring(self.structure):
@@ -1051,8 +1047,6 @@ class RaichuDrawer(Drawer):
                                             if sidechain_atom not in sidechain_atoms and \
                                                     sidechain_atom not in ring_atoms and sidechain_atom not in backbone:
                                                 sidechain_atoms.append(sidechain_atom)
-
-                            print(sidechain_atoms)
 
                             for ring_atom in ring_atoms:
                                 ring_atom.draw.position.mirror_about_line(ring[0].draw.position, ring[1].draw.position)
@@ -1081,7 +1075,10 @@ class RaichuDrawer(Drawer):
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
         if self.horizontal:
-            self.rotate_structure(-1.5707)
+            if horizontal_rotation == 'clockwise':
+                self.rotate_structure(-1.5707)
+            else:
+                self.rotate_structure(1.5707)
 
     def resolve_secondary_overlaps(self, sorted_scores: List[Tuple[float, Atom]]) -> None:
         for score, atom in sorted_scores:
@@ -1178,6 +1175,271 @@ class RaichuDrawer(Drawer):
             delta_x = 0.0
 
         return delta_x
+
+    def draw_svg(self, annotation: Union[None, str] = None, numbered_atoms: List = None) -> str:
+
+        self.set_annotation_for_grouping(annotation)
+
+        ring_centers_x = []
+        ring_centers_y = []
+
+        for ring in self.rings:
+            self.set_ring_center(ring)
+
+            ring_centers_x.append(ring.center.x)
+            ring_centers_y.append(ring.center.y)
+
+        for bond_nr, bond in self.structure.bonds.items():
+            if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
+                line = Line(bond.atom_1.draw.position, bond.atom_2.draw.position, bond.atom_1, bond.atom_2)
+                midpoint = line.get_midpoint()
+
+                if bond.type == 'single':
+                    if bond in self.chiral_bonds:
+
+                        orientation, chiral_center = self.chiral_bond_to_orientation[bond]
+                        self.draw_chiral_bond(orientation, chiral_center, line, midpoint)
+                    else:
+                        self.draw_halflines(line, midpoint)
+                elif bond.type == 'double':
+                    if not self.is_terminal(bond.atom_1) and not self.is_terminal(bond.atom_2):
+                        self.draw_halflines(line, midpoint)
+
+                        common_ring_numbers = self.get_common_rings(bond.atom_1, bond.atom_2)
+
+                        if common_ring_numbers:
+                            common_rings = []
+                            for ring_nr in common_ring_numbers:
+                                common_rings.append(self.get_ring(ring_nr))
+
+                            common_rings.sort(key=lambda x: len(x.members))
+                            common_ring = common_rings[0]
+                            ring_centre = common_ring.center
+                            second_line = line.double_line_towards_center(ring_centre, self.options.bond_spacing,
+                                                                          self.options.double_bond_length)
+                            second_line_midpoint = second_line.get_midpoint()
+                            self.draw_halflines_double(second_line, second_line_midpoint)
+
+                        else:
+                            bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
+                            if bond_neighbours:
+                                vectors = [atom.draw.position for atom in bond_neighbours]
+                                gravitational_point = Vector.get_average(vectors)
+                                second_line = line.double_line_towards_center(gravitational_point,
+                                                                              self.options.bond_spacing,
+                                                                              self.options.double_bond_length)
+                                second_line_midpoint = second_line.get_midpoint()
+                                self.draw_halflines_double(second_line, second_line_midpoint)
+                            else:
+                                print("Shouldn't happen!")
+                    else:
+                        if self.is_terminal(bond.atom_1) and self.is_terminal(bond.atom_2):
+                            dummy_1 = Vector(bond.atom_1.draw.position.x + 1, bond.atom_1.draw.position.y + 1)
+                            dummy_2 = Vector(bond.atom_1.draw.position.x - 1, bond.atom_1.draw.position.y - 1)
+                            double_bond_line_1 = line.double_line_towards_center(dummy_1,
+                                                                                 self.options.bond_spacing / 2.0,
+                                                                                 self.options.double_bond_length)
+                            double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
+                            double_bond_line_2 = line.double_line_towards_center(dummy_2,
+                                                                                 self.options.bond_spacing / 2.0,
+                                                                                 self.options.double_bond_length)
+                            double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
+
+                            self.draw_halflines_double(double_bond_line_1, double_bond_line_1_midpoint)
+                            self.draw_halflines_double(double_bond_line_2, double_bond_line_2_midpoint)
+
+                        else:
+
+                            if self.is_terminal(bond.atom_1):
+                                terminal_atom = bond.atom_1
+                                branched_atom = bond.atom_2
+                            else:
+                                terminal_atom = bond.atom_2
+                                branched_atom = bond.atom_1
+
+                            if len(branched_atom.drawn_neighbours) >= 3:
+                                closest_two = self.get_sorted_distances_from_list(terminal_atom,
+                                                                                  branched_atom.drawn_neighbours)
+                                closest_atom_1 = closest_two[0][1]
+                                closest_atom_2 = closest_two[1][1]
+
+                                line = Line(terminal_atom.draw.position, branched_atom.draw.position, terminal_atom,
+                                            branched_atom)
+
+                                double_bond_line_1, double_bond_line_2 = line.get_perpendicular_lines(
+                                    self.options.bond_spacing / 2.0)
+                                terminal_atom_pos_1 = double_bond_line_1.get_atom_coords(terminal_atom)
+                                terminal_atom_pos_2 = double_bond_line_2.get_atom_coords(terminal_atom)
+
+                                closest_atom_to_pos_1 = terminal_atom_pos_1.get_closest_atom(closest_atom_1,
+                                                                                             closest_atom_2)
+                                closest_atom_to_pos_2 = terminal_atom_pos_2.get_closest_atom(closest_atom_1,
+                                                                                             closest_atom_2)
+
+                                bond_1_line = Line(branched_atom.draw.position, closest_atom_to_pos_1.draw.position,
+                                                   branched_atom, closest_atom_to_pos_1)
+                                bond_2_line = Line(branched_atom.draw.position, closest_atom_to_pos_2.draw.position,
+                                                   branched_atom, closest_atom_to_pos_2)
+
+                                double_bond_line_1_midpoint = double_bond_line_1.get_midpoint()
+                                double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
+
+                                intersection_1 = double_bond_line_1.find_intersection(bond_1_line)
+                                intersection_2 = double_bond_line_2.find_intersection(bond_2_line)
+
+                                if terminal_atom.draw.position.x > branched_atom.draw.position.x:
+                                    # check for parallel lines
+                                    if intersection_1 and intersection_1.x < 100000 and intersection_1.y < 100000:
+                                        double_bond_line_1.point_1 = intersection_1
+                                    if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
+                                        double_bond_line_2.point_1 = intersection_2
+
+                                else:
+                                    # check for parallel lines
+                                    if intersection_1 and intersection_1.x < 100000 and intersection_1.y < 100000:
+                                        double_bond_line_1.point_2 = intersection_1
+                                    if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
+                                        double_bond_line_2.point_2 = intersection_2
+
+                                self.draw_halflines(double_bond_line_1, double_bond_line_1_midpoint)
+                                self.draw_halflines(double_bond_line_2, double_bond_line_2_midpoint)
+
+                            else:
+                                self.draw_halflines(line, midpoint)
+
+                                bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
+                                if bond_neighbours:
+                                    vectors = [atom.draw.position for atom in bond_neighbours]
+                                    gravitational_point = Vector.get_average(vectors)
+                                    second_line = line.get_parallel_line(gravitational_point,
+                                                                         self.options.bond_spacing)
+                                    second_line_midpoint = second_line.get_midpoint()
+                                    self.draw_halflines(second_line, second_line_midpoint)
+                                else:
+                                    print("Shouldn't happen!")
+
+                elif bond.type == 'triple':
+                    self.draw_halflines(line, midpoint)
+                    line_1, line_2 = line.get_parallel_lines(self.options.bond_spacing)
+                    line_1_midpoint = line_1.get_midpoint()
+                    line_2_midpoint = line_2.get_midpoint()
+                    self.draw_halflines(line_1, line_1_midpoint)
+                    self.draw_halflines(line_2, line_2_midpoint)
+
+        for atom in self.structure.graph:
+            if atom.draw.positioned:
+                svg_text = ''
+                svg_h_text = ''
+                svg_charge_text = ''
+                svg_h_count_text = ''
+
+                if atom.type != 'C' or atom.draw.draw_explicit or atom.charge:
+                    if atom.type == 'C' and not atom.charge:
+                        svg_text = self.draw_text('.', atom.draw.position.x, atom.draw.position.y - 2)
+                    else:
+                        svg_text = self.draw_text(atom.type, atom.draw.position.x, atom.draw.position.y)
+                if hasattr(atom, "domain_type") and atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
+                    svg_text = ''
+
+                        # TODO: Make this possible in svg writing
+                        # text = self.set_r_group_indices_subscript(atom.type)
+
+                orientation = self.get_hydrogen_text_orientation(atom)
+
+                # Swap up-down orientation due to swapped svg coordinate system
+                if orientation == 'H_below_atom':
+                    orientation = 'H_above_atom'
+                elif orientation == 'H_above_atom':
+                    orientation = 'H_below_atom'
+
+                if atom.type != 'C' or atom.draw.draw_explicit or atom.charge:
+
+                    hydrogen_count = 0
+
+                    for neighbour in atom.neighbours:
+                        if neighbour.type == 'H' and not neighbour.draw.is_drawn:
+                            hydrogen_count += 1
+
+                    h_x = atom.draw.position.x
+                    h_y = atom.draw.position.y
+                    h_subscript_x = atom.draw.position.x
+                    h_subscript_y = atom.draw.position.y + 3
+                    charge_x = atom.draw.position.x + 6
+                    charge_y = atom.draw.position.y - 3
+
+                    if orientation == 'H_below_atom':
+                        h_y = atom.draw.position.y + 7
+                        h_subscript_x += 2
+                        h_subscript_y += 10
+                    elif orientation == 'H_above_atom':
+                        h_y = atom.draw.position.y - 7
+                        h_subscript_x += 2
+                        h_subscript_y -= 4
+                    elif orientation == 'H_before_atom':
+                        if hydrogen_count > 1:
+                            h_x -= 10
+                            h_subscript_x -= 5
+                        elif hydrogen_count == 1:
+                            h_x -= 6
+                    else:
+                        h_x += len(atom.type) * 6
+                        h_subscript_x += len(atom.type) * 6 + 5
+
+                    if abs(atom.charge):
+                        if hydrogen_count and orientation == 'H_after_atom':
+                            if hydrogen_count > 1:
+                                charge_x += len(atom.type) * 6 + 7
+                            else:
+                                charge_x += len(atom.type) * 6 + 2
+
+                    h_pos = Vector(h_x, h_y)
+                    h_subscript_pos = Vector(h_subscript_x, h_subscript_y)
+                    charge_pos = Vector(charge_x, charge_y)
+
+                    if hydrogen_count:
+                        svg_h_text = self.draw_text('H', h_pos.x, h_pos.y)
+                        if hydrogen_count > 1:
+                            svg_h_count_text = self.draw_text(hydrogen_count, h_subscript_pos.x, h_subscript_pos.y,
+                                                              font_size=self.options.svg_font_size_small)
+                    if atom.charge:
+                        if atom.charge > 0:
+                            charge_symbol = '+'
+                        else:
+                            charge_symbol = '-'
+
+                        if abs(atom.charge) > 1:
+                            charge_text = f"{abs(atom.charge)}{charge_symbol}"
+                        else:
+                            charge_text = charge_symbol
+
+                        svg_charge_text = self.draw_text(charge_text, charge_pos.x, charge_pos.y,
+                                                         font_size=self.options.svg_font_size_small)
+
+                if svg_text or svg_h_text or svg_charge_text or svg_h_count_text:
+                    if self.structure_id:
+                        text_group = f'<g id="atom_{atom}_{self.structure_id}_text">\n'
+                    else:
+                        text_group = f'<g id="atom_{atom}_text">\n'
+                    if svg_text:
+                        text_group += svg_text
+                        text_group += '\n'
+                    if svg_h_text:
+                        text_group += svg_h_text
+                        text_group += '\n'
+                    if svg_charge_text:
+                        text_group += svg_charge_text
+                        text_group += '\n'
+                    if svg_h_count_text:
+                        text_group += svg_h_count_text
+                        text_group += '\n'
+                    text_group += '</g>'
+                    self.add_svg_element(text_group, atom)
+
+        if numbered_atoms:
+            self.show_atom_numbers(numbered_atoms)
+
+        svg = self.assemble_svg()
+        return svg
 
 
 def get_angle(vector1, vector2):

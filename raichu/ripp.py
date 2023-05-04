@@ -248,7 +248,8 @@ class RiPP_Cluster:
             structure = attach_to_leader_ripp(
                 structure)
         if not self.cyclised_product:
-            drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True, horizontal=True, draw_Cs_in_pink=draw_cs_in_pink)
+            drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True, horizontal=True,
+                                   draw_Cs_in_pink=draw_cs_in_pink)
         else:
             drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True,
                                    make_linear=False, horizontal=True, draw_Cs_in_pink=draw_cs_in_pink)

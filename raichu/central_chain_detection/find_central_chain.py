@@ -132,24 +132,24 @@ def find_central_chain_ripp(ripp_attached):
     nitrogen = None
     domains = [
         atom.annotations.domain_type for atom in ripp_attached.graph if atom.annotations.domain_type]
-    if "Leader" in domains:
+    if "Follower" in domains:
         for atom in ripp_attached.graph:
             if atom.annotations.domain_type:
-                if atom.annotations.domain_type == "Leader":
+                if atom.annotations.domain_type == "Follower":
                     nitrogen = atom.get_neighbour("N")
+
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
 
-        reverse_at_end = True
     else:
         for atom in ripp_attached.graph:
             if atom.type == 'N' and any(neighbour.annotations.domain_type
                                         for neighbour in atom.neighbours):
                 nitrogen = atom
+
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
 
-        reverse_at_end = False
     assert nitrogen
 
     central_chain = [nitrogen]
@@ -173,10 +173,8 @@ def find_central_chain_ripp(ripp_attached):
                 else:
                     visited.append(neighbour)
 
-    if reverse_at_end:
-        central_chain.reverse()
-
     return central_chain
+
 
 def find_central_chain_not_attached(pks_nrps):
     """Identifies the central chain atoms in the input structure from the

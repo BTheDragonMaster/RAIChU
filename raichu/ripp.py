@@ -75,7 +75,7 @@ class RiPP_Cluster:
                 raise ValueError(
                     f"No {AMINOACID_ONE_LETTER_TO_NAME[amino_acid_cleavage]} in position {number_cleavage} for cleavage.")
 
-    def do_proteolytic_claevage(self):
+    def do_proteolytic_cleavage(self):
         self.initialize_cleavage_sites_on_structure()
         for bond, structure_to_keep in self.cleavage_bonds:
             self.chain_intermediate = proteolytic_cleavage(
@@ -95,7 +95,8 @@ class RiPP_Cluster:
             if [str(atom) for atom in macrocyclization_atoms] != [self.macrocyclisations[index].atom1,
                                                                   self.macrocyclisations[index].atom2]:
                 raise ValueError(
-                    f'Not all atoms {str(self.initialized_macrocyclization_atoms)} for macrocyclisation exist in the structure.')
+                    f'Not all atoms {str(self.initialized_macrocyclization_atoms)} \
+                    for macrocyclisation exist in the structure.')
             atom1 = self.chain_intermediate.get_atom(macrocyclization_atoms[0])
             atom2 = self.chain_intermediate.get_atom(macrocyclization_atoms[1])
             self.chain_intermediate = cyclisation(
@@ -134,15 +135,15 @@ class RiPP_Cluster:
                     self.chain_intermediate)
                 self.chain_intermediate = self.tailored_product
 
-    def draw_product(self, as_string=True, out_file=None, draw_straightened=True, draw_Cs_in_pink=True):
+    def draw_product(self, as_string=True, out_file=None, draw_cs_in_pink=False):
         assert self.chain_intermediate
         if not self.cyclised_product:
             drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
                                    ripp=True, horizontal=True,
-                                   draw_Cs_in_pink=draw_Cs_in_pink)
+                                   draw_Cs_in_pink=draw_cs_in_pink)
         else:
             drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True,
-                                   ripp=True, horizontal=True, make_linear=False, draw_Cs_in_pink=draw_Cs_in_pink)
+                                   ripp=True, horizontal=True, make_linear=False, draw_Cs_in_pink=draw_cs_in_pink)
         drawing.draw_structure()
         svg_string = drawing.save_svg_string()
         if as_string:
@@ -157,7 +158,7 @@ class RiPP_Cluster:
 
     def draw_precursor(self, fold=10, size=14, as_string=True, out_file=None, amino_acid_sequence=None, leader=True,
                        x_translation=0, y_translation=0, min_padding_y=0):
-        if amino_acid_sequence == None:
+        if amino_acid_sequence is None:
             amino_acid_sequence = self.full_amino_acid_sequence
         # set begin of chain so that last amino acid is forward
         circles = []
@@ -228,8 +229,8 @@ class RiPP_Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
-    def draw_precursor_with_modified_product(self, fold=10, size=14, as_string=True, out_file=None, add_url=True,
-                                             draw_Cs_in_pink=False):
+    def draw_cluster(self, fold=10, size=14, as_string=True, out_file=None, add_url=True,
+                     draw_cs_in_pink=False):
         leader_pos = Vector(0, 0)
         follower_pos = Vector(0, 0)
         amino_acid_sequence_without_core = self.full_amino_acid_sequence.split(
@@ -247,10 +248,10 @@ class RiPP_Cluster:
             structure = attach_to_leader_ripp(
                 structure)
         if not self.cyclised_product:
-            drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
+            drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True, horizontal=True, draw_Cs_in_pink=draw_cs_in_pink)
         else:
             drawing = RaichuDrawer(structure, dont_show=True, add_url=add_url, ripp=True,
-                                   make_linear=False, horizontal=True, draw_Cs_in_pink=draw_Cs_in_pink)
+                                   make_linear=False, horizontal=True, draw_Cs_in_pink=draw_cs_in_pink)
         drawing.flip_y_axis()
         drawing.move_to_positive_coords()
         drawing.convert_to_int()

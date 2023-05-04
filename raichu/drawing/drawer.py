@@ -308,6 +308,19 @@ class RaichuDrawer(Drawer):
             plt.clf()
             plt.close()
 
+    def find_clashing_atoms(self) -> List[Tuple[Atom, Atom]]:
+        clashing_atoms = []
+        for i, atom_1 in enumerate(self.drawn_atoms):
+            for j in range(i + 1, len(self.drawn_atoms)):
+                atom_2 = self.drawn_atoms[j]
+                if not self.structure.bond_exists(atom_1, atom_2):
+                    distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
+                    # if distance < self.options.bond_length_squared:
+                    if distance < self.options.bond_length / 2:
+                        clashing_atoms.append((atom_1, atom_2))
+
+        return clashing_atoms
+
     def finetune_overlap_resolution(self, masked_bonds=None, highest_atom=None):
 
         if not masked_bonds:
@@ -407,7 +420,8 @@ class RaichuDrawer(Drawer):
 
         if not self.multiple:
             self.process_structure()
-            self.linearise()
+            if self.make_linear:
+                self.linearise()
             self.set_chiral_bonds()
             if not coords_only:
                 self.draw_structure()
@@ -631,7 +645,6 @@ class RaichuDrawer(Drawer):
                         text = ""
                     else:
                         text = atom.annotations.domain_type
-                        
 
                 horizontal_alignment = 'center'
 
@@ -981,6 +994,8 @@ class RaichuDrawer(Drawer):
         backbone_to_placement = self.get_placements(backbone, atom_to_ring, stop_linearising)
 
         i = 0
+        print(backbone_atoms)
+        print(backbone)
 
         while i < len(backbone) - 1:
 
@@ -1005,8 +1020,46 @@ class RaichuDrawer(Drawer):
             required_rotation_deg = desired_angle - current_angle
             required_rotation_rad = math.radians(required_rotation_deg)
 
-            self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
-                                atom_1.draw.position)
+            if not (atom_2 in atom_to_ring and atom_1 in atom_to_ring and atom_to_ring[atom_2] == atom_to_ring[atom_1]):
+
+                self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
+                                    atom_1.draw.position)
+            else:
+                if len(atom_to_ring[atom_2]) == 2:
+                    self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
+                                        atom_1.draw.position)
+                elif len(atom_to_ring[atom_2]) == 3:
+                    if atom_2 == atom_to_ring[atom_2][1]:
+                        self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
+                                            atom_1.draw.position)
+                    elif atom_2 == atom_to_ring[atom_2][2]:
+
+                        ring = atom_to_ring[atom_2]
+                        print(i, ring)
+                        ring_atoms = []
+                        sidechain_atoms = []
+                        for atom in atom_2.get_ring(self.structure):
+                            if atom not in backbone:
+                                ring_atoms.append(atom)
+
+                        if abs(required_rotation_deg) > 90:
+                            for atom in ring_atoms:
+                                for neighbour in atom.neighbours:
+                                    if neighbour.type != 'H':
+                                        for sidechain_atom in self.traverse_substructure(neighbour,
+                                                                                         set(ring_atoms + backbone)):
+                                            if sidechain_atom not in sidechain_atoms and \
+                                                    sidechain_atom not in ring_atoms and sidechain_atom not in backbone:
+                                                sidechain_atoms.append(sidechain_atom)
+
+                            print(sidechain_atoms)
+
+                            for ring_atom in ring_atoms:
+                                ring_atom.draw.position.mirror_about_line(ring[0].draw.position, ring[1].draw.position)
+                            for sidechain_atom in sidechain_atoms:
+                                sidechain_atom.draw.position.mirror_about_line(ring[0].draw.position, ring[1].draw.position)
+                        self.rotate_subtree_ring(atom_2, set(ring_atoms + [atom_1]), required_rotation_rad,
+                                                 atom_1.draw.position)
 
             i += 1
 
@@ -1029,6 +1082,45 @@ class RaichuDrawer(Drawer):
 
         if self.horizontal:
             self.rotate_structure(-1.5707)
+
+    def resolve_secondary_overlaps(self, sorted_scores: List[Tuple[float, Atom]]) -> None:
+        for score, atom in sorted_scores:
+            if score > self.options.overlap_sensitivity:
+                if len(atom.drawn_neighbours) <= 1:
+                    if atom.drawn_neighbours and atom.drawn_neighbours[0].adjacent_to_stereobond():
+                        continue
+
+                    closest_atom = self.get_closest_atom(atom)
+
+                    drawn_neighbours = closest_atom.drawn_neighbours
+
+                    if len(drawn_neighbours) <= 1:
+                        if not closest_atom.draw.previous_position:
+                            closest_position = drawn_neighbours[0].draw.position
+                        else:
+                            closest_position = closest_atom.draw.previous_position
+
+                    else:
+                        if not closest_atom.draw.previous_position:
+                            closest_position = drawn_neighbours[0].draw.position
+                        else:
+                            closest_position = closest_atom.draw.position
+
+                    if not atom.draw.previous_position:
+                        atom_previous_position = atom.drawn_neighbours[0].draw.position
+                    else:
+                        atom_previous_position = atom.draw.previous_position
+                    #
+                    # atom.draw.position.rotate_away_from_vector(closest_position, atom_previous_position,
+                    #                                            math.radians(20))
+
+
+    def rotate_subtree_ring(self, root, masked, angle, center):
+        for atom in self.traverse_substructure(root, masked):
+            atom.draw.position.rotate_around_vector(angle, center)
+            for anchored_ring in atom.draw.anchored_rings:
+                if anchored_ring.center:
+                    anchored_ring.center.rotate_around_vector(angle, center)
 
     def position_sidechains(self, backbone, backbone_to_placement):
 
@@ -1057,7 +1149,6 @@ class RaichuDrawer(Drawer):
             required_rotation_rad = math.radians(required_rotation_deg)
 
             self.rotate_subtree(atom, backbone_atom, required_rotation_rad, backbone_atom.draw.position)
-
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
         truncated_line = line.get_truncated_line(

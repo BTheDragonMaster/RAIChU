@@ -187,7 +187,7 @@ def draw_ripp_structure(ripp_cluster: RiPP_Cluster) -> None:
     ripp_cluster.do_macrocyclization()
     ripp_cluster.draw_product(
         as_string=False, out_file="macrocyclisation_test_ripp.svg")
-    ripp_cluster.do_proteolytic_claevage()
+    ripp_cluster.do_proteolytic_cleavage()
     ripp_cluster.draw_product(
         as_string=False, out_file="cleavage_test_ripp.svg")
 
@@ -351,8 +351,18 @@ if __name__ == "__main__":
                                                                 DomainRepresentation("Gene 1", 'PCP', None, None, True,
                                                                                      True)
                                                                 ]),
-                                          ModuleRepresentation("NRPS", None, "phenylalanine",
+                                          ModuleRepresentation("NRPS", None, "proline",
                                                                [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True)
+                                                                ]),
+                                          ModuleRepresentation("NRPS", None, "threonine",
+                                                               [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'CYC', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'A', None, None, True,
                                                                                      True),
@@ -362,8 +372,16 @@ if __name__ == "__main__":
                                           ModuleRepresentation("NRPS", None, "proline",
                                                                [DomainRepresentation("Gene 1", 'C', None, None, True,
                                                                                      True),
-                                                                # DomainRepresentation("Gene 1", 'CYC', None, None, True,
-                                                                #                      True),
+                                                                DomainRepresentation("Gene 1", 'A', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'PCP', None, None, True,
+                                                                                     True),
+                                                                DomainRepresentation("Gene 1", 'TE', None, None, True,
+                                                                                     True)
+                                                                ]),
+                                          ModuleRepresentation("NRPS", None, "valine",
+                                                               [DomainRepresentation("Gene 1", 'C', None, None, True,
+                                                                                     True),
                                                                 DomainRepresentation("Gene 1", 'A', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'PCP', None, None, True,
@@ -375,15 +393,14 @@ if __name__ == "__main__":
                                                                 DomainRepresentation("Gene 1", 'A', None, None, True,
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'PCP', None, None, True,
-                                                                                     True),
-                                                                DomainRepresentation("Gene 1", 'TE', None, None, True,
                                                                                      True)
                                                                 ]),
 
+
                                                                 ]
                                          )
-    # draw_cluster(cluster_nrps, outfile="cyc_test.svg")
-    # draw_ripp_structure(ripp_cluster)
+    draw_cluster(cluster_nrps, outfile="cyc_test.svg")
+    draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
     # cyanobactin_cluster_trunkamide.make_peptide()

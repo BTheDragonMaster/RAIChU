@@ -1,5 +1,6 @@
 from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures, find_atoms
+from pikachu.drawing.drawing import Drawer
 
 from raichu.data.attributes import ATTRIBUTES
 from raichu.reactions.general_tailoring_reactions import cyclodehydration
@@ -133,7 +134,9 @@ def nrps_cyclodehydration(nrp):
 
     product = cyclodehydration(nrp, attacking_atom, keto_group)
     assert product
-    draw_structure(product)
+    drawing = Drawer(product)
+    atom = drawing.structure.atoms[42]
+    drawing.write_svg("nrps_lines.svg", numbered_atoms=[atom])
     return product, True
 
 

@@ -1,6 +1,6 @@
 import os
 
-from pikachu.general import read_smiles, draw_structure
+from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner
 from raichu.reactions.general import initialise_atom_attributes
 
@@ -87,6 +87,7 @@ C2_AMINO_ACID = GroupDefiner('C2 atom amino acid', 'NCC(=O)O', 2)
 N_AMINO_ACID_ATTACHED = GroupDefiner('Nitrogen atom amino acid', 'NCC=O', 0)
 C1_AMINO_ACID_ATTACHED = GroupDefiner('C1 atom amino acid', 'NCC=O', 1)
 C2_AMINO_ACID_ATTACHED = GroupDefiner('C2 atom amino acid', 'NCC=O', 2)
+OH_AMINO_ACID = GroupDefiner('OH atom amino acid', 'NCC(O)=O', 3)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
 AMINO_ACID_BACKBONE_ATTACHED = read_smiles('NCC=O')
 BETA_AMINO_ACID_BACKBONE = read_smiles('NCCC(=O)O')
@@ -127,3 +128,8 @@ REDUCED_SERINE = GroupDefiner('reduced_serine', 'NC(=C)C=O', 2)
 REDUCED_THREONINE = GroupDefiner('reduced_threonine', 'C=CC(N)C=O', 0)
 PYROPHOSPHATE_BOND = BondDefiner(
     "pyrophosphate_bond", "COP", 0, 1)
+ATTACHED_SERINE_OX = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 0)
+ATTACHED_CYSTEINE_OX = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 0)
+ATTACHED_SERINE_O = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 5)
+ATTACHED_CYSTEINE_S = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 5)
+

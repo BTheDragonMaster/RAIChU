@@ -4,6 +4,56 @@ from pikachu.general import read_smiles
 from raichu.central_chain_detection.label_central_chain import label_pk_central_chain
 
 
+def reorder_central_chain(central_chain, drawer):
+    stop_linearising = None
+    rings = []
+    current_ring = []
+    current_ring_index = None
+
+    for i, atom in enumerate(central_chain):
+        if atom.inside_ring:
+            ring_index = atom.get_ring_index(drawer.structure)
+            if (current_ring and ring_index == current_ring_index) or not current_ring:
+                current_ring.append(atom)
+                current_ring_index = ring_index
+            else:
+                rings.append(current_ring)
+                current_ring = [atom]
+                current_ring_index = ring_index
+
+    rings.append(current_ring)
+    new_rings = []
+
+    for ring in rings:
+
+        if len(ring) > 3:
+            alternative_path = drawer.find_shortest_path(ring[0], ring[-1], path_type='atom')
+            if len(alternative_path) <= 3:
+                new_backbone = []
+                path_added = False
+                for atom in central_chain:
+                    if atom not in ring:
+                        new_backbone.append(atom)
+                    elif not path_added:
+                        new_backbone += alternative_path
+                        path_added = True
+                central_chain = new_backbone
+                new_rings.append(alternative_path)
+            else:
+                stop_linearising = ring[2]
+                break
+        else:
+            new_rings.append(ring)
+
+    rings = new_rings
+    atom_to_ring = {}
+    for ring in rings:
+        for atom in ring:
+            atom_to_ring[atom] = ring
+
+    return central_chain, rings, atom_to_ring, stop_linearising
+
+
 def find_central_chain(pks_nrps_attached):
     """Identifies the central chain atoms in the input structure from the
     in_central_chain Atom attribute, and returns these Atom objects as a list
@@ -82,20 +132,24 @@ def find_central_chain_ripp(ripp_attached):
     nitrogen = None
     domains = [
         atom.annotations.domain_type for atom in ripp_attached.graph if atom.annotations.domain_type]
-    if "Leader" in domains:
+    if "Follower" in domains:
         for atom in ripp_attached.graph:
             if atom.annotations.domain_type:
-                if atom.annotations.domain_type == "Leader":
+                if atom.annotations.domain_type == "Follower":
                     nitrogen = atom.get_neighbour("N")
+
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
+
     else:
         for atom in ripp_attached.graph:
             if atom.type == 'N' and any(neighbour.annotations.domain_type
                                         for neighbour in atom.neighbours):
                 nitrogen = atom
+
             if not atom.annotations.in_central_chain:
                 atom.annotations.in_central_chain = False
+
     assert nitrogen
 
     central_chain = [nitrogen]
@@ -120,6 +174,7 @@ def find_central_chain_ripp(ripp_attached):
                     visited.append(neighbour)
 
     return central_chain
+
 
 def find_central_chain_not_attached(pks_nrps):
     """Identifies the central chain atoms in the input structure from the

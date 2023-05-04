@@ -2,6 +2,8 @@ from pikachu.drawing.drawing import Drawer
 
 from enum import Enum, unique
 import itertools
+
+from pikachu.drawing.drawing import Drawer
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration, change_chirality, excise_from_structure
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
 from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE, C1_AMINO_ACID_ATTACHED, ARGININE_SECONDARY_N
@@ -406,7 +408,6 @@ class TailoringEnzyme:
                     structure = structure_2
                 structure.add_atom('H', [nitrogen])
                 structure.refresh_structure(find_cycles=True)
-
 
         return structure
 

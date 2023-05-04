@@ -1,7 +1,11 @@
 from pikachu.general import read_smiles, draw_structure
-from pikachu.reactions.functional_groups import combine_structures
+from pikachu.reactions.functional_groups import combine_structures, find_atoms
+from pikachu.drawing.drawing import Drawer
 
 from raichu.data.attributes import ATTRIBUTES
+from raichu.reactions.general_tailoring_reactions import cyclodehydration
+from raichu.data.molecular_moieties import ATTACHED_SERINE_OX, ATTACHED_CYSTEINE_OX, ATTACHED_SERINE_O, \
+    ATTACHED_CYSTEINE_S
 
 
 def epimerization(chiral_centre):
@@ -109,6 +113,33 @@ def n_methylate(nrp):
     assert product
 
     return product, True
+
+
+def nrps_cyclodehydration(nrp):
+    cysteine_ss = find_atoms(ATTACHED_CYSTEINE_S, nrp)
+    if len(cysteine_ss) == 1:
+        cysteine_oxs = find_atoms(ATTACHED_CYSTEINE_OX, nrp)
+        assert len(cysteine_oxs) == 1
+        attacking_atom = cysteine_ss[0]
+        keto_group = cysteine_oxs[0]
+    else:
+        serine_os = find_atoms(ATTACHED_SERINE_O, nrp)
+        if len(serine_os) == 1:
+            serine_oxs = find_atoms(ATTACHED_SERINE_OX, nrp)
+            attacking_atom = serine_os[0]
+            keto_group = serine_oxs[0]
+
+        else:
+            return nrp, False
+
+    product = cyclodehydration(nrp, attacking_atom, keto_group)
+    assert product
+    drawing = Drawer(product)
+    atom = drawing.structure.atoms[42]
+    drawing.write_svg("nrps_lines.svg", numbered_atoms=[atom])
+    return product, True
+
+
 
 
 if __name__ == "__main__":

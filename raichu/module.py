@@ -44,9 +44,10 @@ class NRPSDomainType(Enum):
     PCP = 3
     E = 4
     nMT = 5
-    TE = 6
-    TD = 7
-    UNKNOWN = 8
+    CYC = 6
+    TE = 7
+    TD = 8
+    UNKNOWN = 9
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":
@@ -217,6 +218,7 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
     def do_nrps_tailoring(self, structure: Structure) -> Structure:
         e_domain = self.get_tailoring_domain('E')
         n_mt_domain = self.get_tailoring_domain('nMT')
+        cyc_domain = self.get_tailoring_domain('CYC')
 
         if e_domain and e_domain.active and e_domain.used:
             structure, epimerized = e_domain.do_tailoring(structure)
@@ -226,6 +228,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
             structure, methylated = n_mt_domain.do_tailoring(structure)
             if not methylated:
                 n_mt_domain.used = False
+        if cyc_domain and cyc_domain.active and cyc_domain.used:
+            structure, cyclised = cyc_domain.do_tailoring(structure)
+            if not cyclised:
+                cyc_domain.used = False
 
         return structure
 

@@ -166,13 +166,13 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
     return cluster
 
 
-def draw_cluster(cluster_repr: ClusterRepresentation, outfile=None) -> None:
+def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None) -> None:
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
     cluster.draw_product(as_string=False, out_file = "s")
-    if outfile:
-        return cluster.draw_cluster(as_string=False, out_file=outfile)
+    if out_file:
+        return cluster.draw_cluster(as_string=False, out_file=out_file)
     else:
         cluster.draw_cluster()
 
@@ -270,7 +270,7 @@ if __name__ == "__main__":
             TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]])
             ]
         )
-    cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASTSIAPFCSYDGVDASTSIAPFCSYDD", "TSIAPFC",
+    cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASSYDGVDASSYDD", "TSIAPFC",
                                                   macrocyclisations=[MacrocyclizationRepresentation("N_0","O_59")],
                                                   tailoring_enzymes_representation=[TailoringRepresentation("truD", "CYCLODEHYDRATION", [["S_56"]]),
                                                                                     TailoringRepresentation("truF", "PRENYLTRANSFERASE", [['O_13'], ['O_5']], "3_METHYL_1_BUTENYL")]
@@ -433,12 +433,15 @@ if __name__ == "__main__":
     # # print(get_tailoring_sites_atom_names(
     # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
 
-    # # sancti_peptide_cluster_thurincin.make_peptide()
+    sancti_peptide_cluster_thurincin.make_peptide()
     # # print(get_tailoring_sites_atom_names(
     # # sancti_peptide_cluster_thurincin.chain_intermediate))
     # # sancti_peptide_cluster_thurincin.draw_product(
     # #     as_string=False, out_file="peptide_test_sancti_peptide.svg")
-    # # sancti_peptide_cluster_thurincin.do_tailoring()
+    sancti_peptide_cluster_thurincin.do_tailoring()
+    drawer = Drawer(sancti_peptide_cluster_thurincin.chain_intermediate)
+    drawer.show_molecule()
+    
     # # sancti_peptide_cluster_thurincin.draw_product(
     # #     as_string=False, out_file="tailored_test_sancti_peptide.svg", draw_straightened=False)
     # # print(get_tailoring_sites_atom_names(
@@ -460,5 +463,12 @@ if __name__ == "__main__":
     # sliceotide_cluster.draw_product(
     #     as_string=False, out_file="tailored_test_sliceotide_cluster.svg", draw_straightened=False)
     #lasso_peptide_cluster.do_tailoring()
-    draw_terpene_structure(terpene_cluster)
+    #draw_terpene_structure(terpene_cluster)
     #draw_alkaloid_structure(alkaloid_cluster)
+    cyanobactin_cluster_trunkamide.make_peptide()
+    #cyanobactin_cluster_trunkamide.draw_precursor_with_modified_product(as_string=False, out_file= "trunkamide_peptide.svg")
+    cyanobactin_cluster_trunkamide.do_tailoring()
+    cyanobactin_cluster_trunkamide.do_macrocyclization()
+    drawer = Drawer(cyanobactin_cluster_trunkamide.chain_intermediate)
+    drawer.show_molecule()
+    cyanobactin_cluster_trunkamide.draw_product(as_string=False, out_file= "trunkamide.svg")

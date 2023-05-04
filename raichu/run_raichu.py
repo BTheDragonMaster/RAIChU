@@ -274,7 +274,17 @@ if __name__ == "__main__":
         tailoring_enzymes_representation=[
             TailoringRepresentation("tpdD", "THREONINE_SERINE_DEHYDRATASE", [['O_104'], ['O_90'], ['O_4'], ['O_111']]), 
             TailoringRepresentation("tpdE", "CYCLODEHYDRATION", [['S_97'], ['S_11'], ['S_76'], ['S_46'], ['S_83'], ['S_27']]),
-            TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]])
+            TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]]),
+            TailoringRepresentation("tpdF", "METHYLTRANSFERASE",[["C_26"]]),
+            TailoringRepresentation("tpdF", "HYDROXYLATION", [["C_33"]]),
+            TailoringRepresentation(
+                "tpdF", "DOUBLE_BOND_FORMATION", [["C_67", "C_68"], ["C_3", "C_89"]]),
+            TailoringRepresentation("tpdF", "EPOXIDATION", [["C_67", "C_68"]]),
+            TailoringRepresentation("tpdF", "MONOAMINE_OXIDASE", [["N_0"]]),
+             TailoringRepresentation(
+                "tpdF", "DEHYDRATASE", [["C_1", "C_84"]])
+
+            
             ]
         )
     cyanobactin_cluster_trunkamide = RiPP_Cluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASSYDGVDASSYDD", "TSIAPFC",
@@ -286,7 +296,7 @@ if __name__ == "__main__":
     lasso_peptide_cluster = RiPP_Cluster("A1S42_RS12075", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF",
                                          tailoring_enzymes_representation=[TailoringRepresentation("lasB", "PROTEASE", [["N_180", "C_178"]]), TailoringRepresentation("lasC", "MACROLACTAM_SYNTHETASE", [["O_261"]])]
                                 )
-    sancti_peptide_cluster_thurincin = RiPP_Cluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS", "DWTCWSCLVCAACSVELLNLVTAATGASTAS",
+    sacti_peptide_cluster_thurincin = RiPP_Cluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS", "DWTCWSCLVCAACSVELLNLVTAATGASTAS",
                                                     tailoring_enzymes_representation=[TailoringRepresentation(
                                                         "thnB", "OXIDATIVE_BOND_FORMATION", [['S_109', "C_222"], ['S_66', "C_203"], ['S_90', "C_182"], ['S_37', "C_156"]])]
                                     )
@@ -429,25 +439,26 @@ if __name__ == "__main__":
     # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
     #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
 
-    # thiopeptide_cluster_thiomuracin.make_peptide()
-    # # print(get_tailoring_sites_atom_names(
-    # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
-    # thiopeptide_cluster_thiomuracin.draw_product(
-    #     as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
-    # thiopeptide_cluster_thiomuracin.do_tailoring()
-    # thiopeptide_cluster_thiomuracin.draw_product(
-    #     as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
+    thiopeptide_cluster_thiomuracin.make_peptide()
+    
+    thiopeptide_cluster_thiomuracin.draw_product(
+        as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
+    thiopeptide_cluster_thiomuracin.do_tailoring()
+    thiopeptide_cluster_thiomuracin.draw_product(
+        as_string=False, out_file="tailored_test_thiopeptide_peptide.svg", draw_straightened=False)
+    get_tailoring_sites(thiopeptide_cluster_thiomuracin.chain_intermediate,
+                        enzyme_name="DOUBLE_BOND_FORMATION", out_file="methylation_options_thiopeptide.svg")
     # # print(get_tailoring_sites_atom_names(
     # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
 
-    sancti_peptide_cluster_thurincin.make_peptide()
-    # # print(get_tailoring_sites_atom_names(
-    # # sancti_peptide_cluster_thurincin.chain_intermediate))
-    # # sancti_peptide_cluster_thurincin.draw_product(
-    # #     as_string=False, out_file="peptide_test_sancti_peptide.svg")
-    sancti_peptide_cluster_thurincin.do_tailoring()
-    drawer = Drawer(sancti_peptide_cluster_thurincin.chain_intermediate)
-    drawer.show_molecule()
+    # sacti_peptide_cluster_thurincin.make_peptide()
+    # # # print(get_tailoring_sites_atom_names(
+    # # # sancti_peptide_cluster_thurincin.chain_intermediate))
+    # # # sancti_peptide_cluster_thurincin.draw_product(
+    # # #     as_string=False, out_file="peptide_test_sancti_peptide.svg")
+    # sacti_peptide_cluster_thurincin.do_tailoring()
+    # drawer = Drawer(sacti_peptide_cluster_thurincin.chain_intermediate)
+    # drawer.show_molecule()
     
     # # sancti_peptide_cluster_thurincin.draw_product(
     # #     as_string=False, out_file="tailored_test_sancti_peptide.svg", draw_straightened=False)
@@ -472,10 +483,11 @@ if __name__ == "__main__":
     #lasso_peptide_cluster.do_tailoring()
     #draw_terpene_structure(terpene_cluster)
     #draw_alkaloid_structure(alkaloid_cluster)
-    cyanobactin_cluster_trunkamide.make_peptide()
-    #cyanobactin_cluster_trunkamide.draw_precursor_with_modified_product(as_string=False, out_file= "trunkamide_peptide.svg")
-    cyanobactin_cluster_trunkamide.do_tailoring()
-    cyanobactin_cluster_trunkamide.do_macrocyclization()
-    drawer = Drawer(cyanobactin_cluster_trunkamide.chain_intermediate)
-    drawer.show_molecule()
-    cyanobactin_cluster_trunkamide.draw_product(as_string=False, out_file= "trunkamide.svg")
+    # cyanobactin_cluster_trunkamide.make_peptide()
+    # #cyanobactin_cluster_trunkamide.draw_precursor_with_modified_product(as_string=False, out_file= "trunkamide_peptide.svg")
+    # cyanobactin_cluster_trunkamide.do_tailoring()
+    # cyanobactin_cluster_trunkamide.do_macrocyclization()
+    # drawer = Drawer(cyanobactin_cluster_trunkamide.chain_intermediate)
+    # # drawer.show_molecule()
+    
+    # cyanobactin_cluster_trunkamide.draw_product(as_string=False, out_file= "trunkamide.svg")

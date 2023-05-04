@@ -273,10 +273,11 @@ def attach_to_leader_ripp(ripp):
 
     # Create domain
     domain = make_scaffold_peptide('Leader')
+    n_atom_to_domain = None
     if ripp.find_substructures(AMINO_ACID_BACKBONE_N_TERMINUS):
         locations_n_to_domain = find_atoms(RIPP_N, ripp)
         for nitrogen in locations_n_to_domain:
-            if len(nitrogen.get_neighbours('H'))==2:
+            if len(nitrogen.get_neighbours('H')) == 2:
                 n_atom_to_domain = nitrogen
                 break
     assert n_atom_to_domain

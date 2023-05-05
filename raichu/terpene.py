@@ -26,7 +26,7 @@ class Terpene_Cluster:
         if self.macrocyclisations:
             for cyclization in self.macrocyclisations:
                 atoms = [atom for atom in self.chain_intermediate.atoms.values() if str(
-                    atom) in [cyclization.atom1, cyclization.atom2]]
+                    atom) in [cyclization.atom_1, cyclization.atom_2]]
                 if len(atoms)<2:
                     raise ValueError(f"Non-existing atoms for cyclization")
                 self.initialized_macrocyclization_atoms += [atoms]

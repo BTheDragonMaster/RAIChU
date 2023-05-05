@@ -141,12 +141,6 @@ class Cluster:
 
         for i, structure in enumerate(self.structure_intermediates):
 
-            drawing_2 = Drawer(structure)
-            if 42 in drawing_2.structure.atoms:
-                c42 = drawing_2.structure.atoms[42]
-                drawing_2.write_svg(f"pk_lines{i}.svg",
-                                    numbered_atoms=[c42])
-
             drawing = RaichuDrawer(structure, dont_show=True)
 
             drawing.flip_y_axis()
@@ -276,6 +270,7 @@ class Cluster:
                 else:
                     with open(out_file, 'w') as svg_out:
                         svg_out.write(svg_string)
+
 
 class Mechanism:
     def __init__(self):

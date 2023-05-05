@@ -48,6 +48,7 @@ TRANSPARENT_FILL_COLOURS = {'ACP': '#c0defb',
                             'E': '#c0c0fc',
 
                             'nMT': '#ececec',
+                            'CYC': '#ececec',
                             "UNKNOWN": '#ececec'}
 
 TRANSPARENT_OUTLINE_COLOURS = {'ACP': '#9ab8e9',
@@ -70,6 +71,7 @@ TRANSPARENT_OUTLINE_COLOURS = {'ACP': '#9ab8e9',
                                'E': '#ababdb',
 
                                'nMT': '#d0d0d0',
+                               'CYC': '#d0d0d0',
                                "UNKNOWN": '#d0d0d0'}
 
 TEXT_COLOUR = 'black'
@@ -93,13 +95,14 @@ TRANSPARENT_TEXT_COLOURS = {'ACP': '#606e7e',
                             'E': '#60607e',
 
                             'nMT': '#767676',
+                            'CYC': '#767676',
                             "UNKNOWN": '#767676'}
 
 DOMAIN_ABBREVIATIONS = {'ACP': 'CP', 'AT': 'AT', 'KS': 'KS',
                         'KR': 'KR', 'DH': 'DH', 'ER': 'ER',
                         'TE': 'TE', 'TD': 'TD', 'C': 'C',
                         'A': 'A', 'PCP': 'CP', 'E': 'E',
-                        'nMT': 'nMT', 'oMT': 'oMT', 'cMT': 'cMT'}
+                        'nMT': 'nMT', 'oMT': 'oMT', 'cMT': 'cMT', 'CYC': 'Cy'}
 
 AMINO_ACID_FILL_COLOURS = {"A": "#81bef7",
                                 "R": "#81f781",

@@ -990,7 +990,6 @@ class RaichuDrawer(Drawer):
                     backbone.append(domain)
 
         backbone_to_placement = self.get_placements(backbone, atom_to_ring, stop_linearising)
-        print(backbone_to_placement)
 
         i = 0
 

@@ -352,7 +352,7 @@ def oxidative_bond_formation(atom1, atom2, structure):
     return product
 
 
-def proteolytic_cleavage(bond, structure, structure_to_keep: str = "follower"):
+def proteolytic_cleavage(bond, structure, structure_to_keep: str = "end"):
     """Performs proteolytic cleavage
 
      bond: exact PIKAChU bond object to cleave
@@ -373,11 +373,11 @@ def proteolytic_cleavage(bond, structure, structure_to_keep: str = "follower"):
 
     structures = structure.split_disconnected_structures()
     for structure in structures:
-        if structure_to_keep == "leader":
+        if structure_to_keep == "start":
             if carbon in structure.graph:
                 structure.refresh_structure()
                 return structure
-        if structure_to_keep == "follower":
+        if structure_to_keep == "end":
             if nitrogen in structure.graph:
                 structure.refresh_structure()
                 return structure

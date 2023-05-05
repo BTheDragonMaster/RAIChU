@@ -13,7 +13,7 @@ from pikachu.reactions.functional_groups import find_atoms, find_bonds
 @unique
 class TailoringEnzymeType(Enum):
 
-    #Transferation
+    #Group transfer reactions
     METHYLTRANSFERASE = 1
     C_METHYLTRANSFERASE = 2
     N_METHYLTRANSFERASE = 3
@@ -455,7 +455,7 @@ class TailoringEnzyme:
 
         elif self.type.name == "KETO_REDUCTION":
             oxygens = find_atoms(KETO_GROUP, structure)
-            possible_sites.extend([oxygen.get_neighbour("O") for oxygen in oxygens])
+            possible_sites.extend(oxygens)
 
         elif self.type.name == "ALCOHOL_DEHYDROGENASE":
             possible_sites.extend(
@@ -519,7 +519,11 @@ class TailoringEnzyme:
         elif self.type.name == "ARGINASE":
             arginine_n = find_atoms(ARGININE_SECONDARY_N, structure)
             possible_sites.extend(arginine_n)
-
+        elif self.type.name == "THIOPEPTIDE_CYCLASE":
+            ser_thr_c = find_atoms(REDUCED_SERINE, structure) + \
+                find_atoms(REDUCED_THREONINE, structure)
+            possible_sites.extend([list(t)for t in itertools.product(ser_thr_c, ser_thr_c)])
+            
         if out_file:
             drawing = Drawer(structure)
             site_list = []
@@ -530,5 +534,4 @@ class TailoringEnzyme:
                 else:
                     site_list.append(possible_site)
             drawing.write_svg(out_file, numbered_atoms=site_list)
-
         return possible_sites

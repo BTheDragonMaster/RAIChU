@@ -1,5 +1,6 @@
 import random
 from sys import argv
+import os
 
 from raichu.run_raichu import DomainRepresentation, ModuleRepresentation, ClusterRepresentation, draw_cluster
 from raichu.domain.domain_types import KRDomainSubtype, KSDomainSubtype
@@ -199,7 +200,12 @@ def create_random_cluster_trans_at(number_of_modules):
 if __name__ == "__main__":
     for i in range(1, int(argv[1]) + 1):
         cluster_repr = create_random_cluster_trans_at(random.randint(5, 7))
-        draw_cluster(cluster_repr, f'demo_cluster_transat_{i}.svg')
+        out_folder = f'demo_cluster_transat_{i}'
+
+        cluster_repr.write_cluster(out_folder)
+        draw_cluster(cluster_repr, os.path.join(out_folder, 'visualisation.svg'))
 
         cluster_repr = create_random_cluster(random.randint(5, 7))
-        draw_cluster(cluster_repr, f'demo_cluster_{i}.svg')
+        out_folder = f'demo_cluster_cis_{i}'
+        cluster_repr.write_cluster(out_folder)
+        draw_cluster(cluster_repr, os.path.join(out_folder, 'visualisation.svg'))

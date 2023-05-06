@@ -29,10 +29,10 @@ class TailoringRepresentation:
 class DomainRepresentation:
     gene_name: Union[str, None]
     type: str
-    subtype: Union[str, None]
-    name: Union[str, None]
-    active: bool
-    used: bool
+    subtype: Union[str, None] = None
+    name: Union[str, None] = None
+    active: bool = True
+    used: bool = True
 
 
 @dataclass
@@ -105,7 +105,7 @@ class ClusterRepresentation:
                     domain = DomainRepresentation(gene_name, domain_type, domain_subtype, domain_name, domain_active, domain_used)
                     if module_nr not in modules:
                         modules[module_nr] = {"type": module_type,
-                                              "subdype": module_subtype,
+                                              "subtype": module_subtype,
                                               "substrate": substrate,
                                               "iterations": iterations,
                                               "domains": [domain]}

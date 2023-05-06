@@ -83,14 +83,14 @@ class PksStarterSubstrate(Enum):
 
     @staticmethod
     def from_string(label: str):
-        for value in PksElongationSubstrate:
+        for value in PksStarterSubstrate:
             if str(value) == label:
                 return value
         raise ValueError(f"Unknown PKS starter substrate: {label}")
 
     @staticmethod
     def get_smiles(label: str):
-        for value in PksElongationSubstrate:
+        for value in PksStarterSubstrate:
             if str(value) == label:
                 return _PKS_TO_SMILES[value]
 
@@ -140,6 +140,7 @@ class AminoAcidSubstrate(Substrate):
     def __init__(self, name: str) -> None:
         smiles = get_smiles(name)
         super().__init__(name, smiles)
+
 
 class PKSSubstrate(Substrate):
     def __init__(self, name: str) -> None:

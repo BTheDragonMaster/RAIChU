@@ -58,7 +58,56 @@ phenylnannolone_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", No
 
                                                  ]
                                                 )
+# erythromycin
+
+erythromycin_cluster = ClusterRepresentation([ModuleRepresentation('PKS', 'PKS_CIS', 'PROPIONYL_COA',
+                                                                   [DomainRepresentation("eryAI", 'AT'),
+                                                                    DomainRepresentation("eryAI", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAI", 'KS'),
+                                                                    DomainRepresentation("eryAI", 'AT'),
+                                                                    DomainRepresentation("eryAI", 'DH',
+                                                                                         active=False, used=False),
+                                                                    DomainRepresentation("eryAI", 'KR', 'B2'),
+                                                                    DomainRepresentation("eryAI", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAI", 'KS'),
+                                                                    DomainRepresentation("eryAI", 'AT'),
+                                                                    DomainRepresentation("eryAI", 'KR', 'A1'),
+                                                                    DomainRepresentation("eryAI", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAII", 'KS'),
+                                                                    DomainRepresentation("eryAII", 'AT'),
+                                                                    DomainRepresentation("eryAII", 'KR', 'C2'),
+                                                                    DomainRepresentation("eryAII", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAII", 'KS'),
+                                                                    DomainRepresentation("eryAII", 'AT'),
+                                                                    DomainRepresentation("eryAII", 'DH'),
+                                                                    DomainRepresentation("eryAII", 'ER'),
+                                                                    DomainRepresentation("eryAII", 'KR'),
+                                                                    DomainRepresentation("eryAII", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAIII", 'KS'),
+                                                                    DomainRepresentation("eryAIII", 'AT'),
+                                                                    DomainRepresentation("eryAIII", 'KR', 'A1'),
+                                                                    DomainRepresentation("eryAIII", 'ACP')
+                                                                    ]),
+                                              ModuleRepresentation('PKS', 'PKS_CIS', 'METHYLMALONYL_COA',
+                                                                   [DomainRepresentation("eryAIII", 'KS'),
+                                                                    DomainRepresentation("eryAIII", 'AT'),
+                                                                    DomainRepresentation("eryAIII", 'KR', 'A1'),
+                                                                    DomainRepresentation("eryAIII", 'ACP'),
+                                                                    DomainRepresentation("eryAIII", 'TE')
+                                                                    ]),
+                                              ])
 
 draw_cluster(phenylnannolone_cluster, "phenylnannolone.svg")
+draw_cluster(erythromycin_cluster, "erythromycin.svg")
 
 # iterative

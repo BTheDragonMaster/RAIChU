@@ -128,6 +128,14 @@ def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None) -> None:
         return cluster.draw_cluster()
 
 
+def draw_products(cluster_repr: ClusterRepresentation, out_dir) -> None:
+    cluster = build_cluster(cluster_repr)
+    cluster.compute_structures(compute_cyclic_products=True)
+    cluster.do_tailoring()
+    cluster.cyclise_all()
+    cluster.draw_all_products(out_dir)
+
+
 def draw_ripp_structure(ripp_cluster: RiPPCluster) -> None:
     ripp_cluster.make_peptide()
     ripp_cluster.draw_product(

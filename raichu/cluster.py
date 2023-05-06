@@ -1,8 +1,10 @@
 from typing import List
+import os
 
 from pikachu.drawing.drawing import Drawer
+from pikachu.reactions.functional_groups import find_atoms
 
-from raichu.reactions.chain_release import cyclic_release
+from raichu.reactions.chain_release import cyclic_release, find_o_betapropriolactone
 from raichu.drawing.drawer import RaichuDrawer
 from raichu.module import _Module
 
@@ -13,6 +15,7 @@ from raichu.substrate import PKSSubstrate
 from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE, \
     TRANSATOR_CLADE_TO_ELONGATING
 from raichu.domain.domain import TailoringDomain
+from raichu.data.molecular_moieties import O_OH, N_NH
 
 
 class Cluster:
@@ -86,11 +89,38 @@ class Cluster:
             self.cyclise_all()
 
     def cyclise(self, atom):
-        self.cyclised_product = cyclic_release(self.chain_intermediate, atom)
-        return self.cyclised_product
+        cyclised_product = cyclic_release(self.chain_intermediate, atom)
+        self.cyclised_product = cyclised_product
+        return cyclised_product
 
     def cyclise_all(self):
-        pass
+        self.cyclised_products = []
+        o_not_to_use = find_o_betapropriolactone(self.chain_intermediate)
+
+        for atom in find_atoms(N_NH, self.chain_intermediate):
+            if len(atom.get_neighbours('H')) == 2:
+
+                self.cyclised_products.append(cyclic_release(self.chain_intermediate.deepcopy(), atom))
+
+        for atom in find_atoms(O_OH, self.chain_intermediate):
+            if atom.has_neighbour('H') and atom != o_not_to_use and not getattr(atom.annotations, 'terminal_o'):
+                self.cyclised_products.append(cyclic_release(self.chain_intermediate.deepcopy(), atom))
+
+    def draw_all_products(self, out_dir):
+        if not os.path.exists(out_dir):
+            os.mkdir(out_dir)
+
+        last_i = 0
+
+        for i, product in enumerate(self.cyclised_products):
+            out_file = os.path.join(out_dir, f'product_{i}.svg')
+            drawing = Drawer(product)
+            drawing.write_svg(out_file)
+            last_i = i
+
+        drawing = Drawer(self.chain_intermediate)
+        out_file = os.path.join(out_dir, f'product_{last_i + 1}.svg')
+        drawing.write_svg(out_file)
 
     def initialize_modification_sites_on_structure(self, modification_sites):
             modification_sites_initialized = []

@@ -9,6 +9,7 @@ from raichu.central_chain_detection.label_central_chain import label_pk_central_
 from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
 from raichu.substrate import PKSSubstrate
+from pikachu.drawing.drawing import Drawer
 
 @unique
 class ModuleType(Enum):
@@ -350,6 +351,19 @@ class TransATPKSModule(_Module):
         if not bmt_domain:
             bmt_domain = self.get_tailoring_domain("DUMMY_BMT")
 
+        if amt_domain and amt_domain.active and amt_domain.used:
+            structure, amt_tailored = amt_domain.do_tailoring(structure)
+            if not amt_tailored:
+                amt_domain.used = False
+            structure.refresh_structure()
+        if almt_domain and almt_domain.active and almt_domain.used:
+            structure, almt_tailored = almt_domain.do_tailoring(structure)
+            if not almt_tailored:
+                almt_domain.used = False
+        if ah_domain and ah_domain.active and ah_domain.used:
+            structure, ah_tailored = ah_domain.do_tailoring(structure)
+            if not ah_tailored:
+                ah_domain.used = False
         if kr_domain and kr_domain.active and kr_domain.used:
             assert kr_domain.subtype is not None
 
@@ -365,6 +379,10 @@ class TransATPKSModule(_Module):
                 if er_domain:
                     er_domain.used = False
             if not kr_domain.subtype.name == 'C1' and not kr_domain.subtype.name == 'C2':
+                if bmt_domain and bmt_domain.active and bmt_domain.used:
+                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
+                    if not bmt_tailored:
+                        bmt_domain.used = False
                 if omt_domain and omt_domain.active and omt_domain.used:
                     structure, omt_tailored = omt_domain.do_tailoring(structure)
                     if not omt_tailored:
@@ -373,8 +391,6 @@ class TransATPKSModule(_Module):
                     structure, dh_tailored = dh_domain.do_tailoring(structure)
                     if not dh_tailored:
                         dh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
                         if er_domain:
                             er_domain.used = False
                     else:
@@ -382,39 +398,23 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
                 elif edh_domain and edh_domain.active and edh_domain.used:
                     structure, edh_tailored = edh_domain.do_tailoring(structure)
                     if not edh_tailored:
                         edh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
+
                         if er_domain:
                             er_domain.used = False
+                        
                     else:
                         if er_domain and er_domain.active and er_domain.used:
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
                 elif zdh_domain and zdh_domain.active and zdh_domain.used:
                     structure, zdh_tailored = zdh_domain.do_tailoring(structure)
                     if not zdh_tailored:
                         zdh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
                         if er_domain:
                             er_domain.used = False
                     else:
@@ -422,19 +422,10 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
                 elif gdh_domain and gdh_domain.active and gdh_domain.used:
                     structure, gdh_domain_tailored = gdh_domain.do_tailoring(structure)
                     if not gdh_domain_tailored:
                         gdh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
                         if er_domain:
                             er_domain.used = False
                     else:
@@ -442,19 +433,10 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
                 elif egdh_domain and egdh_domain.active and egdh_domain.used:
                     structure, egdh_domain_tailored = egdh_domain.do_tailoring(structure)
                     if not egdh_domain_tailored:
                         egdh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
                         if er_domain:
                             er_domain.used = False
                     else:
@@ -462,19 +444,10 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
                 elif zgdh_domain and zgdh_domain.active and zgdh_domain.used:
                     structure, zgdh_domain_tailored = zgdh_domain.do_tailoring(structure)
                     if not zgdh_domain_tailored:
                         zgdh_domain.used = False
-                        if bmt_domain:
-                            bmt_domain.used = False
                         if er_domain:
                             er_domain.used = False
                     else:
@@ -482,29 +455,12 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
-                                if bmt_domain:
-                                    bmt_domain.used = False
-                            else:
-                                if bmt_domain and bmt_domain.active and bmt_domain.used:
-                                    structure, bmt_tailored = bmt_domain.do_tailoring(structure)
-                                    if not bmt_tailored:
-                                        bmt_domain.used = False
-        if amt_domain and amt_domain.active and amt_domain.used:
-            structure, amt_tailored = amt_domain.do_tailoring(structure)
-            if not amt_tailored:
-                amt_domain.used = False
-        if almt_domain and almt_domain.active and almt_domain.used:
-            structure, almt_tailored = almt_domain.do_tailoring(structure)
-            if not almt_tailored:
-                almt_domain.used = False
         if sc_domain and sc_domain.active and sc_domain.used:
             structure, sc_tailored = sc_domain.do_tailoring(structure)
             if not sc_tailored:
                 sc_domain.used = False
-        if ah_domain and ah_domain.active and ah_domain.used:
-            structure, ah_tailored = ah_domain.do_tailoring(structure)
-            if not ah_tailored:
-                ah_domain.used = False
+
+        structure.refresh_structure()
         return structure
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:

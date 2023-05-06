@@ -122,30 +122,30 @@ leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "
                                                                   DomainRepresentation("LnmI", 'PCP')
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                 [DomainRepresentation("LnmI", 'KS', 'ST'),
                                                                   DomainRepresentation("LnmI", 'ACP')
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                 [DomainRepresentation("LnmI", 'KS', 'DB'),
                                                                   DomainRepresentation("LnmI", 'UNKNOWN', name="Do",
                                                                                        used=False),
                                                                   DomainRepresentation("LnmI", 'KR'),
                                                                   DomainRepresentation("LnmI", 'ACP')
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                 [DomainRepresentation("LnmI", 'KS', 'DB'),
                                                                   DomainRepresentation("LnmJ", 'DH'),
                                                                   DomainRepresentation("LnmJ", 'ACP'),
                                                                   DomainRepresentation("LnmJ", 'KR'),
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                 [DomainRepresentation("LnmJ", 'KS', 'KETO'),
                                                                   DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
                                                                                        used=False),
                                                                   DomainRepresentation("LnmJ", 'ACP'),
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                 [DomainRepresentation("LnmJ", 'KS', 'ALPHAME_EDB'),
                                                                   DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
                                                                                        used=False),
                                                                   DomainRepresentation("LnmJ", 'DH'),
@@ -156,7 +156,7 @@ leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "
                                                                   DomainRepresentation("LnmJ", 'ACP')
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                 [DomainRepresentation("LnmJ", 'KS', 'RED'),
                                                                   DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
                                                                                        used=False),
                                                                   DomainRepresentation("LnmJ", 'DH'),
@@ -164,7 +164,7 @@ leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "
                                                                   DomainRepresentation("LnmJ", 'ACP')
                                                                   ]),
                                             ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
-                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                 [DomainRepresentation("LnmJ", 'KS', 'RED'),
                                                                   DomainRepresentation("LnmJ", 'DH',
                                                                                        active=False, used=False),
                                                                   DomainRepresentation("LnmJ", 'ACP', used=False),
@@ -178,6 +178,6 @@ leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "
                                                                   ])
                                             ])
 
-draw_cluster(leinamycin_cluster)
+draw_cluster(leinamycin_cluster, 'leinamycin.svg')
 
 

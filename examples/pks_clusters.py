@@ -1,4 +1,5 @@
-from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster
+from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster, \
+    draw_product, draw_products
 
 # trans-AT
 
@@ -109,5 +110,8 @@ erythromycin_cluster = ClusterRepresentation([ModuleRepresentation('PKS', 'PKS_C
 
 draw_cluster(phenylnannolone_cluster, "phenylnannolone.svg")
 draw_cluster(erythromycin_cluster, "erythromycin.svg")
+draw_product(erythromycin_cluster, "erythromycin_product.svg")
+draw_products(erythromycin_cluster, "erythromycin")
+erythromycin_cluster.write_cluster("erythromycin")
 
 # iterative

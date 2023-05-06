@@ -1,4 +1,4 @@
-from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster
+from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster, draw_products
 
 # epoxomicin
 
@@ -83,5 +83,101 @@ cluster = ClusterRepresentation([ModuleRepresentation('PKS', 'PKS_CIS', "PROPION
                                  ])
 
 draw_cluster(cluster, 'paper_figure_3.svg')
+
+
+cluster = ClusterRepresentation([ModuleRepresentation('PKS', 'PKS_CIS', "PROPIONYL_COA",
+                                                      [DomainRepresentation('gene 1', 'AT'),
+                                                       DomainRepresentation('gene 1', 'ACP')]),
+                                 ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                      [DomainRepresentation('gene 1', 'KS'),
+                                                       DomainRepresentation('gene 1', 'AT'),
+                                                       DomainRepresentation('gene 1', 'KR', 'A1'),
+                                                       DomainRepresentation('gene 1', 'ACP')]),
+                                 ModuleRepresentation("NRPS", None, "threonine",
+                                                      [DomainRepresentation("gene 1", 'C'),
+                                                       DomainRepresentation("gene 1", 'A'),
+                                                       DomainRepresentation("gene 1", 'PCP')]),
+                                 ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                      [DomainRepresentation('gene 1', 'KS'),
+                                                       DomainRepresentation('gene 1', 'AT'),
+                                                       DomainRepresentation('gene 1', 'DH'),
+                                                       DomainRepresentation('gene 1', 'ER'),
+                                                       DomainRepresentation('gene 1', 'KR', 'A1'),
+                                                       DomainRepresentation('gene 1', 'ACP'),
+                                                       DomainRepresentation('gene 1', 'TE')]),
+                                 ])
+
+draw_cluster(cluster, 'paper_figure_4.svg')
+draw_products(cluster, 'paper_figure_4')
+
+leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "alanine",
+                                                                 [DomainRepresentation("LnmQ", 'A'),
+                                                                  DomainRepresentation("LnmP", 'PCP')
+                                                                  ]),
+                                            ModuleRepresentation("NRPS", None, "cysteine",
+                                                                 [DomainRepresentation("LnmI", 'C'),
+                                                                  DomainRepresentation("LnmI", 'CYC'),
+                                                                  DomainRepresentation("LnmI", 'A'),
+                                                                  DomainRepresentation("LnmI", 'OX'),
+                                                                  DomainRepresentation("LnmI", 'PCP')
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                  DomainRepresentation("LnmI", 'ACP')
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                  DomainRepresentation("LnmI", 'UNKNOWN', name="Do",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmI", 'KR'),
+                                                                  DomainRepresentation("LnmI", 'ACP')
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmI", 'KS', ),
+                                                                  DomainRepresentation("LnmJ", 'DH'),
+                                                                  DomainRepresentation("LnmJ", 'ACP'),
+                                                                  DomainRepresentation("LnmJ", 'KR'),
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmJ", 'ACP'),
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmJ", 'DH'),
+                                                                  DomainRepresentation("LnmJ", 'KR'),
+                                                                  DomainRepresentation("LnmJ", 'ACP', used=False),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN', name="cMT",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmJ", 'ACP')
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN', name="Do",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmJ", 'DH'),
+                                                                  DomainRepresentation("LnmJ", 'KR'),
+                                                                  DomainRepresentation("LnmJ", 'ACP')
+                                                                  ]),
+                                            ModuleRepresentation("PKS", 'PKS_TRANS', "MALONYL_COA",
+                                                                 [DomainRepresentation("LnmJ", 'KS', ),
+                                                                  DomainRepresentation("LnmJ", 'DH',
+                                                                                       active=False, used=False),
+                                                                  DomainRepresentation("LnmJ", 'ACP', used=False),
+                                                                  DomainRepresentation("LnmJ", 'ACP'),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN',
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmJ", 'UNKNOWN', name="SH",
+                                                                                       used=False),
+                                                                  DomainRepresentation("LnmN", 'TE')
+
+                                                                  ])
+                                            ])
+
+draw_cluster(leinamycin_cluster)
 
 

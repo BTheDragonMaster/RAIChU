@@ -136,6 +136,13 @@ def draw_products(cluster_repr: ClusterRepresentation, out_dir) -> None:
     cluster.draw_all_products(out_dir)
 
 
+def draw_product(cluster_repr: ClusterRepresentation, out_file) -> None:
+    cluster = build_cluster(cluster_repr)
+    cluster.compute_structures(compute_cyclic_products=True)
+    cluster.do_tailoring()
+    cluster.draw_product(as_string=False, out_file=out_file)
+
+
 def draw_ripp_structure(ripp_cluster: RiPPCluster) -> None:
     ripp_cluster.make_peptide()
     ripp_cluster.draw_product(
@@ -401,6 +408,8 @@ if __name__ == "__main__":
                                                                                      True),
                                                                 DomainRepresentation("Gene 1", 'A', None, None, True,
                                                                                      True),
+                                                                DomainRepresentation("Gene 1", 'OX', None, None, True,
+                                                                                     True),
                                                                 DomainRepresentation("Gene 1", 'PCP', None, None, True,
                                                                                      True)
                                                                 ]),
@@ -434,7 +443,7 @@ if __name__ == "__main__":
 
                                                                 ]
                                          )
-    # draw_cluster(cluster_nrps, outfile="cyc_test.svg")
+    draw_cluster(cluster_nrps, out_file="cyc_test.svg")
     draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 

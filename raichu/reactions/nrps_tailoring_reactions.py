@@ -3,9 +3,9 @@ from pikachu.reactions.functional_groups import combine_structures, find_atoms
 from pikachu.drawing.drawing import Drawer
 
 from raichu.data.attributes import ATTRIBUTES
-from raichu.reactions.general_tailoring_reactions import cyclodehydration
+from raichu.reactions.general_tailoring_reactions import cyclodehydration, single_bond_oxidation
 from raichu.data.molecular_moieties import ATTACHED_SERINE_OX, ATTACHED_CYSTEINE_OX, ATTACHED_SERINE_O, \
-    ATTACHED_CYSTEINE_S
+    ATTACHED_CYSTEINE_S, CYCLIC_CYS_C1_ATTACHED, CYCLIC_CYS_C2_ATTACHED, CYCLIC_SER_C1_ATTACHED, CYCLIC_SER_C2_ATTACHED
 
 
 def epimerization(chiral_centre):
@@ -115,6 +115,28 @@ def n_methylate(nrp):
     return product, True
 
 
+def nrps_oxidation(nrp):
+    cyclic_cys_c1s = find_atoms(CYCLIC_CYS_C1_ATTACHED, nrp)
+    if len(cyclic_cys_c1s) == 1:
+        cyclic_cys_c2s = find_atoms(CYCLIC_CYS_C2_ATTACHED, nrp)
+        assert len(cyclic_cys_c2s) == 1
+        atom_1 = cyclic_cys_c1s[0]
+        atom_2 = cyclic_cys_c2s[0]
+    else:
+        cyclic_ser_c1s = find_atoms(CYCLIC_SER_C1_ATTACHED, nrp)
+        if len(cyclic_ser_c1s) == 1:
+            cyclic_ser_c2s = find_atoms(CYCLIC_SER_C2_ATTACHED, nrp)
+            assert len(cyclic_ser_c2s) == 1
+            atom_1 = cyclic_ser_c1s[0]
+            atom_2 = cyclic_ser_c2s[0]
+        else:
+            return nrp, False
+
+    product = single_bond_oxidation(atom_1, atom_2, nrp)
+    assert product
+    return product, True
+
+
 def nrps_cyclodehydration(nrp):
     cysteine_ss = find_atoms(ATTACHED_CYSTEINE_S, nrp)
     if len(cysteine_ss) == 1:
@@ -134,9 +156,7 @@ def nrps_cyclodehydration(nrp):
 
     product = cyclodehydration(nrp, attacking_atom, keto_group)
     assert product
-    drawing = Drawer(product)
-    atom = drawing.structure.atoms[42]
-    drawing.write_svg("nrps_lines.svg", numbered_atoms=[atom])
+
     return product, True
 
 

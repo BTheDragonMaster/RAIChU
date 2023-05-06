@@ -415,7 +415,7 @@ class RiPPCluster:
         y2 = max(max_y + y_translation_leader + 10,
                  (math.ceil(len(amino_acid_sequence_leader) / fold) * size * (1 + 2 ** 0.5) + max_y + 10),
                  y_translation + 2 * size + math.ceil(len(amino_acid_sequence_follower) / fold) * size * (1 + 2 ** 0.5))
-        print(x1, x2, y1, y2)
+        # print(x1, x2, y1, y2)
 
         svg_string = f"""<svg width="{x2}" height="{y2}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
         if svg_style:

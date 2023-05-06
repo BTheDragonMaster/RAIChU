@@ -6,7 +6,7 @@ from pikachu.reactions.basic_reactions import hydrolysis, internal_condensation
 from pikachu.general import structure_to_smiles
 
 from raichu.data.molecular_moieties import SC_BOND, O_OH, O_BETAPROPRIOLACTONE_O,\
-    O_BETAPROPRIOLACTONE_TERMINAL_S, O_BETAPROPRIOLACTONE
+    O_BETAPROPRIOLACTONE_TERMINAL_O
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.drawing.drawer import RaichuDrawer
 
@@ -125,8 +125,8 @@ def find_o_betapropriolactone(polyketide):
 
     polyketide: PIKAChU structure object of a polyketide
     """
-    o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE, polyketide)
-    o_propriolactone_terminal = find_atoms(O_BETAPROPRIOLACTONE_TERMINAL_S, polyketide)
+    o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE_O, polyketide)
+    o_propriolactone_terminal = find_atoms(O_BETAPROPRIOLACTONE_TERMINAL_O, polyketide)
 
     assert len(o_propriolactone) == len(o_propriolactone_terminal)
 

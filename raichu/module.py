@@ -48,6 +48,7 @@ class NRPSDomainType(Enum):
     TE = 7
     TD = 8
     UNKNOWN = 9
+    OX = 10
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":
@@ -219,6 +220,7 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
         e_domain = self.get_tailoring_domain('E')
         n_mt_domain = self.get_tailoring_domain('nMT')
         cyc_domain = self.get_tailoring_domain('CYC')
+        ox_domain = self.get_tailoring_domain('OX')
 
         if e_domain and e_domain.active and e_domain.used:
             structure, epimerized = e_domain.do_tailoring(structure)
@@ -232,6 +234,11 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
             structure, cyclised = cyc_domain.do_tailoring(structure)
             if not cyclised:
                 cyc_domain.used = False
+
+            if ox_domain and ox_domain.active and ox_domain.used:
+                structure, oxidated = ox_domain.do_tailoring(structure)
+                if not oxidated:
+                    ox_domain.used = False
 
         return structure
 

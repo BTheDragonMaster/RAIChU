@@ -120,6 +120,7 @@ class TailoringDomainType(Enum):
     DUMMY_E = 22
     DUMMY_nMT = 23
     CYC = 24
+    OX = 25
 
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":

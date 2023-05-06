@@ -27,7 +27,8 @@ RECENT_EONYL_REDUCTION_CC = BondDefiner('recent_eonyl_reduction', r"CCCC(S)=O", 
 RECENT_REDUCTION_OH = BondDefiner('recent_reduction_C-H', r'[H]OC(C)CC(S)=O', 0, 1)
 RECENT_REDUCTION_TOP_C = GroupDefiner('recent_reduction_top_c', r'[H]C(C)=C([H])C(S)=O', 5)
 RECENT_REDUCTION_TOP_H = GroupDefiner('recent_reduction_top_h', r'[H]C(C)=C([H])C(S)=O', 4)
-RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]\C(C)=C(\C)C(S)=O', 4)
+# RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]\C(C)=C(\C)C(S)=O', 4)
+RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]C(C)=C(C)C(S)=O', 4)
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', r'[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', r'[H]C(C)=C([H])C(S)=O', 0)
 RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', r'[H]\C(C)=C(\[H])CC(S)=O', 5)
@@ -284,11 +285,13 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         main_chain_top_c = find_atoms(RECENT_REDUCTION_TOP_C, chain_intermediate)[0]
         main_chain_bottom_c = find_atoms(RECENT_REDUCTION_BOTTOM_C, chain_intermediate)[0]
         main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H, chain_intermediate)
+
         if not main_chain_top_h:
             main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]
         else:
             main_chain_top_h = main_chain_top_h[0]
         main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)[0]
+
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},

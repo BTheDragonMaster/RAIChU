@@ -74,7 +74,7 @@ class TailoringDomain(Domain):
         elif self.type.name == 'EDH' or self.type.name == 'DUMMY_EDH':
             return dehydration(structure,"E")
         elif self.type.name == 'ZDH' or self.type.name == 'DUMMY_ZDH':
-            return dehydration(structure,"Z")
+            return dehydration(structure, "Z")
         elif self.type.name == 'ER' or self.type.name == 'DUMMY_ER':
             return enoylreduction(structure, self.subtype)
         elif self.type.name == 'ALMT' or self.type.name == 'DUMMY_ALMT':

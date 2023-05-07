@@ -31,7 +31,7 @@ class TailoringEnzymeType(Enum):
     DOUBLE_BOND_SHIFT = 13
     DOUBLE_BOND_FORMATION = 14
     KETO_REDUCTION = 15
-    ALCOHOLE_DEHYDROGENASE = 16
+    ALCOHOL_DEHYDROGENASE = 16
 
     # Elimination
     PEPTIDASE = 17

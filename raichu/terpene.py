@@ -4,6 +4,7 @@ from raichu.substrate import TerpeneCyclaseSubstrate
 from raichu.reactions.general_tailoring_reactions import dephosphorylation, oxidative_bond_formation
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
+from pikachu.drawing.drawing import Drawer
 
 class Terpene_Cluster:
     def __init__(self, gene_name_cyclase: str, precursor: str, terpene_cyclase_type: str = None, macrocyclisations: list() = None, tailoring_enzymes_representation = None) -> None:
@@ -75,7 +76,7 @@ class Terpene_Cluster:
 
     def draw_product(self, as_string=True, out_file=None):
             assert self.chain_intermediate
-            drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False, draw_straightened=False)
+            drawing = Drawer(self.chain_intermediate)
             drawing.draw_structure()
             svg_string = drawing.save_svg_string()
             if as_string:

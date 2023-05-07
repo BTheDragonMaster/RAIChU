@@ -166,9 +166,11 @@ class RiPPCluster(Cluster):
 
     def do_proteolytic_cleavage(self):
         self.initialize_cleavage_sites()
+        self.cleaved_intermediates.append(self.chain_intermediate.deepcopy())
         for bond, structure_to_keep in self.cleavage_bonds:
             self.chain_intermediate = proteolytic_cleavage(
                 bond, self.chain_intermediate, structure_to_keep=structure_to_keep)
+            self.cleaved_intermediates.append(self.chain_intermediate.deepcopy())
         self.final_product = self.chain_intermediate
 
     def draw_precursor(self, fold=10, size=14, as_string=True, out_file=None, amino_acid_sequence=None, leader=True,

@@ -30,7 +30,7 @@ def make_reaction_text(start_x, end_x, y, text):
 
 def draw_arrow_and_text(arrow_start, arrow_end, arrow_height, arrow_nr, text):
     arrow_svg = draw_arrow(arrow_start, arrow_end, arrow_height, arrow_nr)
-    reaction_text = make_reaction_text(arrow_start, arrow_end, arrow_height, text)
+    reaction_text = make_reaction_text(arrow_start, arrow_end, arrow_height - 11, text)
 
     svg = ''
 

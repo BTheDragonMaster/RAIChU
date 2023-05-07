@@ -147,22 +147,33 @@ def draw_ripp_structure(ripp_cluster: RiPPCluster, out_folder: str) -> None:
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
 
-
     ripp_cluster.make_peptide()
     ripp_cluster.draw_product(
         as_string=False, out_file=os.path.join(out_folder, "peptide_test_ripp.svg"))
     ripp_cluster.draw_cluster(as_string=False, out_file=os.path.join(out_folder, 'ripp_inline.svg'))
 
+    order = []
+
     ripp_cluster.do_tailoring()
-    ripp_cluster.draw_tailoring(out_file=(out_folder, "ripp_tailoring_steps.svg"))
-    ripp_cluster.draw_product(
-        as_string=False, out_file=os.path.join(out_folder, "tailoring_test_ripp.svg"))
-    ripp_cluster.do_macrocyclization()
-    ripp_cluster.draw_product(
-        as_string=False, out_file=os.path.join(out_folder, "macrocyclisation_test_ripp.svg"))
-    ripp_cluster.do_proteolytic_cleavage()
-    ripp_cluster.draw_product(
-        as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg"))
+    if ripp_cluster.tailoring_representations:
+        ripp_cluster.draw_tailoring(out_file=os.path.join(out_folder, "ripp_tailoring_steps.svg"))
+        ripp_cluster.draw_product(
+            as_string=False, out_file=os.path.join(out_folder, "ripp_tailoring.svg"))
+        order.append("tailoring")
+    if ripp_cluster.macrocyclisation_representations:
+        ripp_cluster.do_macrocyclization()
+        ripp_cluster.draw_product(
+            as_string=False, out_file=os.path.join(out_folder, "ripp_macrocyclisation.svg"))
+        order.append('cyclisation')
+
+    if ripp_cluster.cleavage_sites:
+        print("here")
+        ripp_cluster.do_proteolytic_cleavage()
+        ripp_cluster.draw_product(
+            as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg"))
+        order.append('cleavage')
+
+    ripp_cluster.draw_pathway(out_file=os.path.join(out_folder, "ripp_pathway.svg"), order=tuple(order))
 
 
 def draw_terpene_structure(terpene_cluster: TerpeneCluster) -> None:

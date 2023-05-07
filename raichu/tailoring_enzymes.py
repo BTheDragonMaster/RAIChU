@@ -1,5 +1,3 @@
-from pikachu.drawing.drawing import Drawer
-
 from enum import Enum, unique
 import itertools
 

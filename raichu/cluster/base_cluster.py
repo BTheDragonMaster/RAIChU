@@ -14,6 +14,7 @@ class Cluster:
 
         self.chain_intermediate = None
         self.tailored_product = None
+        self.cyclase_name = None
 
         self.linear_product = None
         self.cyclic_product = None
@@ -22,6 +23,7 @@ class Cluster:
         self.modular_intermediates = []
         self.cyclic_intermediates = []
         self.tailoring_intermediates = []
+        self.cleaved_intermediates = []
 
     def initialize_macrocyclization(self):
         initialized_macrocyclization_atoms = []
@@ -42,6 +44,7 @@ class Cluster:
 
     def do_macrocyclization(self, sequential=True):
         initialized_macrocyclization_atoms = self.initialize_macrocyclization()
+        self.cyclic_intermediates.append(self.chain_intermediate.deepcopy())
 
         for index, macrocyclization_atoms in enumerate(initialized_macrocyclization_atoms):
             atoms, cyclisation_type = macrocyclization_atoms
@@ -110,14 +113,23 @@ class Cluster:
                 self.tailoring_intermediates.append(self.tailored_product.deepcopy())
                 self.chain_intermediate = self.tailored_product
 
-    def get_drawings_tailoring(self, whitespace=30):
+    def get_drawings(self, whitespace=30, reaction_type="tailoring"):
 
         drawings = []
         widths = []
         centre_points = []
         max_height = -1000000000
 
-        for i, structure in enumerate(self.tailoring_intermediates):
+        if reaction_type == 'tailoring':
+            structures = self.tailoring_intermediates
+        elif reaction_type == 'cyclisation':
+            structures = self.cyclic_intermediates
+        elif reaction_type == 'cleavage':
+            structures = self.cleaved_intermediates
+        else:
+            raise ValueError(f"Expected 'tailoring' or 'cyclisation'. Got {reaction_type}.")
+
+        for i, structure in enumerate(structures):
 
             drawing = Drawer(structure)
 
@@ -150,15 +162,66 @@ class Cluster:
             centre_points.append(((max_x + min_x) / 2, (max_y + min_y) / 2))
             drawings.append(drawing)
 
-        print(len(drawings))
-
         return drawings, widths, max_height, centre_points
 
-    def draw_tailoring(self, arrow_size=20, mode='gene_name', as_string=False, out_file=None):
+    def draw_pathway(self, min_arrow_size=40, order=("tailoring", "cyclisation"), mode='gene_name', as_string=False,
+                     out_file=None):
 
-        assert self.tailoring_representations
-        assert mode in ['gene_name', 'reaction_name']
-        drawings, widths, max_height, centre_points = self.get_drawings_tailoring()
+        all_drawings = []
+        all_widths = []
+        max_height = 0
+        all_centre_points = []
+        enzyme_names = []
+
+        for i, reaction_type in enumerate(order):
+            if reaction_type == "tailoring":
+                assert self.tailoring_representations
+                assert mode in ['gene_name', 'reaction_name']
+                drawings, widths, height, centre_points = self.get_drawings(reaction_type='tailoring')
+                for enzyme in self.tailoring_representations:
+                    if mode == 'gene_name':
+                        text = enzyme.gene_name
+                    elif mode == 'reaction_name':
+                        text = ENZYME_TO_NAME[enzyme.type]
+                    else:
+                        raise ValueError("Drawing mode must be 'gene_name' or 'reaction_name'.")
+                    enzyme_names.append(text)
+
+            elif reaction_type == "cyclisation":
+                assert self.macrocyclisation_representations
+                drawings, widths, height, centre_points = self.get_drawings(reaction_type='cyclisation')
+                for _ in self.macrocyclisation_representations:
+                    if mode == 'gene_name':
+                        if self.cyclase_name:
+                            text = self.cyclase_name
+                        else:
+                            text = ''
+                    elif mode == 'reaction_name':
+                        text = 'cyclisation'
+                    else:
+                        raise ValueError("Drawing mode must be 'gene_name' or 'reaction_name'.")
+                    enzyme_names.append(text)
+            elif reaction_type == "cleavage":
+                assert self.cleaved_intermediates
+                drawings, widths, height, centre_points = self.get_drawings(reaction_type='cleavage')
+                for i in range(len(self.cleaved_intermediates) - 1):
+                    text = 'proteolytic cleavage'
+                    enzyme_names.append(text)
+            else:
+                raise ValueError(f"Expected 'tailoring' or 'cyclisation'. Got {reaction_type}.")
+
+            assert len(drawings) > 1
+
+            if i != 0:
+                drawings = drawings[1:]
+                widths = widths[1:]
+                centre_points = centre_points[1:]
+
+            all_drawings += drawings
+            all_widths += widths
+            all_centre_points += centre_points
+            if height > max_height:
+                max_height = height
 
         target_x = 0
         target_y = max_height / 2
@@ -167,10 +230,10 @@ class Cluster:
         padding = None
         svg_style = None
 
-        for i, drawing in enumerate(drawings):
-            enzyme = self.tailoring_representations[i]
-            current_x, current_y = centre_points[i]
-            width = widths[i]
+        for i, drawing in enumerate(all_drawings):
+
+            current_x, current_y = all_centre_points[i]
+            width = all_widths[i]
             translation_x = (target_x + 0.5 * width) - current_x
             translation_y = target_y - current_y
 
@@ -178,20 +241,18 @@ class Cluster:
             svg_style = drawing.svg_style
 
             target_x += width
-            if i != len(drawings) - 1:
+            if i != len(all_drawings) - 1:
+                enzyme_name = enzyme_names[i]
+                arrow_size = max(len(enzyme_name) * 9, min_arrow_size)
 
                 arrow_start = target_x
                 arrow_end = target_x + arrow_size
                 arrow_y = target_y
-                if mode == 'gene_name':
-                    text = enzyme.gene_name
-                elif mode == 'reaction_name':
-                    text = ENZYME_TO_NAME[enzyme.type]
-                else:
-                    raise ValueError("Drawing mode must be 'gene_name' or 'reaction_name'.")
 
-                arrow_svg = draw_arrow_and_text(arrow_start, arrow_end, arrow_y, i, text)
+                arrow_svg = draw_arrow_and_text(arrow_start, arrow_end, arrow_y, i, enzyme_name)
                 arrow_svgs.append(arrow_svg)
+
+                target_x += arrow_size
 
             drawing.move_structure(translation_x, translation_y)
             structure_svg = drawing.draw_svg()
@@ -211,7 +272,6 @@ class Cluster:
         svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
         if svg_style:
             svg_string += f"{svg_style}\n"
-        svg_string += "</svg>"
 
         svg_string += f"""<g id="arrows">\n"""
         for arrow in arrow_svgs:
@@ -220,6 +280,88 @@ class Cluster:
 
         for string in structure_svgs:
             svg_string += string
+
+        svg_string += "</svg>"
+
+        if as_string:
+            return svg_string
+        else:
+            if out_file is None:
+                raise ValueError("Must provide output svg path if 'as_string' is set to False.")
+            else:
+                with open(out_file, 'w') as svg_out:
+                    svg_out.write(svg_string)
+
+    def draw_tailoring(self, arrow_size=40, mode='gene_name', as_string=False, out_file=None):
+
+        assert self.tailoring_representations
+        assert mode in ['gene_name', 'reaction_name']
+        drawings, widths, max_height, centre_points = self.get_drawings()
+
+        target_x = 0
+        target_y = max_height / 2
+        arrow_svgs = []
+        structure_svgs = []
+        padding = None
+        svg_style = None
+
+        for i, drawing in enumerate(drawings):
+
+            current_x, current_y = centre_points[i]
+            width = widths[i]
+            translation_x = (target_x + 0.5 * width) - current_x
+            translation_y = target_y - current_y
+
+            drawing.set_structure_id(f"s{i}")
+            svg_style = drawing.svg_style
+
+            target_x += width
+            if i != len(drawings) - 1:
+                enzyme = self.tailoring_representations[i]
+
+                arrow_start = target_x
+                arrow_end = target_x + arrow_size
+                arrow_y = target_y
+                if mode == 'gene_name':
+                    text = enzyme.gene_name
+                elif mode == 'reaction_name':
+                    text = ENZYME_TO_NAME[enzyme.type]
+                else:
+                    raise ValueError("Drawing mode must be 'gene_name' or 'reaction_name'.")
+
+                arrow_svg = draw_arrow_and_text(arrow_start, arrow_end, arrow_y, i, text)
+                arrow_svgs.append(arrow_svg)
+
+            target_x += arrow_size
+
+            drawing.move_structure(translation_x, translation_y)
+            structure_svg = drawing.draw_svg()
+            structure_svgs.append(structure_svg)
+            padding = drawing.options.padding
+
+        assert svg_style and padding
+
+        x1 = 0
+        x2 = target_x + padding
+        y1 = 0
+        y2 = max_height + padding
+
+        width = x2
+        height = y2
+
+        svg_string = f"""<svg width="{width}" height="{height}" viewBox="{x1} {y1} {x2} {y2}" xmlns="http://www.w3.org/2000/svg">\n"""
+        if svg_style:
+            svg_string += f"{svg_style}\n"
+
+        svg_string += f"""<g id="arrows">\n"""
+        for arrow in arrow_svgs:
+            svg_string += arrow
+        svg_string += "</g>\n"
+
+        for string in structure_svgs:
+            svg_string += string
+
+        svg_string += "</svg>"
 
         if as_string:
             return svg_string

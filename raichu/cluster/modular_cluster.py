@@ -171,7 +171,7 @@ class ModularCluster(Cluster):
 
         return spaghetti_svgs + [linear_svg]
 
-    def get_drawings(self, whitespace=30):
+    def get_spaghettis(self, whitespace=30):
         drawings = []
         widths = []
 
@@ -210,7 +210,7 @@ class ModularCluster(Cluster):
         return drawings, widths
 
     def draw_cluster(self, as_string=True, out_file=None):
-        drawings, widths = self.get_drawings()
+        drawings, widths = self.get_spaghettis()
         bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
         max_x = -100000000

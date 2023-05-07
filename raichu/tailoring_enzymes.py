@@ -13,7 +13,7 @@ from pikachu.reactions.functional_groups import find_atoms, find_bonds
 @unique
 class TailoringEnzymeType(Enum):
 
-    #Group transfer reactions
+    # Group transfer reactions
     METHYLTRANSFERASE = 1
     C_METHYLTRANSFERASE = 2
     N_METHYLTRANSFERASE = 3
@@ -26,14 +26,14 @@ class TailoringEnzymeType(Enum):
     AMINOTRANSFERASE = 10
     HALOGENASE = 11
 
-    #Oxidoreduction
+    # Oxidoreduction
     DOUBLE_BOND_REDUCTION = 12
     DOUBLE_BOND_SHIFT = 13
     DOUBLE_BOND_FORMATION = 14
     KETO_REDUCTION = 15
     ALCOHOLE_DEHYDROGENASE = 16
 
-    #Elimination
+    # Elimination
     PEPTIDASE = 17
     PROTEASE = 18
     MONOAMINE_OXIDASE = 19
@@ -43,7 +43,7 @@ class TailoringEnzymeType(Enum):
     SPLICEASE = 23
     ARGINASE = 24
 
-    #Cyclization
+    # Cyclization
     OXIDATIVE_BOND_FORMATION = 25
     MACROLACTAM_SYNTHETASE = 26
     CYCLODEHYDRATION = 27
@@ -51,7 +51,7 @@ class TailoringEnzymeType(Enum):
     LANTHIONINE_SYNTHETASE = 29
     THIOPEPTIDE_CYCLASE = 30
 
-    #Epimerization
+    # Epimerization
     AMINO_ACID_EPIMERASE = 31
 
     @staticmethod

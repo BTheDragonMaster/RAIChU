@@ -6,7 +6,7 @@ from pikachu.reactions.basic_reactions import hydrolysis, internal_condensation
 from pikachu.general import structure_to_smiles
 
 from raichu.data.molecular_moieties import SC_BOND, O_OH, O_BETAPROPRIOLACTONE_O,\
-    O_BETAPROPRIOLACTONE_TERMINAL_O
+    O_BETAPROPRIOLACTONE_TERMINAL_O, O_BETAPROPRIOLACTONE_KETO_OH, O_BETAPROPRIOLACTONE_KETO_C
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.drawing.drawer import RaichuDrawer
 
@@ -27,6 +27,9 @@ def release_linear_reduction(chain_intermediate: Structure) -> Structure:
     chain_intermediate.add_atom('H', [sulphur])
 
     initialise_atom_attributes(chain_intermediate)
+
+    carbon = chain_intermediate.get_atom(carbon)
+    carbon.annotations.set_annotation('terminal_c', True)
 
     structures = chain_intermediate.split_disconnected_structures()
     for structure in structures:
@@ -76,6 +79,7 @@ def release_linear_thioesterase(chain_intermediate):
     assert terminal_oxygen
 
     terminal_oxygen.annotations.set_annotation('terminal_o', True)
+    linear_product.refresh_structure()
 
     return linear_product
 
@@ -116,7 +120,7 @@ def cyclic_release(linear_product, o_oh_n_amino):
     return cyclic_product
 
 
-def find_o_betapropriolactone(polyketide):
+def find_o_betapropriolactone(polyketide, release_type='condensative'):
     """
     Finds and returns the oxygen atom (PIKAChU atom object) in the -OH group
     that shouldn't be used by the thioesterase_circular_product function, as
@@ -125,26 +129,42 @@ def find_o_betapropriolactone(polyketide):
 
     polyketide: PIKAChU structure object of a polyketide
     """
-    o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE_O, polyketide)
-    o_propriolactone_terminal = find_atoms(O_BETAPROPRIOLACTONE_TERMINAL_O, polyketide)
+    if release_type == 'condensative':
+        o_propriolactone = find_atoms(O_BETAPROPRIOLACTONE_O, polyketide)
+        o_propriolactone_terminal = find_atoms(O_BETAPROPRIOLACTONE_TERMINAL_O, polyketide)
 
-    assert len(o_propriolactone) == len(o_propriolactone_terminal)
+        assert len(o_propriolactone) == len(o_propriolactone_terminal)
 
-    o_beta_propriolactones = []
+        o_beta_propriolactones = []
 
-    for i, atom in enumerate(o_propriolactone):
-        terminal_o = o_propriolactone_terminal[i]
-        if terminal_o.annotations.terminal_o:
-            o_beta_propriolactones.append(atom)
+        for i, atom in enumerate(o_propriolactone):
+            terminal_o = o_propriolactone_terminal[i]
+            if terminal_o.annotations.terminal_o:
+                o_beta_propriolactones.append(atom)
 
-    if len(o_beta_propriolactones) == 0:
+        if len(o_beta_propriolactones) == 0:
+            return None
+        elif len(o_beta_propriolactones) == 1:
+            return o_beta_propriolactones[0]
+        else:
+            raise ValueError('Error: this molecule is not a polyketide, as the \
+            carbon in the beta ketone/hydroxyl group is bound to an additional \
+             oxygen atom')
+
+    elif release_type == 'oxidative':
+        # assumes structure search is deterministic
+
+        o_propriolactones = find_atoms(O_BETAPROPRIOLACTONE_KETO_OH, polyketide)
+        o_propriolactones_terminal = find_atoms(O_BETAPROPRIOLACTONE_KETO_C, polyketide)
+
+        assert len(o_propriolactones_terminal) == len(o_propriolactones)
+
+        for i, oh in enumerate(o_propriolactones):
+            terminal_c = o_propriolactones_terminal[i]
+            if getattr(terminal_c.annotations, "terminal_c"):
+                return oh
+
         return None
-    elif len(o_beta_propriolactones) == 1:
-        return o_beta_propriolactones[0]
-    else:
-        raise ValueError('Error: this molecule is not a polyketide, as the \
-        carbon in the beta ketone/hydroxyl group is bound to an additional \
-         oxygen atom')
 
 
 def thioesterase_all_products(chain_intermediate, out_folder=None):

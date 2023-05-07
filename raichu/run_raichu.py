@@ -1,13 +1,13 @@
-from raichu.cluster import Cluster
-from raichu.ripp import RiPPCluster
-from raichu.terpene import Terpene_Cluster
+from raichu.cluster.modular_cluster import ModularCluster
+from raichu.cluster.ripp_cluster import RiPPCluster
+from raichu.cluster.terpene_cluster import TerpeneCluster
 from raichu.domain.domain import TailoringDomain, CarrierDomain, SynthesisDomain, RecognitionDomain, \
     TerminationDomain, UnknownDomain, Domain
 from raichu.module import PKSModuleSubtype, NRPSModule, LinearPKSModule, IterativePKSModule, TransATPKSModule,\
     ModuleType
 from raichu.domain.domain_types import TailoringDomainType, TerminationDomainType, CarrierDomainType, \
     SynthesisDomainType, RecognitionDomainType
-from raichu.alkaloid import Alkaloid_Cluster
+from raichu.cluster.alkaloid_cluster import AlkaloidCluster
 from raichu.tailoring_enzymes import TailoringEnzyme, TailoringEnzymeType
 from raichu.representations import *
 
@@ -47,7 +47,7 @@ def make_domain(domain_repr: DomainRepresentation, substrate: str, strict: bool 
     return domain
 
 
-def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> Cluster:
+def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> ModularCluster:
 
     genes = set()
 
@@ -112,7 +112,7 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> C
             raise ValueError(f"Unrecognised module type: {module_repr.type}")
 
         modules.append(module)
-    cluster = Cluster(modules, cluster_repr.tailoring_enzymes)
+    cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
 
     return cluster
 
@@ -130,7 +130,7 @@ def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None) -> None:
 
 def draw_products(cluster_repr: ClusterRepresentation, out_dir) -> None:
     cluster = build_cluster(cluster_repr)
-    cluster.compute_structures(compute_cyclic_products=True)
+    cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
     cluster.cyclise_all()
     cluster.draw_all_products(out_dir)
@@ -143,25 +143,29 @@ def draw_product(cluster_repr: ClusterRepresentation, out_file) -> None:
     cluster.draw_product(as_string=False, out_file=out_file)
 
 
-def draw_ripp_structure(ripp_cluster: RiPPCluster) -> None:
+def draw_ripp_structure(ripp_cluster: RiPPCluster, out_folder: str) -> None:
+    if not os.path.exists(out_folder):
+        os.mkdir(out_folder)
+
+
     ripp_cluster.make_peptide()
     ripp_cluster.draw_product(
-        as_string=False, out_file="peptide_test_ripp.svg")
-    #
-    ripp_cluster.draw_cluster(as_string=False, out_file='ripp_inline.svg')
-    #
-    # ripp_cluster.do_tailoring()
-    # ripp_cluster.draw_product(
-    #     as_string=False, out_file="tailoring_test_ripp.svg")
-    # ripp_cluster.do_macrocyclization()
-    # ripp_cluster.draw_product(
-    #     as_string=False, out_file="macrocyclisation_test_ripp.svg")
-    # ripp_cluster.do_proteolytic_cleavage()
-    # ripp_cluster.draw_product(
-    #     as_string=False, out_file="cleavage_test_ripp.svg")
+        as_string=False, out_file=os.path.join(out_folder, "peptide_test_ripp.svg"))
+    ripp_cluster.draw_cluster(as_string=False, out_file=os.path.join(out_folder, 'ripp_inline.svg'))
+
+    ripp_cluster.do_tailoring()
+    ripp_cluster.draw_tailoring(out_file=(out_folder, "ripp_tailoring_steps.svg"))
+    ripp_cluster.draw_product(
+        as_string=False, out_file=os.path.join(out_folder, "tailoring_test_ripp.svg"))
+    ripp_cluster.do_macrocyclization()
+    ripp_cluster.draw_product(
+        as_string=False, out_file=os.path.join(out_folder, "macrocyclisation_test_ripp.svg"))
+    ripp_cluster.do_proteolytic_cleavage()
+    ripp_cluster.draw_product(
+        as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg"))
 
 
-def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
+def draw_terpene_structure(terpene_cluster: TerpeneCluster) -> None:
     terpene_cluster.create_precursor()
     terpene_cluster.draw_product(
         as_string=False, out_file="precursor_test_terpene.svg")
@@ -174,7 +178,7 @@ def draw_terpene_structure(terpene_cluster: Terpene_Cluster) -> None:
     print(get_tailoring_sites(terpene_cluster.chain_intermediate))
 
 
-def draw_alkaloid_structure(alkaloid_cluster: Alkaloid_Cluster) -> None:
+def draw_alkaloid_structure(alkaloid_cluster: AlkaloidCluster) -> None:
     alkaloid_cluster.make_scaffold()
     alkaloid_cluster.draw_product(
         as_string=False, out_file="precursor_test_alkaloid.svg")
@@ -224,22 +228,22 @@ if __name__ == "__main__":
 
     ripp_cluster = RiPPCluster("best_ripp(tryptorubin)_encoding_gene", "mkaekslkayawyiwyaha", "slkayawyiwy",
                                cleavage_sites=[CleavageSiteRepresentation("Y", 10, "end")],
-                               tailoring_enzymes=[TailoringRepresentation("p450", "DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
+                               tailoring_representations=[TailoringRepresentation("p450", "DOUBLE_BOND_REDUCTION", [["C_139", "C_138"]]), TailoringRepresentation("p450", "OXIDATIVE_BOND_FORMATION", [["C_139", "N_134"], ["C_120", "N_102"], ["C_138", "C_107"]])])
 
     lanthipeptide_type_I_cluster_catenulipeptin = RiPPCluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
-                                                              tailoring_enzymes=[TailoringRepresentation(
+                                                              tailoring_representations=[TailoringRepresentation(
                                                                    "Caci_4239", "THREONINE_SERINE_DEHYDRATASE", [['O_64'], ['O_144']]), TailoringRepresentation(
                                                                    "Caci_4239", "LANTHIPEPTIDE_CYCLASE", [["C_43", "C_63"], ["S_92", "C_63"], ["C_122", "C_143"], ["S_169", "C_143"]])])
     lanthipeptide_type_III_cluster_catenulipeptin = RiPPCluster("Caci_4240", "MTEEMTLLDLQGMEQTETDSWGGSGHGGGGDSGLSVTGCNGHSGISLLCDL", "GHGGGGDSGLSVTGCNGHSGISLLCDL",
-                                                                tailoring_enzymes=[TailoringRepresentation(
+                                                                tailoring_representations=[TailoringRepresentation(
                                                                     "Caci_4239", "LANTHIONINE_SYNTHETASE", [["C_43", "C_63"], ["S_92", "C_63"], ["C_122", "C_143"], ["S_169", "C_143"]])])
     proteusins_cluster_polytheonamide_a = RiPPCluster(
         "poyA", "MADSDNTPTSRKDFETAIIAKAWKDPEYLRRLRSNPREVLQEELEALHPGAQLPDDLGISIHEEDENHVHLVMPRHPQNVSDQTLTDDDLDQAAGGTGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT",
-        "TGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT", tailoring_enzymes=[TailoringRepresentation("rSAM epimerase", "AMINO_ACID_EPIMERASE", [['C_269'], ['C_144'], ['C_284'], ['C_163'], ['C_36'], ['C_301'], ['C_52'], ['C_90'], ['C_185'], ['C_316'], ['C_66'], ['C_204'], ['C_334'], ['C_84'], ['C_221'], ['C_353'], ['C_104'], ['C_233'], ['C_252']])])
-    sliceotide_cluster = RiPPCluster("plpA", "NVSVNMNQTTRVSVNMNQTNVSVNVSVNMNQTNVSVNVSVNMNQTNVSVNVSVN", "NVSVNMNQTTR", tailoring_enzymes=[TailoringRepresentation(
+        "TGIGVVVAVVAGAVANTGAGVNQVAGGNINVVGNINVNANVSVNMNQTT", tailoring_representations=[TailoringRepresentation("rSAM epimerase", "AMINO_ACID_EPIMERASE", [['C_269'], ['C_144'], ['C_284'], ['C_163'], ['C_36'], ['C_301'], ['C_52'], ['C_90'], ['C_185'], ['C_316'], ['C_66'], ['C_204'], ['C_334'], ['C_84'], ['C_221'], ['C_353'], ['C_104'], ['C_233'], ['C_252']])])
+    sliceotide_cluster = RiPPCluster("plpA", "NVSVNMNQTTRVSVNMNQTNVSVNVSVNMNQTNVSVNVSVNMNQTNVSVNVSVN", "NVSVNMNQTTR", tailoring_representations=[TailoringRepresentation(
         "rSAM epimerase", "SPLICEASE", [["C_30", "C_22"]]), TailoringRepresentation("arginase", "ARGINASE", [['N_93']])])
     thiopeptide_cluster_thiomuracin = RiPPCluster("tpdA", "MDLSDLPMDVFELADDGVAVESLTAGHGMTEVGASCNCFCYICCSCSSA", "SCNCFCYICCSCSS",
-                                                  tailoring_enzymes=[
+                                                  tailoring_representations=[
             TailoringRepresentation("tpdD", "THREONINE_SERINE_DEHYDRATASE", [['O_104'], ['O_90'], ['O_4'], ['O_111']]), 
             TailoringRepresentation("tpdE", "CYCLODEHYDRATION", [['S_97'], ['S_11'], ['S_76'], ['S_46'], ['S_83'], ['S_27']]),
             TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",[["C_3", "C_89"]]),
@@ -257,26 +261,26 @@ if __name__ == "__main__":
                                                   )
     cyanobactin_cluster_trunkamide = RiPPCluster("truE", "MNKKNILPQLGQPVIRLTAGQLSSQLAELSEEALGGVDASTSIAPFCSYDGVDASSYDGVDASSYDD", "TSIAPFC",
                                                  macrocyclisations=[MacrocyclizationRepresentation("N_0","O_59")],
-                                                 tailoring_enzymes=[TailoringRepresentation("truD", "CYCLODEHYDRATION", [["S_56"]]),
+                                                 tailoring_representations=[TailoringRepresentation("truD", "CYCLODEHYDRATION", [["S_56"]]),
                                                                     TailoringRepresentation("truF", "PRENYLTRANSFERASE", [['O_13'], ['O_5']], "3_METHYL_1_BUTENYL")]
                                                  )
 
     lasso_peptide_cluster = RiPPCluster("A1S42_RS12075", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF", "MKYCKPTFESIATFKKDTKGLWTGKFRDIFGGRAIVRIRIEF",
-                                        tailoring_enzymes=[TailoringRepresentation("lasB", "PROTEASE", [["N_180", "C_178"]]), TailoringRepresentation("lasC", "MACROLACTAM_SYNTHETASE", [["O_261"]])]
+                                        tailoring_representations=[TailoringRepresentation("lasB", "PROTEASE", [["N_180", "C_178"]]), TailoringRepresentation("lasC", "MACROLACTAM_SYNTHETASE", [["O_261"]])]
                                         )
     sacti_peptide_cluster_thurincin = RiPPCluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS", "DWTCWSCLVCAACSVELLNLVTAATGASTAS",
-                                                  tailoring_enzymes=[TailoringRepresentation(
+                                                  tailoring_representations=[TailoringRepresentation(
                                                         "thnB", "OXIDATIVE_BOND_FORMATION", [['S_109', "C_222"], ['S_66', "C_203"], ['S_90', "C_182"], ['S_37', "C_156"]])]
                                                   )
 
-    terpene_cluster = Terpene_Cluster("limonene_synthase", "GERANYL_PYROPHOSPHATE",
-                                      macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")],
-                                      terpene_cyclase_type="Class_1",
-                                      tailoring_enzymes_representation=[
+    terpene_cluster = TerpeneCluster("limonene_synthase", "GERANYL_PYROPHOSPHATE",
+                                     macrocyclisations=[MacrocyclizationRepresentation("C_13", "C_8")],
+                                     cyclase_type="Class_1",
+                                     tailoring_representations=[
                                           TailoringRepresentation("pseudo_isomerase", "DOUBLE_BOND_SHIFT",
                                                                   [["C_13", "C_14", "C_14", "C_15"]])])
 
-    alkaloid_cluster = Alkaloid_Cluster("phenylalanine",tailoring_enzymes_representation=[
+    alkaloid_cluster = AlkaloidCluster("phenylalanine", tailoring_representations=[
                             TailoringRepresentation("pseudo_decarboxylase", "DECARBOXYLASE", [["C_9"]]),
                             TailoringRepresentation("pseudo_hydroxylase", "PRENYLTRANSFERASE", [["C_7"]], "DIMETHYLALLYL"),
                             TailoringRepresentation("pseudo_decarboxylase", "HALOGENASE", [["C_10"]], "Cl"),

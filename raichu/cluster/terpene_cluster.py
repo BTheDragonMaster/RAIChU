@@ -20,6 +20,7 @@ class TerpeneCluster(Cluster):
         self.chain_intermediate = None
         self.tailored_product = None
         self.final_product = None
+        self.terpene = True
 
     def create_precursor(self) -> None:
         substrate = TerpeneCyclaseSubstrate(self.precursor)

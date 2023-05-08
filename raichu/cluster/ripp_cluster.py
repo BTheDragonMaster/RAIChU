@@ -34,6 +34,7 @@ class RiPPCluster(Cluster):
         self.final_product = None
 
         self.initialized_macrocyclization_atoms = []
+        self.ripp = True
 
     def write_cluster(self, out_dir):
         if not os.path.exists(out_dir):

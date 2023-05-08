@@ -41,3 +41,17 @@ def draw_arrow_and_text(arrow_start, arrow_end, arrow_height, arrow_nr, text):
 
     return svg
 
+
+def draw_double_arrow(arrow_start, arrow_end, arrow_height, arrow_nr):
+    arrow_1 = draw_arrow(arrow_start, arrow_end - 10, arrow_height - 5, arrow_nr)
+    arrow_2 = draw_arrow(arrow_start + 10, arrow_end, arrow_height + 5, arrow_nr)
+
+    svg = ''
+
+    svg += f"""<g id="labelled_arrow_{arrow_nr}">\n"""
+    svg += arrow_1
+    svg += arrow_2
+    svg += "</g>\n"
+
+    return svg
+

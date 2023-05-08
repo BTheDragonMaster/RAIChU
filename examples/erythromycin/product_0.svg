@@ -1,0 +1,156 @@
+<svg width="119" height="228" viewBox="1 1 120 229" xmlns="http://www.w3.org/2000/svg"><style> line {stroke: black; stroke_width: 1px;} polygon {fill: black;} </style><g id="unlabeled">
+<g id="atom_O_61">
+<line x1="48.14973872755113" y1="196.45753152464684" x2="50.14973872755113" y2="193.20753152464684" />
+<line x1="45.85026127244887" y1="195.04246847535316" x2="47.85026127244887" y2="191.79246847535316" />
+<g id="atom_O_61_text">
+<text x="45" y="199" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="199" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_62">
+<line x1="54.585142742718446" y1="186.0" x2="50.14973872755113" y2="193.20753152464684" />
+<line x1="52.207428628640784" y1="184.71207152154128" x2="47.85026127244887" y2="191.79246847535316" />
+<line x1="53.0" y1="186.0" x2="60.5" y2="186.0" />
+<line x1="53.0" y1="186.0" x2="49.0" y2="179.5" />
+</g>
+<g id="atom_C_63">
+<line x1="68.0" y1="186.0" x2="60.5" y2="186.0" />
+<polygon points="68.0,186.0 72.6387437375284,192.10692693075174 71.3612562624716,192.89307306924826" />
+<line x1="68.0" y1="186.0" x2="71.5" y2="179.5" />
+</g>
+<g id="atom_O_34">
+<line x1="47.0" y1="176.25" x2="49.0" y2="179.5" />
+<line x1="47.0" y1="169.75" x2="49.0" y2="166.5" />
+<g id="atom_O_34_text">
+<text x="45" y="173" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="173" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_64">
+<polygon points="77.27748747505682,198.2138538615035 74.72251252494318,199.7861461384965 71.3612562624716,192.89307306924826 72.6387437375284,192.10692693075174" />
+</g>
+<g id="atom_C_52">
+<line x1="75.0" y1="173.0" x2="71.5" y2="179.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="75.0" y1="173.0" x2="75.0" y2="173.0" />
+  <line x1="78.0" y1="172.7" x2="78.0" y2="173.3" />
+  <line x1="81.0" y1="172.4" x2="81.0" y2="173.6" />
+</g>
+<line x1="75.0" y1="173.0" x2="71.5" y2="166.5" />
+</g>
+<g id="atom_C_33">
+<line x1="53.0" y1="160.0" x2="49.0" y2="166.5" />
+<line x1="53.0" y1="160.0" x2="60.5" y2="160.0" />
+<polygon points="53.0,160.0 50.16035332494163,153.14442513272374 48.83964667505837,153.85557486727626" />
+</g>
+<g id="atom_C_53">
+<line x1="68.0" y1="160.0" x2="60.5" y2="160.0" />
+<line x1="68.0" y1="160.0" x2="71.5" y2="166.5" />
+<polygon points="68.0,160.0 72.6387437375284,153.89307306924826 71.3612562624716,153.10692693075174" />
+</g>
+<g id="atom_C_32">
+<polygon points="47.32070664988326,146.28885026544748 44.67929335011674,147.71114973455252 48.83964667505837,153.85557486727626 50.16035332494163,153.14442513272374" />
+<line x1="46.0" y1="147.0" x2="49.5" y2="140.5" />
+<line x1="46.0" y1="147.0" x2="38.5" y2="147.0" />
+</g>
+<g id="atom_C_31">
+<line x1="53.0" y1="134.0" x2="49.5" y2="140.5" />
+<line x1="53.0" y1="134.0" x2="49.5" y2="127.5" />
+</g>
+<g id="atom_C_41">
+<line x1="31.0" y1="147.0" x2="38.5" y2="147.0" />
+</g>
+<g id="atom_O_51">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="84.0" y1="172.1" x2="84.0" y2="173.9" />
+</g>
+<g id="atom_O_51_text">
+<text x="90" y="173" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="173" dy="0.35em">O</tspan></text>
+<text x="96.0" y="173.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="173.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_54">
+<polygon points="77.27748747505682,147.7861461384965 74.72251252494318,146.2138538615035 71.3612562624716,153.10692693075174 72.6387437375284,153.89307306924826" />
+</g>
+<g id="atom_C_30">
+<line x1="46.0" y1="121.0" x2="49.5" y2="127.5" />
+<line x1="46.0" y1="121.0" x2="49.5" y2="114.5" />
+<polygon points="46.0,121.0 38.5,120.25 38.5,121.75" />
+</g>
+<g id="atom_C_22">
+<line x1="53.0" y1="108.0" x2="49.5" y2="114.5" />
+<line x1="53.0" y1="108.0" x2="49.5" y2="101.5" />
+<line x1="52.27307692307692" y1="106.65" x2="60.5" y2="106.65" />
+<line x1="52.27307692307692" y1="109.35" x2="60.5" y2="109.35" />
+</g>
+<g id="atom_C_37">
+<polygon points="31.0,119.5 31.0,122.5 38.5,121.75 38.5,120.25" />
+</g>
+<g id="atom_C_21">
+<line x1="46.0" y1="95.0" x2="49.5" y2="101.5" />
+<line x1="46.0" y1="95.0" x2="49.5" y2="88.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="46.0" y1="95.0" x2="46.0" y2="95.0" />
+  <line x1="43.0" y1="94.7" x2="43.0" y2="95.3" />
+  <line x1="40.0" y1="94.4" x2="40.0" y2="95.6" />
+</g>
+</g>
+<g id="atom_O_23">
+<line x1="64.25" y1="106.65" x2="60.5" y2="106.65" />
+<line x1="64.25" y1="109.35" x2="60.5" y2="109.35" />
+<g id="atom_O_23_text">
+<text x="68" y="108" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="108" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_10">
+<line x1="53.0" y1="82.0" x2="49.5" y2="88.5" />
+<line x1="53.0" y1="82.0" x2="49.5" y2="75.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="53.0" y1="82.0" x2="53.0" y2="82.0" />
+  <line x1="56.0" y1="81.7" x2="56.0" y2="82.3" />
+  <line x1="59.0" y1="81.4" x2="59.0" y2="82.6" />
+</g>
+</g>
+<g id="atom_C_27">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="31.0" y1="93.5" x2="31.0" y2="96.5" />
+  <line x1="34.0" y1="93.8" x2="34.0" y2="96.2" />
+  <line x1="37.0" y1="94.1" x2="37.0" y2="95.9" />
+</g>
+</g>
+<g id="atom_C_9">
+<line x1="46.0" y1="69.0" x2="49.5" y2="75.5" />
+<line x1="46.0" y1="69.0" x2="49.5" y2="62.5" />
+<polygon points="46.0,69.0 38.5,68.25 38.5,69.75" />
+</g>
+<g id="atom_O_11">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="62.0" y1="81.1" x2="62.0" y2="82.9" />
+</g>
+<g id="atom_O_11_text">
+<text x="68" y="82" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="82" dy="0.35em">O</tspan></text>
+<text x="74.0" y="82.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="82.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_3">
+<line x1="53.0" y1="56.0" x2="49.5" y2="62.5" />
+<polygon points="53.0,56.0 60.5,55.25 60.5,56.75" />
+<line x1="53.0" y1="56.0" x2="49.5" y2="49.5" />
+</g>
+<g id="atom_C_18">
+<polygon points="31.0,67.5 31.0,70.5 38.5,69.75 38.5,68.25" />
+</g>
+<g id="atom_O_4">
+<polygon points="64.25,54.5 64.25,57.5 60.5,56.75 60.5,55.25" />
+<g id="atom_O_4_text">
+<text x="68" y="56" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="56" dy="0.35em">O</tspan></text>
+<text x="74.0" y="56.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="56.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_6">
+<line x1="46.0" y1="43.0" x2="49.5" y2="49.5" />
+<line x1="46.0" y1="43.0" x2="49.5" y2="37.0" />
+</g>
+<g id="atom_C_7">
+<line x1="53.0" y1="31.0" x2="49.5" y2="37.0" />
+</g>
+</g>
+</svg>

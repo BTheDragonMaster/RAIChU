@@ -14,8 +14,8 @@ cyanobactin_cluster_trunkamide = RiPPCluster("truE",
                                                                                                 "PRENYLTRANSFERASE",
                                                                                                 [['O_13'], ['O_5']],
                                                                                                 "3_METHYL_1_BUTENYL")])
-#
-# draw_ripp_structure(cyanobactin_cluster_trunkamide, "cyanobactin")
+
+draw_ripp_structure(cyanobactin_cluster_trunkamide, "cyanobactin")
 
 sacti_peptide_cluster_thurincin = RiPPCluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS",
                                               "DWTCWSCLVCAACSVELLNLVTAATGASTAS",

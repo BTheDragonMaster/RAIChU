@@ -27,6 +27,7 @@ class ModularCluster(Cluster):
         self.tailored_product = None
         self.handle_transat()
         self.cyclisation_type = None
+        self.modular = True
 
     def handle_transat(self):
         for i, module in enumerate(self.modules):

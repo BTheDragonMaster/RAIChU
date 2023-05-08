@@ -1,0 +1,83 @@
+<svg width="110" height="120" viewBox="1 1 111 121" xmlns="http://www.w3.org/2000/svg"><style> line {stroke: black; stroke_width: 1px;} polygon {fill: black;} </style><g id="unlabeled">
+<g id="atom_C_5">
+<line x1="46.0" y1="78.0" x2="53.0" y2="78.5" />
+<line x1="47.51839989039344" y1="78.1084571350281" x2="43.14973872755113" y2="85.20753152464685" />
+<line x1="45.160806783266715" y1="76.78783202027414" x2="40.85026127244887" y2="83.79246847535315" />
+<line x1="46.0" y1="78.0" x2="41.5" y2="71.5" />
+</g>
+<g id="atom_C_6">
+<line x1="60.0" y1="79.0" x2="53.0" y2="78.5" />
+<line x1="60.0" y1="79.0" x2="65.5" y2="73.5" />
+</g>
+<g id="atom_O_9">
+<line x1="41.14973872755113" y1="88.45753152464685" x2="43.14973872755113" y2="85.20753152464685" />
+<line x1="38.85026127244887" y1="87.04246847535315" x2="40.85026127244887" y2="83.79246847535315" />
+<g id="atom_O_9_text">
+<text x="38" y="91" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="91" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_O_22">
+<line x1="39.25" y1="68.25" x2="41.5" y2="71.5" />
+<line x1="38.0" y1="61.5" x2="39.0" y2="58.0" />
+<g id="atom_O_22_text">
+<text x="37" y="65" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="65" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_N_7">
+<line x1="68.25" y1="70.75" x2="65.5" y2="73.5" />
+<line x1="70.25" y1="64.25" x2="69.5" y2="60.5" />
+<g id="atom_N_7_text">
+<text x="71" y="68" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="68" dy="0.35em">N</tspan></text>
+<text x="77.0" y="68.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="68.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_12">
+<line x1="68.0" y1="53.0" x2="69.5" y2="60.5" />
+<line x1="68.0" y1="53.0" x2="61.5" y2="49.0" />
+<line x1="68.28228569390876" y1="54.41142846954381" x2="75.20753152464685" y2="50.14973872755113" />
+<line x1="66.71207152154128" y1="52.207428628640784" x2="73.79246847535315" y2="47.85026127244887" />
+</g>
+<g id="atom_C_14">
+<line x1="41.0" y1="51.0" x2="39.0" y2="58.0" />
+<line x1="41.0" y1="51.0" x2="48.0" y2="48.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="41.0" y1="51.0" x2="41.0" y2="51.0" />
+  <line x1="38.78786796564403" y1="49.21213203435597" x2="39.21213203435597" y2="48.78786796564403" />
+  <line x1="36.57573593128807" y1="47.42426406871193" x2="37.42426406871193" y2="46.57573593128807" />
+</g>
+</g>
+<g id="atom_C_13">
+<line x1="55.0" y1="45.0" x2="48.0" y2="48.0" />
+<line x1="55.0" y1="45.0" x2="61.5" y2="49.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="55.0" y1="45.0" x2="55.0" y2="45.0" />
+  <line x1="55.10301515190165" y1="42.15757359312881" x2="55.696984848098346" y2="42.242426406871196" />
+  <line x1="55.206030303803296" y1="39.31514718625761" x2="56.3939696961967" y2="39.484852813742386" />
+</g>
+</g>
+<g id="atom_C_15">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="29.939339828220177" y1="42.06066017177982" x2="32.06066017177982" y2="39.93933982822018" />
+  <line x1="32.151471862576145" y1="43.848528137423855" x2="33.848528137423855" y2="42.151471862576145" />
+  <line x1="34.363603896932105" y1="45.636396103067895" x2="35.636396103067895" y2="44.363603896932105" />
+</g>
+</g>
+<g id="atom_O_17">
+<line x1="78.45753152464685" y1="48.14973872755113" x2="75.20753152464685" y2="50.14973872755113" />
+<line x1="77.04246847535315" y1="45.85026127244887" x2="73.79246847535315" y2="47.85026127244887" />
+<g id="atom_O_17_text">
+<text x="81" y="45" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="45" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_N_19">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="55.309045455704954" y1="36.47272077938642" x2="57.09095454429505" y2="36.72727922061358" />
+</g>
+<g id="atom_N_19_text">
+<text x="57" y="31" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="31" dy="0.35em">N</tspan></text>
+<text x="63.0" y="31.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="31.0" dy="0.35em">H</tspan></text>
+<text x="68.0" y="34.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="34.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+</g>
+</svg>

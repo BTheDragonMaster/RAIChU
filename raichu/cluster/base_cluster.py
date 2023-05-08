@@ -1,7 +1,7 @@
 from pikachu.drawing.drawing import Drawer
 
 from raichu.drawing.drawer import RaichuDrawer
-from raichu.drawing.pathway import draw_arrow_and_text
+from raichu.drawing.pathway import draw_arrow_and_text, draw_double_arrow
 from raichu.data.attributes import ENZYME_TO_NAME
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.reactions.general_tailoring_reactions import cyclisation, oxidative_bond_formation
@@ -11,6 +11,10 @@ class Cluster:
     def __init__(self, tailoring_representations=None, macrocyclisation_representations=None) -> None:
         self.tailoring_representations = tailoring_representations
         self.macrocyclisation_representations = macrocyclisation_representations
+
+        self.ripp = False
+        self.terpene = False
+        self.modular = False
 
         self.chain_intermediate = None
         self.tailored_product = None
@@ -164,8 +168,9 @@ class Cluster:
 
         return drawings, widths, max_height, centre_points
 
+
     def draw_pathway(self, min_arrow_size=40, order=("tailoring", "cyclisation"), mode='gene_name', as_string=False,
-                     out_file=None):
+                     out_file=None, summary=False):
 
         all_drawings = []
         all_widths = []
@@ -230,6 +235,11 @@ class Cluster:
         padding = None
         svg_style = None
 
+        if summary:
+            all_drawings = [all_drawings[0], all_drawings[-1]]
+            all_widths = [all_widths[0], all_widths[-1]]
+            all_centre_points = [all_centre_points[0], all_centre_points[-1]]
+
         for i, drawing in enumerate(all_drawings):
 
             current_x, current_y = all_centre_points[i]
@@ -241,18 +251,27 @@ class Cluster:
             svg_style = drawing.svg_style
 
             target_x += width
-            if i != len(all_drawings) - 1:
-                enzyme_name = enzyme_names[i]
-                arrow_size = max(len(enzyme_name) * 9, min_arrow_size)
+            if not summary:
+                if i != len(all_drawings) - 1:
+                    enzyme_name = enzyme_names[i]
+                    arrow_size = max(len(enzyme_name) * 9, min_arrow_size)
 
+                    arrow_start = target_x
+                    arrow_end = target_x + arrow_size
+                    arrow_y = target_y
+
+                    arrow_svg = draw_arrow_and_text(arrow_start, arrow_end, arrow_y, i, enzyme_name)
+                    arrow_svgs.append(arrow_svg)
+
+                    target_x += arrow_size
+
+            elif i != len(all_drawings) - 1:
                 arrow_start = target_x
-                arrow_end = target_x + arrow_size
+                arrow_end = target_x + min_arrow_size
                 arrow_y = target_y
-
-                arrow_svg = draw_arrow_and_text(arrow_start, arrow_end, arrow_y, i, enzyme_name)
+                arrow_svg = draw_double_arrow(arrow_start, arrow_end, arrow_y, i)
                 arrow_svgs.append(arrow_svg)
-
-                target_x += arrow_size
+                target_x += min_arrow_size
 
             drawing.move_structure(translation_x, translation_y)
             structure_svg = drawing.draw_svg()

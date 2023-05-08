@@ -118,7 +118,7 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> M
 
 
 def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None) -> None:
-    cluster = build_cluster(cluster_repr)
+    cluster = build_cluster(cluster_repr, strict= False)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
 

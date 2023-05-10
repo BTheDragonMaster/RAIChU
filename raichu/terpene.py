@@ -1,7 +1,7 @@
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
 from raichu.substrate import TerpeneCyclaseSubstrate
-from raichu.reactions.general_tailoring_reactions import dephosphorylation, oxidative_bond_formation
+from raichu.reactions.general_tailoring_reactions import dephosphorylation, oxidative_bond_formation, double_bond_reduction
 from raichu.tailoring_enzymes import TailoringEnzyme
 from raichu.drawing.drawer import RaichuDrawer
 from pikachu.drawing.drawing import Drawer
@@ -40,6 +40,16 @@ class Terpene_Cluster:
         for macrocyclization_atoms in self.initialized_macrocyclization_atoms:
             atom1 = self.chain_intermediate.get_atom(macrocyclization_atoms[0])
             atom2 = self.chain_intermediate.get_atom(macrocyclization_atoms[1])
+            found_bond = False
+            for atom in [atom1, atom2]:
+                if found_bond and any([neighbour.type== "H" for neighbour in atom.neighbours]):
+                    break
+                for bond in atom.get_bonds():
+                    if bond.type == "double":
+                        self.chain_intermediate = double_bond_reduction(
+                            *bond.neighbours, self.chain_intermediate)
+                        found_bond = True
+                        break
             self.chain_intermediate = oxidative_bond_formation(
                 atom1, atom2, self.chain_intermediate)
         self.cyclised_product = self.chain_intermediate

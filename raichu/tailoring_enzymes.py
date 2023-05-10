@@ -1,5 +1,3 @@
-from pikachu.drawing.drawing import Drawer
-
 from enum import Enum, unique
 import itertools
 
@@ -13,7 +11,7 @@ from pikachu.reactions.functional_groups import find_atoms, find_bonds
 @unique
 class TailoringEnzymeType(Enum):
 
-    #Group transfer reactions
+    # Group transfer reactions
     METHYLTRANSFERASE = 1
     C_METHYLTRANSFERASE = 2
     N_METHYLTRANSFERASE = 3
@@ -26,14 +24,14 @@ class TailoringEnzymeType(Enum):
     AMINOTRANSFERASE = 10
     HALOGENASE = 11
 
-    #Oxidoreduction
+    # Oxidoreduction
     DOUBLE_BOND_REDUCTION = 12
     DOUBLE_BOND_SHIFT = 13
     DOUBLE_BOND_FORMATION = 14
     KETO_REDUCTION = 15
     ALCOHOL_DEHYDROGENASE = 16
 
-    #Elimination
+    # Elimination
     PEPTIDASE = 17
     PROTEASE = 18
     MONOAMINE_OXIDASE = 19
@@ -43,7 +41,7 @@ class TailoringEnzymeType(Enum):
     SPLICEASE = 23
     ARGINASE = 24
 
-    #Cyclization
+    # Cyclization
     OXIDATIVE_BOND_FORMATION = 25
     MACROLACTAM_SYNTHETASE = 26
     CYCLODEHYDRATION = 27
@@ -51,7 +49,7 @@ class TailoringEnzymeType(Enum):
     LANTHIONINE_SYNTHETASE = 29
     THIOPEPTIDE_CYCLASE = 30
 
-    #Epimerization
+    # Epimerization
     AMINO_ACID_EPIMERASE = 31
 
     @staticmethod
@@ -414,19 +412,19 @@ class TailoringEnzyme:
     def get_possible_sites(self, structure, out_file=None):
         possible_sites = []
         if self.type.name in ["HYDROXYLATION",]:
-           possible_sites.extend(find_atoms_for_tailoring(structure, "C"))
+           possible_sites.extend([[atom] for atom in find_atoms_for_tailoring(structure, "C")])
         elif self.type.name in ["C_METHYLTRANSFERASE", "N_METHYLTRANSFERASE", "O_METHYLTRANSFERASE"]:
                 atom = self.type.name.split("_")[0]
-                possible_sites.extend(find_atoms_for_tailoring(structure, atom))
+                possible_sites.extend([[atom] for atom in find_atoms_for_tailoring(structure, atom)])
         elif self.type.name in ["METHYLTRANSFERASE", "PRENYLTRANSFERASE", "ACETYLTRANSFERASE", "ACYLTRANSFERASE", "OXIDATIVE_BOND_FORMATION", "HALOGENASE", "SPLICEASE"]:
-            possible_sites.extend(
-                find_atoms_for_tailoring(structure, "C"))
-            possible_sites.extend(
-                find_atoms_for_tailoring(structure, "N"))
-            possible_sites.extend(
-                find_atoms_for_tailoring(structure, "O"))
-            possible_sites.extend(
-                find_atoms_for_tailoring(structure, "S"))
+            possible_sites.extend([[atom] for atom in
+                find_atoms_for_tailoring(structure, "C")])
+            possible_sites.extend([[atom] for atom in
+                find_atoms_for_tailoring(structure, "N")])
+            possible_sites.extend([[atom] for atom in
+                find_atoms_for_tailoring(structure, "O")])
+            possible_sites.extend([[atom] for atom in
+                find_atoms_for_tailoring(structure, "S")])
 
         elif self.type.name in ["EPOXIDATION", "DOUBLE_BOND_REDUCTION"]:
             peptide_bonds = find_bonds(
@@ -451,18 +449,18 @@ class TailoringEnzyme:
                             bond.neighbours+neighbouring_bond.neighbours)
 
         elif self.type.name == "AMINOTRANSFERASE":
-            possible_sites.extend(find_atoms(KETO_GROUP, structure))
+            possible_sites.extend([[atom] for atom in find_atoms(KETO_GROUP, structure)])
 
         elif self.type.name == "KETO_REDUCTION":
             oxygens = find_atoms(KETO_GROUP, structure)
-            possible_sites.extend(oxygens)
+            possible_sites.extend([[atom] for atom in oxygens])
 
         elif self.type.name == "ALCOHOL_DEHYDROGENASE":
-            possible_sites.extend(
-                find_atoms_for_tailoring(structure, "O"))
+            possible_sites.extend([[atom] for atom in
+                find_atoms_for_tailoring(structure, "O")])
 
         elif self.type.name == "DECARBOXYLASE":
-            possible_sites.extend(find_atoms(C_CARBOXYL, structure))
+            possible_sites.extend([[atom] for atom in find_atoms(C_CARBOXYL, structure)])
 
         elif self.type.name == "DEHYDRATASE":
             co_bonds = find_bonds(CO_BOND, structure)
@@ -478,7 +476,7 @@ class TailoringEnzyme:
             n_atoms_with_one_h = find_atoms_for_tailoring(structure, "N")
             for n_atom in n_atoms_with_one_h:
                 if [atom.type for atom in n_atom.neighbours].count("H") == 2:
-                    possible_sites.append(n_atom)
+                    possible_sites.append([n_atom])
         elif self.type.name in ["PROTEASE", "PEPTIDASE"]:
             peptide_bonds = find_bonds(
                 PEPTIDE_BOND, structure)
@@ -487,14 +485,14 @@ class TailoringEnzyme:
         elif self.type.name == "MACROLACTAM_SYNTHETASE":
             asp_glu_oxygen = find_atoms(
                 ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
-            possible_sites.append(asp_glu_oxygen)
+            possible_sites.extend(asp_glu_oxygen)
         elif self.type.name == "CYCLODEHYDRATION":
             cys_ser_thr_x = find_atoms(
                 CYSTEINE, structure) + find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
-            possible_sites.append(cys_ser_thr_x)
+            possible_sites.extend([[atom] for atom in cys_ser_thr_x])
         elif self.type.name == "THREONINE_SERINE_DEHYDRATASE":
             ser_thr_x = find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
-            possible_sites.append(ser_thr_x)
+            possible_sites.extend([[atom] for atom in ser_thr_x])
         elif self.type.name == "LANTHIPEPTIDE_CYCLASE":
             cys_x = find_atoms(CYSTEINE, structure)
             ser_thr_c = find_atoms(REDUCED_SERINE, structure) + \
@@ -515,10 +513,10 @@ class TailoringEnzyme:
             possible_sites.extend(combinations)
         elif self.type.name == "AMINO_ACID_EPIMERASE":
             alpha_cs_amino_acid_backbone = find_atoms(C1_AMINO_ACID_ATTACHED, structure)
-            possible_sites.extend(alpha_cs_amino_acid_backbone)
+            possible_sites.extend([[atom] for atom in alpha_cs_amino_acid_backbone])
         elif self.type.name == "ARGINASE":
             arginine_n = find_atoms(ARGININE_SECONDARY_N, structure)
-            possible_sites.extend(arginine_n)
+            possible_sites.extend([[atom] for atom in arginine_n])
         elif self.type.name == "THIOPEPTIDE_CYCLASE":
             ser_thr_c = find_atoms(REDUCED_SERINE, structure) + \
                 find_atoms(REDUCED_THREONINE, structure)

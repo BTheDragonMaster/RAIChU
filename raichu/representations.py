@@ -7,6 +7,7 @@ import os
 class MacrocyclizationRepresentation:
     atom_1: str
     atom_2: str
+    type: str = 'oxidative'
 
 
 @dataclass

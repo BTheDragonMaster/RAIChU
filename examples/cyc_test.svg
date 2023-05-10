@@ -1,0 +1,1023 @@
+<svg width="696.0" height="378" viewBox="0 0 696.0 378" xmlns="http://www.w3.org/2000/svg">
+<style> line {stroke: black; stroke_width: 1px;} polygon {fill: black;} </style>
+<g id="domain_circles">
+<g id="domain_bubble_0">
+<circle r="14" cx="30" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="30.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_1">
+<circle r="14" cx="59" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="59.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+<g id="domain_bubble_2">
+<circle r="14" cx="98" cy="80" stroke="#5858b6"
+       fill="#8181f7" stroke-width="1"/>
+<text x="98.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">C</tspan></text>
+</g>
+<g id="domain_bubble_3">
+<circle r="14" cx="127" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="127.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_4">
+<circle r="14" cx="156" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="156.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+<g id="domain_bubble_5">
+<circle r="14" cx="195" cy="80" stroke="#5858b6"
+       fill="#8181f7" stroke-width="1"/>
+<text x="195.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">C</tspan></text>
+</g>
+<g id="domain_bubble_6">
+<circle r="14" cx="223" cy="73" stroke="#a2a2a2"
+       fill="#dadada" stroke-width="1"/>
+<text x="223.0" y="73" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="73" dy="0.35em">Cy</tspan></text>
+</g>
+<g id="domain_bubble_7">
+<circle r="14" cx="251" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="251.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_8">
+<circle r="14" cx="279" cy="73" stroke="#a2a2a2"
+       fill="#dadada" stroke-width="1"/>
+<text x="279.0" y="73" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="73" dy="0.35em">Ox</tspan></text>
+</g>
+<g id="domain_bubble_9">
+<circle r="14" cx="307" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="307.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+<g id="domain_bubble_10">
+<circle r="14" cx="346" cy="80" stroke="#5858b6"
+       fill="#8181f7" stroke-width="1"/>
+<text x="346.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">C</tspan></text>
+</g>
+<g id="domain_bubble_11">
+<circle r="14" cx="375" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="375.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_12">
+<circle r="14" cx="404" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="404.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+<g id="domain_bubble_13">
+<circle r="14" cx="433" cy="80" stroke="#d0accf"
+       fill="#fae1f9" stroke-width="1"/>
+<text x="433.0" y="80" fill="#7d707d" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">TE</tspan></text>
+</g>
+<g id="domain_bubble_14">
+<circle r="14" cx="472" cy="80" stroke="#5858b6"
+       fill="#8181f7" stroke-width="1"/>
+<text x="472.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">C</tspan></text>
+</g>
+<g id="domain_bubble_15">
+<circle r="14" cx="501" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="501.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_16">
+<circle r="14" cx="530" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="530.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+<g id="domain_bubble_17">
+<circle r="14" cx="569" cy="80" stroke="#5858b6"
+       fill="#8181f7" stroke-width="1"/>
+<text x="569.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">C</tspan></text>
+</g>
+<g id="domain_bubble_18">
+<circle r="14" cx="598" cy="80" stroke="#74399b"
+       fill="#bc7ff5" stroke-width="1"/>
+<text x="598.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">A</tspan></text>
+</g>
+<g id="domain_bubble_19">
+<circle r="14" cx="627" cy="80" stroke="#306dd2"
+       fill="#81bef7" stroke-width="1"/>
+<text x="627.0" y="80" fill="black" text-anchor="middle" font-family="verdana" font-size = "13"><tspan y="80" dy="0.35em">CP</tspan></text>
+</g>
+</g>
+<g id="gene_rectangles">
+<g id="gene_banner_Gene 1"><rect x="15.0" y="5" width="627.0" height="12" fill="black" /><text x="328.5" y="11.0" fill="white" text-anchor="middle" font-family="verdana" font-size = "8"><tspan y="11.0" dy="0.35em">Gene 1</tspan></text></g>
+</g>
+<g id="module_labels">
+<g id="module_label_0"><line x1="15.0" x2="73.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="44.0" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 1</tspan></text>
+</g>
+<g id="module_label_1"><line x1="83.0" x2="170.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="126.5" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 2</tspan></text>
+</g>
+<g id="module_label_2"><line x1="180.0" x2="321.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="250.5" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 3</tspan></text>
+</g>
+<g id="module_label_3"><line x1="331.0" x2="447.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="389.0" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 4</tspan></text>
+</g>
+<g id="module_label_4"><line x1="457.0" x2="544.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="500.5" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 5</tspan></text>
+</g>
+<g id="module_label_5"><line x1="554.0" x2="641.0" y1="54" y2="54" stroke-width="2" stroke="black" />
+<text x="597.5" y="46" fill="'black" text-anchor="middle" font-family="verdana" font-size = "12"><tspan y="46" dy="0.35em">Module 6</tspan></text>
+</g>
+</g>
+<g id="unlabeled_s0">
+<g id="atom_C_8_s0">
+<line x1="51.0" y1="122.0" x2="55.0" y2="116.0" />
+<line x1="51.0" y1="122.0" x2="55.0" y2="128.5" />
+<line x1="51.9" y1="120.65" x2="43.5" y2="120.65" />
+<line x1="51.83076923076923" y1="123.35" x2="43.5" y2="123.35" />
+</g>
+<g id="atom_S_1_s0">
+<line x1="57.0" y1="113.0" x2="55.0" y2="116.0" />
+<g id="atom_S_1_s0_text">
+<text x="59.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_6_s0">
+<line x1="59.0" y1="135.0" x2="55.0" y2="128.5" />
+<line x1="59.0" y1="135.0" x2="66.5" y2="135.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="59.0" y1="135.0" x2="59.0" y2="135.0" />
+  <line x1="57.33585867002335" y1="137.4577700530895" x2="57.864141329976654" y2="137.7422299469105" />
+  <line x1="55.6717173400467" y1="139.91554010617898" x2="56.72828265995331" y2="140.484459893821" />
+</g>
+</g>
+<g id="atom_O_9_s0">
+<line x1="39.75" y1="120.65" x2="43.5" y2="120.65" />
+<line x1="39.75" y1="123.35" x2="43.5" y2="123.35" />
+<g id="atom_O_9_s0_text">
+<text x="36.0" y="122" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="122" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s0">
+<line x1="74.0" y1="135.0" x2="66.5" y2="135.0" />
+<line x1="74.0" y1="135.0" x2="78.0" y2="128.5" />
+<line x1="74.0" y1="135.0" x2="78.0" y2="141.5" />
+</g>
+<g id="atom_N_11_s0">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="54.00757601007004" y1="142.3733101592685" x2="55.592423989929955" y2="143.22668984073152" />
+</g>
+<g id="atom_N_11_s0_text">
+<text x="52.0" y="148" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="148" dy="0.35em">N</tspan></text>
+<text x="42.0" y="148.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="148.0" dy="0.35em">H</tspan></text>
+<text x="47.0" y="151.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="151.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s0">
+<line x1="82.0" y1="122.0" x2="78.0" y2="128.5" />
+</g>
+<g id="atom_C_5_s0">
+<line x1="82.0" y1="148.0" x2="78.0" y2="141.5" />
+</g>
+</g>
+<g id="unlabeled_s1">
+<g id="atom_C_9_s1">
+<line x1="149.0" y1="122.0" x2="152.5" y2="116.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="147.67929335011675" y1="122.71114973455252" x2="150.32070664988325" y2="121.28885026544748" />
+  <line x1="149.3434346800934" y1="125.16891978764201" x2="151.45656531990662" y2="124.03108021235798" />
+  <line x1="151.00757601007007" y1="127.62668984073152" x2="152.59242398992996" y2="126.77331015926849" />
+</g>
+<line x1="149.7875" y1="120.65" x2="141.5" y2="120.65" />
+<line x1="149.72692307692307" y1="123.35" x2="141.5" y2="123.35" />
+</g>
+<g id="atom_S_1_s1">
+<line x1="154.25" y1="113.0" x2="152.5" y2="116.0" />
+<g id="atom_S_1_s1_text">
+<text x="156.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_5_s1">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="156.0" y1="135.0" x2="156.0" y2="135.0" />
+  <line x1="154.33585867002336" y1="132.5422299469105" x2="154.86414132997663" y2="132.2577700530895" />
+  <line x1="152.67171734004668" y1="130.08445989382102" x2="153.7282826599533" y2="129.515540106179" />
+</g>
+<line x1="156.0" y1="135.0" x2="163.0" y2="133.0" />
+<line x1="156.0" y1="135.0" x2="156.0" y2="142.5" />
+</g>
+<g id="atom_O_10_s1">
+<line x1="137.75" y1="120.65" x2="141.5" y2="120.65" />
+<line x1="137.75" y1="123.35" x2="141.5" y2="123.35" />
+<g id="atom_O_10_s1_text">
+<text x="134.0" y="122" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="122" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s1">
+<line x1="170.0" y1="131.0" x2="163.0" y2="133.0" />
+<line x1="170.0" y1="131.0" x2="174.5" y2="137.0" />
+</g>
+<g id="atom_N_8_s1">
+<line x1="156.0" y1="146.25" x2="156.0" y2="142.5" />
+<line x1="159.5" y1="151.25" x2="163.0" y2="152.5" />
+<line x1="154.25" y1="153.25" x2="152.5" y2="156.5" />
+<g id="atom_N_8_s1_text">
+<text x="156.0" y="150" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="150" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s1">
+<line x1="179.0" y1="143.0" x2="174.5" y2="137.0" />
+<line x1="179.0" y1="143.0" x2="174.5" y2="149.0" />
+</g>
+<g id="atom_C_7_s1">
+<line x1="170.0" y1="155.0" x2="174.5" y2="149.0" />
+<line x1="170.0" y1="155.0" x2="163.0" y2="152.5" />
+</g>
+<g id="atom_C_17_s1">
+<line x1="149.0" y1="163.0" x2="152.5" y2="156.5" />
+<line x1="149.0" y1="163.0" x2="152.5" y2="169.5" />
+<line x1="149.72692307692307" y1="161.65" x2="141.5" y2="161.65" />
+<line x1="149.72692307692307" y1="164.35" x2="141.5" y2="164.35" />
+</g>
+<g id="atom_C_18_s1">
+<line x1="156.0" y1="176.0" x2="152.5" y2="169.5" />
+<line x1="156.0" y1="176.0" x2="163.5" y2="176.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="156.0" y1="176.0" x2="156.0" y2="176.0" />
+  <line x1="154.33585867002336" y1="178.4577700530895" x2="154.86414132997663" y2="178.7422299469105" />
+  <line x1="152.67171734004668" y1="180.91554010617898" x2="153.7282826599533" y2="181.484459893821" />
+</g>
+</g>
+<g id="atom_O_24_s1">
+<line x1="137.75" y1="161.65" x2="141.5" y2="161.65" />
+<line x1="137.75" y1="164.35" x2="141.5" y2="164.35" />
+<g id="atom_O_24_s1_text">
+<text x="134.0" y="163" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="163" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_19_s1">
+<line x1="171.0" y1="176.0" x2="163.5" y2="176.0" />
+<line x1="171.0" y1="176.0" x2="175.0" y2="182.5" />
+<line x1="171.0" y1="176.0" x2="175.0" y2="169.5" />
+</g>
+<g id="atom_N_26_s1">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="151.00757601007007" y1="183.3733101592685" x2="152.59242398992996" y2="184.22668984073152" />
+</g>
+<g id="atom_N_26_s1_text">
+<text x="149.0" y="189" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="189" dy="0.35em">N</tspan></text>
+<text x="139.0" y="189.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="189.0" dy="0.35em">H</tspan></text>
+<text x="144.0" y="192.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="192.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_20_s1">
+<line x1="179.0" y1="189.0" x2="175.0" y2="182.5" />
+</g>
+<g id="atom_C_28_s1">
+<line x1="179.0" y1="163.0" x2="175.0" y2="169.5" />
+</g>
+</g>
+<g id="unlabeled_s2">
+<g id="atom_C_13_s2">
+<line x1="300.0" y1="122.0" x2="303.5" y2="116.0" />
+<line x1="300.0" y1="122.0" x2="303.5" y2="128.5" />
+<line x1="300.7875" y1="120.65" x2="292.5" y2="120.65" />
+<line x1="300.7269230769231" y1="123.35" x2="292.5" y2="123.35" />
+</g>
+<g id="atom_S_1_s2">
+<line x1="305.25" y1="113.0" x2="303.5" y2="116.0" />
+<g id="atom_S_1_s2_text">
+<text x="307.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_9_s2">
+<line x1="307.0" y1="135.0" x2="303.5" y2="128.5" />
+<line x1="307.0" y1="135.0" x2="314.5" y2="137.0" />
+<line x1="307.8043108434871" y1="138.00883433692337" x2="313.8043108434871" y2="139.60883433692337" />
+<line x1="307.0" y1="135.0" x2="303.5" y2="141.5" />
+</g>
+<g id="atom_O_14_s2">
+<line x1="288.75" y1="120.65" x2="292.5" y2="120.65" />
+<line x1="288.75" y1="123.35" x2="292.5" y2="123.35" />
+<g id="atom_O_14_s2_text">
+<text x="285.0" y="122" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="122" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s2">
+<line x1="322.0" y1="139.0" x2="314.5" y2="137.0" />
+<line x1="319.8043108434871" y1="141.20883433692336" x2="313.8043108434871" y2="139.60883433692337" />
+<line x1="322.0" y1="139.0" x2="327.5" y2="134.0" />
+<line x1="322.0" y1="139.0" x2="323.0" y2="146.5" />
+</g>
+<g id="atom_N_15_s2">
+<line x1="301.75" y1="144.75" x2="303.5" y2="141.5" />
+<line x1="301.75" y1="151.25" x2="303.5" y2="154.5" />
+<line x1="303.0772719697899" y1="148.01993047780547" x2="305.8772719697899" y2="153.21993047780546" />
+<g id="atom_N_15_s2_text">
+<text x="300.0" y="148" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="148" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s2">
+<line x1="333.0" y1="129.0" x2="327.5" y2="134.0" />
+</g>
+<g id="atom_O_11_s2">
+<line x1="323.5" y1="150.25" x2="323.0" y2="146.5" />
+<line x1="319.75" y1="155.75" x2="315.5" y2="157.5" />
+<g id="atom_O_11_s2_text">
+<text x="324.0" y="154" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="154" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_19_s2">
+<line x1="307.0" y1="161.0" x2="303.5" y2="154.5" />
+<line x1="308.6772719697899" y1="158.41993047780545" x2="305.8772719697899" y2="153.21993047780546" />
+<line x1="307.0" y1="161.0" x2="315.5" y2="157.5" />
+<polygon points="308.3207066498833,161.71114973455252 305.6792933501167,160.28885026544748 302.83964667505836,167.14442513272374 304.16035332494164,167.85557486727626" />
+</g>
+<g id="atom_C_20_s2">
+<polygon points="300.0,174.0 304.16035332494164,167.85557486727626 302.83964667505836,167.14442513272374" />
+<line x1="300.0" y1="174.0" x2="293.0" y2="172.0" />
+<line x1="300.0" y1="174.0" x2="300.0" y2="181.5" />
+</g>
+<g id="atom_C_21_s2">
+<line x1="286.0" y1="170.0" x2="293.0" y2="172.0" />
+<line x1="286.0" y1="170.0" x2="281.5" y2="176.0" />
+</g>
+<g id="atom_N_24_s2">
+<line x1="300.0" y1="185.25" x2="300.0" y2="181.5" />
+<line x1="296.5" y1="190.25" x2="293.0" y2="191.5" />
+<line x1="301.75" y1="192.25" x2="303.5" y2="195.5" />
+<g id="atom_N_24_s2_text">
+<text x="300.0" y="189" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="189" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_22_s2">
+<line x1="277.0" y1="182.0" x2="281.5" y2="176.0" />
+<line x1="277.0" y1="182.0" x2="281.5" y2="188.0" />
+</g>
+<g id="atom_C_23_s2">
+<line x1="286.0" y1="194.0" x2="281.5" y2="188.0" />
+<line x1="286.0" y1="194.0" x2="293.0" y2="191.5" />
+</g>
+<g id="atom_C_33_s2">
+<line x1="307.0" y1="202.0" x2="303.5" y2="195.5" />
+<line x1="307.0" y1="202.0" x2="303.5" y2="208.5" />
+<line x1="306.2730769230769" y1="200.65" x2="314.5" y2="200.65" />
+<line x1="306.2730769230769" y1="203.35" x2="314.5" y2="203.35" />
+</g>
+<g id="atom_C_34_s2">
+<line x1="300.0" y1="215.0" x2="303.5" y2="208.5" />
+<line x1="300.0" y1="215.0" x2="292.5" y2="215.0" />
+<polygon points="300.0,215.0 304.16035332494164,221.14442513272374 302.83964667505836,221.85557486727626" />
+</g>
+<g id="atom_O_38_s2">
+<line x1="318.25" y1="200.65" x2="314.5" y2="200.65" />
+<line x1="318.25" y1="203.35" x2="314.5" y2="203.35" />
+<g id="atom_O_38_s2_text">
+<text x="322.0" y="202" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="202" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_35_s2">
+<line x1="285.0" y1="215.0" x2="292.5" y2="215.0" />
+<line x1="285.0" y1="215.0" x2="281.0" y2="208.5" />
+<line x1="285.0" y1="215.0" x2="281.0" y2="221.5" />
+</g>
+<g id="atom_N_40_s2">
+<polygon points="306.5707066498833,224.03885026544748 303.9292933501167,225.46114973455252 302.83964667505836,221.85557486727626 304.16035332494164,221.14442513272374" />
+<g id="atom_N_40_s2_text">
+<text x="307.0" y="228" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="228" dy="0.35em">N</tspan></text>
+<text x="313.0" y="228.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="228.0" dy="0.35em">H</tspan></text>
+<text x="318.0" y="231.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="231.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_36_s2">
+<line x1="277.0" y1="202.0" x2="281.0" y2="208.5" />
+</g>
+<g id="atom_C_42_s2">
+<line x1="277.0" y1="228.0" x2="281.0" y2="221.5" />
+</g>
+</g>
+<g id="unlabeled_s3">
+<g id="atom_C_9_s3">
+<line x1="397.0" y1="122.0" x2="400.5" y2="116.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="395.6792933501167" y1="122.71114973455252" x2="398.3207066498833" y2="121.28885026544748" />
+  <line x1="397.34343468009337" y1="125.16891978764201" x2="399.4565653199066" y2="124.03108021235798" />
+  <line x1="399.00757601007007" y1="127.62668984073152" x2="400.59242398992996" y2="126.77331015926849" />
+</g>
+<line x1="397.7875" y1="120.65" x2="389.5" y2="120.65" />
+<line x1="397.7269230769231" y1="123.35" x2="389.5" y2="123.35" />
+</g>
+<g id="atom_S_1_s3">
+<line x1="402.25" y1="113.0" x2="400.5" y2="116.0" />
+<g id="atom_S_1_s3_text">
+<text x="404.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_5_s3">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="404.0" y1="135.0" x2="404.0" y2="135.0" />
+  <line x1="402.33585867002336" y1="132.5422299469105" x2="402.8641413299767" y2="132.2577700530895" />
+  <line x1="400.6717173400467" y1="130.08445989382102" x2="401.72828265995327" y2="129.515540106179" />
+</g>
+<line x1="404.0" y1="135.0" x2="411.0" y2="133.0" />
+<line x1="404.0" y1="135.0" x2="404.0" y2="142.5" />
+</g>
+<g id="atom_O_10_s3">
+<line x1="385.75" y1="120.65" x2="389.5" y2="120.65" />
+<line x1="385.75" y1="123.35" x2="389.5" y2="123.35" />
+<g id="atom_O_10_s3_text">
+<text x="382.0" y="122" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="122" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s3">
+<line x1="418.0" y1="131.0" x2="411.0" y2="133.0" />
+<line x1="418.0" y1="131.0" x2="422.5" y2="137.0" />
+</g>
+<g id="atom_N_8_s3">
+<line x1="404.0" y1="146.25" x2="404.0" y2="142.5" />
+<line x1="407.5" y1="151.25" x2="411.0" y2="152.5" />
+<line x1="402.25" y1="153.25" x2="400.5" y2="156.5" />
+<g id="atom_N_8_s3_text">
+<text x="404.0" y="150" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="150" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s3">
+<line x1="427.0" y1="143.0" x2="422.5" y2="137.0" />
+<line x1="427.0" y1="143.0" x2="422.5" y2="149.0" />
+</g>
+<g id="atom_C_7_s3">
+<line x1="418.0" y1="155.0" x2="422.5" y2="149.0" />
+<line x1="418.0" y1="155.0" x2="411.0" y2="152.5" />
+</g>
+<g id="atom_C_17_s3">
+<line x1="397.0" y1="163.0" x2="400.5" y2="156.5" />
+<line x1="397.0" y1="163.0" x2="400.5" y2="169.5" />
+<line x1="397.7269230769231" y1="161.65" x2="389.5" y2="161.65" />
+<line x1="397.7269230769231" y1="164.35" x2="389.5" y2="164.35" />
+</g>
+<g id="atom_C_18_s3">
+<line x1="404.0" y1="176.0" x2="400.5" y2="169.5" />
+<line x1="404.0" y1="176.0" x2="411.5" y2="178.0" />
+<line x1="404.8043108434871" y1="179.00883433692337" x2="410.8043108434871" y2="180.60883433692337" />
+<line x1="404.0" y1="176.0" x2="400.5" y2="182.5" />
+</g>
+<g id="atom_O_24_s3">
+<line x1="385.75" y1="161.65" x2="389.5" y2="161.65" />
+<line x1="385.75" y1="164.35" x2="389.5" y2="164.35" />
+<g id="atom_O_24_s3_text">
+<text x="382.0" y="163" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="163" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_19_s3">
+<line x1="419.0" y1="180.0" x2="411.5" y2="178.0" />
+<line x1="416.8043108434871" y1="182.20883433692336" x2="410.8043108434871" y2="180.60883433692337" />
+<line x1="419.0" y1="180.0" x2="424.5" y2="175.0" />
+<line x1="419.0" y1="180.0" x2="419.5" y2="187.0" />
+</g>
+<g id="atom_N_25_s3">
+<line x1="398.75" y1="185.75" x2="400.5" y2="182.5" />
+<line x1="398.75" y1="192.25" x2="400.5" y2="195.5" />
+<line x1="400.0772719697899" y1="189.01993047780547" x2="402.8772719697899" y2="194.21993047780546" />
+<g id="atom_N_25_s3_text">
+<text x="397.0" y="189" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="189" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_20_s3">
+<line x1="430.0" y1="170.0" x2="424.5" y2="175.0" />
+</g>
+<g id="atom_O_33_s3">
+<line x1="419.75" y1="190.5" x2="419.5" y2="187.0" />
+<line x1="416.0" y1="196.0" x2="412.0" y2="198.0" />
+<g id="atom_O_33_s3_text">
+<text x="420.0" y="194" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="194" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_26_s3">
+<line x1="404.0" y1="202.0" x2="400.5" y2="195.5" />
+<line x1="405.6772719697899" y1="199.41993047780545" x2="402.8772719697899" y2="194.21993047780546" />
+<line x1="404.0" y1="202.0" x2="412.0" y2="198.0" />
+<line x1="404.0" y1="202.0" x2="400.5" y2="208.5" />
+</g>
+<g id="atom_C_27_s3">
+<line x1="397.0" y1="215.0" x2="400.5" y2="208.5" />
+<polygon points="397.0,215.0 389.69324698792025,212.27532379529907 389.30675301207975,213.72467620470093" />
+<line x1="397.0" y1="215.0" x2="397.0" y2="222.5" />
+</g>
+<g id="atom_C_28_s3">
+<polygon points="382.3864939758405,209.55064759059812 381.6135060241595,212.44935240940188 389.30675301207975,213.72467620470093 389.69324698792025,212.27532379529907" />
+<line x1="382.0" y1="211.0" x2="378.0" y2="217.0" />
+</g>
+<g id="atom_N_31_s3">
+<line x1="397.0" y1="226.25" x2="397.0" y2="222.5" />
+<line x1="393.25" y1="231.25" x2="389.5" y2="232.5" />
+<line x1="398.75" y1="233.25" x2="400.5" y2="236.5" />
+<g id="atom_N_31_s3_text">
+<text x="397.0" y="230" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="230" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_29_s3">
+<line x1="374.0" y1="223.0" x2="378.0" y2="217.0" />
+<line x1="374.0" y1="223.0" x2="378.0" y2="229.0" />
+</g>
+<g id="atom_C_30_s3">
+<line x1="382.0" y1="235.0" x2="378.0" y2="229.0" />
+<line x1="382.0" y1="235.0" x2="389.5" y2="232.5" />
+</g>
+<g id="atom_C_42_s3">
+<line x1="404.0" y1="243.0" x2="400.5" y2="236.5" />
+<line x1="404.0" y1="243.0" x2="400.5" y2="249.5" />
+<line x1="403.2730769230769" y1="241.65" x2="411.5" y2="241.65" />
+<line x1="403.2730769230769" y1="244.35" x2="411.5" y2="244.35" />
+</g>
+<g id="atom_C_43_s3">
+<line x1="397.0" y1="256.0" x2="400.5" y2="249.5" />
+<line x1="397.0" y1="256.0" x2="389.5" y2="256.0" />
+<polygon points="397.0,256.0 401.16035332494164,262.1444251327237 399.83964667505836,262.8555748672763" />
+</g>
+<g id="atom_O_47_s3">
+<line x1="415.25" y1="241.65" x2="411.5" y2="241.65" />
+<line x1="415.25" y1="244.35" x2="411.5" y2="244.35" />
+<g id="atom_O_47_s3_text">
+<text x="419.0" y="243" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="243" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_44_s3">
+<line x1="382.0" y1="256.0" x2="389.5" y2="256.0" />
+<line x1="382.0" y1="256.0" x2="378.0" y2="249.5" />
+<line x1="382.0" y1="256.0" x2="378.0" y2="262.5" />
+</g>
+<g id="atom_N_49_s3">
+<polygon points="403.5707066498833,265.0388502654475 400.9292933501167,266.4611497345525 399.83964667505836,262.8555748672763 401.16035332494164,262.1444251327237" />
+<g id="atom_N_49_s3_text">
+<text x="404.0" y="269" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="269" dy="0.35em">N</tspan></text>
+<text x="410.0" y="269.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="269.0" dy="0.35em">H</tspan></text>
+<text x="415.0" y="272.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="272.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_45_s3">
+<line x1="374.0" y1="243.0" x2="378.0" y2="249.5" />
+</g>
+<g id="atom_C_51_s3">
+<line x1="374.0" y1="269.0" x2="378.0" y2="262.5" />
+</g>
+</g>
+<g id="unlabeled_s4">
+<g id="atom_C_15_s4">
+<line x1="522.0" y1="122.0" x2="526.0" y2="116.0" />
+<line x1="522.0" y1="122.0" x2="526.0" y2="128.5" />
+<line x1="522.9" y1="120.65" x2="514.5" y2="120.65" />
+<line x1="522.8307692307692" y1="123.35" x2="514.5" y2="123.35" />
+</g>
+<g id="atom_S_1_s4">
+<line x1="528.0" y1="113.0" x2="526.0" y2="116.0" />
+<g id="atom_S_1_s4_text">
+<text x="530.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_10_s4">
+<line x1="530.0" y1="135.0" x2="526.0" y2="128.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="530.0" y1="135.0" x2="530.0" y2="135.0" />
+  <line x1="533.0" y1="134.7" x2="533.0" y2="135.3" />
+  <line x1="536.0" y1="134.4" x2="536.0" y2="135.6" />
+</g>
+<line x1="530.0" y1="135.0" x2="526.0" y2="141.5" />
+</g>
+<g id="atom_O_16_s4">
+<line x1="510.75" y1="120.65" x2="514.5" y2="120.65" />
+<line x1="510.75" y1="123.35" x2="514.5" y2="123.35" />
+<g id="atom_O_16_s4_text">
+<text x="507.0" y="122" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="122" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s4">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="545.0" y1="133.5" x2="545.0" y2="136.5" />
+  <line x1="542.0" y1="133.8" x2="542.0" y2="136.2" />
+  <line x1="539.0" y1="134.1" x2="539.0" y2="135.9" />
+</g>
+<line x1="545.0" y1="135.0" x2="548.5" y2="141.5" />
+<line x1="545.0" y1="135.0" x2="548.5" y2="128.5" />
+</g>
+<g id="atom_N_17_s4">
+<line x1="524.0" y1="144.75" x2="526.0" y2="141.5" />
+<line x1="524.0" y1="151.25" x2="526.0" y2="154.5" />
+<g id="atom_N_17_s4_text">
+<text x="522.0" y="148" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="148" dy="0.35em">N</tspan></text>
+<text x="516.0" y="148.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="148.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s4">
+<line x1="552.0" y1="148.0" x2="548.5" y2="141.5" />
+</g>
+<g id="atom_C_5_s4">
+<line x1="552.0" y1="122.0" x2="548.5" y2="128.5" />
+</g>
+<g id="atom_C_21_s4">
+<line x1="530.0" y1="161.0" x2="526.0" y2="154.5" />
+<polygon points="531.2774874750568,161.7861461384965 528.7225125249432,160.2138538615035 525.3612562624716,167.10692693075174 526.6387437375284,167.89307306924826" />
+<line x1="529.1692307692308" y1="159.65" x2="537.5" y2="159.65" />
+<line x1="529.1692307692308" y1="162.35" x2="537.5" y2="162.35" />
+</g>
+<g id="atom_C_22_s4">
+<polygon points="522.0,174.0 526.6387437375284,167.89307306924826 525.3612562624716,167.10692693075174" />
+<line x1="522.0" y1="174.0" x2="515.0" y2="172.0" />
+<line x1="522.0" y1="174.0" x2="522.0" y2="181.5" />
+</g>
+<g id="atom_O_28_s4">
+<line x1="541.25" y1="159.65" x2="537.5" y2="159.65" />
+<line x1="541.25" y1="162.35" x2="537.5" y2="162.35" />
+<g id="atom_O_28_s4_text">
+<text x="545.0" y="161" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="161" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_23_s4">
+<line x1="508.0" y1="170.0" x2="515.0" y2="172.0" />
+<line x1="508.0" y1="170.0" x2="503.5" y2="176.0" />
+</g>
+<g id="atom_N_26_s4">
+<line x1="522.0" y1="185.25" x2="522.0" y2="181.5" />
+<line x1="518.5" y1="190.25" x2="515.0" y2="191.5" />
+<line x1="524.0" y1="192.25" x2="526.0" y2="195.5" />
+<g id="atom_N_26_s4_text">
+<text x="522.0" y="189" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="189" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_24_s4">
+<line x1="499.0" y1="182.0" x2="503.5" y2="176.0" />
+<line x1="499.0" y1="182.0" x2="503.5" y2="188.0" />
+</g>
+<g id="atom_C_25_s4">
+<line x1="508.0" y1="194.0" x2="503.5" y2="188.0" />
+<line x1="508.0" y1="194.0" x2="515.0" y2="191.5" />
+</g>
+<g id="atom_C_35_s4">
+<line x1="530.0" y1="202.0" x2="526.0" y2="195.5" />
+<line x1="530.0" y1="202.0" x2="526.0" y2="208.5" />
+<line x1="529.1692307692308" y1="200.65" x2="537.5" y2="200.65" />
+<line x1="529.1692307692308" y1="203.35" x2="537.5" y2="203.35" />
+</g>
+<g id="atom_C_36_s4">
+<line x1="522.0" y1="215.0" x2="526.0" y2="208.5" />
+<line x1="522.0" y1="215.0" x2="515.0" y2="217.0" />
+<line x1="521.3417470453229" y1="217.99611465863023" x2="515.7417470453229" y2="219.59611465863023" />
+<line x1="522.0" y1="215.0" x2="526.0" y2="221.5" />
+</g>
+<g id="atom_O_40_s4">
+<line x1="541.25" y1="200.65" x2="537.5" y2="200.65" />
+<line x1="541.25" y1="203.35" x2="537.5" y2="203.35" />
+<g id="atom_O_40_s4_text">
+<text x="545.0" y="202" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="202" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_37_s4">
+<line x1="508.0" y1="219.0" x2="515.0" y2="217.0" />
+<line x1="510.1417470453229" y1="221.19611465863022" x2="515.7417470453229" y2="219.59611465863023" />
+<line x1="508.0" y1="219.0" x2="502.5" y2="214.0" />
+<line x1="508.0" y1="219.0" x2="507.0" y2="226.0" />
+</g>
+<g id="atom_N_41_s4">
+<line x1="528.0" y1="224.75" x2="526.0" y2="221.5" />
+<line x1="528.0" y1="231.25" x2="526.0" y2="234.5" />
+<line x1="526.9005225448977" y1="227.8849369507063" x2="523.7005225448977" y2="233.0849369507063" />
+<g id="atom_N_41_s4_text">
+<text x="530.0" y="228" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="228" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_38_s4">
+<line x1="497.0" y1="209.0" x2="502.5" y2="214.0" />
+</g>
+<g id="atom_O_49_s4">
+<line x1="506.5" y1="229.5" x2="507.0" y2="226.0" />
+<line x1="510.0" y1="235.0" x2="514.0" y2="237.0" />
+<g id="atom_O_49_s4_text">
+<text x="506.0" y="233" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="233" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_42_s4">
+<line x1="522.0" y1="241.0" x2="526.0" y2="234.5" />
+<line x1="520.5005225448976" y1="238.28493695070628" x2="523.7005225448977" y2="233.0849369507063" />
+<line x1="522.0" y1="241.0" x2="514.0" y2="237.0" />
+<line x1="522.0" y1="241.0" x2="526.0" y2="247.5" />
+</g>
+<g id="atom_C_43_s4">
+<line x1="530.0" y1="254.0" x2="526.0" y2="247.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="530.0" y1="254.0" x2="530.0" y2="254.0" />
+  <line x1="532.7175836616308" y1="252.91154281570775" x2="532.8824163383691" y2="253.48845718429223" />
+  <line x1="535.4351673232616" y1="251.82308563141552" x2="535.7648326767385" y2="252.9769143685845" />
+</g>
+<line x1="530.0" y1="254.0" x2="530.0" y2="261.5" />
+</g>
+<g id="atom_C_44_s4">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="543.5879183081539" y1="248.55771407853877" x2="544.4120816918461" y2="251.44228592146123" />
+  <line x1="540.8703346465232" y1="249.64617126283102" x2="541.5296653534768" y2="251.953828737169" />
+  <line x1="538.1527509848924" y1="250.73462844712324" x2="538.6472490151076" y2="252.46537155287675" />
+</g>
+<line x1="544.0" y1="250.0" x2="548.5" y2="256.0" />
+</g>
+<g id="atom_N_47_s4">
+<line x1="530.0" y1="265.25" x2="530.0" y2="261.5" />
+<line x1="533.5" y1="270.25" x2="537.0" y2="271.5" />
+<line x1="528.0" y1="272.25" x2="526.0" y2="275.5" />
+<g id="atom_N_47_s4_text">
+<text x="530.0" y="269" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="269" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_45_s4">
+<line x1="553.0" y1="262.0" x2="548.5" y2="256.0" />
+<line x1="553.0" y1="262.0" x2="548.5" y2="268.0" />
+</g>
+<g id="atom_C_46_s4">
+<line x1="544.0" y1="274.0" x2="548.5" y2="268.0" />
+<line x1="544.0" y1="274.0" x2="537.0" y2="271.5" />
+</g>
+<g id="atom_C_58_s4">
+<line x1="522.0" y1="282.0" x2="526.0" y2="275.5" />
+<line x1="522.0" y1="282.0" x2="526.0" y2="288.5" />
+<line x1="522.8307692307692" y1="280.65" x2="514.5" y2="280.65" />
+<line x1="522.8307692307692" y1="283.35" x2="514.5" y2="283.35" />
+</g>
+<g id="atom_C_59_s4">
+<line x1="530.0" y1="295.0" x2="526.0" y2="288.5" />
+<line x1="530.0" y1="295.0" x2="537.5" y2="295.0" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="530.0" y1="295.0" x2="530.0" y2="295.0" />
+  <line x1="528.1445025049886" y1="297.4427707723007" x2="528.6554974950113" y2="297.7572292276993" />
+  <line x1="526.2890050099772" y1="299.8855415446014" x2="527.3109949900227" y2="300.5144584553986" />
+</g>
+</g>
+<g id="atom_O_63_s4">
+<line x1="510.75" y1="280.65" x2="514.5" y2="280.65" />
+<line x1="510.75" y1="283.35" x2="514.5" y2="283.35" />
+<g id="atom_O_63_s4_text">
+<text x="507.0" y="282" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="282" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_60_s4">
+<line x1="545.0" y1="295.0" x2="537.5" y2="295.0" />
+<line x1="545.0" y1="295.0" x2="548.5" y2="301.5" />
+<line x1="545.0" y1="295.0" x2="548.5" y2="288.5" />
+</g>
+<g id="atom_N_65_s4">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="524.433507514966" y1="302.3283123169021" x2="525.9664924850341" y2="303.2716876830979" />
+</g>
+<g id="atom_N_65_s4_text">
+<text x="522.0" y="308" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="308" dy="0.35em">N</tspan></text>
+<text x="512.0" y="308.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="308.0" dy="0.35em">H</tspan></text>
+<text x="517.0" y="311.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="311.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_61_s4">
+<line x1="552.0" y1="308.0" x2="548.5" y2="301.5" />
+</g>
+<g id="atom_C_67_s4">
+<line x1="552.0" y1="282.0" x2="548.5" y2="288.5" />
+</g>
+</g>
+<g id="unlabeled_s5">
+<g id="atom_C_15_s5">
+<line x1="620.0" y1="123.0" x2="623.5" y2="116.5" />
+<line x1="620.0" y1="123.0" x2="623.5" y2="129.5" />
+<line x1="620.7269230769231" y1="121.65" x2="612.5" y2="121.65" />
+<line x1="620.7269230769231" y1="124.35" x2="612.5" y2="124.35" />
+</g>
+<g id="atom_S_1_s5">
+<line x1="625.25" y1="113.25" x2="623.5" y2="116.5" />
+<g id="atom_S_1_s5_text">
+<text x="627.0" y="110" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="110" dy="0.35em">S</tspan></text>
+</g>
+</g>
+<g id="atom_C_10_s5">
+<line x1="627.0" y1="136.0" x2="623.5" y2="129.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="627.0" y1="136.0" x2="627.0" y2="136.0" />
+  <line x1="630.0" y1="135.7" x2="630.0" y2="136.3" />
+  <line x1="633.0" y1="135.4" x2="633.0" y2="136.6" />
+</g>
+<line x1="627.0" y1="136.0" x2="623.5" y2="142.5" />
+</g>
+<g id="atom_O_16_s5">
+<line x1="608.75" y1="121.65" x2="612.5" y2="121.65" />
+<line x1="608.75" y1="124.35" x2="612.5" y2="124.35" />
+<g id="atom_O_16_s5_text">
+<text x="605.0" y="123" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="123" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_4_s5">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="642.0" y1="134.5" x2="642.0" y2="137.5" />
+  <line x1="639.0" y1="134.8" x2="639.0" y2="137.2" />
+  <line x1="636.0" y1="135.1" x2="636.0" y2="136.9" />
+</g>
+<line x1="642.0" y1="136.0" x2="646.0" y2="129.5" />
+<line x1="642.0" y1="136.0" x2="646.0" y2="142.5" />
+</g>
+<g id="atom_N_17_s5">
+<line x1="621.75" y1="145.75" x2="623.5" y2="142.5" />
+<line x1="621.75" y1="152.25" x2="623.5" y2="155.5" />
+<g id="atom_N_17_s5_text">
+<text x="620.0" y="149" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="149" dy="0.35em">N</tspan></text>
+<text x="614.0" y="149.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="149.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_3_s5">
+<line x1="650.0" y1="123.0" x2="646.0" y2="129.5" />
+</g>
+<g id="atom_C_5_s5">
+<line x1="650.0" y1="149.0" x2="646.0" y2="142.5" />
+</g>
+<g id="atom_C_21_s5">
+<line x1="627.0" y1="162.0" x2="623.5" y2="155.5" />
+<line x1="627.0" y1="162.0" x2="623.5" y2="168.5" />
+<line x1="626.2730769230769" y1="160.65" x2="634.5" y2="160.65" />
+<line x1="626.2730769230769" y1="163.35" x2="634.5" y2="163.35" />
+</g>
+<g id="atom_C_22_s5">
+<line x1="620.0" y1="175.0" x2="623.5" y2="168.5" />
+<polygon points="620.0,175.0 612.5,174.25 612.5,175.75" />
+<line x1="620.0" y1="175.0" x2="623.5" y2="181.5" />
+</g>
+<g id="atom_O_26_s5">
+<line x1="638.25" y1="160.65" x2="634.5" y2="160.65" />
+<line x1="638.25" y1="163.35" x2="634.5" y2="163.35" />
+<g id="atom_O_26_s5_text">
+<text x="642.0" y="162" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="162" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_23_s5">
+<polygon points="605.0,173.5 605.0,176.5 612.5,175.75 612.5,174.25" />
+<line x1="605.0" y1="175.0" x2="601.0" y2="168.5" />
+<line x1="605.0" y1="175.0" x2="601.0" y2="181.5" />
+</g>
+<g id="atom_N_28_s5">
+<line x1="625.25" y1="184.75" x2="623.5" y2="181.5" />
+<line x1="625.25" y1="191.25" x2="623.5" y2="194.5" />
+<g id="atom_N_28_s5_text">
+<text x="627.0" y="188" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="188" dy="0.35em">N</tspan></text>
+<text x="633.0" y="188.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="188.0" dy="0.35em">H</tspan></text>
+</g>
+</g>
+<g id="atom_C_24_s5">
+<line x1="597.0" y1="162.0" x2="601.0" y2="168.5" />
+</g>
+<g id="atom_C_30_s5">
+<line x1="597.0" y1="188.0" x2="601.0" y2="181.5" />
+</g>
+<g id="atom_C_35_s5">
+<line x1="620.0" y1="201.0" x2="623.5" y2="194.5" />
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="618.6792933501167" y1="201.71114973455252" x2="621.3207066498833" y2="200.28885026544748" />
+  <line x1="620.3434346800934" y1="204.168919787642" x2="622.4565653199065" y2="203.03108021235798" />
+  <line x1="622.00757601007" y1="206.6266898407315" x2="623.5924239899299" y2="205.77331015926848" />
+</g>
+<line x1="620.7269230769231" y1="199.65" x2="612.5" y2="199.65" />
+<line x1="620.7269230769231" y1="202.35" x2="612.5" y2="202.35" />
+</g>
+<g id="atom_C_36_s5">
+<g id="chiral-bond-back" stroke="black" stroke-width="1">
+  <line x1="627.0" y1="214.0" x2="627.0" y2="214.0" />
+  <line x1="625.3358586700234" y1="211.5422299469105" x2="625.8641413299766" y2="211.2577700530895" />
+  <line x1="623.6717173400467" y1="209.08445989382102" x2="624.7282826599534" y2="208.515540106179" />
+</g>
+<line x1="627.0" y1="214.0" x2="634.0" y2="212.0" />
+<line x1="627.0" y1="214.0" x2="627.0" y2="221.5" />
+</g>
+<g id="atom_O_44_s5">
+<line x1="608.75" y1="199.65" x2="612.5" y2="199.65" />
+<line x1="608.75" y1="202.35" x2="612.5" y2="202.35" />
+<g id="atom_O_44_s5_text">
+<text x="605.0" y="201" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="201" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_37_s5">
+<line x1="641.0" y1="210.0" x2="634.0" y2="212.0" />
+<line x1="641.0" y1="210.0" x2="645.5" y2="216.0" />
+</g>
+<g id="atom_N_40_s5">
+<line x1="627.0" y1="225.25" x2="627.0" y2="221.5" />
+<line x1="630.5" y1="230.25" x2="634.0" y2="231.5" />
+<line x1="625.25" y1="232.25" x2="623.5" y2="235.5" />
+<g id="atom_N_40_s5_text">
+<text x="627.0" y="229" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="229" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_38_s5">
+<line x1="650.0" y1="222.0" x2="645.5" y2="216.0" />
+<line x1="650.0" y1="222.0" x2="645.5" y2="228.0" />
+</g>
+<g id="atom_C_39_s5">
+<line x1="641.0" y1="234.0" x2="645.5" y2="228.0" />
+<line x1="641.0" y1="234.0" x2="634.0" y2="231.5" />
+</g>
+<g id="atom_C_51_s5">
+<line x1="620.0" y1="242.0" x2="623.5" y2="235.5" />
+<line x1="620.0" y1="242.0" x2="623.5" y2="248.5" />
+<line x1="620.7269230769231" y1="240.65" x2="612.5" y2="240.65" />
+<line x1="620.7269230769231" y1="243.35" x2="612.5" y2="243.35" />
+</g>
+<g id="atom_C_52_s5">
+<line x1="627.0" y1="255.0" x2="623.5" y2="248.5" />
+<line x1="627.0" y1="255.0" x2="634.5" y2="257.0" />
+<line x1="627.8043108434871" y1="258.0088343369233" x2="633.8043108434871" y2="259.60883433692334" />
+<line x1="627.0" y1="255.0" x2="623.5" y2="261.5" />
+</g>
+<g id="atom_O_56_s5">
+<line x1="608.75" y1="240.65" x2="612.5" y2="240.65" />
+<line x1="608.75" y1="243.35" x2="612.5" y2="243.35" />
+<g id="atom_O_56_s5_text">
+<text x="605.0" y="242" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="242" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_53_s5">
+<line x1="642.0" y1="259.0" x2="634.5" y2="257.0" />
+<line x1="639.8043108434871" y1="261.20883433692336" x2="633.8043108434871" y2="259.60883433692334" />
+<line x1="642.0" y1="259.0" x2="647.5" y2="253.5" />
+<line x1="642.0" y1="259.0" x2="642.5" y2="266.0" />
+</g>
+<g id="atom_N_57_s5">
+<line x1="621.75" y1="264.75" x2="623.5" y2="261.5" />
+<line x1="621.75" y1="271.25" x2="623.5" y2="274.5" />
+<line x1="623.0772719697899" y1="268.0199304778055" x2="625.8772719697898" y2="273.21993047780546" />
+<g id="atom_N_57_s5_text">
+<text x="620.0" y="268" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="268" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_54_s5">
+<line x1="653.0" y1="248.0" x2="647.5" y2="253.5" />
+</g>
+<g id="atom_O_65_s5">
+<line x1="642.75" y1="269.5" x2="642.5" y2="266.0" />
+<line x1="639.0" y1="275.0" x2="635.0" y2="277.0" />
+<g id="atom_O_65_s5_text">
+<text x="643.0" y="273" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="273" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_58_s5">
+<line x1="627.0" y1="281.0" x2="623.5" y2="274.5" />
+<line x1="628.6772719697898" y1="278.41993047780545" x2="625.8772719697898" y2="273.21993047780546" />
+<line x1="627.0" y1="281.0" x2="635.0" y2="277.0" />
+<line x1="627.0" y1="281.0" x2="623.5" y2="287.5" />
+</g>
+<g id="atom_C_59_s5">
+<line x1="620.0" y1="294.0" x2="623.5" y2="287.5" />
+<polygon points="620.0,294.0 612.6932469879202,291.2753237952991 612.3067530120798,292.7246762047009" />
+<line x1="620.0" y1="294.0" x2="620.0" y2="301.5" />
+</g>
+<g id="atom_C_60_s5">
+<polygon points="605.3864939758405,288.55064759059815 604.6135060241595,291.44935240940185 612.3067530120798,292.7246762047009 612.6932469879202,291.2753237952991" />
+<line x1="605.0" y1="290.0" x2="601.0" y2="296.0" />
+</g>
+<g id="atom_N_63_s5">
+<line x1="620.0" y1="305.25" x2="620.0" y2="301.5" />
+<line x1="616.25" y1="310.25" x2="612.5" y2="311.5" />
+<line x1="621.75" y1="312.25" x2="623.5" y2="315.5" />
+<g id="atom_N_63_s5_text">
+<text x="620.0" y="309" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="309" dy="0.35em">N</tspan></text>
+</g>
+</g>
+<g id="atom_C_61_s5">
+<line x1="597.0" y1="302.0" x2="601.0" y2="296.0" />
+<line x1="597.0" y1="302.0" x2="601.0" y2="308.0" />
+</g>
+<g id="atom_C_62_s5">
+<line x1="605.0" y1="314.0" x2="601.0" y2="308.0" />
+<line x1="605.0" y1="314.0" x2="612.5" y2="311.5" />
+</g>
+<g id="atom_C_74_s5">
+<line x1="627.0" y1="322.0" x2="623.5" y2="315.5" />
+<line x1="627.0" y1="322.0" x2="623.5" y2="328.5" />
+<line x1="626.2730769230769" y1="320.65" x2="634.5" y2="320.65" />
+<line x1="626.2730769230769" y1="323.35" x2="634.5" y2="323.35" />
+</g>
+<g id="atom_C_75_s5">
+<line x1="620.0" y1="335.0" x2="623.5" y2="328.5" />
+<line x1="620.0" y1="335.0" x2="612.5" y2="335.0" />
+<polygon points="620.0,335.0 624.1603533249416,341.1444251327237 622.8396466750584,341.8555748672763" />
+</g>
+<g id="atom_O_79_s5">
+<line x1="638.25" y1="320.65" x2="634.5" y2="320.65" />
+<line x1="638.25" y1="323.35" x2="634.5" y2="323.35" />
+<g id="atom_O_79_s5_text">
+<text x="642.0" y="322" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="322" dy="0.35em">O</tspan></text>
+</g>
+</g>
+<g id="atom_C_76_s5">
+<line x1="605.0" y1="335.0" x2="612.5" y2="335.0" />
+<line x1="605.0" y1="335.0" x2="601.0" y2="328.5" />
+<line x1="605.0" y1="335.0" x2="601.0" y2="341.5" />
+</g>
+<g id="atom_N_81_s5">
+<polygon points="626.5707066498833,344.0388502654475 623.9292933501167,345.4611497345525 622.8396466750584,341.8555748672763 624.1603533249416,341.1444251327237" />
+<g id="atom_N_81_s5_text">
+<text x="627.0" y="348" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="348" dy="0.35em">N</tspan></text>
+<text x="633.0" y="348.0" text-anchor="middle" font-family="verdana" font-size="8"><tspan y="348.0" dy="0.35em">H</tspan></text>
+<text x="638.0" y="351.0" text-anchor="middle" font-family="verdana" font-size="6"><tspan y="351.0" dy="0.35em">2</tspan></text>
+</g>
+</g>
+<g id="atom_C_77_s5">
+<line x1="597.0" y1="322.0" x2="601.0" y2="328.5" />
+</g>
+<g id="atom_C_83_s5">
+<line x1="597.0" y1="348.0" x2="601.0" y2="341.5" />
+</g>
+</g>
+<path d="M 59.0 105 Q 54.0 105.0, 59.0 100.0 T 59.0 95" stroke="grey" fill="white"/><path d="M 156.0 105 Q 151.0 105.0, 156.0 100.0 T 156.0 95" stroke="grey" fill="white"/><path d="M 307.0 105 Q 302.0 105.0, 307.0 100.0 T 307.0 95" stroke="grey" fill="white"/><path d="M 404.0 105 Q 399.0 105.0, 404.0 100.0 T 404.0 95" stroke="grey" fill="white"/><path d="M 530.0 105 Q 525.0 105.0, 530.0 100.0 T 530.0 95" stroke="grey" fill="white"/><path d="M 627.0 105 Q 622.0 105.0, 627.0 100.0 T 627.0 95" stroke="grey" fill="white"/></svg>

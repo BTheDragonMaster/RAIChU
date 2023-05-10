@@ -1,4 +1,5 @@
-from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster, draw_products
+from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster, \
+    draw_products
 
 # epoxomicin
 
@@ -180,4 +181,92 @@ leinamycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "
 
 draw_cluster(leinamycin_cluster, 'leinamycin.svg')
 
+cmc_thuggacin_cluster = ClusterRepresentation([ModuleRepresentation('PKS', 'PKS_CIS', "ACETYL_COA",
+                                                                    [DomainRepresentation('TugA', 'AT'),
+                                                                     DomainRepresentation('TugA', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                                    [DomainRepresentation('TugA', 'KS'),
+                                                                     DomainRepresentation('TugA', 'AT'),
+                                                                     DomainRepresentation('TugA', 'DH'),
+                                                                     DomainRepresentation('TugA', 'KR'),
+                                                                     DomainRepresentation('TugA', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                                    [DomainRepresentation('TugA', 'KS'),
+                                                                     DomainRepresentation('TugA', 'AT'),
+                                                                     DomainRepresentation('TugA', 'DH'),
+                                                                     DomainRepresentation('TugA', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugA', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                                    [DomainRepresentation('TugA', 'KS'),
+                                                                     DomainRepresentation('TugA', 'AT'),
+                                                                     DomainRepresentation('TugA', 'DH'),
+                                                                     DomainRepresentation('TugA', 'ER'),
+                                                                     DomainRepresentation('TugA', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugA', 'ACP'),
+                                                                     DomainRepresentation('TugA', 'UNKNOWN', name="Do",
+                                                                                          used=False)]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                                    [DomainRepresentation('TugB', 'KS'),
+                                                                     DomainRepresentation('TugB', 'AT'),
+                                                                     DomainRepresentation('TugB', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugB', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                                    [DomainRepresentation('TugB', 'KS'),
+                                                                     DomainRepresentation('TugB', 'AT'),
+                                                                     DomainRepresentation('TugB', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugB', 'ACP'),
+                                                                     DomainRepresentation('TugB', 'UNKNOWN', name="Do",
+                                                                                          used=False)]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                                    [DomainRepresentation('TugC', 'UNKNOWN', name="Do",
+                                                                                          used=False),
+                                                                     DomainRepresentation('TugC', 'KS'),
+                                                                     DomainRepresentation('TugC', 'AT'),
+                                                                     DomainRepresentation('TugC', 'DH'),
+                                                                     DomainRepresentation('TugC', 'KR', 'A1'),
+                                                                     DomainRepresentation('TugC', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                                    [DomainRepresentation('TugC', 'KS'),
+                                                                     DomainRepresentation('TugC', 'AT'),
+                                                                     DomainRepresentation('TugC', 'DH'),
+                                                                     DomainRepresentation('TugC', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugC', 'ACP'),
+                                                                     DomainRepresentation('TugC', 'UNKNOWN', name="Do",
+                                                                                          used=False)]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "MALONYL_COA",
+                                                                    [DomainRepresentation('TugD', 'KS'),
+                                                                     DomainRepresentation('TugD', 'AT'),
+                                                                     DomainRepresentation('TugD', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugD', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                                    [DomainRepresentation('TugD', 'KS'),
+                                                                     DomainRepresentation('TugD', 'AT'),
+                                                                     DomainRepresentation('TugD', 'KR', 'A1'),
+                                                                     DomainRepresentation('TugD', 'ACP')]
+                                                                    ),
+                                               ModuleRepresentation("NRPS", None, "cysteine",
+                                                                    [DomainRepresentation("TugD", 'C'),
+                                                                     DomainRepresentation("TugD", 'CYC'),
+                                                                     DomainRepresentation("TugD", 'A'),
+                                                                     DomainRepresentation("TugD", 'OX'),
+                                                                     DomainRepresentation("TugD", 'PCP')]
+                                                                    ),
+                                               ModuleRepresentation('PKS', 'PKS_CIS', "METHYLMALONYL_COA",
+                                                                    [DomainRepresentation('TugD', 'KS'),
+                                                                     DomainRepresentation('TugD', 'AT'),
+                                                                     DomainRepresentation('TugD', 'DH'),
+                                                                     DomainRepresentation('TugD', 'KR', 'B1'),
+                                                                     DomainRepresentation('TugD', 'ACP')]
+                                                                    )])
 
+draw_cluster(cmc_thuggacin_cluster, 'cmc_thuggacin.svg')
+draw_products(cmc_thuggacin_cluster, 'cmc_thuggacin')

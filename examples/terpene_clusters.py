@@ -1,7 +1,7 @@
-from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, MacrocyclizationRepresentation, TailoringRepresentation
-from raichu.terpene import Terpene_Cluster
-from raichu.run_raichu import get_tailoring_sites
-terpene_lycosantalonol = Terpene_Cluster("BcBOT2", "GERANYLGERANYL_PYROPHOSPHATE",
+from raichu.representations import MacrocyclizationRepresentation, TailoringRepresentation
+from raichu.cluster.terpene_cluster import TerpeneCluster
+
+terpene_lycosantalonol = TerpeneCluster("BcBOT2", "GERANYLGERANYL_PYROPHOSPHATE",
                                         macrocyclisations=[MacrocyclizationRepresentation(
                                             "C_15", "C_11"), MacrocyclizationRepresentation(
                                             "C_10", "C_12"), MacrocyclizationRepresentation(

@@ -44,7 +44,9 @@ TRANSATOR_CLADE_TO_TAILORING_REACTIONS = {'NON_ELONGATING_DB': [('DUMMY_KR', Non
                                                                                       ('DUMMY_KR', None),
                                                                                       ('DUMMY_EDH', None)],
                                           'RED': [('DUMMY_KR', None), ('DUMMY_DH', None),
-                                                                   ('DUMMY_ER', None)]}
+                                                                   ('DUMMY_ER', None)],
+                                          "EXOMETHYLENE": [('DUMMY_AMT', None), ('DUMMY_EMO', None)],
+                                          'ALPHAME_ZDB': [('DUMMY_KR', None), ('DUMMY_ZDH', None), ('DUMMY_AMT', None)]}
 
 
 TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
@@ -84,7 +86,9 @@ TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
                                         'ALPHAME_BETA_D_OH': 'ACETYL_COA',
                                         'ALPHAME_BETAOH': 'ACETYL_COA',
                                         'NON_ELONGATING_ALPHAME_EDB': "ACETYL_COA",
-                                        'RED': 'ACETYL_COA'}
+                                        'RED': 'ACETYL_COA',
+                                        "EXOMETHYLENE": 'ACETYL_COA',
+                                        'ALPHAME_ZDB': 'ACETYL_COA'}
 
 TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  'BETA_OH_KETO': True,
@@ -111,4 +115,6 @@ TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  'OXA': True, 'ALPHAME_BETA_D_OH': True,
                                  'ALPHAME_BETAOH': True,
                                  'NON_ELONGATING_ALPHAME_EDB': False,
-                                 'RED': True}
+                                 'RED': True,
+                                 "EXOMETHYLENE": True,
+                                 "ALPHAME_ZDB": True}

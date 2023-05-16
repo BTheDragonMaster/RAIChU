@@ -121,6 +121,7 @@ class TailoringDomainType(Enum):
     DUMMY_nMT = 23
     CYC = 24
     OX = 25
+    DUMMY_EMO = 26
 
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":
@@ -200,6 +201,8 @@ class KSDomainSubtype(Enum):
     ALPHA_OH = 42
     NON_ELONGATING_PYR = 43
     MISCELLANEOUS = 44
+    EXOMETHYLENE = 45
+    ALPHAME_ZDB = 46
 
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":

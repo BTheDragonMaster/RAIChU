@@ -329,6 +329,9 @@ class TransATPKSModule(_Module):
         amt_domain = self.get_tailoring_domain("AMT")
         if not amt_domain:
             amt_domain = self.get_tailoring_domain("DUMMY_AMT")
+        emo_domain = self.get_tailoring_domain("EMO")
+        if not amt_domain:
+            emo_domain = self.get_tailoring_domain("DUMMY_EMO")
         sc_domain = self.get_tailoring_domain("SC")
         if not sc_domain:
             sc_domain = self.get_tailoring_domain("DUMMY_SC")
@@ -355,11 +358,19 @@ class TransATPKSModule(_Module):
             structure, amt_tailored = amt_domain.do_tailoring(structure)
             if not amt_tailored:
                 amt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
             structure.refresh_structure()
         if almt_domain and almt_domain.active and almt_domain.used:
             structure, almt_tailored = almt_domain.do_tailoring(structure)
             if not almt_tailored:
                 almt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
         if ah_domain and ah_domain.active and ah_domain.used:
             structure, ah_tailored = ah_domain.do_tailoring(structure)
             if not ah_tailored:

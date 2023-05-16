@@ -79,6 +79,8 @@ def make_elongation_monomer(name):
 
 
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
+THIOESTERBOND_OXYGEN_INSERTED = BondDefiner(
+    'thioester_bond_oxygen_inserted', 'SC(O)=O', 0, 1)
 THIOESTER_CARBON = GroupDefiner('thioester carbon', 'SC(C)=O', 1)
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)CN', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)

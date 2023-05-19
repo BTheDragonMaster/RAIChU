@@ -9,7 +9,7 @@ from raichu.central_chain_detection.label_central_chain import label_pk_central_
 from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
 from raichu.substrate import PKSSubstrate
-from pikachu.drawing.drawing import Drawer
+from pikachu.general import structure_to_smiles
 
 @unique
 class ModuleType(Enum):
@@ -166,7 +166,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
 module. Remove a domain or set the 'used' or 'active' flag to False")
         # I would rather implement a "dont do anything"- broken module
         if not self.is_starter_module and not self.synthesis_domain:
-            self.is_broken = True
+            if "CYC" in [domain.type.name for domain in self.tailoring_domains]:
+                self.synthesis_domain = SynthesisDomain("DUMMY_C")
+            else: 
+                self.is_broken = True
 
         if self.is_termination_module and not self.termination_domain:
             self.termination_domain = TerminationDomain("DUMMY_TE")
@@ -308,6 +311,7 @@ class TransATPKSModule(_Module):
             self.recognition_domain = RecognitionDomain("DUMMY_AT", substrate_name)
 
     def do_pks_tailoring(self, structure: Structure) -> Structure:
+        
         kr_domain = self.get_tailoring_domain("KR")
         if not kr_domain:
             kr_domain = self.get_tailoring_domain("DUMMY_KR")

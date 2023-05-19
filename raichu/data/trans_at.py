@@ -46,7 +46,9 @@ TRANSATOR_CLADE_TO_TAILORING_REACTIONS = {'NON_ELONGATING_DB': [('DUMMY_KR', Non
                                           'RED': [('DUMMY_KR', None), ('DUMMY_DH', None),
                                                                    ('DUMMY_ER', None)],
                                           "EXOMETHYLENE": [('DUMMY_AMT', None), ('DUMMY_EMO', None)],
-                                          'ALPHAME_ZDB': [('DUMMY_KR', None), ('DUMMY_ZDH', None), ('DUMMY_AMT', None)]}
+                                          'ALPHAME_ZDB': [('DUMMY_KR', None), ('DUMMY_ZDH', None), ('DUMMY_AMT', None)],
+                                          'ALPHA_D_ME_SHDB': [('DUMMY_KR', None), ('DUMMY_GDH', None), ('DUMMY_AMT', None)],
+                                          'ALPHAME_DB': [('DUMMY_KR', None), ('DUMMY_DH', None), ('DUMMY_AMT', None)]}
 
 
 TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
@@ -88,7 +90,9 @@ TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
                                         'NON_ELONGATING_ALPHAME_EDB': "ACETYL_COA",
                                         'RED': 'ACETYL_COA',
                                         "EXOMETHYLENE": 'ACETYL_COA',
-                                        'ALPHAME_ZDB': 'ACETYL_COA'}
+                                        'ALPHAME_ZDB': 'ACETYL_COA',
+                                        'ALPHA_D_ME_SHDB': 'ACETYL_COA',
+                                        'ALPHAME_DB': 'ACETYL_COA'}
 
 TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  'BETA_OH_KETO': True,
@@ -117,4 +121,7 @@ TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  'NON_ELONGATING_ALPHAME_EDB': False,
                                  'RED': True,
                                  "EXOMETHYLENE": True,
-                                 "ALPHAME_ZDB": True}
+                                 "ALPHAME_ZDB": True,
+                                 'ALPHA_D_ME_SHDB': True,
+                                 'ALPHAME_DB': True
+                                 }

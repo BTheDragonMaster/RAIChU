@@ -391,9 +391,9 @@ class Cluster:
                 with open(out_file, 'w') as svg_out:
                     svg_out.write(svg_string)
 
-    def draw_product(self, as_string=False, out_file=None):
+    def draw_product(self, as_string=False, out_file=None, draw_Cs_in_pink = False):
         assert self.chain_intermediate
-        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=False,
+        drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=draw_Cs_in_pink,
                                make_linear=False)
         drawing.draw_structure()
         svg_string = drawing.save_svg_string()

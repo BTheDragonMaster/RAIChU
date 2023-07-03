@@ -7,6 +7,24 @@ from raichu.reactions.general import initialise_atom_attributes
 from raichu.drawing.drawer import RaichuDrawer
 
 
+def reductive_bond_breakage(atom1, atom2, structure):
+    structure = structure.kekulise()
+    atom1 = structure.get_atom(atom1)
+    atom2 = structure.get_atom(atom2)
+    bond = atom1.get_bond(atom2)
+    assert bond
+    assert bond.type == "single"
+
+    structure.break_bond(bond)
+    structure.add_atom('H', [atom1])
+    structure.add_atom('H', [atom2])
+    initialise_atom_attributes(structure)
+    structure.refresh_structure(find_cycles=True)
+    structure.aromatic_cycles = structure.find_aromatic_cycles()
+    structure.aromatic_systems = structure.find_aromatic_systems()
+    return structure
+
+
 def excise_from_structure(atom1, atom2, structure):
     """
     Returns the product without the group between atoms as a PIKAChU Structure object

@@ -78,6 +78,7 @@ def make_elongation_monomer(name):
     return monomer
 
 
+ESTER_BOND = BondDefiner('thioester_bond', 'COC=O', 0, 1)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 THIOESTERBOND_OXYGEN_INSERTED = BondDefiner(
     'thioester_bond_oxygen_inserted', 'SC(O)=O', 0, 1)

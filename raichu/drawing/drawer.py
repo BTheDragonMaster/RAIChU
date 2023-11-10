@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
 
@@ -316,8 +318,12 @@ class RaichuDrawer(Drawer):
                 atom_2 = self.drawn_atoms[j]
                 if not self.structure.bond_exists(atom_1, atom_2):
                     distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
-                    # if distance < self.options.bond_length_squared:
-                    if distance < self.options.bond_length / 2:
+                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H'):
+                        max_distance = self.options.bond_length_squared
+                    else:
+                        max_distance = self.options.bond_length_squared / 2
+                    if distance < max_distance:
+                        print(atom_1, atom_2, distance, max_distance)
                         clashing_atoms.append((atom_1, atom_2))
 
         return clashing_atoms
@@ -879,7 +885,7 @@ class RaichuDrawer(Drawer):
             raise ValueError("Only placements accepted are 'left' and 'right'.")
 
     def get_placements(self, backbone, atom_to_ring, stop_linearising):
-        backbone_to_placement = {}
+        backbone_to_placement = OrderedDict()
         for i, atom in enumerate(backbone):
             if atom == stop_linearising:
                 break
@@ -943,6 +949,38 @@ class RaichuDrawer(Drawer):
                         for atom in self.traverse_substructure(first_atom_cycle, masked):
                             delta_x = 2 * (atom.draw.position.x - atom_1.draw.position.x)
                             atom.draw.position.x -= delta_x
+
+    def get_overlap_score(self) -> Tuple[float, List[Tuple[float, Atom]], Dict[Atom, float]]:
+        total = 0.0
+
+        overlap_scores = {}
+        for atom in self.drawn_atoms:
+            overlap_scores[atom] = 0.0
+
+        for i, atom_1 in enumerate(self.drawn_atoms):
+            for j in range(i + 1, len(self.drawn_atoms)):
+                atom_2 = self.drawn_atoms[j]
+                distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
+                if atom_1 not in atom_2.neighbours:
+                    if distance < self.options.bond_length_squared:
+
+                        if atom_1.has_neighbour('H') and atom_2.has_neighbour('H'):
+
+                            weight = self.options.overlap_sensitivity + (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                        else:
+                            weight = (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                        total += weight
+                        overlap_scores[atom_1] += weight
+                        overlap_scores[atom_2] += weight
+
+        sorted_overlaps = []
+
+        for atom in self.drawn_atoms:
+            sorted_overlaps.append((overlap_scores[atom], atom))
+
+        sorted_overlaps.sort(key=lambda x: x[0], reverse=True)
+
+        return total, sorted_overlaps, overlap_scores
 
     def linearise(self):
 
@@ -1056,16 +1094,23 @@ class RaichuDrawer(Drawer):
 
             i += 1
 
+        atoms_in_rings = []
+        for ring in rings:
+            atoms_in_rings += ring
+        atoms_in_rings = set(atoms_in_rings)
+
         self.fix_rings(rings, backbone, backbone_to_placement)
-        self.position_sidechains(backbone, backbone_to_placement)
+
+        self.position_sidechains(backbone, backbone_to_placement, atoms_in_rings)
 
         self.resolve_primary_overlaps()
         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
         central_chain_bonds = set()
 
         for bond in self.structure.bonds.values():
-            if bond.atom_1.annotations.in_central_chain or \
-                    bond.atom_2.annotations.in_central_chain:
+            # if bond.atom_1.annotations.in_central_chain or \
+            #         bond.atom_2.annotations.in_central_chain:
+            if bond.atom_1 in backbone or bond.atom_2 in backbone:
                 central_chain_bonds.add(bond)
 
         self.finetune_overlap_resolution(
@@ -1118,7 +1163,7 @@ class RaichuDrawer(Drawer):
                 if anchored_ring.center:
                     anchored_ring.center.rotate_around_vector(angle, center)
 
-    def position_sidechains(self, backbone, backbone_to_placement):
+    def position_sidechains(self, backbone, backbone_to_placement, atoms_in_backbone_rings):
 
         sidechain_to_placement = {}
         sidechain_to_neighbour = {}
@@ -1126,7 +1171,7 @@ class RaichuDrawer(Drawer):
         for backbone_atom in backbone:
             for neighbour in backbone_atom.neighbours:
                 if neighbour.type != 'H' and not neighbour.annotations.domain_type:
-                    if neighbour not in backbone and not neighbour.inside_ring and neighbour not in sidechain_to_placement:
+                    if neighbour not in backbone and not neighbour in atoms_in_backbone_rings and neighbour not in sidechain_to_placement:
 
                         sidechain_to_placement[neighbour] = backbone_to_placement[backbone_atom]
                         sidechain_to_neighbour[neighbour] = backbone_atom

@@ -9,6 +9,7 @@ print(find_packages())
 setup(
     name="raichu",
     version=VERSION,
+    
     author="Barbara Terlouw",
     author_email="barbara.r.terlouw@gmail.com",
     description=DESCRIPTION,
@@ -16,6 +17,7 @@ setup(
     packages=find_packages(exclude="build"),
     package_data={"": ["*.png", "*.svg", "*.txt"]},
     install_requires=['matplotlib',
+                      'biopython==1.76',
                       'pikachu-chem>=1.0.13',
                       'paras'],
     scripts=["bin/raichu"],)

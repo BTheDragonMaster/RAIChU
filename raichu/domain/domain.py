@@ -2,7 +2,7 @@ from typing import Union, Tuple
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
-from raichu.reactions.pks_tailoring_reactions import ketoreduction, enoylreduction, dehydration, alpha_L_methyl_transferase,alpha_methyl_transferase,smallest_cyclisation,alpha_hydroxylase,gamma_beta_dehydratase,beta_hydroxy_methyl_transferase,beta_methyl_transferase
+from raichu.reactions.pks_tailoring_reactions import exo_methylen_oxidase, ketoreduction, enoylreduction, dehydration, alpha_L_methyl_transferase, alpha_methyl_transferase, smallest_cyclisation, alpha_hydroxylase, gamma_beta_dehydratase, beta_hydroxy_methyl_transferase, beta_methyl_transferase
 from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate, nrps_cyclodehydration, nrps_oxidation
 from raichu.reactions.pks_elongation_reactions import pks_elongation
 from raichu.reactions.nrps_elongation_reactions import nrps_elongation
@@ -95,6 +95,8 @@ class TailoringDomain(Domain):
             return beta_hydroxy_methyl_transferase(structure)
         elif self.type.name == 'BMT' or self.type.name == 'DUMMY_BMT':
             return beta_methyl_transferase(structure)
+        elif self.type.name == 'EMO' or self.type.name == 'DUMMY_EMO':
+            return exo_methylen_oxidase(structure)
         elif self.type.name == 'E':
             return epimerize(structure)
         elif self.type.name == 'nMT':

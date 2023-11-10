@@ -1,6 +1,6 @@
 from pikachu.reactions.functional_groups import combine_structures
 from pikachu.general import draw_structure
-from raichu.data.molecular_moieties import THIOESTERBOND
+from raichu.data.molecular_moieties import THIOESTERBOND, THIOESTERBOND_OXYGEN_INSERTED
 from raichu.reactions.general import label_rest_groups
 
 
@@ -38,6 +38,8 @@ def pks_elongation(chain_intermediate, elongation_monomer):
     label_rest_groups(elongation_monomer.structure, chain_intermediate)
 
     thioester_bonds = find_bonds(chain_intermediate, THIOESTERBOND)
+    if len(thioester_bonds) == 0:
+        thioester_bonds = find_bonds(chain_intermediate, THIOESTERBOND_OXYGEN_INSERTED)
 
     assert len(thioester_bonds) == 1
     for bond in thioester_bonds:

@@ -6,7 +6,9 @@ from pikachu.chem.chirality import same_chirality
 from pikachu.chem.structure import Structure
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
+from raichu.reactions.general_tailoring_reactions import single_bond_oxidation
 from pikachu.general import read_smiles
+from pikachu.drawing.drawing import Drawer
 from raichu.data.attributes import ATTRIBUTES
 
 FIRST_C = GroupDefiner('first_c', r'CC(S)=O', 1)
@@ -31,6 +33,8 @@ RECENT_REDUCTION_TOP_H = GroupDefiner('recent_reduction_top_h', r'[H]C(C)=C([H])
 RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]C(C)=C(C)C(S)=O', 4)
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', r'[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', r'[H]C(C)=C([H])C(S)=O', 0)
+
+
 RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', r'[H]\C(C)=C(\[H])CC(S)=O', 5)
 RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', r'[H]\C(C)=C(\[H])CC(S)=O', 4)
 RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', r'[H]\C(C)=C(\[H])CC(S)=O', 2)
@@ -214,7 +218,6 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
     chain_intermediate: PIKAChU Structure object, PKS chain intermediate where
     the beta ketone group has been recently reduced by the KR domain
     """
-
     # Find and define the atoms that participate in the bond changes
     co_bonds = find_bonds(RECENT_REDUCTION_COH, chain_intermediate)
     cc_bonds = find_bonds(RECENT_REDUCTION_CC, chain_intermediate)
@@ -285,13 +288,21 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         main_chain_top_c = find_atoms(RECENT_REDUCTION_TOP_C, chain_intermediate)[0]
         main_chain_bottom_c = find_atoms(RECENT_REDUCTION_BOTTOM_C, chain_intermediate)[0]
         main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H, chain_intermediate)
+        main_chain_bottom_h = find_atoms(
+            RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
+        
 
         if not main_chain_top_h:
             main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]
         else:
             main_chain_top_h = main_chain_top_h[0]
-        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)[0]
+        if not main_chain_bottom_h:
 
+            main_chain_bottom_h = [
+                neighbour for neighbour in c2.neighbours if not neighbour.annotations.in_central_chain][0]
+        else:
+            main_chain_bottom_h = main_chain_bottom_h[0]
+        
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},
@@ -401,7 +412,7 @@ def hydroxylation(target_atom, structure: Structure) -> Structure:
 
     bond_2 = target_atom.get_bond(hydrogen_2)
 
-    hydroxylated_structure = combine_structures([structure, hydroxyl_group])
+    hydroxylated_structure = combine_structures([hydroxyl_group, structure])
 
     hydroxylated_structure.break_bond(bond_1)
     hydroxylated_structure.break_bond(bond_2)
@@ -436,7 +447,7 @@ def methylation(target_atom, structure: Structure) -> Structure:
 
     bond_2 = target_atom.get_bond(hydrogen_2)
 
-    methylated_structure = combine_structures([structure, methyl_group])
+    methylated_structure = combine_structures([ methyl_group, structure])
 
     methylated_structure.break_bond(bond_1)
     methylated_structure.break_bond(bond_2)
@@ -507,6 +518,25 @@ def alpha_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     else:
         return structure, False
 
+
+def exo_methylen_oxidase(structure: Structure) -> Tuple[Structure, bool]:
+    """
+    Returns the structure thats has a exomethylengroup at the alpha-c.
+
+    structure: PIKAChU Structure object
+    target_atom:  PIKAChU atom object
+    """
+    # find atom
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)
+    methyl_c = [neighbour for neighbour in alpha_c.neighbours() if neighbour.type == "C" and not neighbour.get("in_central_chain")][0]
+    if alpha_c and methyl_c:
+        if alpha_c[0].has_neighbour("H"):
+            structure = single_bond_oxidation(alpha_c, methyl_c, structure)
+            return structure, True
+        else:
+            return structure, False
+    else:
+        return structure, False
 
 def beta_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     """
@@ -695,6 +725,7 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
     chain_intermediate.refresh_structure()
 
     # implement stereochemistry
+    print(chirality)
     if chirality:
 
         main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
@@ -705,6 +736,7 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
             main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL, chain_intermediate)[0]
         else:
             main_chain_bottom_h = main_chain_bottom_h[0]
+        print(main_chain_bottom_c,main_chain_bottom_h, main_chain_top_c, main_chain_top_h)
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},

@@ -1,6 +1,5 @@
 from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures, find_atoms
-from pikachu.drawing.drawing import Drawer
 
 from raichu.data.attributes import ATTRIBUTES
 from raichu.reactions.general_tailoring_reactions import cyclodehydration, single_bond_oxidation
@@ -95,6 +94,7 @@ def n_methylate(nrp):
     if len(n_meth_locations) == 1:
 
         n_meth = n_meth_locations[0]
+        module_nr = n_meth.annotations.get_annotation('module_nr')
 
         # Check if the N atom has a hydrogen group necessary for the reaction, and
         # not a cyclic amiono acid such as proline
@@ -160,15 +160,8 @@ def nrps_cyclodehydration(nrp):
     return product, True
 
 
-
-
 if __name__ == "__main__":
     s = read_smiles(r"NCC(=O)NCC(=O)O")
     target_atom = s.atoms[4]
     structure = methylation(target_atom, s)
     draw_structure(structure)
-
-
-
-
-

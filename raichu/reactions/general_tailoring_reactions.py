@@ -4,7 +4,6 @@ from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
 from raichu.data.molecular_moieties import PYROPHOSPHATE_BOND
 from raichu.reactions.general import initialise_atom_attributes
-from raichu.drawing.drawer import RaichuDrawer
 
 
 def reductive_bond_breakage(atom1, atom2, structure):
@@ -333,8 +332,8 @@ def oxidative_bond_formation(atom1, atom2, structure):
     cyclisation_site_2 = structure.get_atom(cyclisation_site_2)
 
     # update chiral_dict -remove with new pikachu update
-    bonds_atom_1 = cyclisation_site_1.get_bonds()
-    bonds_atom_2 = cyclisation_site_2.get_bonds()
+    bonds_atom_1 = cyclisation_site_1.bonds[:]
+    bonds_atom_2 = cyclisation_site_2.bonds[:]
 
     for bond in bonds_atom_1:
         if h_atom in bond.chiral_dict:

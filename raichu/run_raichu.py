@@ -458,8 +458,133 @@ if __name__ == "__main__":
 
                                                                 ]
                                          )
-    draw_cluster(cluster_nrps, out_file="cyc_test.svg")
-    draw_ripp_structure(ripp_cluster)
+
+    nrps_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, "serine",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                ]),
+                                                         ModuleRepresentation("NRPS", None, "threonine",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "tryptophan",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "aspartic acid",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "aspartic acid",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "4-hydroxyphenylglycine",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "aspartic acid",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "alanine",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "asparagine",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "glutamic acid",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+                                                         ModuleRepresentation("NRPS", None, "tryptophan",
+                                                                              [DomainRepresentation("Gene 1", 'C',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'A',
+                                                                                                    None, None,
+                                                                                                    True, True),
+                                                                               DomainRepresentation("Gene 1", 'PCP',
+                                                                                                    None, None,
+                                                                                                    True, True)
+                                                                               ]),
+
+                                                                ]
+                                         )
+    draw_cluster(nrps_cluster, out_file="antismash_test.svg")
+    # draw_ripp_structure(ripp_cluster)
     #ripp_cluster.draw_precursor(as_string= False, out_file= "bubbles.svg")
 
     # cyanobactin_cluster_trunkamide.make_peptide()
@@ -482,15 +607,15 @@ if __name__ == "__main__":
     # lanthipeptide_type_I_cluster_catenulipeptin.draw_product(
     #     as_string=False, out_file="tailored_test_lanthipeptide_peptide.svg", draw_straightened=False)
 
-    thiopeptide_cluster_thiomuracin.make_peptide()
-    
-    thiopeptide_cluster_thiomuracin.draw_product(
-        as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
-    thiopeptide_cluster_thiomuracin.do_tailoring()
-    thiopeptide_cluster_thiomuracin.draw_product(
-        as_string=False, out_file="tailored_test_thiopeptide_peptide.svg")
-    get_tailoring_sites(thiopeptide_cluster_thiomuracin.chain_intermediate,
-                        enzyme_name="DOUBLE_BOND_FORMATION", out_file="methylation_options_thiopeptide.svg")
+    # thiopeptide_cluster_thiomuracin.make_peptide()
+    #
+    # thiopeptide_cluster_thiomuracin.draw_product(
+    #     as_string=False, out_file="peptide_test_thiopeptide_peptide.svg")
+    # thiopeptide_cluster_thiomuracin.do_tailoring()
+    # thiopeptide_cluster_thiomuracin.draw_product(
+    #     as_string=False, out_file="tailored_test_thiopeptide_peptide.svg")
+    # get_tailoring_sites(thiopeptide_cluster_thiomuracin.chain_intermediate,
+    #                     enzyme_name="DOUBLE_BOND_FORMATION", out_file="methylation_options_thiopeptide.svg")
     # # print(get_tailoring_sites_atom_names(
     # #     thiopeptide_cluster_thiomuracin.chain_intermediate))
 

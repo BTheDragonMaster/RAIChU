@@ -1,6 +1,6 @@
 from pikachu.reactions.basic_reactions import condensation, hydrolysis
 from pikachu.reactions.functional_groups import find_bonds, find_atoms
-from raichu.class_domain import ATTRIBUTES
+from raichu.data.attributes import ATTRIBUTES
 from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
 from raichu.data.molecular_moieties import THIOESTERBOND, THIOESTER_CARBON, N_AMINO_ACID, B_N_AMINO_ACID
 from raichu.reactions.general import label_rest_groups, initialise_atom_attributes, reset_nrp_annotations
@@ -105,6 +105,7 @@ def sulphur_to_hydroxyl(thioester_structure):
 
     oh_bond = combined.bond_lookup[oxygen_hydroxyl][carbon_thioester]
 
+    # TODO: Target unlabelled atom
     for atom in combined.graph:
         if not hasattr(atom.annotations, 'in_central_chain'):
             for attribute in ATTRIBUTES:

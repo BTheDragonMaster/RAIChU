@@ -1,8 +1,5 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, find_bonds
-from pikachu.general import read_smiles
-from raichu.data.attributes import ATTRIBUTES
 from raichu.reactions.general import initialise_atom_attributes
-from raichu.attach_to_domain import attach_to_domain_pk
 from raichu.data.molecular_moieties import AMINO_FATTY_ACID, AMINO_ACID_BACKBONE, N_AMINO_ACID, C1_AMINO_ACID, \
     C2_AMINO_ACID, BETA_AMINO_ACID_BACKBONE, B_N_AMINO_ACID, B_C1_AMINO_ACID, B_C2_AMINO_ACID, B_C3_AMINO_ACID, \
     B_LEAVING_BOND, ACID_C1, OH_AMINO_ACID, N_AMINO_ACID_ATTACHED, C1_AMINO_ACID_ATTACHED, C2_AMINO_ACID_ATTACHED
@@ -86,15 +83,15 @@ def label_pk_central_chain(pk_starter_unit):
                         c_neighbours = next_atom.get_neighbours('C')
                         if len(c_neighbours) == 2 and next_atom.get_neighbour('O') is None:
 
-                            for atom in c_neighbours:
-                                for neighbour in atom.neighbours:
-                                    types.append(neighbour.type)
+                            for carbon_neighbour in c_neighbours:
+                                for branch_neighbour in carbon_neighbour.neighbours:
+                                    types.append(branch_neighbour.type)
 
                             if types.count('H') == 4 and types.count('C') == 4:
                                 ethyl_branch = True
 
-                            for atom in c_neighbours:
-                                if atom not in visited and atom != next_atom:
+                            for carbon_neighbour in c_neighbours:
+                                if carbon_neighbour not in visited and carbon_neighbour != next_atom:
                                     ethyl_branch = False
 
                             visited.append(chain_carbon)
@@ -409,22 +406,3 @@ def label_acid_central_chain(acid):
                         if len(atom.get_non_hydrogen_bonds()) == 1 and atom.get_non_hydrogen_bonds()[0].type == 'single':
                             atom.annotations.in_central_chain = True
                     break
-
-
-if __name__ == "__main__":
-    starter_units_antismash = ['SC(=O)CC', 'SC(CC(O)=O)=O', 'SC(CC(O)=O)=O',
-                               'SC(C(C(O)=O)CC)=O', 'SC(C(C(O)=O)OC)=O',
-                               'SC(C*)=O',
-                               'SC(C(C)CC)=O', 'SC(C1C(CCC1)C(=O)O)=O',
-                               'SC(C)=O',
-                               'SC(C1=CC=CC=C1)=O', 'SC(CC(C)C)=O',
-                               'SC(C(C(=O)O)CC[Cl])=O']
-    starter_unit_error = 'SC(C1=CC=CC=C1)=O'
-    struct = read_smiles(starter_unit_error)
-    struct.add_attributes(ATTRIBUTES, boolean=True)
-    struct = attach_to_domain_pk(struct)
-    label_pk_central_chain(struct)
-    for atom in struct.graph:
-        print(atom, atom.annotations.in_central_chain)
-
-

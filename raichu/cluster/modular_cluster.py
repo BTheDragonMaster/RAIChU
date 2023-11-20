@@ -159,18 +159,19 @@ class ModularCluster(Cluster):
         out_file = os.path.join(out_dir, f'product_{last_i + 1}.svg')
         drawing.write_svg(out_file)
 
-    def draw_spaghettis(self):
-        spaghetti_svgs = []
-        for structure in self.modular_intermediates:
-            drawing = RaichuDrawer(structure, dont_show=True)
-            drawing.draw_structure()
-            svg_string = drawing.save_svg_string()
-            spaghetti_svgs.append(svg_string)
-
-        linear_drawing = Drawer(self.linear_product)
-        linear_svg = linear_drawing.save_svg_string()
-
-        return spaghetti_svgs + [linear_svg]
+    # TODO: Use PIKAChU's SVG drawer
+    # def draw_spaghettis(self):
+    #     spaghetti_svgs = []
+    #     for structure in self.modular_intermediates:
+    #         drawing = RaichuDrawer(structure, dont_show=True)
+    #         drawing.draw_structure()
+    #         svg_string = drawing.save_svg_string()
+    #         spaghetti_svgs.append(svg_string)
+    #
+    #     linear_drawing = Drawer(self.linear_product)
+    #     linear_svg = linear_drawing.save_svg_string()
+    #
+    #     return spaghetti_svgs + [linear_svg]
 
     def get_spaghettis(self, whitespace=30):
         drawings = []
@@ -225,6 +226,8 @@ class ModularCluster(Cluster):
 
         for i, drawing in enumerate(drawings):
             drawing.set_structure_id(f"s{i}")
+            drawing.set_annotation_for_grouping('module_nr')
+            drawing.colour_by_annotation()
             svg_style = drawing.svg_style
 
             padding = drawing.options.padding
@@ -242,7 +245,7 @@ class ModularCluster(Cluster):
             y_translation = bubble_y - carrier_domain_pos.y
 
             drawing.move_structure(x_translation, y_translation + 15)
-            svg = drawing.draw_svg()
+            svg = drawing.draw_svg(annotation='module_nr')
             svg_strings.append(svg)
 
             sulphur_pos = None

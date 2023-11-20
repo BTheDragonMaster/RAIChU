@@ -4,6 +4,7 @@ ATTRIBUTES = ['in_central_chain', 'KR_ep_target', 'KR_red_target',
               'n_atom_nmeth', 'leaving_oh_o', 'leaving_oh_h', 'c2_acid',
               'terminal_c', 'terminal_o']
 
+
 ENZYME_TO_NAME = {"METHYLTRANSFERASE": "methyltransferase",
                   "C_METHYLTRANSFERASE": "C-methyltransferase",
                   "N_METHYLTRANSFERASE": "N-methyltransferase",

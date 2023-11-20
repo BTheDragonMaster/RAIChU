@@ -168,7 +168,6 @@ class Cluster:
 
         return drawings, widths, max_height, centre_points
 
-
     def draw_pathway(self, min_arrow_size=40, order=("tailoring", "cyclisation"), mode='gene_name', as_string=False,
                      out_file=None, summary=False):
 
@@ -209,7 +208,7 @@ class Cluster:
             elif reaction_type == "cleavage":
                 assert self.cleaved_intermediates
                 drawings, widths, height, centre_points = self.get_drawings(reaction_type='cleavage')
-                for i in range(len(self.cleaved_intermediates) - 1):
+                for _ in range(len(self.cleaved_intermediates) - 1):
                     text = 'proteolytic cleavage'
                     enzyme_names.append(text)
             else:
@@ -396,7 +395,7 @@ class Cluster:
         drawing = RaichuDrawer(self.chain_intermediate, dont_show=True, add_url=True, draw_Cs_in_pink=draw_Cs_in_pink,
                                make_linear=False)
         drawing.draw_structure()
-        svg_string = drawing.save_svg_string()
+        svg_string = drawing.get_svg_string_matplotlib()
 
         if as_string:
             return svg_string

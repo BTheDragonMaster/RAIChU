@@ -1,5 +1,5 @@
 from pikachu.reactions.functional_groups import GroupDefiner, find_atoms, find_bonds
-from pikachu.general import read_smiles, structure_to_smiles
+from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.attach_to_domain import attach_to_domain_pk
@@ -9,6 +9,34 @@ from raichu.data.molecular_moieties import AMINO_FATTY_ACID, AMINO_ACID_BACKBONE
 
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 POLYKETIDE_S_INSERTED_O = GroupDefiner('Sulphur atom polyketide inserted O', 'SC(O)=O', 0)
+
+
+class CentralChain:
+    def __init__(self, structure, chain_type):
+        self.structure = structure
+        if chain_type in ['ripp', 'nrps', 'pks']:
+            self.chain_type = chain_type
+        else:
+            raise ValueError(f"Expected 'ripp', 'nrps', or 'pks' as central chain type; got {chain_type}")
+
+    def label_central_chain(self):
+        raise NotImplementedError
+
+
+class PksCentralChain(CentralChain):
+    def __init__(self, structure):
+        super().__init__(structure, chain_type='pks')
+
+
+class NrpsCentralChain(CentralChain):
+    def __init__(self, structure):
+        super().__init__(structure, chain_type='nrps')
+
+
+class RippCentralChain(CentralChain):
+    def __init__(self, structure):
+        super().__init__(structure, chain_type='ripp')
+
 
 def label_pk_central_chain(pk_starter_unit):
     """Finds the the atoms in the central chain of the polyketide starter unit,
@@ -42,15 +70,14 @@ def label_pk_central_chain(pk_starter_unit):
 
             while not end_carbon:
 
-                    
                 for next_atom in chain_carbon.neighbours:
                     ethyl_branch = False
                     inside_cycle = False
                     methyl_group = False
 
-
                     # Build lists of neighbouring atom types
-                    if next_atom.type == 'C' and next_atom not in visited or next_atom.type == 'O' and next_atom not in visited and len(next_atom.get_neighbours('C'))==2:
+                    if next_atom.type == 'C' and next_atom not in visited or next_atom.type == 'O' and \
+                            next_atom not in visited and len(next_atom.get_neighbours('C')) == 2:
 
                         # Keep track of carbon neighbours
 
@@ -75,13 +102,17 @@ def label_pk_central_chain(pk_starter_unit):
                         # Carbon in a terminal carboxylic acid group is the
                         # final carbon in the central chain
                         if len(next_atom.get_neighbours('O')) == 2:
+                            for oxygen in next_atom.get_neighbours('O'):
+                                if next_atom.get_bond(oxygen).type == 'single':
+                                    central_chain.append(oxygen)
+                                    visited.append(oxygen)
                             central_chain.append(next_atom)
                             end_carbon = True
                             visited.append(chain_carbon)
 
                         # Confirm carbon is not part of cycle
                         if len(c_neighbours) == 2:
-                            if all(atom.in_ring(pk_starter_unit) for atom in c_neighbours):
+                            if all(carbon.in_ring(pk_starter_unit) for carbon in c_neighbours):
                                 visited.append(next_atom)
                                 inside_cycle = True
                                 end_carbon = True
@@ -126,13 +157,14 @@ def label_pk_central_chain(pk_starter_unit):
                             for neighbouring_atom in chain_carbon.neighbours:
                                 if neighbouring_atom.type == 'C' and neighbouring_atom not in visited:
                                     count_c_neighbours_not_visited += 1
+
                             if count_c_neighbours_not_visited < 2:
                                 methyl_group = False
                                 visited.append(chain_carbon)
-                                for neighbour in chain_carbon.neighbours:
-                                    if neighbour.type == 'C' and neighbour not in visited:
+                                for carbon_neighbour in chain_carbon.neighbours:
+                                    if carbon_neighbour.type == 'C' and carbon_neighbour not in visited:
                                         next_neighbours = []
-                                        for next_neighbour in neighbour.neighbours:
+                                        for next_neighbour in carbon_neighbour.neighbours:
                                             next_neighbours.append(
                                                 next_neighbour.type)
                                         if next_neighbours.count('H') == 3 or (
@@ -140,7 +172,7 @@ def label_pk_central_chain(pk_starter_unit):
                                                         'H') == 2 and (
                                                 next_neighbours.count(
                                                         '*')) == 1):
-                                            central_chain.append(neighbour)
+                                            central_chain.append(carbon_neighbour)
                                 end_carbon = True
 
                             visited.append(chain_carbon)

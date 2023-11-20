@@ -20,7 +20,7 @@ def reductive_bond_breakage(atom1, atom2, structure):
     structure.add_atom('H', [atom2])
     initialise_atom_attributes(structure)
     structure.refresh_structure(find_cycles=True)
-    structure.aromatic_cycles = structure.find_aromatic_cycles()
+    #structure.aromatic_cycles = structure.find_aromatic_cycles()
     structure.aromatic_systems = structure.find_aromatic_systems()
     return structure
 

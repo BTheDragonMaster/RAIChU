@@ -4,6 +4,7 @@ from pikachu.general import read_smiles
 from pikachu.chem.structure import Structure
 from pikachu.chem.atom import Atom
 
+from raichu.class_domain import CarrierDomain as ClassCarrierDomain
 from raichu.domain.domain import Domain, TailoringDomain, RecognitionDomain, \
     SynthesisDomain, CarrierDomain, TerminationDomain
 from raichu.central_chain_detection.label_central_chain import label_pk_central_chain, label_nrp_central_chain
@@ -187,7 +188,15 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
     def add_module_label(self, structure):
         for atom in structure.graph:
             if type(atom) == Atom and not atom.annotations.has_annotation('module_nr'):
-                atom.annotations.add_annotation('module_nr', f"module_{self.id}")
+                atom.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+
+            if type(atom) == ClassCarrierDomain:
+                for neighbour in structure.graph[atom]:
+                    if neighbour.type == 'S':
+                        if not neighbour.annotations.has_annotation('module_nr'):
+                            neighbour.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+                        else:
+                            neighbour.annotations.module_nr = f"module_{self.id + 1:02}"
 
     def do_pks_tailoring(self, structure: Structure) -> Structure:
         kr_domain = self.get_tailoring_domain("KR")

@@ -67,7 +67,7 @@ class TailoringEnzymeType(Enum):
 
 class TailoringEnzyme:
 
-    def __init__(self, gene_name, enzyme_type, modification_sites:list = None, substrate:str = None) -> None:
+    def __init__(self, gene_name, enzyme_type, modification_sites: list = None, substrate: str = None) -> None:
         self.gene_name = gene_name
         self.type = TailoringEnzymeType.from_string(enzyme_type)
         self.modification_sites = modification_sites
@@ -77,13 +77,13 @@ class TailoringEnzyme:
         """
         Performs tailoring reaction
         """
-        if len(self.modification_sites)==0:
+        if len(self.modification_sites) == 0:
             return structure
         if self.type.name == "HYDROXYLATION":
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
-                atom = atom[0] #only one atom is hydroxylated at a time
+                atom = atom[0] # only one atom is hydroxylated at a time
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "O", structure)
         elif self.type.name in ["METHYLTRANSFERASE", "C_METHYLTRANSFERASE", "N_METHYLTRANSFERASE", "O_METHYLTRANSFERASE"]:

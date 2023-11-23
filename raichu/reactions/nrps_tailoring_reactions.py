@@ -94,7 +94,6 @@ def n_methylate(nrp):
     if len(n_meth_locations) == 1:
 
         n_meth = n_meth_locations[0]
-        module_nr = n_meth.annotations.get_annotation('module_nr')
 
         # Check if the N atom has a hydrogen group necessary for the reaction, and
         # not a cyclic amiono acid such as proline

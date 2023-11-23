@@ -7,21 +7,28 @@ from raichu.central_chain_detection.label_central_chain import label_pk_central_
 def reorder_central_chain(central_chain, drawer):
     stop_linearising = None
     rings = []
+    full_ring = []
+    full_rings = []
     current_ring = []
     current_ring_index = None
 
     for i, atom in enumerate(central_chain):
-        if atom.inside_ring:
+        if atom.is_inside_ring(drawer.structure):
+
             ring_index = atom.get_ring_index(drawer.structure)
+
             if (current_ring and ring_index == current_ring_index) or not current_ring:
+                full_ring = atom.get_ring(drawer.structure)
                 current_ring.append(atom)
                 current_ring_index = ring_index
             else:
                 rings.append(current_ring)
+                full_rings.append(full_ring)
                 current_ring = [atom]
                 current_ring_index = ring_index
 
     rings.append(current_ring)
+    full_rings.append(full_ring)
     new_rings = []
 
     for ring in rings:
@@ -51,7 +58,7 @@ def reorder_central_chain(central_chain, drawer):
         for atom in ring:
             atom_to_ring[atom] = ring
 
-    return central_chain, rings, atom_to_ring, stop_linearising
+    return central_chain, full_rings, rings, atom_to_ring, stop_linearising
 
 
 def find_central_chain(pks_nrps_attached):

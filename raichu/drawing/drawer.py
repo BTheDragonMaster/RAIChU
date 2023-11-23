@@ -8,6 +8,16 @@ from raichu.central_chain_detection.find_central_chain import find_central_chain
 from raichu.central_chain_detection.label_central_chain import label_ripp_central_chain
 
 
+def get_ring(atom, structure):
+    cycles = structure.cycles.all_cycles
+
+    for i, cycle in enumerate(cycles):
+        if atom in cycle:
+            return cycle
+
+    return None
+
+
 class RaichuDrawer(Drawer):
     def __init__(self, structure, options=None, save_png=None, dont_show=False,
                  coords_only=True, dpi=100, save_svg=None, draw_Cs_in_pink=False, add_url=False, horizontal=False,
@@ -49,8 +59,9 @@ class RaichuDrawer(Drawer):
                 atom_2 = self.drawn_atoms[j]
                 if not self.structure.bond_exists(atom_1, atom_2):
                     distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
-                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and atom_2.type != 'C':
-                        max_distance = self.options.bond_length_squared
+                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and \
+                            atom_2.type != 'C':
+                        max_distance = self.options.bond_length_squared * 1.5
                     # elif atom_1.has_neighbour('H') or atom_2.has_neighbour('H'):
                     #     max_distance = self.options.bond_length_squared / 1.5
                     else:
@@ -69,86 +80,92 @@ class RaichuDrawer(Drawer):
         else:
             masked_bonds = set(masked_bonds)
 
-        if self.total_overlap_score > self.options.overlap_sensitivity:
-            clashing_atoms = self.find_clashing_atoms()
+        # if self.total_overlap_score > self.options.overlap_sensitivity:
+        clashing_atoms = self.find_clashing_atoms()
 
-            best_bonds = []
-            for atom_1, atom_2 in clashing_atoms:
-                shortest_path = self.find_shortest_path(atom_1, atom_2)
-                rotatable_bonds = []
-                distances = []
+        best_bonds = []
+        for atom_1, atom_2 in clashing_atoms:
 
-                for i, bond in enumerate(shortest_path):
-                    distance_1 = i
-                    distance_2 = len(shortest_path) - i
+            shortest_path = self.find_shortest_path(atom_1, atom_2)
+            rotatable_bonds = []
+            distances = []
 
-                    average_distance = len(shortest_path) / 2
+            for i, bond in enumerate(shortest_path):
+                distance_1 = i
+                distance_2 = len(shortest_path) - i
 
-                    distance_metric = abs(
-                        average_distance - distance_1) + abs(average_distance - distance_2)
+                average_distance = len(shortest_path) / 2
 
-                    if self.bond_is_rotatable(bond) and bond not in masked_bonds:
-                        rotatable_bonds.append(bond)
-                        distances.append(distance_metric)
+                distance_metric = abs(
+                    average_distance - distance_1) + abs(average_distance - distance_2)
 
-                best_bond = None
-                optimal_distance = float('inf')
-                for i, distance in enumerate(distances):
-                    if distance < optimal_distance:
-                        if highest_atom:
-                            if not atom_1.draw.position.y > highest_atom.draw.position.y and not atom_2.draw.position.y > highest_atom.draw.position.y:
-                                best_bond = rotatable_bonds[i]
-                                optimal_distance = distance
-                        else:
-                            best_bond = rotatable_bonds[i]
-                            optimal_distance = distance
+                if self.bond_is_rotatable(bond) and bond not in masked_bonds:
+                    rotatable_bonds.append(bond)
+                    distances.append(distance_metric)
 
-                if best_bond:
-                    best_bonds.append(best_bond)
+            best_bond = None
+            optimal_distance = float('inf')
+            for i, distance in enumerate(distances):
+                if distance < optimal_distance:
+                    # if highest_atom:
+                    #     if atom_1.draw.position.y < highest_atom.draw.position.y and \
+                    #             atom_2.draw.position.y < highest_atom.draw.position.y:
+                    #         best_bond = rotatable_bonds[i]
+                    #         optimal_distance = distance
+                    # else:
+                        best_bond = rotatable_bonds[i]
+                        optimal_distance = distance
 
-            best_bonds = list(set(best_bonds))
+            if best_bond:
+                best_bonds.append(best_bond)
 
-            for best_bond in best_bonds:
-                if self.total_overlap_score > self.options.overlap_sensitivity:
+        best_bonds = list(set(best_bonds))
 
-                    subtree_size_1 = self.get_subgraph_size(
-                        best_bond.atom_1, {best_bond.atom_2})
-                    subtree_size_2 = self.get_subgraph_size(
-                        best_bond.atom_2, {best_bond.atom_1})
+        for best_bond in best_bonds:
+            if self.total_overlap_score > self.options.overlap_sensitivity:
 
-                    if subtree_size_1 < subtree_size_2:
-                        rotating_atom = best_bond.atom_1
-                        parent_atom = best_bond.atom_2
-                    else:
-                        rotating_atom = best_bond.atom_2
-                        parent_atom = best_bond.atom_1
+                subtree_size_1 = self.get_subgraph_size(
+                    best_bond.atom_1, {best_bond.atom_2})
+                subtree_size_2 = self.get_subgraph_size(
+                    best_bond.atom_2, {best_bond.atom_1})
 
-                    overlap_score, _, _ = self.get_overlap_score()
+                if subtree_size_1 < subtree_size_2:
+                    rotating_atom = best_bond.atom_1
+                    parent_atom = best_bond.atom_2
+                else:
+                    rotating_atom = best_bond.atom_2
+                    parent_atom = best_bond.atom_1
 
-                    scores = [overlap_score]
+                overlap_score, _, _ = self.get_overlap_score()
 
-                    for i in range(12):
-                        self.rotate_subtree(rotating_atom, parent_atom, math.radians(
-                            30), parent_atom.draw.position)
-                        new_overlap_score, _, _ = self.get_overlap_score()
-                        scores.append(new_overlap_score)
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    15), parent_atom.draw.position)
 
-                    assert len(scores) == 13
+                new_overlap_score, _, _ = self.get_overlap_score()
 
-                    scores = scores[:12]
+                scores = [new_overlap_score]
 
-                    best_i = 0
-                    best_score = scores[0]
-
-                    for i, score in enumerate(scores):
-                        if score < best_score:
-                            best_score = score
-                            best_i = i
-
-                    self.total_overlap_score = best_score
-
+                for i in range(12):
                     self.rotate_subtree(rotating_atom, parent_atom, math.radians(
-                        30 * best_i + 1), parent_atom.draw.position)
+                        30), parent_atom.draw.position)
+                    new_overlap_score, _, _ = self.get_overlap_score()
+                    scores.append(new_overlap_score)
+
+                assert len(scores) == 13
+                scores = scores[:12]
+
+                best_i = 0
+                best_score = scores[0]
+
+                for i, score in enumerate(scores):
+                    if score < best_score:
+                        best_score = score
+                        best_i = i
+
+                self.total_overlap_score = best_score
+
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    30 * best_i + 1), parent_atom.draw.position)
 
     def draw(self, coords_only: bool = False) -> None:
 
@@ -633,11 +650,11 @@ class RaichuDrawer(Drawer):
                 backbone_to_placement[atom] = 'left'
             else:
                 if atom not in backbone_to_placement:
-                    previous_placement = backbone_to_placement[backbone[i - 1]]
+                    previous_placement = backbone_to_placement.get(backbone[i - 1])
                     ring = atom_to_ring.get(atom)
                     if ring and len(ring) == 2:
                         if ring[0] in backbone_to_placement:
-                            backbone_to_placement[ring[1]] = backbone_to_placement[ring[0]]
+                            backbone_to_placement[ring[1]] = backbone_to_placement.get(ring[0])
                         else:
                             backbone_to_placement[atom] = self.get_opposite_placement(previous_placement)
                     elif hasattr(atom, "domain_type") and atom.annotations.domain_type == "Leader":
@@ -699,13 +716,15 @@ class RaichuDrawer(Drawer):
                 atom_2 = self.drawn_atoms[j]
                 distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
                 if atom_1 not in atom_2.neighbours:
-                    if distance < self.options.bond_length_squared:
+                    if distance < self.options.bond_length_squared + 1:
 
-                        if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and atom_2.type != 'C':
+                        if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' \
+                                and atom_2.type != 'C':
 
-                            weight = self.options.overlap_sensitivity + (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                            weight = self.options.overlap_sensitivity + abs((self.options.bond_length - math.sqrt(distance))) / self.options.bond_length
+
                         else:
-                            weight = (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                            weight = abs((self.options.bond_length - math.sqrt(distance))) / self.options.bond_length
                         total += weight
                         overlap_scores[atom_1] += weight
                         overlap_scores[atom_2] += weight
@@ -758,7 +777,7 @@ class RaichuDrawer(Drawer):
 
         self.structure.refresh_structure()
 
-        backbone, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
+        backbone, full_rings, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
         if len(domains) == 2:
             for domain in domains:
                 if domain.annotations.domain_type == 'Leader':
@@ -780,7 +799,6 @@ class RaichuDrawer(Drawer):
 
             if backbone_to_placement[atom_1] == 'right' and backbone_to_placement[atom_2] == 'left':
                 desired_angle = 60.0
-
             elif backbone_to_placement[atom_1] == 'left' and backbone_to_placement[atom_2] == 'right':
                 desired_angle = 120.0
             elif backbone_to_placement[atom_1] == backbone_to_placement[atom_2]:
@@ -801,6 +819,7 @@ class RaichuDrawer(Drawer):
                                         atom_1.draw.position)
                 elif len(atom_to_ring[atom_2]) == 3:
                     if atom_2 == atom_to_ring[atom_2][1]:
+
                         self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
                                             atom_1.draw.position)
                     elif atom_2 == atom_to_ring[atom_2][2]:
@@ -832,8 +851,9 @@ class RaichuDrawer(Drawer):
             i += 1
 
         atoms_in_rings = []
-        for ring in rings:
-            atoms_in_rings += ring
+        for ring in full_rings:
+            for atom in ring:
+                atoms_in_rings.append(atom)
         atoms_in_rings = set(atoms_in_rings)
 
         self.fix_rings(rings, backbone, backbone_to_placement)
@@ -860,6 +880,119 @@ class RaichuDrawer(Drawer):
                 self.rotate_structure(-1.5707)
             else:
                 self.rotate_structure(1.5707)
+
+    def resolve_overlaps(self, linear: bool = True, masked_bonds: Optional[Set["Bond"]] = None) -> None:
+        """
+
+        Parameters
+        ----------
+        linear: bool, if True, resolve overlaps for a linearised molecule; if False,
+            resolve overlaps for a non-linearised molecule
+        masked_bonds: set of bonds, bonds that are not allowed to be rotated
+
+        """
+        if not linear:
+
+            self.resolve_primary_overlaps()
+            self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+            self.finetune_overlap_resolution()
+            self.resolve_secondary_overlaps(sorted_overlap_scores)
+
+        else:
+
+            pass
+
+    def find_high_atoms(self, atoms: List[Atom], max_y: float) -> List[Atom]:
+        """
+        Returns atoms that are drawn too high on the plot
+        Parameters
+        ----------
+        atoms: list of [Atom, ->]
+        max_y: float, maximum vertical y coordinate an atom is allowed to have
+
+        Returns
+        -------
+        high_atoms: list of [Atom, ->], atoms with a y coordinate higher than max_y
+        """
+        high_atoms: List[Atom] = []
+        for atom in atoms:
+            if atom.draw.position.y > max_y:
+                high_atoms.append(atom)
+        return high_atoms
+
+    def find_clashing_sidechain_atoms(self, sidechain_atoms):
+        clashing_atoms: List[Tuple[Atom, Atom]] = []
+        for i, atom_1 in enumerate(self.drawn_atoms):
+            for j in range(i + 1, len(self.drawn_atoms)):
+                atom_2 = self.drawn_atoms[j]
+                if atom_1 in sidechain_atoms and not self.structure.bond_exists(atom_1, atom_2):
+                    distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
+                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and \
+                            atom_2.type != 'C':
+                        max_distance = self.options.bond_length_squared * 1.5
+                    elif atom_1.has_neighbour('H') or atom_2.has_neighbour('H'):
+                        max_distance = self.options.bond_length_squared
+                    else:
+                        max_distance = self.options.bond_length_squared * 0.8
+                    if distance <= max_distance:
+                        clashing_atoms.append((atom_1, atom_2))
+
+        return clashing_atoms
+
+    def resolve_sidechain_overlaps(self, backbone, backbone_to_placement, backbone_rings, central_chain_bonds):
+        max_y = backbone[0].draw.position.y
+        placed_atoms: List[Atom] = []
+        backbone_to_sidechain: Dict[Atom, List[List[Atom]]] = {}
+        backbone_to_rotatable_bonds: Dict[Atom, List[Bond]] = {}
+
+        for backbone_atom in backbone:
+            sidechains = self.get_sidechains(backbone, backbone_atom, backbone_rings)
+            backbone_to_sidechain[backbone_atom] = sidechains
+            beta_atoms: List[Atom] = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+            for sidechain in sidechains:
+                beta_atom: Optional[Atom] = None
+
+                for atom in sidechain:
+                    if atom in beta_atoms:
+                        beta_atom = atom
+                        break
+
+                assert beta_atom
+
+                sidechain_bonds = self.get_sidechain_bonds(sidechain)
+                masked_bond = self.structure.bond_lookup[beta_atom][backbone_atom]
+                rotatable_bonds: List[Bond] = []
+
+                for bond in sidechain_bonds:
+                    if self.bond_is_rotatable(bond) and bond != masked_bond:
+                        rotatable_bonds.append(bond)
+                backbone_to_rotatable_bonds[backbone_atom] = rotatable_bonds
+
+
+            if len(sidechains) == 2:
+                pass
+            elif len(sidechains) == 1:
+                sidechain = sidechains[0]
+                atoms_to_adjust: List[Atom] = self.find_high_atoms(sidechain, max_y)
+                clashing_atoms = self.find_clashing_sidechain_atoms(sidechain)
+                if clashing_atoms or atoms_to_adjust:
+                    beta_atoms: List[Atom] = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+                    assert len(beta_atoms) == 1
+                    beta_atom = beta_atoms[0]
+
+                    sidechain_bonds = self.get_sidechain_bonds(sidechain)
+                    rotatable_bonds: List[Bond] = []
+
+                    masked_bond = self.structure.bond_lookup[beta_atom][backbone_atom]
+                    for bond in sidechain_bonds:
+                        if self.bond_is_rotatable(bond) and bond != masked_bond and \
+                                (bond.atom_1 in beta_atoms or bond.atom_2 in beta_atoms):
+                            rotatable_bonds.append(bond)
+
+                    if not rotatable_bonds:
+                        for bond in sidechain_bonds:
+                            if self.bond_is_rotatable(bond) and bond != masked_bond:
+                                rotatable_bonds.append(bond)
 
     def resolve_secondary_overlaps(self, sorted_scores: List[Tuple[float, Atom]]) -> None:
         for score, atom in sorted_scores:
@@ -892,7 +1025,6 @@ class RaichuDrawer(Drawer):
                     # atom.draw.position.rotate_away_from_vector(closest_position, atom_previous_position,
                     #                                            math.radians(20))
 
-
     def rotate_subtree_ring(self, root, masked, angle, center):
         for atom in self.traverse_substructure(root, masked):
             atom.draw.position.rotate_around_vector(angle, center)
@@ -900,33 +1032,139 @@ class RaichuDrawer(Drawer):
                 if anchored_ring.center:
                     anchored_ring.center.rotate_around_vector(angle, center)
 
+    def get_beta_atoms(self, backbone: List[Atom], backbone_atom: Atom, backbone_rings: List[Atom]) -> List[Atom]:
+        """
+        Returns atoms directly adjacent to the backbone atom that is not in the same ring as a backbone atom
+
+        Parameters
+        ----------
+        backbone: list of [Atom, ->] with each atom a backbone atom
+        backbone_atom: Atom instance, backbone atom for which the sidechains are determined
+        backbone_rings: list of [Atom, ->] with each atom a member of a ring that overlaps with the backbone
+
+        Returns
+        -------
+        beta_atoms: list of [Atom, ->], representing the atoms directly adjacent to the backbone atom
+        """
+        beta_atoms: List[Atom] = []
+        for neighbour in backbone_atom.neighbours:
+            if neighbour.type != 'H' and not neighbour.annotations.domain_type:
+                if neighbour not in backbone and neighbour not in backbone_rings:
+                    beta_atoms.append(neighbour)
+
+        return beta_atoms
+
+
+
+    def get_sidechains(self, backbone: List[Atom], backbone_atom: Atom, backbone_rings: List[Atom]) -> List[List[Atom]]:
+        """
+        Returns the non-ring sidechains of a backbone atom
+
+        Parameters
+        ----------
+        backbone: list of [Atom, ->] with each atom a backbone atom
+        backbone_atom: Atom instance, backbone atom for which the sidechains are determined
+        backbone_rings: list of [Atom, ->] with each atom a member of a ring that overlaps with the backbone
+
+        Returns
+        -------
+        sidechains: list of [[Atom, ->] ->], representing the sidechains coming out of the backbone atom
+
+        """
+        sidechains: List[List[Atom]] = []
+        beta_atoms = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+        for beta_atom in beta_atoms:
+            sidechain: List[Atom] = []
+
+            for atom in self.traverse_substructure(beta_atom, {backbone_atom}):
+                sidechain.append(atom)
+            sidechains.append(sidechain)
+        return sidechains
+
+    def get_sidechain_bonds(self, sidechain: List[Atom]) -> List[Bond]:
+        """
+        Returns a list of bonds that exist between sidechain atoms
+
+        Parameters
+        ----------
+        sidechain: list of [Atom, ->]
+
+        Returns
+        -------
+        sidechain_bonds: list of [Bond, ->]
+
+        """
+        bonds: Set[Bond] = set()
+
+        for atom in sidechain:
+            for neighbour in atom.neighbours:
+                if neighbour in sidechain:
+                    bonds.add(self.structure.bond_lookup[atom][neighbour])
+
+        sidechain_bonds: List[Bond] = list(bonds)
+
+        return sidechain_bonds
+
     def position_sidechains(self, backbone, backbone_to_placement, atoms_in_backbone_rings):
 
-        sidechain_to_placement = {}
-        sidechain_to_neighbour = {}
+        backbone_to_neighbours = {}
 
         for backbone_atom in backbone:
+            neighbours = []
             for neighbour in backbone_atom.neighbours:
                 if neighbour.type != 'H' and not neighbour.annotations.domain_type:
-                    if neighbour not in backbone and not neighbour in atoms_in_backbone_rings and neighbour not in sidechain_to_placement:
+                    if neighbour not in backbone and neighbour not in atoms_in_backbone_rings \
+                            and neighbour not in neighbours:
+                        neighbours.append(neighbour)
+            backbone_to_neighbours[backbone_atom] = neighbours
 
-                        sidechain_to_placement[neighbour] = backbone_to_placement[backbone_atom]
-                        sidechain_to_neighbour[neighbour] = backbone_atom
+        for backbone_atom, neighbours in backbone_to_neighbours.items():
+            placement = backbone_to_placement[backbone_atom]
+            if len(neighbours) == 0:
+                pass
+            elif len(neighbours) == 1:
+                neighbour = neighbours[0]
 
-        for atom, placement in sidechain_to_placement.items():
-            backbone_atom = sidechain_to_neighbour[atom]
-            current_angle = get_angle(backbone_atom.draw.position, atom.draw.position)
-            if placement == 'right':
-                desired_angle = 180.0
-            elif placement == 'left':
-                desired_angle = 0.0
+                current_angle = get_angle(backbone_atom.draw.position, neighbour.draw.position)
+
+                if placement == 'right':
+                    desired_angle = 180.0
+                elif placement == 'left':
+                    desired_angle = 0.0
+                else:
+                    raise ValueError("Placement must be 'left' or 'right'.")
+
+                required_rotation_deg = desired_angle - current_angle
+                required_rotation_rad = math.radians(required_rotation_deg)
+
+                self.rotate_subtree(neighbour, backbone_atom, required_rotation_rad, backbone_atom.draw.position)
+
+            elif len(neighbours) == 2:
+                neighbour_1, neighbour_2 = neighbours
+
+                current_angle_1 = get_angle(backbone_atom.draw.position, neighbour_1.draw.position)
+                current_angle_2 = get_angle(backbone_atom.draw.position, neighbour_2.draw.position)
+
+                if placement == 'right':
+                    desired_angle_1 = 140.0
+                    desired_angle_2 = 220.0
+                elif placement == 'left':
+                    desired_angle_1 = 40.0
+                    desired_angle_2 = -40.0
+                else:
+                    raise ValueError("Placement must be 'left' or 'right'.")
+
+                required_rotation_deg_1 = desired_angle_1 - current_angle_1
+                required_rotation_rad_1 = math.radians(required_rotation_deg_1)
+
+                required_rotation_deg_2 = desired_angle_2 - current_angle_2
+                required_rotation_rad_2 = math.radians(required_rotation_deg_2)
+
+                self.rotate_subtree(neighbour_1, backbone_atom, required_rotation_rad_1, backbone_atom.draw.position)
+                self.rotate_subtree(neighbour_2, backbone_atom, required_rotation_rad_2, backbone_atom.draw.position)
             else:
-                raise ValueError("Placement must be 'left' or 'right'.")
+                raise ValueError("Backbone atoms can only have two non-backbone neighbours at most")
 
-            required_rotation_deg = desired_angle - current_angle
-            required_rotation_rad = math.radians(required_rotation_deg)
-
-            self.rotate_subtree(atom, backbone_atom, required_rotation_rad, backbone_atom.draw.position)
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
         truncated_line = line.get_truncated_line(

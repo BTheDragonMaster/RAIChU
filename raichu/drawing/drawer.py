@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Optional
 
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *

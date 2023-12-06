@@ -108,12 +108,12 @@ hormaomycin_cluster = ClusterRepresentation([ModuleRepresentation('NRPS', None, 
                                                                    DomainRepresentation('HrmP', 'PCP')])],
                                             tailoring_enzymes=[
                                                 TailoringRepresentation(
-                                                    "unknown", "HYDROXYLATION", [["N_133"]])
+                                                    "unknown", "HYDROXYLASE", [["N_133"]])
                                              ])
 cluster = build_cluster(hormaomycin_cluster, strict=False)
 cluster.compute_structures(compute_cyclic_products=False)
 print(get_tailoring_sites(cluster.chain_intermediate,
-                          enzyme_name='HYDROXYLATION', out_file="hormaomycin_n.svg"))
+                          enzyme_name='HYDROXYLASE', out_file="hormaomycin_n.svg"))
 draw_cluster(hormaomycin_cluster, "hormaomycin.svg")
 print("drawn cluster")
 draw_products(hormaomycin_cluster, "hormaomycin")

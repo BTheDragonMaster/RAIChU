@@ -9,8 +9,8 @@ terpene_lycosantalonol = TerpeneCluster("TPS21", "GERANYLGERANYL_PYROPHOSPHATE",
                                             "C_9", "C_14")],
                                         cyclase_type="Class_1",
                                         tailoring_representations=[
-                                            TailoringRepresentation("CYP71BN1", "EPOXIDATION",[["C_19","C_20"]]),
-                                            TailoringRepresentation("CYP71BN1", "HYDROXYLATION",[["C_19"]]),
+                                            TailoringRepresentation("CYP71BN1", "EPOXIDASE",[["C_19","C_20"]]),
+                                            TailoringRepresentation("CYP71BN1", "HYDROXYLASE",[["C_19"]]),
                                             TailoringRepresentation("CYP71BN1", "REDUCTIVE_BOND_BREAKAGE",[["C_19", "O_5"]]),
                                             TailoringRepresentation("CYP71BN1", "ALCOHOL_DEHYDROGENASE", [["O_4"]])
                                             ])

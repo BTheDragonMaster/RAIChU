@@ -17,8 +17,8 @@ class TailoringEnzymeType(Enum):
     C_METHYLTRANSFERASE = 2
     N_METHYLTRANSFERASE = 3
     O_METHYLTRANSFERASE = 4
-    HYDROXYLATION = 5
-    EPOXIDATION = 6
+    HYDROXYLASE = 5
+    EPOXIDASE = 6
     PRENYLTRANSFERASE = 7
     ACETYLTRANSFERASE = 8
     ACYLTRANSFERASE = 9
@@ -26,9 +26,9 @@ class TailoringEnzymeType(Enum):
     HALOGENASE = 11
 
     # Oxidoreduction
-    DOUBLE_BOND_REDUCTION = 12
-    DOUBLE_BOND_SHIFT = 13
-    DOUBLE_BOND_FORMATION = 14
+    DOUBLE_BOND_REDUCTASE = 12
+    DOUBLE_BOND_ISOMERASE = 13
+    DEHYDROGENASE = 14
     KETO_REDUCTION = 15
     ALCOHOL_DEHYDROGENASE = 16
 
@@ -43,9 +43,9 @@ class TailoringEnzymeType(Enum):
     ARGINASE = 24
 
     # Cyclization
-    OXIDATIVE_BOND_FORMATION = 25
+    OXIDATIVE_BOND_SYNTHASE = 25
     MACROLACTAM_SYNTHETASE = 26
-    CYCLODEHYDRATION = 27
+    CYCLODEHYDRASE = 27
     LANTHIPEPTIDE_CYCLASE = 28
     LANTHIONINE_SYNTHETASE = 29
     THIOPEPTIDE_CYCLASE = 30
@@ -54,8 +54,8 @@ class TailoringEnzymeType(Enum):
     AMINO_ACID_EPIMERASE = 31
 
     # Bond breakage
-    HYDROLYSIS = 32
-    REDUCTIVE_BOND_BREAKAGE = 33
+    HYDROLASE = 32
+    REDUCTIVE_LYASE = 33
 
     @staticmethod
     def from_string(label: str) -> "TailoringEnzymeType":
@@ -79,7 +79,7 @@ class TailoringEnzyme:
         """
         if len(self.modification_sites) == 0:
             return structure
-        if self.type.name == "HYDROXYLATION":
+        if self.type.name == "HYDROXYLASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
@@ -120,35 +120,35 @@ class TailoringEnzyme:
                 atom = structure.get_atom(atom)
                 if self.substrate:
                     structure = addition(atom, self.substrate, structure)
-        elif self.type.name == "OXIDATIVE_BOND_FORMATION":
+        elif self.type.name == "OXIDATIVE_BOND_SYNTHASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 2:
                     continue
                 atom1 = structure.get_atom(atoms[0])
                 carbon_1 = structure.get_atom(atoms[1])
                 structure = oxidative_bond_formation(atom1, carbon_1, structure)
-        elif self.type.name == "EPOXIDATION":
+        elif self.type.name == "EPOXIDASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 2:
                     continue
                 atom1 = structure.get_atom(atoms[0])
                 carbon_1 = structure.get_atom(atoms[1])
                 structure = epoxidation(atom1, carbon_1, structure)
-        elif self.type.name == "DOUBLE_BOND_REDUCTION":
+        elif self.type.name == "DOUBLE_BOND_REDUCTASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 2:
                     continue
                 atom1 = structure.get_atom(atoms[0])
                 carbon_1 = structure.get_atom(atoms[1])
                 structure = double_bond_reduction(atom1, carbon_1, structure)
-        elif self.type.name == "DOUBLE_BOND_FORMATION":
+        elif self.type.name == "DEHYDROGENASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 2:
                     continue
                 atom1 = structure.get_atom(atoms[0])
                 carbon_1 = structure.get_atom(atoms[1])
                 structure = single_bond_oxidation(atom1, carbon_1, structure)
-        elif self.type.name == "DOUBLE_BOND_SHIFT":
+        elif self.type.name == "DOUBLE_BOND_ISOMERASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 4:
                     continue
@@ -247,7 +247,7 @@ class TailoringEnzyme:
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
                 structure = macrolactam_formation(structure, atom1)
-        elif self.type.name == "CYCLODEHYDRATION":
+        elif self.type.name == "CYCLODEHYDRASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
@@ -397,7 +397,7 @@ class TailoringEnzyme:
                 carbon_2 = structure.get_atom(atoms[1])
                 structure = excise_from_structure(
                     carbon_1, carbon_2, structure)
-        elif self.type.name == "HYDROLYSIS":
+        elif self.type.name == "HYDROLASE":
             for atoms in self.modification_sites:
                 if len(atoms) != 2:
                     continue
@@ -405,7 +405,7 @@ class TailoringEnzyme:
                 carbon = structure.get_atom(atoms[1]) # gets oh attached
                 bond = hetero_atom.get_bond(carbon)
                 structure = hydrolysis(structure, bond)
-        elif self.type.name == "REDUCTIVE_BOND_BREAKAGE":
+        elif self.type.name == "REDUCTIVE_LYASE":
             for atoms in self.modification_sites:
                 if len(atoms) != 2:
                     continue
@@ -436,12 +436,12 @@ class TailoringEnzyme:
 
     def get_possible_sites(self, structure, out_file=None):
         possible_sites = []
-        if self.type.name in ["HYDROXYLATION",]:
+        if self.type.name in ["HYDROXYLASE",]:
            possible_sites.extend([[atom] for atom in find_atoms_for_tailoring(structure, "C")])
         elif self.type.name in ["C_METHYLTRANSFERASE", "N_METHYLTRANSFERASE", "O_METHYLTRANSFERASE"]:
                 atom = self.type.name.split("_")[0]
                 possible_sites.extend([[atom] for atom in find_atoms_for_tailoring(structure, atom)])
-        elif self.type.name in ["REDUCTIVE_BOND_BREAKAGE","METHYLTRANSFERASE", "PRENYLTRANSFERASE", "ACETYLTRANSFERASE", "ACYLTRANSFERASE", "OXIDATIVE_BOND_FORMATION", "HALOGENASE", "SPLICEASE"]:
+        elif self.type.name in ["REDUCTIVE_LYASE","METHYLTRANSFERASE", "PRENYLTRANSFERASE", "ACETYLTRANSFERASE", "ACYLTRANSFERASE", "OXIDATIVE_BOND_SYNTHASE", "HALOGENASE", "SPLICEASE"]:
             possible_sites.extend([[atom] for atom in
                 find_atoms_for_tailoring(structure, "C")])
             possible_sites.extend([[atom] for atom in
@@ -451,19 +451,19 @@ class TailoringEnzyme:
             possible_sites.extend([[atom] for atom in
                 find_atoms_for_tailoring(structure, "S")])
 
-        elif self.type.name in ["EPOXIDATION", "DOUBLE_BOND_REDUCTION"]:
+        elif self.type.name in ["EPOXIDASE", "DOUBLE_BOND_REDUCTASE"]:
             peptide_bonds = find_bonds(
                 CC_DOUBLE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
 
-        elif self.type.name == "DOUBLE_BOND_FORMATION":
+        elif self.type.name == "DEHYDROGENASE":
             peptide_bonds = find_bonds(
                 CC_SINGLE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
 
-        elif self.type.name == "DOUBLE_BOND_SHIFT":
+        elif self.type.name == "DOUBLE_BOND_ISOMERASE":
             peptide_bonds = find_bonds(
                 CC_DOUBLE_BOND, structure)
             for bond in peptide_bonds:
@@ -507,7 +507,7 @@ class TailoringEnzyme:
                 PEPTIDE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
-        elif self.type.name in ["HYDROLYSIS"]:
+        elif self.type.name in ["HYDROLASE"]:
             ester_bonds = find_bonds(
                 ESTER_BOND, structure)
             for bond in ester_bonds:
@@ -516,7 +516,7 @@ class TailoringEnzyme:
             asp_glu_oxygen = find_atoms(
                 ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
             possible_sites.extend(asp_glu_oxygen)
-        elif self.type.name == "CYCLODEHYDRATION":
+        elif self.type.name == "CYCLODEHYDRASE":
             cys_ser_thr_x = find_atoms(
                 CYSTEINE, structure) + find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
             possible_sites.extend([[atom] for atom in cys_ser_thr_x])

@@ -1,13 +1,7 @@
-import os
 
 from pikachu.general import read_smiles
 from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner
 from raichu.reactions.general import initialise_atom_attributes
-
-import raichu.data
-
-FLATFILES = os.path.dirname(raichu.data.__file__)
-AA_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
 
 class PksElongationUnit:
@@ -41,24 +35,6 @@ class PksElongationUnit:
         if self.smiles == 'O=CCC':
             # TODO: CHECK CHIRALITY ACTUALLY WORKS!!!!
             self.c_to_pk_intermediate.chiral = 'clockwise'
-
-
-def parse_smiles():
-    """
-    Returns a dict as {name_aa : SMILES_aa} from the amino acids in the
-    PARAS_smiles.txt file
-    """
-    # Parse list SMILES amino acids attached to PCP to dict name -> Structure
-    name_to_smiles = {}
-    with open(AA_SMILES, 'r', encoding='utf8') as paras_smiles:
-        for line in paras_smiles:
-            line = line.strip()
-            print(line)
-            name, smiles = line.split('\t')
-            name = name.upper()
-            name_to_smiles[name] = smiles
-
-    return name_to_smiles
 
 
 def make_elongation_monomer(name):

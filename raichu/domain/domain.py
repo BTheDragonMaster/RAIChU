@@ -155,7 +155,6 @@ class RecognitionDomain(Domain):
         superclass = DomainSuperClass.from_string("RECOGNITION")
         domain_type = RecognitionDomainType.from_string(domain_type)
 
-
         if domain_subtype is not None:
             raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
 

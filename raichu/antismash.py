@@ -1,8 +1,9 @@
 import json
+import os
 import re
 from Bio import SeqIO
 from raichu.representations import ClusterRepresentation, ModuleRepresentation, DomainRepresentation
-from raichu.run_raichu import draw_cluster
+from raichu.run_raichu import draw_cluster,  build_cluster
 
 
 
@@ -196,6 +197,15 @@ def load_antismash_gbk(gbk_file, version=7.0):
     cluster_representation = map_domains_to_modules_gbk(gbk_file, domains)
     return cluster_representation
 
+
+def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
+    if not out_directory:
+        out_directory = os.path.splitext(gbk_file)[0]
+    if not os.path.exists(out_directory):
+        os.mkdir(out_directory)
+    cluster = load_antismash_gbk(gbk_file)
+    cluster.write_cluster(out_directory)
+    
 
 def refine_domain_js(start, gene, details_data_region):
     details_data_region_orf = [

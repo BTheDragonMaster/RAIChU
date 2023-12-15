@@ -4,7 +4,7 @@ ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	KS	UNST	None	True	True
 ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
-ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007480	0	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007475	1	PKS	PKS_TRANS	**Unknown**	1	MT	None	None	True	True
 ASG16_007475	1	PKS	PKS_TRANS	**Unknown**	1	KS	UNST	None	True	True
 ASG16_007475	1	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
@@ -14,7 +14,7 @@ ASG16_007475	1	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 ASG16_007475	2	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_OH	None	True	True
 ASG16_007475	2	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007475	2	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
-ASG16_007475	2	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007475	2	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007470	3	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHA_D_ME_SHDB	None	True	True
 ASG16_007470	3	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007470	3	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
@@ -26,7 +26,7 @@ ASG16_007465	4	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 ASG16_007465	5	PKS	PKS_TRANS	**Unknown**	1	KS	SHDB	None	True	True
 ASG16_007465	5	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007465	5	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
-ASG16_007465	5	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007465	5	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007465	6	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHA_D_ME_SHDB	None	True	True
 ASG16_007465	6	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007465	6	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
@@ -40,7 +40,7 @@ ASG16_007460	7	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 ASG16_007460	8	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_OH	None	True	True
 ASG16_007460	8	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007460	8	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
-ASG16_007460	8	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007460	8	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007455	9	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_BETAOH	None	True	True
 ASG16_007455	9	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007455	9	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
@@ -59,7 +59,7 @@ ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_ME	None	True	True
 ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
-ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007425	12	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007420	13	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_DB	None	True	True
 ASG16_007420	13	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007420	13	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
@@ -67,7 +67,7 @@ ASG16_007420	13	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 ASG16_007420	14	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_OH	None	True	True
 ASG16_007420	14	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ASG16_007420	14	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
-ASG16_007420	14	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ASG16_007420	14	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ASG16_007420	15	PKS	PKS_TRANS	**Unknown**	1	KS	NON_ELONGATING_DB	None	True	True
 ASG16_007415	15	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 ASG16_007415	15	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True

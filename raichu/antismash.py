@@ -105,6 +105,7 @@ antiSMASH_DOMAIN_TO_RAICHU_DOMAIN = {
     "Epimerization": "E",
     "Condensation": "C",
     "nMT": "nMT",
+    "PP-binding": "CP"
 }
 
 domains_to_be_refined = ["KR", "KS", "A", "AT"]

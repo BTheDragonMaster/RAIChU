@@ -3,7 +3,7 @@ sorA	0	PKS	PKS_TRANS	**Unknown**	1	KS	ST	None	True	True
 sorA	0	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorA	0	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 sorA	0	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
-sorA	0	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorA	0	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorA	1	PKS	PKS_TRANS	**Unknown**	1	KS	LACST	None	True	True
 sorA	1	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorA	1	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
@@ -16,7 +16,7 @@ sorA	2	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 sorA	3	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_DB	None	True	True
 sorA	3	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorA	3	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
-sorA	3	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorA	3	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorA	4	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHABETA_OH	None	True	True
 sorA	4	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorA	4	PKS	PKS_TRANS	**Unknown**	1	ACP_beta	None	None	True	True
@@ -26,11 +26,11 @@ sorA	5	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
 sorA	5	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 sorA	6	PKS	PKS_TRANS	**Unknown**	1	KS	NON_ELONGATING_BETA_OH	None	True	True
 sorB	6	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
-sorB	6	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorB	6	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorB	7	PKS	PKS_TRANS	**Unknown**	1	KS	NON_ELONGATING_DB	None	True	True
 sorB	7	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorB	7	PKS	PKS_TRANS	**Unknown**	1	PS	None	None	True	True
-sorB	7	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorB	7	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorB	8	PKS	PKS_TRANS	**Unknown**	1	KS	PYR	None	True	True
 sorB	8	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorB	8	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
@@ -39,11 +39,11 @@ sorB	9	PKS	PKS_TRANS	**Unknown**	1	KS	EDB	None	True	True
 sorB	9	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorB	9	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 sorB	9	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
-sorB	9	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorB	9	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorB	10	PKS	PKS_TRANS	**Unknown**	1	KS	RED	None	True	True
 sorB	10	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorC	10	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
-sorC	10	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorC	10	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorC	11	PKS	PKS_TRANS	**Unknown**	1	KS	DB	None	True	True
 sorC	11	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorC	11	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
@@ -52,7 +52,7 @@ sorD	11	PKS	PKS_TRANS	**Unknown**	1	ACP_beta	None	None	True	True
 sorD	12	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHABETA_OH	None	True	True
 sorD	12	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorD	12	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
-sorD	12	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorD	12	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorD	13	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_D_OH	None	True	True
 sorD	13	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorD	13	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
@@ -75,7 +75,7 @@ sorE	16	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 sorE	16	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
 sorG	17	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_BETA_OH	None	True	True
 sorG	17	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
-sorG	17	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorG	17	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorG	18	PKS	PKS_TRANS	**Unknown**	1	KS	BETA_D_OH	None	True	True
 sorG	18	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorG	18	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
@@ -93,7 +93,7 @@ sorH	20	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
 sorH	20	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 sorH	21	PKS	PKS_TRANS	**Unknown**	1	KS	NON_ELONGATING_BETA_OH	None	True	True
 sorI	21	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
-sorI	21	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+sorI	21	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 sorI	22	PKS	PKS_TRANS	**Unknown**	1	KS	EDB	None	True	True
 sorI	22	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 sorI	22	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True

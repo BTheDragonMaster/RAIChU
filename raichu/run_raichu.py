@@ -233,6 +233,11 @@ def get_tailoring_sites_atom_names(structure):
             structure)]
     return tailoring_sites
 
+def read_in_cluster(input_dir):
+    cluster_representation = ClusterRepresentation.from_file(input_dir)
+    print(cluster_representation)
+    cluster = build_cluster(cluster_representation, strict= False)
+    return cluster, cluster_representation
 
 if __name__ == "__main__":
     # atropopeptide

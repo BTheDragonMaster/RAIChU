@@ -182,6 +182,7 @@ class ModularCluster(Cluster):
             drawing = RaichuDrawer(structure, dont_show=True)
 
             drawing.flip_y_axis()
+            drawing.finetune_overlap_bubbles()
             drawing.move_to_positive_coords()
             drawing.convert_to_int()
 

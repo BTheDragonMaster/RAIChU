@@ -73,6 +73,13 @@ class RaichuDrawer(Drawer):
                         clashing_atoms.append((atom_1, atom_2))
 
         return clashing_atoms
+    
+    def find_out_of_bound_atoms(self, minimum_y) -> List[Tuple[Atom, Atom]]:
+        clashing_atoms = []
+        for i, atom in enumerate(self.drawn_atoms):
+            if atom.draw.position.y < minimum_y:
+                clashing_atoms.append(atom)
+        return clashing_atoms
 
     # TODO: add an option in pikachu Options object to set the min bond distance between which to consider fine-tuning
     def finetune_overlap_resolution(self, masked_bonds=None, highest_atom=None):
@@ -169,6 +176,111 @@ class RaichuDrawer(Drawer):
 
                 self.rotate_subtree(rotating_atom, parent_atom, math.radians(
                     30 * best_i + 1), parent_atom.draw.position)
+    
+    def finetune_overlap_bubbles(self, masked_bonds=None, highest_atom=None):
+
+        if not masked_bonds:
+            masked_bonds = set()
+
+        else:
+            masked_bonds = set(masked_bonds)
+        
+        #Find minimum y
+        for atom in self.structure.graph:
+            if atom.type == 'I':
+                if atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
+                    domain = atom
+        minimum_y = domain.draw.position.y
+        
+        clashing_atoms = self.find_out_of_bound_atoms(minimum_y)
+
+        best_bonds = []
+        for atom_1 in clashing_atoms:
+            
+
+            shortest_path = self.find_shortest_path(atom_1, domain)
+            rotatable_bonds = []
+            distances = []
+
+            for i, bond in enumerate(shortest_path):
+                distance_1 = i
+                distance_2 = len(shortest_path) - i
+
+                average_distance = len(shortest_path) / 2
+
+                distance_metric = abs(
+                    average_distance - distance_1) + abs(average_distance - distance_2)
+
+                if self.bond_is_rotatable(bond) and bond not in masked_bonds:
+                    rotatable_bonds.append(bond)
+                    distances.append(distance_metric)
+
+            best_bond = None
+            optimal_distance = float('inf')
+            for i, distance in enumerate(distances):
+                if distance < optimal_distance:
+                    # if highest_atom:
+                    #     if atom_1.draw.position.y < highest_atom.draw.position.y and \
+                    #             atom_2.draw.position.y < highest_atom.draw.position.y:
+                    #         best_bond = rotatable_bonds[i]
+                    #         optimal_distance = distance
+                    # else:
+                    best_bond = rotatable_bonds[i]
+                    optimal_distance = distance
+
+            if best_bond:
+                best_bonds.append(best_bond)
+
+        best_bonds = list(set(best_bonds))
+
+        for best_bond in best_bonds:
+            if len(self.find_out_of_bound_atoms(minimum_y))>0:
+
+                subtree_size_1 = self.get_subgraph_size(
+                    best_bond.atom_1, {best_bond.atom_2})
+                subtree_size_2 = self.get_subgraph_size(
+                    best_bond.atom_2, {best_bond.atom_1})
+
+                if subtree_size_1 < subtree_size_2:
+                    rotating_atom = best_bond.atom_1
+                    parent_atom = best_bond.atom_2
+                else:
+                    rotating_atom = best_bond.atom_2
+                    parent_atom = best_bond.atom_1
+
+                new_overlap_score, _, _ = self.get_overlap_score()
+
+                scores = [new_overlap_score]
+                overlappings = [len(self.find_out_of_bound_atoms(minimum_y))]
+
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    15), parent_atom.draw.position)
+
+                for i in range(12):
+                    self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                        30), parent_atom.draw.position)
+                    overlappings.append(len(self.find_out_of_bound_atoms(minimum_y)))
+                    new_overlap_score, _, _ = self.get_overlap_score()
+                    scores.append(new_overlap_score)
+
+                assert len(scores) == 13
+                scores = scores[:12]
+
+                assert len(overlappings) == 13
+                overlappings = overlappings[:12]
+
+                best_i = 0
+                best_overlapping = overlappings[0]
+
+                for i, overlapping in enumerate(overlappings):
+                    if overlapping < best_overlapping and scores[i] < self.options.overlap_sensitivity:
+                        best_overlapping = overlapping
+                        best_i = i
+
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    30 * best_i + 1), parent_atom.draw.position)
+                self.total_overlap_score = self.get_overlap_score()
+                
 
     def draw(self, coords_only: bool = False) -> None:
 

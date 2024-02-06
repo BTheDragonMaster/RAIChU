@@ -127,6 +127,6 @@ TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  "EXOMETHYLENE": True,
                                  "ALPHAME_ZDB": True,
                                  'ALPHA_D_ME_SHDB': True,
-                                 'ALPHAME_DB': True
+                                 'ALPHAME_DB': True,
                                  'ALPHAME_KETO': True,
                                  'NON_ELONGATING_SHDB': False}

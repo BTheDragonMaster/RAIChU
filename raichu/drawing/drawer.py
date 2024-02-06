@@ -1,8 +1,10 @@
 from collections import OrderedDict
-from typing import Optional
+from typing import Optional, List, Tuple, Dict, Set, Union
 
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
+from pikachu.chem.atom import Atom
+from pikachu.chem.bond import Bond
 
 from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, \
     find_central_chain_ripp, reorder_central_chain

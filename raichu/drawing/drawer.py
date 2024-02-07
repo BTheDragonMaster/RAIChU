@@ -237,12 +237,10 @@ class RaichuDrawer(Drawer):
         for best_bond in best_bonds:
             if len(self.find_out_of_bound_atoms(minimum_y))>0:
 
-                subtree_size_1 = self.get_subgraph_size(
-                    best_bond.atom_1, {best_bond.atom_2})
-                subtree_size_2 = self.get_subgraph_size(
-                    best_bond.atom_2, {best_bond.atom_1})
-
-                if subtree_size_1 < subtree_size_2:
+                path1 = self.find_shortest_path(best_bond.atom_1, domain)
+                path2 = self.find_shortest_path(best_bond.atom_2, domain)
+                
+                if len(path2) < len(path1):
                     rotating_atom = best_bond.atom_1
                     parent_atom = best_bond.atom_2
                 else:
@@ -274,7 +272,7 @@ class RaichuDrawer(Drawer):
                 best_overlapping = overlappings[0]
                 best_score = self.total_overlap_score
                 for i, overlapping in enumerate(overlappings):
-                    if overlapping < best_overlapping and scores[i] < self.options.overlap_sensitivity:
+                    if overlapping < best_overlapping and scores[i] < self.options.overlap_sensitivity + self.total_overlap_score:
                         best_overlapping = overlapping
                         best_i = i
                         best_score = scores[i]
@@ -787,10 +785,18 @@ class RaichuDrawer(Drawer):
                 if atom_1 == backbone_atoms[-1]:
                     continue
                 drawing_ring = self.get_ring(atom_1.draw.rings[0])
-                angle = get_angle(atom_1.draw.position,
-                                  drawing_ring.center)
+                center = Vector(0, 0)
+                for atom in drawing_ring.members:
+                    center.add(atom.draw.position)
 
-                desired_angle = 0.0
+                center.divide(len(drawing_ring.members))
+                angle = get_angle(atom_1.draw.position,
+                                  center)
+                
+                if backbone_to_placement[atom_1] == 'right':
+                    desired_angle = 180
+                else:
+                    desired_angle = 0.0
                 required_rotation_deg = desired_angle - angle
                 required_rotation_rad = math.radians(required_rotation_deg)
 
@@ -894,7 +900,6 @@ class RaichuDrawer(Drawer):
             self.place_top_atom(backbone_atoms, attachment_point)
 
         self.structure.refresh_structure()
-
         backbone, full_rings, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
         if len(domains) == 2:
             for domain in domains:
@@ -971,8 +976,7 @@ class RaichuDrawer(Drawer):
         atoms_in_rings = []
         for ring in full_rings:
             for atom in ring:
-                if atom != backbone_atoms[-1]:
-                    atoms_in_rings.append(atom)
+                atoms_in_rings.append(atom)
         atoms_in_rings = set(atoms_in_rings)
 
         self.fix_rings(rings, backbone, backbone_to_placement)
@@ -1224,15 +1228,15 @@ class RaichuDrawer(Drawer):
 
         return sidechain_bonds
 
-    def position_sidechains(self, backbone, backbone_to_placement, atoms_in_backbone_rings):
+    def position_sidechains(self, backbone, backbone_to_placement, atoms_in_rings):
 
         backbone_to_neighbours = {}
 
-        for backbone_atom in backbone[:-1]:
+        for backbone_atom in backbone:
             neighbours = []
             for neighbour in backbone_atom.neighbours:
                 if neighbour.type != 'H' and not neighbour.annotations.domain_type:
-                    if neighbour not in backbone and neighbour not in atoms_in_backbone_rings \
+                    if neighbour not in backbone and neighbour not in atoms_in_rings \
                             and neighbour not in neighbours:
                         neighbours.append(neighbour)
             backbone_to_neighbours[backbone_atom] = neighbours

@@ -16,17 +16,17 @@ def reorder_central_chain(central_chain, drawer):
         if atom.is_inside_ring(drawer.structure):
 
             ring_index = atom.get_ring_index(drawer.structure)
-
-            if (current_ring and ring_index == current_ring_index) or not current_ring:
-                full_ring = atom.get_ring(drawer.structure)
-                current_ring.append(atom)
-                current_ring_index = ring_index
-            else:
+            #append last ring once ring is over
+            if current_ring and ring_index != current_ring_index:
                 rings.append(current_ring)
                 full_rings.append(full_ring)
+            if (current_ring and ring_index == current_ring_index):
+                current_ring.append(atom)
+                current_ring_index = ring_index
+            else:        
+                full_ring = atom.get_ring(drawer.structure)
                 current_ring = [atom]
                 current_ring_index = ring_index
-
     rings.append(current_ring)
     full_rings.append(full_ring)
     new_rings = []

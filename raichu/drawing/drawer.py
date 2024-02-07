@@ -983,26 +983,26 @@ class RaichuDrawer(Drawer):
 
         self.position_sidechains(backbone, backbone_to_placement, atoms_in_rings)
 
-        #self.resolve_primary_overlaps()
-        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
-        central_chain_bonds = set()
+        # #self.resolve_primary_overlaps()
+        # self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+        # central_chain_bonds = set()
 
-        for bond in self.structure.bonds.values():
-            # if bond.atom_1.annotations.in_central_chain or \
-            #         bond.atom_2.annotations.in_central_chain:
-            if bond.atom_1 in backbone or bond.atom_2 in backbone:
-                central_chain_bonds.add(bond)
+        # for bond in self.structure.bonds.values():
+        #     # if bond.atom_1.annotations.in_central_chain or \
+        #     #         bond.atom_2.annotations.in_central_chain:
+        #     if bond.atom_1 in backbone or bond.atom_2 in backbone:
+        #         central_chain_bonds.add(bond)
 
-        self.finetune_overlap_resolution(
-            masked_bonds=central_chain_bonds, highest_atom=backbone[0])
+        # self.finetune_overlap_resolution(
+        #     masked_bonds=central_chain_bonds, highest_atom=backbone[0])
 
-        self.resolve_secondary_overlaps(sorted_overlap_scores)
+        # self.resolve_secondary_overlaps(sorted_overlap_scores)
 
-        if self.horizontal:
-            if horizontal_rotation == 'clockwise':
-                self.rotate_structure(-1.5707)
-            else:
-                self.rotate_structure(1.5707)
+        # if self.horizontal:
+        #     if horizontal_rotation == 'clockwise':
+        #         self.rotate_structure(-1.5707)
+        #     else:
+        #         self.rotate_structure(1.5707)
 
     def resolve_overlaps(self, linear: bool = True, masked_bonds: Optional[Set["Bond"]] = None) -> None:
         """
@@ -1229,7 +1229,7 @@ class RaichuDrawer(Drawer):
         return sidechain_bonds
 
     def position_sidechains(self, backbone, backbone_to_placement, atoms_in_rings):
-
+        backbone_atom_before = None
         backbone_to_neighbours = {}
 
         for backbone_atom in backbone:
@@ -1256,6 +1256,9 @@ class RaichuDrawer(Drawer):
                     desired_angle = 0.0
                 else:
                     raise ValueError("Placement must be 'left' or 'right'.")
+                # if ring in central chain but last member or tertiary carbon
+                if backbone_atom in atoms_in_rings and backbone_atom_before in atoms_in_rings and backbone_atom_before:
+                    desired_angle += 180
 
                 required_rotation_deg = desired_angle - current_angle
                 required_rotation_rad = math.radians(required_rotation_deg)
@@ -1287,6 +1290,7 @@ class RaichuDrawer(Drawer):
                 self.rotate_subtree(neighbour_2, backbone_atom, required_rotation_rad_2, backbone_atom.draw.position)
             else:
                 raise ValueError("Backbone atoms can only have two non-backbone neighbours at most")
+            backbone_atom_before = backbone_atom
 
 
     def plot_halflines_s_domain(self, line, ax, midpoint):

@@ -77,7 +77,7 @@ class RaichuDrawer(Drawer):
     def find_out_of_bound_atoms(self, minimum_y) -> List[Tuple[Atom, Atom]]:
         clashing_atoms = []
         for i, atom in enumerate(self.drawn_atoms):
-            if atom.draw.position.y < minimum_y:
+            if atom.draw.position.y < minimum_y and atom.type != 'I':
                 clashing_atoms.append(atom)
         return clashing_atoms
 
@@ -190,7 +190,8 @@ class RaichuDrawer(Drawer):
             if atom.type == 'I':
                 if atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
                     domain = atom
-        minimum_y = domain.draw.position.y
+        # Add also padding for hydrogens drawn as a atom label but not as an explicit hydrogen (e.g. HN)
+        minimum_y = domain.draw.position.y + 5
         
         clashing_atoms = self.find_out_of_bound_atoms(minimum_y)
 
@@ -271,15 +272,15 @@ class RaichuDrawer(Drawer):
 
                 best_i = 0
                 best_overlapping = overlappings[0]
-
+                best_score = self.total_overlap_score
                 for i, overlapping in enumerate(overlappings):
                     if overlapping < best_overlapping and scores[i] < self.options.overlap_sensitivity:
                         best_overlapping = overlapping
                         best_i = i
-
+                        best_score = scores[i]
                 self.rotate_subtree(rotating_atom, parent_atom, math.radians(
                     30 * best_i + 1), parent_atom.draw.position)
-                self.total_overlap_score = self.get_overlap_score()
+                self.total_overlap_score = best_score
                 
 
     def draw(self, coords_only: bool = False) -> None:
@@ -783,6 +784,8 @@ class RaichuDrawer(Drawer):
         for ring in rings:
             if len(ring) == 1:
                 atom_1 = ring[0]
+                if atom_1 == backbone_atoms[-1]:
+                    continue
                 drawing_ring = self.get_ring(atom_1.draw.rings[0])
                 angle = get_angle(atom_1.draw.position,
                                   drawing_ring.center)
@@ -968,14 +971,15 @@ class RaichuDrawer(Drawer):
         atoms_in_rings = []
         for ring in full_rings:
             for atom in ring:
-                atoms_in_rings.append(atom)
+                if atom != backbone_atoms[-1]:
+                    atoms_in_rings.append(atom)
         atoms_in_rings = set(atoms_in_rings)
 
         self.fix_rings(rings, backbone, backbone_to_placement)
 
         self.position_sidechains(backbone, backbone_to_placement, atoms_in_rings)
 
-        self.resolve_primary_overlaps()
+        #self.resolve_primary_overlaps()
         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
         central_chain_bonds = set()
 
@@ -988,7 +992,7 @@ class RaichuDrawer(Drawer):
         self.finetune_overlap_resolution(
             masked_bonds=central_chain_bonds, highest_atom=backbone[0])
 
-        # self.resolve_secondary_overlaps(sorted_overlap_scores)
+        self.resolve_secondary_overlaps(sorted_overlap_scores)
 
         if self.horizontal:
             if horizontal_rotation == 'clockwise':
@@ -1224,7 +1228,7 @@ class RaichuDrawer(Drawer):
 
         backbone_to_neighbours = {}
 
-        for backbone_atom in backbone:
+        for backbone_atom in backbone[:-1]:
             neighbours = []
             for neighbour in backbone_atom.neighbours:
                 if neighbour.type != 'H' and not neighbour.annotations.domain_type:

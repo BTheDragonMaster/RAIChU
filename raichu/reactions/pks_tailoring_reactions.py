@@ -45,17 +45,17 @@ S_KR = GroupDefiner('C1 atom before KR reaction', r'SC(C)=O', 0)
 ER_MMAL_CARBON = GroupDefiner('Chiral carbon atom after enoylreduction of mmal', r'SC(=O)C(C)CC', 3)
 ER_S_CARBON = GroupDefiner('S-carbon atom after enoylreduction of mmal', r'SC(=O)C(C)CC', 1)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND = BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond",
-                                                                         r"OC\C=C\CCC(S)=O", 0, 1)
+                                                                         r"[H]OC\C=C\CCC(S)=O", 1, 2)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND = BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond",
-                                                                        r"OCC\C=C\CCC(S)=O", 0, 1)
+                                                                        r"[H]OCC\C=C\CCC(S)=O", 1, 2)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA_WITH_DOUBLE_BOND_SHIFTED = BondDefiner("hydroxyl_group_two_module_upstream_alpha_with_double_bond_shifted",
-                                                                                 r"O\C=C\CCCC(S)=O", 0, 1)
+                                                                                 r"[H]O\C=C\CCCC(S)=O", 1, 2)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA_WITH_DOUBLE_BOND_SHIFTED = BondDefiner("hydroxyl_group_two_module_upstream_beta_with_double_bond_shifted",
-                                                                                r"OC\C=C\CCCC(S)=O", 0, 1)
+                                                                                r"[H]OC\C=C\CCCC(S)=O", 1, 2)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_ALPHA = BondDefiner("hydroxyl_group_two_module_upstream_alpha",
-                                                        "OCCCCCC(S)=O", 0, 1)
+                                                        "[H]OCCCCCC(S)=O", 1, 2)
 HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA = BondDefiner("hydroxyl_group_two_module_upstream_beta",
-                                                       "OCCCCCCC(S)=O", 0, 1)
+                                                       "[H]OCCCCCCC(S)=O", 1, 2)
 
 # STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
 
@@ -487,17 +487,14 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     structure_oh, did_reduction = ketoreduction(structure, KRDomainSubtype(1))
     if not did_reduction:
         return structure, False
-
     oh_bond = find_OH_two_modules_upstream(structure_oh)
     if not oh_bond:
         print("No hydroxy group two modules upstream availiable")
         return structure, False
-
     oh_bond = oh_bond[0]
     h_bond = find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]
-    structure_oh = internal_condensation(structure_oh, oh_bond, h_bond)[0]
-
-    return structure_oh, True
+    structure_ohh = internal_condensation(structure_oh, oh_bond, h_bond)[0]
+    return structure_ohh, True
 
 
 def alpha_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
@@ -725,7 +722,6 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
     chain_intermediate.refresh_structure()
 
     # implement stereochemistry
-    print(chirality)
     if chirality:
 
         main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
@@ -736,7 +732,6 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
             main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL, chain_intermediate)[0]
         else:
             main_chain_bottom_h = main_chain_bottom_h[0]
-        print(main_chain_bottom_c,main_chain_bottom_h, main_chain_top_c, main_chain_top_h)
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},

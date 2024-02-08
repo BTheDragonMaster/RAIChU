@@ -6,6 +6,7 @@ from pikachu.chem.chirality import same_chirality
 from pikachu.chem.structure import Structure
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
+from raichu.reactions.pks_sidechain_chirality import set_sidechain_chirality
 from raichu.reactions.general_tailoring_reactions import single_bond_oxidation
 from pikachu.general import read_smiles
 from pikachu.drawing.drawing import Drawer
@@ -70,6 +71,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     """
 
     if kr_type.name == 'C1':
+        set_sidechain_chirality(chain_intermediate)
         return chain_intermediate, False
 
     chiral_c = None
@@ -82,6 +84,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     beta_ketone_bonds = find_bonds(RECENT_ELONGATION, chain_intermediate)
 
     if not len(beta_ketone_bonds) == 1:
+        set_sidechain_chirality(chain_intermediate)
         return chain_intermediate, False
 
     beta_ketone_bond = beta_ketone_bonds[0]
@@ -722,10 +725,16 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
     else:
         chain_intermediate = structure_2
 
+    print(structure_1.graph)
+    print(structure_2.graph)
+
     chain_intermediate.refresh_structure()
 
     # implement stereochemistry
     print(chirality)
+    print(double_bond.chiral_dict)
+    print(double_bond)
+
     if chirality:
 
         main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
@@ -736,7 +745,7 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
             main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL, chain_intermediate)[0]
         else:
             main_chain_bottom_h = main_chain_bottom_h[0]
-        print(main_chain_bottom_c,main_chain_bottom_h, main_chain_top_c, main_chain_top_h)
+        print(main_chain_bottom_c, main_chain_bottom_h, main_chain_top_c, main_chain_top_h)
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},

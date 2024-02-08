@@ -237,4 +237,8 @@ ATTACHED_SERINE_OX = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 0)
 ATTACHED_CYSTEINE_OX = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 0)
 ATTACHED_SERINE_O = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 5)
 ATTACHED_CYSTEINE_S = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 5)
+METHYLMALONYL_SIDECHAIN_CARBON = GroupDefiner("mmal_sidechain_c", "SC(=O)C(C)C(=O)", 4)
+METHYLMALONYL_SULPHUR_CARBON = GroupDefiner("mmal_sidechain_sc", "SC(=O)C(C)C(=O)", 1)
+METHYLMALONYL_MAINCHAIN_CARBON = GroupDefiner("mmal_sidechain_mc", "SC(=O)C(C)C(=O)", 5)
+METHYLMALONYL_CHIRAL_CARBON = GroupDefiner("mmal_sidechain_mc", "SC(=O)C(C)C(=O)", 3)
 

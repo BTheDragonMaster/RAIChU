@@ -4,7 +4,7 @@ from sys import argv
 from raichu.run_raichu import draw_cluster
 from raichu.representations import ClusterRepresentation, ModuleRepresentation, DomainRepresentation
 from paras.features import _METADATA
-from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate, 
+from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate 
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 import traceback
 import timeout_decorator
@@ -76,8 +76,7 @@ def generate_domain(gene_nr, domain_type, domain_subtype=None, name=None, active
     return domain, gene_nr
 
 
-def generate_cis_pks_module(gene_nr: int, module_nr: int, terminal_module: bool = False) -> \
-        tuple[ModuleRepresentation, int]:
+def generate_cis_pks_module(gene_nr: int, module_nr: int, terminal_module: bool = False) -> tuple[ModuleRepresentation, int]:
 
     ks_domain = None
     kr_domain = None
@@ -248,7 +247,7 @@ def generate_trans_pks_module(gene_nr: int, module_nr: int, terminal_module: boo
 
     else:
         substrate = random.choice(PKS_ELONGATION_SUBSTRATE_CHOICES)
-        ks_subtype = random.choice(TRANSATOR_CLADE_TO_ELONGATING)
+        ks_subtype = random.choice(list(TRANSATOR_CLADE_TO_ELONGATING.keys()))
         ks_domain, gene_nr = generate_domain(gene_nr, "KS", ks_subtype)
 
     has_unknown_domains = choose(1, 10)
@@ -364,14 +363,14 @@ def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True
         print(traceback.format_exc())
 
 
-def generate_random_clusters(nr_clusters, out_folder, nrps=True, cis_pks=True):
+def generate_random_clusters(nr_clusters, out_folder, nrps=True, cis_pks=True, trans_pks=True):
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
 
     for i in range(nr_clusters):
         nr_modules = random.randint(2, 13)
         print(f"Drawing cluster {i + 1}")
-        generate_modular_cluster(nr_modules, out_folder, i + 1, nrps=nrps, cis_pks=cis_pks)
+        generate_modular_cluster(nr_modules, out_folder, i + 1, nrps=nrps, cis_pks=cis_pks, trans_pks=trans_pks)
 
 
 if __name__ == "__main__":
@@ -385,9 +384,9 @@ if __name__ == "__main__":
     pks_folder = os.path.join(out_folder, "pks")
     hybrid_folder = os.path.join(out_folder, "hybrid")
 
-    generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
-    generate_random_clusters(100, cis_at_pks_folder, nrps=False,
-                             cis_pks=True, trans_pks=False)
+    #generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
+    #generate_random_clusters(100, cis_at_pks_folder, nrps=False,
+    #                        cis_pks=True, trans_pks=False)
     generate_random_clusters(100, trans_at_pks_folder, nrps=False,
                              cis_pks=False, trans_pks=True)
     generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True, trans_pks=True)

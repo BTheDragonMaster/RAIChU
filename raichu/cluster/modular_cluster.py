@@ -33,6 +33,8 @@ class ModularCluster(Cluster):
         for i, module in enumerate(self.modules):
             if module.type.name == "PKS" and module.subtype.name == "PKS_TRANS":
                 substrate = PKSSubstrate("MALONYL_COA")
+                if module.is_starter_module:
+                    substrate = PKSSubstrate("ACETYL_COA")
                 if i < len(self.modules) - 1:
                     j = i + 1
                     next_module = self.modules[j]

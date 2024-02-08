@@ -7,7 +7,7 @@ from paras.features import _METADATA
 from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 import traceback
-
+import timeout_decorator
 
 PROTEINOGENIC_AA = ['alanine',
                     'cysteine',
@@ -233,7 +233,15 @@ def generate_trans_pks_module(gene_nr, module_nr, terminal_module=False):
     # return module, gene_nr
 
 
-def generate_modular_cluster(nr_modules, drawing_dir, failed_dir, cluster_nr, cis_pks=True, nrps=True):
+@timeout_decorator.timeout(60)
+def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True, nrps=True):
+    drawing_dir = os.path.join(output_folder, 'drawings')
+    cluster_dir = os.path.join(output_folder, 'clusters')
+
+    if not os.path.exists(drawing_dir):
+        os.mkdir(drawing_dir)
+    if not os.path.exists(cluster_dir):
+        os.mkdir(cluster_dir)
 
     gene_nr = 1
     choices = []
@@ -268,6 +276,9 @@ def generate_modular_cluster(nr_modules, drawing_dir, failed_dir, cluster_nr, ci
         modules.append(module)
 
     cluster = ClusterRepresentation(modules)
+    cluster_out = os.path.join(cluster_dir, f'cluster_{cluster_nr}')
+    cluster.write_cluster(cluster_out)
+
     try:
         drawing_out = os.path.join(drawing_dir, f"cluster_{cluster_nr}.svg")
         draw_cluster(cluster, drawing_out)
@@ -275,26 +286,16 @@ def generate_modular_cluster(nr_modules, drawing_dir, failed_dir, cluster_nr, ci
     except Exception:
         print(cluster.modules[0].substrate)
         print(traceback.format_exc())
-        failed_out = os.path.join(failed_dir, f"cluster_{cluster_nr}")
-        cluster.write_cluster(failed_out)
 
 
 def generate_random_clusters(nr_clusters, out_folder, nrps=True, cis_pks=True):
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
 
-    drawing_dir = os.path.join(out_folder, 'drawings')
-    failed_dir = os.path.join(out_folder, 'failed')
-
-    if not os.path.exists(drawing_dir):
-        os.mkdir(drawing_dir)
-    if not os.path.exists(failed_dir):
-        os.mkdir(failed_dir)
-
     for i in range(nr_clusters):
         nr_modules = random.randint(2, 13)
         print(f"Drawing cluster {i + 1}")
-        generate_modular_cluster(nr_modules, drawing_dir, failed_dir, i + 1, nrps=nrps, cis_pks=cis_pks)
+        generate_modular_cluster(nr_modules, out_folder, i + 1, nrps=nrps, cis_pks=cis_pks)
 
 
 if __name__ == "__main__":
@@ -306,9 +307,9 @@ if __name__ == "__main__":
     pks_folder = os.path.join(out_folder, "pks")
     hybrid_folder = os.path.join(out_folder, "hybrid")
 
-    generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False)
-    generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True)
-    generate_random_clusters(100, hybrid_folder, nrps=True, cis_pks=True)
+    # generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True)
+    generate_random_clusters(400, hybrid_folder, nrps=True, cis_pks=True)
+    # generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False)
 
 
 

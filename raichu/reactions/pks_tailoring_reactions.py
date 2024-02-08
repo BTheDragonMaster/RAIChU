@@ -59,6 +59,7 @@ HYDROXYL_GROUP_TWO_MODULES_UPSTREAM_BETA = BondDefiner("hydroxyl_group_two_modul
 
 # STILL MISSING: E/Z-configured double bonds, E/Z-Gamma-beta-dehydrogenase
 
+
 def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tuple[Structure, bool]:
     """
     Performs the ketoreductase reaction on the PKS chain intermediate, returns
@@ -290,7 +291,6 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H, chain_intermediate)
         main_chain_bottom_h = find_atoms(
             RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
-        
 
         if not main_chain_top_h:
             main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]

@@ -63,6 +63,7 @@ def pks_elongation(chain_intermediate, elongation_monomer):
         atom.hybridise()
     for bond in thioester_bonds[:]:
         chain_intermediate.break_bond(bond)
+
     chain_intermediate.get_connectivities()
     chain_intermediate.set_connectivities()
     chain_intermediate.set_atom_neighbours()
@@ -86,6 +87,7 @@ def pks_elongation(chain_intermediate, elongation_monomer):
     new_bond_nr = combined.find_next_bond_nr()
     combined.make_bond(elongation_monomer.c_to_pk_intermediate, c_pkchain, new_bond_nr)
     new_bond_nr = combined.find_next_bond_nr()
+
     combined.make_bond(elongation_monomer.c_to_s, s_pkchain, new_bond_nr)
     combined.get_connectivities()
     combined.set_connectivities()

@@ -804,7 +804,16 @@ class RaichuDrawer(Drawer):
                 required_rotation_deg = desired_angle - angle
                 required_rotation_rad = math.radians(required_rotation_deg)
 
-                for atom in drawing_ring.members:
+                masked = {atom_1}
+                first_atom_cycle = None
+                for next_atom in atom_1.neighbours:
+                    if next_atom.type != 'H' and next_atom not in backbone_atoms and next_atom in drawing_ring.members:
+                        first_atom_cycle = next_atom
+
+                assert first_atom_cycle
+
+                # for atom in drawing_ring.members:
+                for atom in self.traverse_substructure(first_atom_cycle, masked):
                     if atom != atom_1:
                         atom.draw.position.rotate_around_vector(required_rotation_rad, atom_1.draw.position)
 

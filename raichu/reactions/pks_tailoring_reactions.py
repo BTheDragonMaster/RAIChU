@@ -680,8 +680,6 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
         if neighbour != c2:
             c1 = neighbour
 
-    # Remove hydroxyl group from c2
-    chain_intermediate.break_bond(co_bond)
 
     # Remove H-atom from c1
     bond_to_break = None
@@ -696,7 +694,11 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
                         bond_to_break = bond
                     break
 
-    assert bond_to_break and hydrogen
+    if not bond_to_break or not hydrogen:
+        return chain_intermediate, False
+    
+    # Remove hydroxyl group from c2
+    chain_intermediate.break_bond(co_bond)
 
     chain_intermediate.break_bond(bond_to_break)
 

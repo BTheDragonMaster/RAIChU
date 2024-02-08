@@ -371,10 +371,7 @@ def load_antismash_js(js_file, region, version=7.0):
 
 
 if __name__ == "__main__":
-    # print(load_antismash_js("examples/regions_NC_016111.js", "r1c18"))
-    # draw_cluster(load_antismash_js("examples/regions_NC_016111.js", "r1c18"), out_file= "antismash_cluster.svg")
-    print(load_antismash_gbk("examples/NC_003888.3.region010.gbk"))
     draw_cluster(
-        load_antismash_gbk("examples/NC_003888.3.region010.gbk"),
-        out_file="antismash_cluster.svg",
+        load_antismash_gbk(argv[1]),
+        out_file=argv[2],
     )

@@ -4,10 +4,11 @@ from sys import argv
 from raichu.run_raichu import draw_cluster
 from raichu.representations import ClusterRepresentation, ModuleRepresentation, DomainRepresentation
 from paras.features import _METADATA
-from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate
+from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate, 
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 import traceback
 import timeout_decorator
+from raichu.data.trans_at import TRANSATOR_CLADE_TO_ELONGATING
 
 PROTEINOGENIC_AA = ['alanine',
                     'cysteine',
@@ -228,13 +229,85 @@ def generate_nrps_module(gene_nr, module_nr, terminal_module=False):
     return module, gene_nr
 
 
-def generate_trans_pks_module(gene_nr, module_nr, terminal_module=False):
-    pass
-    # return module, gene_nr
+def generate_trans_pks_module(gene_nr: int, module_nr: int, terminal_module: bool = False) -> \
+        tuple[ModuleRepresentation, int]:
+
+    ks_domain = None
+    kr_domain = None
+    dh_domain = None
+    er_domain = None
+    te_domain = None
+
+    unknown_domains = []
+
+    if module_nr == 0:
+        substrate = random.choice(PKS_STARTER_SUBSTRATE_CHOICES)
+        has_ks = choose(1, 10)
+        if has_ks:
+            ks_domain, gene_nr = generate_domain(gene_nr, "KS")
+
+    else:
+        substrate = random.choice(PKS_ELONGATION_SUBSTRATE_CHOICES)
+        ks_subtype = random.choice(TRANSATOR_CLADE_TO_ELONGATING)
+        ks_domain, gene_nr = generate_domain(gene_nr, "KS", ks_subtype)
+
+    has_unknown_domains = choose(1, 10)
+    nr_unknowns = 0
+    if has_unknown_domains:
+        nr_unknowns = random.choice([1] * 15 + [2] * 4 + [3] * 1)
+
+    has_kr = choose(1, 1)
+    has_dh = choose(1, 9)
+    has_er = choose(1, 19)
+
+    if has_kr:
+
+        has_dh = random.choice([True, False])
+        if has_dh:
+            has_er = random.choice([True, False])
+
+    if has_dh:
+        dh_active = choose(19, 1)
+        dh_domain, gene_nr = generate_domain(gene_nr, "DH", active=dh_active)
+
+    if has_er:
+        er_active = choose(19, 1)
+        er_domain_subtype = random.choice(ER_DOMAIN_SUBTYPE_CHOICES)
+        er_domain, gene_nr = generate_domain(
+            gene_nr, 'ER', er_domain_subtype, active=er_active)
+
+    if has_kr:
+        kr_domain_subtype = random.choice(KR_DOMAIN_SUBTYPE_CHOICES)
+        kr_active = choose(19, 1)
+        kr_domain, gene_nr = generate_domain(
+            gene_nr, "KR", kr_domain_subtype, active=kr_active)
+
+    for i in range(nr_unknowns):
+        domain, gene_nr = generate_domain(
+            gene_nr, "UNKNOWN", name=f"unknown_{i + 1}")
+        unknown_domains.append(domain)
+
+    acp_domain, gene_nr = generate_domain(gene_nr, "ACP")
+
+    if terminal_module:
+        domain_type = random.choice(TERMINATION_DOMAIN_CHOICES)
+        te_domain, gene_nr = generate_domain(gene_nr, domain_type)
+
+    putative_domains = [ks_domain, dh_domain, er_domain, kr_domain] + unknown_domains + \
+                       [acp_domain, te_domain]
+
+    domains: list[DomainRepresentation] = []
+    for domain in putative_domains:
+        if domain:
+            domains.append(domain)
+
+    module = ModuleRepresentation("PKS", "PKS_TRANS", substrate, domains)
+
+    return module, gene_nr
 
 
 @timeout_decorator.timeout(60)
-def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True, nrps=True):
+def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True, nrps=True, trans_pks=True):
     drawing_dir = os.path.join(output_folder, 'drawings')
     cluster_dir = os.path.join(output_folder, 'clusters')
 
@@ -247,6 +320,8 @@ def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True
     choices = []
     if cis_pks:
         choices.append('cis-pks')
+    if trans_pks:
+        choices.append('trans-pks')
     if nrps:
         choices.append('nrps')
 
@@ -269,7 +344,8 @@ def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True
         elif module_type == 'nrps':
             module, gene_nr = generate_nrps_module(gene_nr, i, terminal_module)
         elif module_type == 'trans-pks':
-            raise NotImplementedError
+            module, gene_nr = generate_trans_pks_module(
+                gene_nr, i, terminal_module)
         else:
             raise ValueError(f"Module type must be 'cis-pks', 'nrps', 'trans-pks'. Got f{module_type}")
 
@@ -304,12 +380,18 @@ if __name__ == "__main__":
         os.mkdir(out_folder)
 
     nrps_folder = os.path.join(out_folder, "nrps")
+    cis_at_pks_folder = os.path.join(out_folder, "cis_at_pks")
+    trans_at_pks_folder = os.path.join(out_folder, "trans_at_pks")
     pks_folder = os.path.join(out_folder, "pks")
     hybrid_folder = os.path.join(out_folder, "hybrid")
 
-    # generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True)
-    generate_random_clusters(400, hybrid_folder, nrps=True, cis_pks=True)
-    # generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False)
+    generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
+    generate_random_clusters(100, cis_at_pks_folder, nrps=False,
+                             cis_pks=True, trans_pks=False)
+    generate_random_clusters(100, trans_at_pks_folder, nrps=False,
+                             cis_pks=False, trans_pks=True)
+    generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True, trans_pks=True)
+    generate_random_clusters(100, hybrid_folder, nrps=True, cis_pks=True, trans_pks=True)
 
 
 

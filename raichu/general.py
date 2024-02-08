@@ -51,10 +51,6 @@ def draw_ripp_structure_from_ripp_cluster(ripp_cluster: RiPPCluster, out_folder:
         os.mkdir(out_folder)
 
     ripp_cluster.make_peptide()
-    ripp_cluster.draw_product(
-        as_string=False, out_file=os.path.join(out_folder, "peptide_test_ripp.svg"))
-    ripp_cluster.draw_cluster(as_string=False, out_file=os.path.join(out_folder, 'ripp_inline.svg'))
-
     order = []
 
     ripp_cluster.do_tailoring()
@@ -74,7 +70,9 @@ def draw_ripp_structure_from_ripp_cluster(ripp_cluster: RiPPCluster, out_folder:
         ripp_cluster.draw_product(
             as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg"))
         order.append('cleavage')
-
+    ripp_cluster.draw_product(
+        as_string=False, out_file=os.path.join(out_folder, "peptide_test_ripp.svg"))
+    ripp_cluster.draw_cluster(as_string=False, out_file=os.path.join(out_folder, 'ripp_inline.svg'))
     ripp_cluster.draw_pathway(out_file=os.path.join(out_folder, "ripp_pathway.svg"), order=tuple(order))
 
 

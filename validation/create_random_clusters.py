@@ -306,9 +306,9 @@ if __name__ == "__main__":
     pks_folder = os.path.join(out_folder, "pks")
     hybrid_folder = os.path.join(out_folder, "hybrid")
 
-    generate_random_clusters(500, nrps_folder, nrps=True, cis_pks=False)
-    generate_random_clusters(500, pks_folder, nrps=False, cis_pks=True)
-    generate_random_clusters(500, hybrid_folder, nrps=True, cis_pks=True)
+    generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False)
+    generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True)
+    generate_random_clusters(100, hybrid_folder, nrps=True, cis_pks=True)
 
 
 

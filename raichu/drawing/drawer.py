@@ -74,7 +74,7 @@ class RaichuDrawer(Drawer):
 
         return clashing_atoms
     
-    def find_out_of_bound_atoms(self, minimum_y) -> List[Tuple[Atom, Atom]]:
+    def find_out_of_bound_atoms(self, minimum_y) -> List[Atom]:
         clashing_atoms = []
         for i, atom in enumerate(self.drawn_atoms):
             if atom.draw.position.y < minimum_y and atom.type != 'I':
@@ -184,20 +184,24 @@ class RaichuDrawer(Drawer):
 
         else:
             masked_bonds = set(masked_bonds)
+
+        domain = None
         
-        #Find minimum y
+        # Find minimum y
+
         for atom in self.structure.graph:
             if atom.type == 'I':
                 if atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
                     domain = atom
         # Add also padding for hydrogens drawn as a atom label but not as an explicit hydrogen (e.g. HN)
+        assert domain is not None
+
         minimum_y = domain.draw.position.y + 5
         
         clashing_atoms = self.find_out_of_bound_atoms(minimum_y)
 
         best_bonds = []
         for atom_1 in clashing_atoms:
-            
 
             shortest_path = self.find_shortest_path(atom_1, domain)
             rotatable_bonds = []
@@ -983,26 +987,26 @@ class RaichuDrawer(Drawer):
 
         self.position_sidechains(backbone, backbone_to_placement, atoms_in_rings)
 
-        # #self.resolve_primary_overlaps()
-        # self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
-        # central_chain_bonds = set()
+        # self.resolve_primary_overlaps()
+        self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+        central_chain_bonds = set()
 
-        # for bond in self.structure.bonds.values():
-        #     # if bond.atom_1.annotations.in_central_chain or \
-        #     #         bond.atom_2.annotations.in_central_chain:
-        #     if bond.atom_1 in backbone or bond.atom_2 in backbone:
-        #         central_chain_bonds.add(bond)
+        for bond in self.structure.bonds.values():
+            # if bond.atom_1.annotations.in_central_chain or \
+            #         bond.atom_2.annotations.in_central_chain:
+            if bond.atom_1 in backbone or bond.atom_2 in backbone:
+                central_chain_bonds.add(bond)
 
-        # self.finetune_overlap_resolution(
-        #     masked_bonds=central_chain_bonds, highest_atom=backbone[0])
+        self.finetune_overlap_resolution(
+            masked_bonds=central_chain_bonds, highest_atom=backbone[0])
 
-        # self.resolve_secondary_overlaps(sorted_overlap_scores)
+        self.resolve_secondary_overlaps(sorted_overlap_scores)
 
-        # if self.horizontal:
-        #     if horizontal_rotation == 'clockwise':
-        #         self.rotate_structure(-1.5707)
-        #     else:
-        #         self.rotate_structure(1.5707)
+        if self.horizontal:
+            if horizontal_rotation == 'clockwise':
+                self.rotate_structure(-1.5707)
+            else:
+                self.rotate_structure(1.5707)
 
     def resolve_overlaps(self, linear: bool = True, masked_bonds: Optional[Set["Bond"]] = None) -> None:
         """

@@ -16,7 +16,7 @@ def reorder_central_chain(central_chain, drawer):
         if atom.is_inside_ring(drawer.structure):
 
             ring_index = atom.get_ring_index(drawer.structure)
-            #append last ring once ring is over
+            # append last ring once ring is over
             if current_ring and ring_index != current_ring_index:
                 rings.append(current_ring)
                 full_rings.append(full_ring)

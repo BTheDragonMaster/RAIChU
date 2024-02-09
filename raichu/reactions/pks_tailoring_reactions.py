@@ -36,7 +36,6 @@ RECENT_REDUCTION_TOP_METHOXY = GroupDefiner(
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', r'[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', r'[H]C(C)=C([H])C(S)=O', 0)
 
-
 RECENT_REDUCTION_SHIFTED_TOP_C = GroupDefiner('recent_reduction_shifted_top_c', r'[H]\C(C)=C(\[H])CC(S)=O', 5)
 RECENT_REDUCTION_SHIFTED_TOP_H = GroupDefiner('recent_reduction_shifted_top_h', r'[H]\C(C)=C(\[H])CC(S)=O', 4)
 RECENT_REDUCTION_SHIFTED_BOTTOM_C = GroupDefiner('recent_reduction_shifted_bottom_c', r'[H]\C(C)=C(\[H])CC(S)=O', 2)
@@ -225,6 +224,8 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
     co_bonds = find_bonds(RECENT_REDUCTION_COH, chain_intermediate)
     cc_bonds = find_bonds(RECENT_REDUCTION_CC, chain_intermediate)
 
+    #check if H attached to O
+    hydrogen = None
     if not len(co_bonds) == 1 or not len(cc_bonds) == 1:
         return chain_intermediate, False
 
@@ -239,6 +240,8 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
             c2 = neighbour
         elif neighbour.type == 'O':
             o_oh = neighbour
+            if "H" not in [atom.type for atom in neighbour.neighbours]:
+                return chain_intermediate, False
 
     cc_bond = cc_bonds[0]
 
@@ -309,6 +312,10 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
                 neighbour for neighbour in c2.neighbours if not neighbour.annotations.in_central_chain][0]
         else:
             main_chain_bottom_h = main_chain_bottom_h[0]
+        
+        #If not all can be found, dont do stereochemistry (sometimes for cyclic substrates before)
+        if not main_chain_top_h or not main_chain_bottom_h or not main_chain_top_c or not main_chain_bottom_c:
+            return chain_intermediate, True
         
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
@@ -495,10 +502,19 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     if not did_reduction:
         return structure, False
     oh_bond = find_OH_two_modules_upstream(structure_oh)
+    oxygen = None
+
     if not oh_bond:
         print("No hydroxy group two modules upstream availiable")
         return structure, False
     oh_bond = oh_bond[0]
+    for atom in oh_bond.neighbours:
+        if atom.type == 'O' and atom.has_neighbour('H'):
+            oxygen = atom
+    if not oxygen:
+        print("No hydroxy group two modules upstream availiable")
+        return structure, False
+    
     h_bond = find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]
     structure_ohh = internal_condensation(structure_oh, oh_bond, h_bond)[0]
     return structure_ohh, True

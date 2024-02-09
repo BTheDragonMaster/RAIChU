@@ -31,6 +31,8 @@ RECENT_REDUCTION_TOP_C = GroupDefiner('recent_reduction_top_c', r'[H]C(C)=C([H])
 RECENT_REDUCTION_TOP_H = GroupDefiner('recent_reduction_top_h', r'[H]C(C)=C([H])C(S)=O', 4)
 # RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]\C(C)=C(\C)C(S)=O', 4)
 RECENT_REDUCTION_TOP_METHYL = GroupDefiner('recent_reduction_top_methyl', r'[H]C(C)=C(C)C(S)=O', 4)
+RECENT_REDUCTION_TOP_METHOXY = GroupDefiner(
+    'recent_reduction_top_methoxy', r'[H]C(C)=C(OC)C(S)=O', 4)
 RECENT_REDUCTION_BOTTOM_C = GroupDefiner('recent_reduction_bottom_c', r'[H]C(C)=C([H])C(S)=O', 2)
 RECENT_REDUCTION_BOTTOM_H = GroupDefiner('recent_reduction_bottom_h', r'[H]C(C)=C([H])C(S)=O', 0)
 
@@ -293,9 +295,14 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
             RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
 
         if not main_chain_top_h:
-            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0]
-        else:
+            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)
+        if not main_chain_top_h:
+            main_chain_top_h = find_atoms(
+                RECENT_REDUCTION_TOP_METHOXY, chain_intermediate)
+        if main_chain_top_h:
             main_chain_top_h = main_chain_top_h[0]
+            
+            
         if not main_chain_bottom_h:
 
             main_chain_bottom_h = [

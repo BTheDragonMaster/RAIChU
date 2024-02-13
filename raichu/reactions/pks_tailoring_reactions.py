@@ -6,9 +6,9 @@ from pikachu.chem.chirality import same_chirality
 from pikachu.chem.structure import Structure
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
+from raichu.reactions.pks_sidechain_chirality import set_sidechain_chirality
 from raichu.reactions.general_tailoring_reactions import single_bond_oxidation
 from pikachu.general import read_smiles
-from pikachu.drawing.drawing import Drawer
 from raichu.data.attributes import ATTRIBUTES
 
 FIRST_C = GroupDefiner('first_c', r'CC(S)=O', 1)
@@ -71,6 +71,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     """
 
     if kr_type.name == 'C1':
+        set_sidechain_chirality(chain_intermediate)
         return chain_intermediate, False
 
     chiral_c = None
@@ -83,6 +84,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
     beta_ketone_bonds = find_bonds(RECENT_ELONGATION, chain_intermediate)
 
     if not len(beta_ketone_bonds) == 1:
+        set_sidechain_chirality(chain_intermediate)
         return chain_intermediate, False
 
     beta_ketone_bond = beta_ketone_bonds[0]
@@ -291,27 +293,22 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
     double_bond = chain_intermediate.bond_lookup[c1][c2]
     # implement stereochemistry
     if chirality:
-        main_chain_top_c = find_atoms(RECENT_REDUCTION_TOP_C, chain_intermediate)[0]
-        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_BOTTOM_C, chain_intermediate)[0]
+        main_chain_top_c = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_TOP_C, chain_intermediate)[0])
+        main_chain_bottom_c = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_BOTTOM_C, chain_intermediate)[0])
         main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_H, chain_intermediate)
-        main_chain_bottom_h = find_atoms(
-            RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
+        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
 
         if not main_chain_top_h:
-            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)
-        if not main_chain_top_h:
-            main_chain_top_h = find_atoms(
-                RECENT_REDUCTION_TOP_METHOXY, chain_intermediate)
-        if main_chain_top_h:
-            main_chain_top_h = main_chain_top_h[0]
-            
-            
+
+            main_chain_top_h = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0])
+        else:
+            main_chain_top_h = chain_intermediate.get_atom(main_chain_top_h[0])
+
         if not main_chain_bottom_h:
 
-            main_chain_bottom_h = [
-                neighbour for neighbour in c2.neighbours if not neighbour.annotations.in_central_chain][0]
+            main_chain_bottom_h = chain_intermediate.get_atom([neighbour for neighbour in c2.neighbours if not neighbour.annotations.in_central_chain][0])
         else:
-            main_chain_bottom_h = main_chain_bottom_h[0]
+            main_chain_bottom_h = chain_intermediate.get_atom(main_chain_bottom_h[0])
         
         #If not all can be found, dont do stereochemistry (sometimes for cyclic substrates before)
         if not main_chain_top_h or not main_chain_bottom_h or not main_chain_top_c or not main_chain_bottom_c:
@@ -336,6 +333,7 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
                                        main_chain_bottom_h: {main_chain_top_c: 'trans',
                                                              main_chain_top_h: 'cis'}}
         double_bond.chiral = True
+
     chain_intermediate.refresh_structure()
 
     return chain_intermediate, True
@@ -505,7 +503,7 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     oxygen = None
 
     if not oh_bond:
-        print("No hydroxy group two modules upstream availiable")
+        print("No hydroxy-group available two modules upstream")
         return structure, False
     oh_bond = oh_bond[0]
     for atom in oh_bond.neighbours:
@@ -522,7 +520,7 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
 
 def alpha_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     """
-    Returns the structure thats methylated at the alpha-c.
+    Returns the structure that is methylated at the alpha-c.
 
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
@@ -747,16 +745,19 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
     chain_intermediate.refresh_structure()
 
     # implement stereochemistry
+
     if chirality:
 
-        main_chain_top_c = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0]
-        main_chain_bottom_c = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C, chain_intermediate)[0]
+        main_chain_top_c = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_SHIFTED_TOP_C, chain_intermediate)[0])
+        main_chain_bottom_c = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_C, chain_intermediate)[0])
         main_chain_top_h = find_atoms(RECENT_REDUCTION_SHIFTED_TOP_H, chain_intermediate)
-        main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_H, chain_intermediate)[0]
+        main_chain_bottom_h = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_H, chain_intermediate)[0])
         if not main_chain_bottom_h:
-            main_chain_bottom_h = find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL, chain_intermediate)[0]
+            main_chain_bottom_h = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_SHIFTED_BOTTOM_METHYL, chain_intermediate)[0])
         else:
-            main_chain_bottom_h = main_chain_bottom_h[0]
+
+            main_chain_bottom_h = chain_intermediate.get_atom(main_chain_bottom_h[0])
+
         if chirality == "E":
             double_bond.chiral_dict = {main_chain_top_c: {main_chain_bottom_c: 'trans',
                                                           main_chain_bottom_h: 'cis'},
@@ -777,4 +778,5 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
                                                              main_chain_top_h: 'cis'}}
         double_bond.chiral = True
     chain_intermediate.refresh_structure()
+
     return chain_intermediate, True

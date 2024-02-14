@@ -226,7 +226,7 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
     co_bonds = find_bonds(RECENT_REDUCTION_COH, chain_intermediate)
     cc_bonds = find_bonds(RECENT_REDUCTION_CC, chain_intermediate)
 
-    #check if H attached to O
+    # check if H attached to O
     hydrogen = None
     if not len(co_bonds) == 1 or not len(cc_bonds) == 1:
         return chain_intermediate, False
@@ -299,10 +299,13 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
 
         if not main_chain_top_h:
+            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)
 
-            main_chain_top_h = chain_intermediate.get_atom(find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)[0])
-        else:
-            main_chain_top_h = chain_intermediate.get_atom(main_chain_top_h[0])
+            if not main_chain_top_h:
+                main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHOXY, chain_intermediate)
+        assert main_chain_top_h
+
+        main_chain_top_h = chain_intermediate.get_atom(main_chain_top_h[0])
 
         if not main_chain_bottom_h:
 

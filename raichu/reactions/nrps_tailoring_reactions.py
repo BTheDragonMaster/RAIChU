@@ -157,7 +157,7 @@ def nrps_cyclodehydration(nrp):
         else:
             return nrp, False
 
-    if nitrogen.has_neighbour('H'):
+    if nitrogen.has_neighbour('H') and attacking_atom.has_neighbour('H'):
 
         product = cyclodehydration(nrp, attacking_atom, keto_group)
         assert product

@@ -698,12 +698,14 @@ def gamma_beta_dehydratase(chain_intermediate: Structure, chirality=None) -> Tup
         elif neighbour.type == 'O':
             o_oh = neighbour
 
+    if not o_oh.has_neighbour('H'):
+        return chain_intermediate, False
+
     cc_bond = cc_bonds[0]
 
     for neighbour in cc_bond.neighbours:
         if neighbour != c2:
             c1 = neighbour
-
 
     # Remove H-atom from c1
     bond_to_break = None

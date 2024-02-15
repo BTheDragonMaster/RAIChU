@@ -8,7 +8,7 @@ from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.reactions.pks_sidechain_chirality import set_sidechain_chirality
 from raichu.reactions.general_tailoring_reactions import single_bond_oxidation
-from pikachu.general import read_smiles
+from pikachu.general import read_smiles, draw_structure
 from raichu.data.attributes import ATTRIBUTES
 
 FIRST_C = GroupDefiner('first_c', r'CC(S)=O', 1)
@@ -503,6 +503,7 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     structure: PIKAChU Structure object
     """
     # reduce Ketogroup first
+
     structure_oh, did_reduction = ketoreduction(structure, KRDomainSubtype(1))
     if not did_reduction:
         return structure, False
@@ -510,18 +511,27 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
     oxygen = None
 
     if not oh_bond:
-        print("No hydroxy-group available two modules upstream")
+        # TODO: Add print statement to verbose mode
+        # print("No hydroxy-group available two modules upstream")
         return structure, False
     oh_bond = oh_bond[0]
     for atom in oh_bond.neighbours:
         if atom.type == 'O' and atom.has_neighbour('H'):
             oxygen = atom
     if not oxygen:
-        print("No hydroxy group available two modules upstream")
+        # TODO: Add print statement to verbose mode
+        # print("No hydroxy group available two modules upstream")
         return structure, False
+    else:
+        carbon = oxygen.get_neighbour('C')
+        if carbon.in_ring(structure_oh):
+            # TODO: Add print statement to verbose mode
+            # print("No hydroxy group available two modules upstream")
+            return structure, False
     
     h_bond = find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]
     structure_ohh = internal_condensation(structure_oh, oh_bond, h_bond)[0]
+
     return structure_ohh, True
 
 

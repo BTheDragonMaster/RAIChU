@@ -1301,8 +1301,45 @@ class RaichuDrawer(Drawer):
 
                 self.rotate_subtree(neighbour_1, backbone_atom, required_rotation_rad_1, backbone_atom.draw.position)
                 self.rotate_subtree(neighbour_2, backbone_atom, required_rotation_rad_2, backbone_atom.draw.position)
+            elif len(neighbours) == 3:
+                if backbone_atom != backbone[-1]:
+                    raise ValueError("Central backbone atoms can only have two non-backbone neighbours at most")
+                else:
+                    neighbour_1, neighbour_2, neighbour_3 = neighbours
+
+                    current_angle_1 = get_angle(backbone_atom.draw.position, neighbour_1.draw.position)
+                    current_angle_2 = get_angle(backbone_atom.draw.position, neighbour_2.draw.position)
+                    current_angle_3 = get_angle(backbone_atom.draw.position, neighbour_3.draw.position)
+
+                    if placement == 'right':
+                        desired_angle_1 = 140.0
+                        desired_angle_2 = 220.0
+                        desired_angle_3 = 60.0
+                    elif placement == 'left':
+                        desired_angle_1 = 40.0
+                        desired_angle_2 = -40.0
+                        desired_angle_3 = 120.0
+                    else:
+                        raise ValueError("Placement must be 'left' or 'right'.")
+
+                    required_rotation_deg_1 = desired_angle_1 - current_angle_1
+                    required_rotation_rad_1 = math.radians(required_rotation_deg_1)
+
+                    required_rotation_deg_2 = desired_angle_2 - current_angle_2
+                    required_rotation_rad_2 = math.radians(required_rotation_deg_2)
+
+                    required_rotation_deg_3 = desired_angle_3 - current_angle_3
+                    required_rotation_rad_3 = math.radians(required_rotation_deg_3)
+
+                    self.rotate_subtree(neighbour_1, backbone_atom, required_rotation_rad_1,
+                                        backbone_atom.draw.position)
+                    self.rotate_subtree(neighbour_2, backbone_atom, required_rotation_rad_2,
+                                        backbone_atom.draw.position)
+                    self.rotate_subtree(neighbour_3, backbone_atom, required_rotation_rad_3,
+                                        backbone_atom.draw.position)
+
             else:
-                raise ValueError("Backbone atoms can only have two non-backbone neighbours at most")
+                raise ValueError("Terminal backbone atoms can only have three non-backbone neighbours at most")
             backbone_atom_before = backbone_atom
 
 

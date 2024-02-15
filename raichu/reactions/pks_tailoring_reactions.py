@@ -8,7 +8,7 @@ from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.reactions.pks_sidechain_chirality import set_sidechain_chirality
 from raichu.reactions.general_tailoring_reactions import single_bond_oxidation
-from pikachu.general import read_smiles, draw_structure
+from pikachu.general import read_smiles
 from raichu.data.attributes import ATTRIBUTES
 
 FIRST_C = GroupDefiner('first_c', r'CC(S)=O', 1)
@@ -514,6 +514,7 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
         # TODO: Add print statement to verbose mode
         # print("No hydroxy-group available two modules upstream")
         return structure, False
+
     oh_bond = oh_bond[0]
     for atom in oh_bond.neighbours:
         if atom.type == 'O' and atom.has_neighbour('H'):

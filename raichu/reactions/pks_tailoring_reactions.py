@@ -299,11 +299,13 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         main_chain_bottom_h = find_atoms(RECENT_REDUCTION_BOTTOM_H, chain_intermediate)
 
         if not main_chain_top_h:
-            main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)
-
-            if not main_chain_top_h:
-                main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHOXY, chain_intermediate)
-        assert main_chain_top_h
+            main_chain_top_h = [neighbour for neighbour in c1.neighbours if not neighbour.annotations.in_central_chain]
+        #     print(main_chain_top_h)
+        #     main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHYL, chain_intermediate)
+        #
+        #     if not main_chain_top_h:
+        #         main_chain_top_h = find_atoms(RECENT_REDUCTION_TOP_METHOXY, chain_intermediate)
+        # assert main_chain_top_h
 
         main_chain_top_h = chain_intermediate.get_atom(main_chain_top_h[0])
 
@@ -313,7 +315,7 @@ def dehydration(chain_intermediate: Structure, chirality=None) -> Tuple[Structur
         else:
             main_chain_bottom_h = chain_intermediate.get_atom(main_chain_bottom_h[0])
         
-        #If not all can be found, dont do stereochemistry (sometimes for cyclic substrates before)
+        # If not all can be found, don't do stereochemistry (sometimes true for cyclic substrates before)
         if not main_chain_top_h or not main_chain_bottom_h or not main_chain_top_c or not main_chain_bottom_c:
             return chain_intermediate, True
         

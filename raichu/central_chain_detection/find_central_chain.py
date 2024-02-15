@@ -51,7 +51,7 @@ def reorder_central_chain(central_chain, drawer):
                 central_chain = new_backbone
                 new_rings.append(alternative_path)
             else:
-                stop_linearising = ring[2]
+                stop_linearising = ring[1]
                 break
         else:
             new_rings.append(ring)

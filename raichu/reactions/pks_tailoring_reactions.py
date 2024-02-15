@@ -161,7 +161,7 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
 
         chiral_c = chiral_c_locations[0]
 
-    if chiral_c:
+    if chiral_c and kr_type.name != "UNKNOWN":
         sulphur_locations = find_atoms(S_KR, chain_intermediate)
         assert len(sulphur_locations) == 1
         sulphur = sulphur_locations[0]
@@ -209,6 +209,8 @@ def ketoreduction(chain_intermediate: Structure, kr_type: KRDomainSubtype) -> Tu
             chiral_c.chiral = None
         else:
             raise ValueError(f'KR domain of type {kr_type.name} is not supported by RAIChU or does not exist')
+    elif kr_type.name == "UNKNOWN" and chiral_c:
+        chiral_c.chiral = None
 
     chain_intermediate.refresh_structure()
     return chain_intermediate, True
@@ -515,7 +517,7 @@ def smallest_cyclisation(structure: Structure) -> Tuple[Structure, bool]:
         if atom.type == 'O' and atom.has_neighbour('H'):
             oxygen = atom
     if not oxygen:
-        print("No hydroxy group two modules upstream availiable")
+        print("No hydroxy group available two modules upstream")
         return structure, False
     
     h_bond = find_bonds(RECENT_REDUCTION_OH, structure_oh)[0]

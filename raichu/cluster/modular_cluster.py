@@ -55,7 +55,7 @@ class ModularCluster(Cluster):
                                     substrate = PKSSubstrate("ACETYL_COA")
                             else:
                                 substrate = PKSSubstrate("ACETYL_COA")
-                                    # TODO: Transfer names of substrates to a dictionary in raichu.substrate
+                                # TODO: Transfer names of substrates to a dictionary in raichu.substrate
                         elif module.is_starter_module:
                             substrate = PKSSubstrate("ACETYL_COA")
                         if next_module.synthesis_domain:

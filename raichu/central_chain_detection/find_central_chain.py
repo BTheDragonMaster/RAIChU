@@ -20,13 +20,14 @@ def reorder_central_chain(central_chain, drawer):
             if current_ring and ring_index != current_ring_index:
                 rings.append(current_ring)
                 full_rings.append(full_ring)
-            if (current_ring and ring_index == current_ring_index):
+            if current_ring and ring_index == current_ring_index:
                 current_ring.append(atom)
                 current_ring_index = ring_index
             else:        
                 full_ring = atom.get_ring(drawer.structure)
                 current_ring = [atom]
                 current_ring_index = ring_index
+
     rings.append(current_ring)
     full_rings.append(full_ring)
     new_rings = []
@@ -34,8 +35,11 @@ def reorder_central_chain(central_chain, drawer):
     for ring in rings:
 
         if len(ring) > 3:
-            alternative_path = drawer.find_shortest_path(ring[0], ring[-1], path_type='atom')
+
+            alternative_path = drawer.find_shortest_path(drawer.structure.get_atom(ring[0]),
+                                                         drawer.structure.get_atom(ring[-1]), path_type='atom')
             if len(alternative_path) <= 3:
+
                 new_backbone = []
                 path_added = False
                 for atom in central_chain:

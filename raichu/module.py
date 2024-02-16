@@ -12,7 +12,6 @@ from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
 from raichu.substrate import PKSSubstrate
 
-
 @unique
 class ModuleType(Enum):
     NRPS = 1
@@ -282,7 +281,9 @@ class LinearPKSModule(_Module):
             if self.recognition_domain:
                 if structure is None:
                     assert self.is_starter_module
-                    structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                    starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                    label_pk_central_chain(starter_unit)
+                    structure = attach_to_domain_pk(starter_unit)
                 else:
                     structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
@@ -306,7 +307,10 @@ class IterativePKSModule(_Module):
                     substrate = PKSSubstrate(self.recognition_domain.substrate_name)
                     if structure is None:
                         assert self.is_starter_module
-                        structure = substrate.starter_monomer.attach_to_acp()
+                        starter_unit = read_smiles(
+                            substrate.smiles)
+                        label_pk_central_chain(starter_unit)
+                        structure = attach_to_domain_pk(starter_unit)
                     else:
                         structure = self.synthesis_domain.do_elongation(
                             structure, substrate)
@@ -370,6 +374,23 @@ class TransATPKSModule(_Module):
         if not bmt_domain:
             bmt_domain = self.get_tailoring_domain("DUMMY_BMT")
 
+        if amt_domain and amt_domain.active and amt_domain.used:
+            structure, amt_tailored = amt_domain.do_tailoring(structure)
+            if not amt_tailored:
+                amt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
+            structure.refresh_structure()
+        if almt_domain and almt_domain.active and almt_domain.used:
+            structure, almt_tailored = almt_domain.do_tailoring(structure)
+            if not almt_tailored:
+                almt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
         if ah_domain and ah_domain.active and ah_domain.used:
             structure, ah_tailored = ah_domain.do_tailoring(structure)
             if not ah_tailored:
@@ -469,23 +490,7 @@ class TransATPKSModule(_Module):
             structure, sc_tailored = sc_domain.do_tailoring(structure)
             if not sc_tailored:
                 sc_domain.used = False
-        if amt_domain and amt_domain.active and amt_domain.used:
-            structure, amt_tailored = amt_domain.do_tailoring(structure)
-            if not amt_tailored:
-                amt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
-            structure.refresh_structure()
-        if almt_domain and almt_domain.active and almt_domain.used:
-            structure, almt_tailored = almt_domain.do_tailoring(structure)
-            if not almt_tailored:
-                almt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
+
         structure.refresh_structure()
         return structure
 
@@ -495,8 +500,10 @@ class TransATPKSModule(_Module):
         else:
             if self.recognition_domain:
                 if structure is None:
-                    assert self.is_starter_module
-                    structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                        assert self.is_starter_module
+                        starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                        label_pk_central_chain(starter_unit)
+                        structure = attach_to_domain_pk(starter_unit)
                 else:
                     structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
                 structure = self.do_pks_tailoring(structure)

@@ -117,13 +117,13 @@ def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> M
     return cluster
 
 
-def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None, colour_by_module=True) -> None:
+def draw_cluster(cluster_repr: ClusterRepresentation, out_file=None) -> None:
     cluster = build_cluster(cluster_repr, strict= False)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
 
     if out_file:
-        return cluster.draw_cluster(as_string=False, out_file=out_file, colour_by_module=colour_by_module)
+        return cluster.draw_cluster(as_string=False, out_file=out_file)
     else:
         return cluster.draw_cluster()
 

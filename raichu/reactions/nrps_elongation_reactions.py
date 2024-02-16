@@ -2,8 +2,7 @@ from pikachu.reactions.basic_reactions import condensation, hydrolysis
 from pikachu.reactions.functional_groups import find_bonds, find_atoms
 from raichu.data.attributes import ATTRIBUTES
 from raichu.central_chain_detection.label_central_chain import label_nrp_central_chain
-from raichu.data.molecular_moieties import THIOESTERBOND, THIOESTER_CARBON, N_AMINO_ACID, B_N_AMINO_ACID, \
-    THIOESTERBOND_OXYGEN_INSERTED, THIOESTER_CARBON_OXYGEN_INSERTED
+from raichu.data.molecular_moieties import THIOESTERBOND, THIOESTER_CARBON, N_AMINO_ACID, B_N_AMINO_ACID
 from raichu.reactions.general import label_rest_groups, initialise_atom_attributes, reset_nrp_annotations
 from raichu.attach_to_domain import attach_to_domain_nrp
 
@@ -77,10 +76,6 @@ def sulphur_to_hydroxyl(thioester_structure):
     # Find thioester bond in the input structure
     found_bonds_thioester = find_bonds(THIOESTERBOND, thioester_structure)
     found_carbon_thioester = find_atoms(THIOESTER_CARBON, thioester_structure)
-
-    if len(found_bonds_thioester) == 0:
-        found_bonds_thioester = find_bonds(THIOESTERBOND_OXYGEN_INSERTED, thioester_structure)
-        found_carbon_thioester = find_atoms(THIOESTER_CARBON_OXYGEN_INSERTED, thioester_structure)
 
     assert len(found_carbon_thioester) == 1
     assert len(found_bonds_thioester) == 1

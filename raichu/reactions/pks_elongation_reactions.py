@@ -1,7 +1,7 @@
 from pikachu.reactions.functional_groups import combine_structures
+from pikachu.general import draw_structure
 from raichu.data.molecular_moieties import THIOESTERBOND, THIOESTERBOND_OXYGEN_INSERTED
 from raichu.reactions.general import label_rest_groups
-from raichu.reactions.pks_sidechain_chirality import set_sidechain_chirality
 
 
 def pks_elongation(chain_intermediate, elongation_monomer):
@@ -63,7 +63,6 @@ def pks_elongation(chain_intermediate, elongation_monomer):
         atom.hybridise()
     for bond in thioester_bonds[:]:
         chain_intermediate.break_bond(bond)
-
     chain_intermediate.get_connectivities()
     chain_intermediate.set_connectivities()
     chain_intermediate.set_atom_neighbours()
@@ -87,7 +86,6 @@ def pks_elongation(chain_intermediate, elongation_monomer):
     new_bond_nr = combined.find_next_bond_nr()
     combined.make_bond(elongation_monomer.c_to_pk_intermediate, c_pkchain, new_bond_nr)
     new_bond_nr = combined.find_next_bond_nr()
-
     combined.make_bond(elongation_monomer.c_to_s, s_pkchain, new_bond_nr)
     combined.get_connectivities()
     combined.set_connectivities()
@@ -98,8 +96,6 @@ def pks_elongation(chain_intermediate, elongation_monomer):
 
     for atom in combined.graph:
         atom.annotations.c2_acid = False
-
-    set_sidechain_chirality(combined)
 
     return combined
 

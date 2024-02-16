@@ -48,9 +48,7 @@ TRANSATOR_CLADE_TO_TAILORING_REACTIONS = {'NON_ELONGATING_DB': [('DUMMY_KR', Non
                                           "EXOMETHYLENE": [('DUMMY_AMT', None), ('DUMMY_EMO', None)],
                                           'ALPHAME_ZDB': [('DUMMY_KR', None), ('DUMMY_ZDH', None), ('DUMMY_AMT', None)],
                                           'ALPHA_D_ME_SHDB': [('DUMMY_KR', None), ('DUMMY_GDH', None), ('DUMMY_AMT', None)],
-                                          'ALPHAME_DB': [('DUMMY_KR', None), ('DUMMY_DH', None), ('DUMMY_AMT', None)],
-                                          'ALPHAME_KETO': [('DUMMY_AMT', None)],
-                                          'NON_ELONGATING_SHDB': [('DUMMY_KR', None), ('DUMMY_GDH', None)]}
+                                          'ALPHAME_DB': [('DUMMY_KR', None), ('DUMMY_DH', None), ('DUMMY_AMT', None)]}
 
 
 TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
@@ -75,7 +73,7 @@ TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
                                         'MEOST': 'METHOXYFORMYL_COA',
                                         'ACST': 'ACETYL_COA',
                                         'ALPHAME': 'ACETYL_COA',
-                                        'BETA_D_OME': "ACETYL_COA",
+                                        'BETA_D_OME': "MACETYL_COA",
                                         'NON_ELONGATING_PYR': 'ACETYL_COA',
                                         'BETA_ME': 'ACETYL_COA',
                                         'BETA_OH_EDB': 'ACETYL_COA',
@@ -94,9 +92,7 @@ TRANSATOR_CLADE_TO_STARTER_SUBSTRATE = {'NON_ELONGATING_DB': 'ACETYL_COA',
                                         "EXOMETHYLENE": 'ACETYL_COA',
                                         'ALPHAME_ZDB': 'ACETYL_COA',
                                         'ALPHA_D_ME_SHDB': 'ACETYL_COA',
-                                        'ALPHAME_DB': 'ACETYL_COA',
-                                        'ALPHAME_KETO': 'ACETYL_COA',
-                                        'NON_ELONGATING_SHDB': 'ACETYL_COA'}
+                                        'ALPHAME_DB': 'ACETYL_COA'}
 
 TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  'BETA_OH_KETO': True,
@@ -127,6 +123,5 @@ TRANSATOR_CLADE_TO_ELONGATING = {'NON_ELONGATING_DB': False,
                                  "EXOMETHYLENE": True,
                                  "ALPHAME_ZDB": True,
                                  'ALPHA_D_ME_SHDB': True,
-                                 'ALPHAME_DB': True,
-                                 'ALPHAME_KETO': True,
-                                 'NON_ELONGATING_SHDB': False}
+                                 'ALPHAME_DB': True
+                                 }

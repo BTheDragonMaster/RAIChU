@@ -71,7 +71,7 @@ marformycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, 
                                              ]
                                             )
 
-draw_cluster(marformycin_cluster, "marformycin_A_black.svg", colour_by_module=False)
+draw_cluster(marformycin_cluster, "marformycin_A.svg")
 
 hormaomycin_cluster = ClusterRepresentation([ModuleRepresentation('NRPS', None, "5‐chloropyrrole‐2‐carboxylic acid",
                                                                   [DomainRepresentation('HrmK', 'A'),

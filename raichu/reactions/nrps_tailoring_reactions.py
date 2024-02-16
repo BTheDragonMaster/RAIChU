@@ -143,28 +143,20 @@ def nrps_cyclodehydration(nrp):
         assert len(cysteine_oxs) == 1
         attacking_atom = cysteine_ss[0]
         keto_group = cysteine_oxs[0]
-        carbon = keto_group.get_neighbour("C")
-        nitrogen = carbon.get_neighbour("N")
     else:
         serine_os = find_atoms(ATTACHED_SERINE_O, nrp)
         if len(serine_os) == 1:
             serine_oxs = find_atoms(ATTACHED_SERINE_OX, nrp)
             attacking_atom = serine_os[0]
             keto_group = serine_oxs[0]
-            carbon = keto_group.get_neighbour("C")
-            nitrogen = carbon.get_neighbour("N")
 
         else:
             return nrp, False
 
-    if nitrogen.has_neighbour('H') and attacking_atom.has_neighbour('H'):
+    product = cyclodehydration(nrp, attacking_atom, keto_group)
+    assert product
 
-        product = cyclodehydration(nrp, attacking_atom, keto_group)
-        assert product
-
-        return product, True
-    else:
-        return nrp, False
+    return product, True
 
 
 if __name__ == "__main__":

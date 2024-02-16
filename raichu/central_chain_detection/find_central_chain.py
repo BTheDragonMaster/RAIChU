@@ -16,15 +16,14 @@ def reorder_central_chain(central_chain, drawer):
         if atom.is_inside_ring(drawer.structure):
 
             ring_index = atom.get_ring_index(drawer.structure)
-            # append last ring once ring is over
-            if current_ring and ring_index != current_ring_index:
-                rings.append(current_ring)
-                full_rings.append(full_ring)
-            if current_ring and ring_index == current_ring_index:
+
+            if (current_ring and ring_index == current_ring_index) or not current_ring:
+                full_ring = atom.get_ring(drawer.structure)
                 current_ring.append(atom)
                 current_ring_index = ring_index
-            else:        
-                full_ring = atom.get_ring(drawer.structure)
+            else:
+                rings.append(current_ring)
+                full_rings.append(full_ring)
                 current_ring = [atom]
                 current_ring_index = ring_index
 
@@ -35,11 +34,8 @@ def reorder_central_chain(central_chain, drawer):
     for ring in rings:
 
         if len(ring) > 3:
-
-            alternative_path = drawer.find_shortest_path(drawer.structure.get_atom(ring[0]),
-                                                         drawer.structure.get_atom(ring[-1]), path_type='atom')
+            alternative_path = drawer.find_shortest_path(ring[0], ring[-1], path_type='atom')
             if len(alternative_path) <= 3:
-
                 new_backbone = []
                 path_added = False
                 for atom in central_chain:
@@ -51,7 +47,7 @@ def reorder_central_chain(central_chain, drawer):
                 central_chain = new_backbone
                 new_rings.append(alternative_path)
             else:
-                stop_linearising = ring[1]
+                stop_linearising = ring[2]
                 break
         else:
             new_rings.append(ring)
@@ -102,15 +98,11 @@ def find_central_chain(pks_nrps_attached):
 
     # Identify complete central chain from in_central_chain Atom attributes
     while not end_atom:
-
-        nothing_changed = True
-
         for neighbour in atom_central_chain.neighbours:
             if neighbour.annotations.in_central_chain and neighbour not in visited:
                 central_chain.append(neighbour)
                 visited.append(neighbour)
                 atom_central_chain = neighbour
-                nothing_changed = False
             elif not neighbour.annotations.in_central_chain:
                 neighbours = []
                 for next_atom in atom_central_chain.neighbours:
@@ -119,10 +111,6 @@ def find_central_chain(pks_nrps_attached):
                     end_atom = True
                 else:
                     visited.append(neighbour)
-                    nothing_changed = False
-
-        if nothing_changed:
-            end_atom = True
 
     return central_chain
 

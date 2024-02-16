@@ -1,114 +1,13 @@
-from raichu.class_domain import make_scaffold_domain
+import os
+
 from pikachu.general import read_smiles
-from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner, combine_structures
+from pikachu.reactions.functional_groups import BondDefiner, GroupDefiner
 from raichu.reactions.general import initialise_atom_attributes
 
+import raichu.data
 
-_STARTER_PKS_TO_SULPHUR = {"PROPIONYL_COA": 0,
-                           "ACETYL_COA": 0,
-                           "BENZOYL_COA": 0,
-                           "METHYL_BUTYRYL_COA_3": 0,
-                           "METHYL_BUTYRYL_COA_2": 0,
-                           "TRANS_CYCLOPENTANE_DICARBOXYL_COA": 0,
-                           "CYCLOHEXANE_CARBOXYL_COA": 0,
-                           "HYDROXY_MALONYL_COA_2": 0,
-                           "HYDROXY_MALONYL_COA_2R": 0,
-                           "HYDROXY_MALONYL_COA_2S": 0,
-                           "CHLOROETHYL_MALONYL_COA": 0,
-                           "ISOBUTYRYL_COA": 0,
-                           "GLYCINE": 0,
-                           "HYDROXY_PROPENOYL_COA_3_23E": 5,
-                           "HYDROXY_BUTENOYL_COA_3_23E": 5,
-                           "DIHYDROXY_BUTANOLYL_COA_2R3": 8,
-                           "TRIHYDROXY_PROPANOLYL_COA_233": 7,
-                           "O_METHYLACETYL_COA": 3,
-                           "HYDROXY_PROPENOYL_COA_3_23Z": 5,
-                           "OXOMALONYL_COA_2": 6,
-                           "METHYL_HYDROXY_PROPENOYL_COA_2_3_23Z": 6,
-                           "DIHYDROXY_BUTANOLYL_COA_23": 7,
-                           "DIHYDROXY_BUTANOLYL_COA_2S3S": 9,
-                           "HEPTATRIENOYL_COA": 0,
-                           "HYDROXYPROPIONYL_COA_2R": 5,
-                           "DIHYDROXY_PROPANOLYL_COA_33": 6,
-                           "LACTYL_COA": 5,
-                           "PHENYLACETYLCOA": 0,
-                           "METHOXYFORMYL_COA": 3
-                           }
-
-
-_STARTER_PKS_TO_BACKBONE = {"PROPIONYL_COA": [1, 3, 4],
-                            "ACETYL_COA": [1, 2],
-                            "BENZOYL_COA": [1, 2, 3],
-                            "METHYL_BUTYRYL_COA_3": [1, 3, 4, 5],
-                            "METHYL_BUTYRYL_COA_2": [1, 3, 5, 6],
-                            "TRANS_CYCLOPENTANE_DICARBOXYL_COA": [1, 2, 4, 9, 11],
-                            "CYCLOHEXANE_CARBOXYL_COA": [1, 3, 4, 5],
-                            "HYDROXY_MALONYL_COA_2": [1, 3, 4, 6],
-                            "HYDROXY_MALONYL_COA_2R": [1, 3, 5, 7],
-                            "HYDROXY_MALONYL_COA_2S": [1, 3, 5, 7],
-                            "CHLOROETHYL_MALONYL_COA": [1, 2, 6, 7, 8],
-                            "ISOBUTYRYL_COA": [1, 3, 4],
-                            "GLYCINE": [1, 2, 3],
-                            "HYDROXY_PROPENOYL_COA_3_23E": [1, 2, 3, 4],
-                            "HYDROXY_BUTENOYL_COA_3_23E": [1, 2, 3, 4],
-                            "DIHYDROXY_BUTANOLYL_COA_2R3": [0, 1, 3, 6],
-                            "TRIHYDROXY_PROPANOLYL_COA_233": [0, 1, 3, 5],
-                            "O_METHYLACETYL_COA": [0, 1, 2],
-                            "HYDROXY_PROPENOYL_COA_3_23Z": [1, 3, 4],
-                            "OXOMALONYL_COA_2": [0, 1, 3, 5],
-                            "METHYL_HYDROXY_PROPENOYL_COA_2_3_23Z": [1, 3, 5],
-                            "DIHYDROXY_BUTANOLYL_COA_23": [0, 1, 3, 5],
-                            "DIHYDROXY_BUTANOLYL_COA_2S3S": [0, 1, 4, 7],
-                            "HEPTATRIENOYL_COA": [1, 3, 4, 5, 6, 7, 8],
-                            "HYDROXYPROPIONYL_COA_2R": [0, 1, 4],
-                            "DIHYDROXY_PROPANOLYL_COA_33": [0, 1, 3, 4],
-                            "LACTYL_COA": [0, 1, 4],
-                            "PHENYLACETYLCOA": [1, 3, 4, 5, 6],
-                            "METHOXYFORMYL_COA": [0, 1, 2]
-                            }
-
-
-class PksStarterUnit:
-    def __init__(self, name, smiles, central_chain_indices):
-        self.name = name
-        self.smiles = smiles
-        self.structure = read_smiles(self.smiles)
-        initialise_atom_attributes(self.structure)
-        self.structure.refresh_structure()
-        self.sulphur = self.structure.atoms[_STARTER_PKS_TO_SULPHUR[self.name]]
-
-        for atom_index in central_chain_indices:
-            self.structure.atoms[atom_index].annotations.in_central_chain = True
-
-    def attach_to_acp(self):
-        domain = make_scaffold_domain('ACP')
-        sh_bond = domain.bond_lookup[domain.atoms[1]][domain.atoms[2]]
-        hydrogen = domain.atoms[2]
-        sulphur_1 = domain.atoms[1]
-        carbon = self.sulphur.get_neighbour('C')
-        sc_bond = self.sulphur.get_bond(carbon)
-
-        structure = combine_structures([domain, self.structure])
-        structure.break_bond(sh_bond)
-        structure.break_bond(sc_bond)
-
-        structure.make_bond(hydrogen, self.sulphur, structure.find_next_bond_nr())
-        structure.make_bond(carbon, sulphur_1, structure.find_next_bond_nr())
-
-        split = structure.split_disconnected_structures()
-
-        tethered_polyketide = None
-
-        for structure in split:
-            if carbon in structure.graph:
-                tethered_polyketide = structure
-                break
-
-        assert tethered_polyketide
-        initialise_atom_attributes(tethered_polyketide)
-
-        return tethered_polyketide
-
+FLATFILES = os.path.dirname(raichu.data.__file__)
+AA_SMILES = os.path.join(FLATFILES, "PARAS_smiles.txt")
 
 
 class PksElongationUnit:
@@ -144,11 +43,22 @@ class PksElongationUnit:
             self.c_to_pk_intermediate.chiral = 'clockwise'
 
 
-def make_starter_monomer(name, smiles):
-    assert name in _STARTER_PKS_TO_BACKBONE
+def parse_smiles():
+    """
+    Returns a dict as {name_aa : SMILES_aa} from the amino acids in the
+    PARAS_smiles.txt file
+    """
+    # Parse list SMILES amino acids attached to PCP to dict name -> Structure
+    name_to_smiles = {}
+    with open(AA_SMILES, 'r', encoding='utf8') as paras_smiles:
+        for line in paras_smiles:
+            line = line.strip()
+            print(line)
+            name, smiles = line.split('\t')
+            name = name.upper()
+            name_to_smiles[name] = smiles
 
-    monomer = PksStarterUnit(name, smiles, _STARTER_PKS_TO_BACKBONE[name])
-    return monomer
+    return name_to_smiles
 
 
 def make_elongation_monomer(name):
@@ -172,10 +82,7 @@ ESTER_BOND = BondDefiner('thioester_bond', 'COC=O', 0, 1)
 THIOESTERBOND = BondDefiner('thioester_bond', 'SC(C)=O', 0, 1)
 THIOESTERBOND_OXYGEN_INSERTED = BondDefiner(
     'thioester_bond_oxygen_inserted', 'SC(O)=O', 0, 1)
-THIOESTERBOND_REDUCED_O = BondDefiner('thioester_bond_reduced_O', 'SC(C)O', 0, 1)
 THIOESTER_CARBON = GroupDefiner('thioester carbon', 'SC(C)=O', 1)
-THIOESTER_CARBON_REDUCED_O = GroupDefiner('thioester carbon reduced oxygen', 'SC(C)O', 1)
-THIOESTER_CARBON_OXYGEN_INSERTED = GroupDefiner('thioester carbon oxygen inserted', 'SC(O)=O', 1)
 LEAVING_OH_BOND = BondDefiner('Leaving -OH group bond', 'C(=O)(O)CN', 0, 2)
 N_AMINO_ACID = GroupDefiner('Nitrogen atom amino acid', 'NCC(=O)O', 0)
 C1_AMINO_ACID = GroupDefiner('C1 atom amino acid', 'NCC(=O)O', 1)
@@ -208,7 +115,6 @@ CC_SINGLE_BOND = BondDefiner('cc_single_bond', 'CC', 0, 1)
 C_TERMINAL_OH = BondDefiner('c_terminal_oh', 'NCC(O)=O', 2, 3)
 SH_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
 SC_BOND = BondDefiner('recent_elongation', 'SC(C)=O', 0, 1)
-SC_BOND_MINIMAL = BondDefiner('minimal_sc_bond', 'SC=O', 0, 1)
 CO_BOND = BondDefiner('recent_elongation', 'CO', 0, 1)
 N_AMINO = GroupDefiner('N_amino', 'CN', 1) 
 C_CARBOXYL = GroupDefiner('c_carboxyl', 'C(O)=O', 0)
@@ -238,8 +144,4 @@ ATTACHED_SERINE_OX = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 0)
 ATTACHED_CYSTEINE_OX = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 0)
 ATTACHED_SERINE_O = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 5)
 ATTACHED_CYSTEINE_S = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 5)
-METHYLMALONYL_SIDECHAIN_CARBON = GroupDefiner("mmal_sidechain_c", "SC(=O)C(C)C(=O)", 4)
-METHYLMALONYL_SULPHUR_CARBON = GroupDefiner("mmal_sidechain_sc", "SC(=O)C(C)C(=O)", 1)
-METHYLMALONYL_MAINCHAIN_CARBON = GroupDefiner("mmal_sidechain_mc", "SC(=O)C(C)C(=O)", 5)
-METHYLMALONYL_CHIRAL_CARBON = GroupDefiner("mmal_sidechain_mc", "SC(=O)C(C)C(=O)", 3)
 

@@ -33,8 +33,6 @@ class ModularCluster(Cluster):
         for i, module in enumerate(self.modules):
             if module.type.name == "PKS" and module.subtype.name == "PKS_TRANS":
                 substrate = PKSSubstrate("MALONYL_COA")
-                if module.is_starter_module:
-                    substrate = PKSSubstrate("ACETYL_COA")
                 if i < len(self.modules) - 1:
                     j = i + 1
                     next_module = self.modules[j]
@@ -55,7 +53,7 @@ class ModularCluster(Cluster):
                                     substrate = PKSSubstrate("ACETYL_COA")
                             else:
                                 substrate = PKSSubstrate("ACETYL_COA")
-                                # TODO: Transfer names of substrates to a dictionary in raichu.substrate
+                                    # TODO: Transfer names of substrates to a dictionary in raichu.substrate
                         elif module.is_starter_module:
                             substrate = PKSSubstrate("ACETYL_COA")
                         if next_module.synthesis_domain:
@@ -184,7 +182,6 @@ class ModularCluster(Cluster):
             drawing = RaichuDrawer(structure, dont_show=True)
 
             drawing.flip_y_axis()
-            drawing.finetune_overlap_bubbles()
             drawing.move_to_positive_coords()
             drawing.convert_to_int()
 
@@ -214,7 +211,7 @@ class ModularCluster(Cluster):
 
         return drawings, widths
 
-    def draw_cluster(self, as_string=True, out_file=None, colour_by_module=True):
+    def draw_cluster(self, as_string=True, out_file=None):
         drawings, widths = self.get_spaghettis()
         bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
@@ -230,8 +227,7 @@ class ModularCluster(Cluster):
         for i, drawing in enumerate(drawings):
             drawing.set_structure_id(f"s{i}")
             drawing.set_annotation_for_grouping('module_nr')
-            if colour_by_module:
-                drawing.colour_by_annotation()
+            drawing.colour_by_annotation()
             svg_style = drawing.svg_style
 
             padding = drawing.options.padding

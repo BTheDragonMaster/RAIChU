@@ -208,7 +208,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
 
     # Define -OH group that should not be used to carry out the thioesterase
     # reaction (distance -S and internal -OH group)
-    o_not_to_use = find_o_betapropriolactone(linear_product)
+    # o_not_to_use = find_o_betapropriolactone(linear_product)
 
     list_product_drawings = []
     circular_smiles = []

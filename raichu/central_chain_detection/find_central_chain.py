@@ -102,11 +102,15 @@ def find_central_chain(pks_nrps_attached):
 
     # Identify complete central chain from in_central_chain Atom attributes
     while not end_atom:
+
+        nothing_changed = True
+
         for neighbour in atom_central_chain.neighbours:
             if neighbour.annotations.in_central_chain and neighbour not in visited:
                 central_chain.append(neighbour)
                 visited.append(neighbour)
                 atom_central_chain = neighbour
+                nothing_changed = False
             elif not neighbour.annotations.in_central_chain:
                 neighbours = []
                 for next_atom in atom_central_chain.neighbours:
@@ -115,6 +119,10 @@ def find_central_chain(pks_nrps_attached):
                     end_atom = True
                 else:
                     visited.append(neighbour)
+                    nothing_changed = False
+
+        if nothing_changed:
+            end_atom = True
 
     return central_chain
 

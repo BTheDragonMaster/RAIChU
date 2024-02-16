@@ -1,0 +1,37 @@
+gene_name	module_nr	module_type	module_subtype	module_substrate	nr_iterations	domain_type	domain_subtype	domain_name	domain_used	domain_active
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	KS	ST	None	True	True
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	PKS_DHt	None	None	True	True
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	MT	None	None	True	True
+mmpD	1	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+mmpD	2	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_BETAOH	None	True	True
+mmpD	2	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
+mmpD	2	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
+mmpD	2	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
+mmpD	2	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	KS	EDB	None	True	True
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	MT	None	None	True	True
+mmpD	3	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+mmpD	4	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME	None	True	True
+mmpD	4	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
+mmpD	4	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
+mmpD	4	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+mmpA	5	PKS	PKS_TRANS	**Unknown**	1	KS	NON_ELONGATING_BETA_OH	None	True	True
+mmpA	5	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHABETA_OH	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	KS	PYR	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
+mmpA	6	PKS	PKS_TRANS	**Unknown**	1	ACP_beta	None	None	True	True
+mmpE	7	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_DB	None	True	True
+mmpE	7	PKS	PKS_TRANS	**Unknown**	1	PKS_DHt	None	None	True	True
+mmpE	7	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
+
+

@@ -29,8 +29,9 @@ def epimerize(nrp):
             chiral_c_ep_atoms.append(atom)
 
     # If the substrate is a (fatty) acid, epimerization is not possible
-    if len(chiral_c_ep_atoms) == 0:
-       print('Warning: Cannot perform epimerization reaction on non-amino acid substrate!')
+    # TODO: Make verbose mode that prints this
+    # if len(chiral_c_ep_atoms) == 0:
+    #    print('Warning: Cannot perform epimerization reaction on non-amino acid substrate!')
 
     assert len(chiral_c_ep_atoms) < 2
 
@@ -84,8 +85,9 @@ def n_methylate(nrp):
             n_meth_locations.append(atom)
 
     # If the substrate is not an amino acid, N-methylation is not possible
-    if len(n_meth_locations) == 0:
-        print('Warning: Cannot perform N-methylation on a non-amino acid substrate!')
+    # TODO: Add a verbose mode that prints this
+    # if len(n_meth_locations) == 0:
+    #     print('Warning: Cannot perform N-methylation on a non-amino acid substrate!')
 
     assert len(n_meth_locations) < 2
 

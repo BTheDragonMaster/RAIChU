@@ -33,12 +33,15 @@ PROTEINOGENIC_AA = ['alanine',
 
 AA_STARTER_CHOICES = []
 AA_MODULE_CHOICES = []
+AA_ACID_CHOICES = []
 
 for substrate_name, metadata in _METADATA.items():
     if metadata.type in ['amino_acid', 'beta_amino_acid']:
         AA_MODULE_CHOICES.append(substrate_name)
     if metadata.type in ['amino_acid', 'beta_amino_acid', 'acid']:
         AA_STARTER_CHOICES.append(substrate_name)
+    if metadata.type == 'acid':
+        AA_ACID_CHOICES.append(substrate_name)
 
 PKS_STARTER_SUBSTRATE_CHOICES = []
 PKS_ELONGATION_SUBSTRATE_CHOICES = []
@@ -150,7 +153,7 @@ def generate_cis_pks_module(gene_nr: int, module_nr: int, terminal_module: bool 
     return module, gene_nr
 
 
-def generate_nrps_module(gene_nr, module_nr, terminal_module=False):
+def generate_nrps_module(gene_nr, module_nr, terminal_module=False, acid=False):
 
     has_proteinogenic_substrate = choose(3, 1)
 
@@ -164,7 +167,9 @@ def generate_nrps_module(gene_nr, module_nr, terminal_module=False):
     unknown_domains = []
 
     if module_nr == 0:
-        if has_proteinogenic_substrate:
+        if acid:
+            substrate = random.choice(AA_ACID_CHOICES)
+        elif has_proteinogenic_substrate:
             substrate = random.choice(PROTEINOGENIC_AA)
         else:
             substrate = random.choice(AA_STARTER_CHOICES)
@@ -306,7 +311,7 @@ def generate_trans_pks_module(gene_nr: int, module_nr: int, terminal_module: boo
 
 
 @timeout_decorator.timeout(60)
-def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True, nrps=True, trans_pks=True):
+def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True, nrps=True, trans_pks=True, acid=False):
     drawing_dir = os.path.join(output_folder, 'drawings')
     cluster_dir = os.path.join(output_folder, 'clusters')
 
@@ -341,7 +346,7 @@ def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True
         if module_type == 'cis-pks':
             module, gene_nr = generate_cis_pks_module(gene_nr, i, terminal_module)
         elif module_type == 'nrps':
-            module, gene_nr = generate_nrps_module(gene_nr, i, terminal_module)
+            module, gene_nr = generate_nrps_module(gene_nr, i, terminal_module, acid=acid)
         elif module_type == 'trans-pks':
             module, gene_nr = generate_trans_pks_module(
                 gene_nr, i, terminal_module)
@@ -363,14 +368,15 @@ def generate_modular_cluster(nr_modules, output_folder, cluster_nr, cis_pks=True
         print(traceback.format_exc())
 
 
-def generate_random_clusters(nr_clusters, out_folder, nrps=True, cis_pks=True, trans_pks=True):
+def generate_random_clusters(nr_clusters, out_folder, nrps=True, cis_pks=True, trans_pks=True, acid=False):
     if not os.path.exists(out_folder):
         os.mkdir(out_folder)
 
     for i in range(nr_clusters):
         nr_modules = random.randint(2, 13)
         print(f"Drawing cluster {i + 1}")
-        generate_modular_cluster(nr_modules, out_folder, i + 1, nrps=nrps, cis_pks=cis_pks, trans_pks=trans_pks)
+        generate_modular_cluster(nr_modules, out_folder, i + 1, nrps=nrps, cis_pks=cis_pks, trans_pks=trans_pks,
+                                 acid=acid)
 
 
 if __name__ == "__main__":
@@ -383,15 +389,11 @@ if __name__ == "__main__":
     trans_at_pks_folder = os.path.join(out_folder, "trans_at_pks")
     pks_folder = os.path.join(out_folder, "pks")
     hybrid_folder = os.path.join(out_folder, "hybrid")
+    acid_folder = os.path.join(out_folder, "acid")
 
-    #generate_random_clusters(100, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
-    #generate_random_clusters(100, cis_at_pks_folder, nrps=False,
-    #                        cis_pks=True, trans_pks=False)
-    generate_random_clusters(100, trans_at_pks_folder, nrps=False,
-                             cis_pks=False, trans_pks=True)
-    generate_random_clusters(100, pks_folder, nrps=False, cis_pks=True, trans_pks=True)
-    generate_random_clusters(100, hybrid_folder, nrps=True, cis_pks=True, trans_pks=True)
-
-
-
-
+    generate_random_clusters(1000, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
+    generate_random_clusters(1000, acid_folder, nrps=True, cis_pks=False, trans_pks=False, acid=True)
+    generate_random_clusters(1000, cis_at_pks_folder, nrps=False, cis_pks=True, trans_pks=False)
+    generate_random_clusters(1000, trans_at_pks_folder, nrps=False, cis_pks=False, trans_pks=True)
+    generate_random_clusters(1000, pks_folder, nrps=False, cis_pks=True, trans_pks=True)
+    generate_random_clusters(1000, hybrid_folder, nrps=True, cis_pks=True, trans_pks=True)

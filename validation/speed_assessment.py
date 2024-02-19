@@ -15,4 +15,6 @@ def assess_speed(nr_modules=10, nr_clusters=1000, nrps=True, cis_pks=True, trans
 
     return mean(all_times)
 
+
 if __name__ == "__main__":
+    pass

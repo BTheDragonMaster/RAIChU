@@ -1,6 +1,5 @@
 from pikachu.general import read_smiles, draw_structure
 from pikachu.reactions.functional_groups import combine_structures, find_atoms
-from pikachu.drawing.drawing import Drawer
 
 from raichu.data.attributes import ATTRIBUTES
 from raichu.reactions.general_tailoring_reactions import cyclodehydration, single_bond_oxidation
@@ -160,15 +159,8 @@ def nrps_cyclodehydration(nrp):
     return product, True
 
 
-
-
 if __name__ == "__main__":
     s = read_smiles(r"NCC(=O)NCC(=O)O")
     target_atom = s.atoms[4]
     structure = methylation(target_atom, s)
     draw_structure(structure)
-
-
-
-
-

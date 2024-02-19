@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from typing import Optional
 
 from pikachu.drawing.drawing import *
 from pikachu.math_functions import *
@@ -6,6 +7,16 @@ from pikachu.math_functions import *
 from raichu.central_chain_detection.find_central_chain import find_central_chain, find_central_chain_not_attached, \
     find_central_chain_ripp, reorder_central_chain
 from raichu.central_chain_detection.label_central_chain import label_ripp_central_chain
+
+
+def get_ring(atom, structure):
+    cycles = structure.cycles.all_cycles
+
+    for i, cycle in enumerate(cycles):
+        if atom in cycle:
+            return cycle
+
+    return None
 
 
 class RaichuDrawer(Drawer):
@@ -42,275 +53,6 @@ class RaichuDrawer(Drawer):
     def center_on_carrier_domain(self):
         pass
 
-    def export_to_json(self):
-        json_structure = {"atoms": [],
-                          "bonds": [],
-                          "modules": []}
-
-        ring_centers_x = []
-        ring_centers_y = []
-
-        for ring in self.rings:
-            self.set_ring_center(ring)
-
-            ring_centers_x.append(ring.center.x)
-            ring_centers_y.append(ring.center.y)
-
-        for bond_nr, bond in self.structure.bonds.items():
-            if bond.atom_1.draw.positioned and bond.atom_2.draw.positioned:
-                json_bond = {"id": bond.nr,
-                             "atom_1": bond.atom_1.nr,
-                             "atom_2": bond.atom_2.nr,
-                             "type": bond.type,
-                             "chiral": False,
-                             "lines": []}
-
-                if bond in self.chiral_bonds:
-
-                    orientation, chiral_center = self.chiral_bond_to_orientation[bond]
-                    json_bond["chiral"] = True
-                    json_bond["wedge_orientation"] = orientation
-                    json_bond["wedge_origin"] = chiral_center.nr
-                elif (bond.atom_1.type == 'S' and bond.atom_2.annotations.domain_type or
-                      (bond.atom_2.type == 'S' and bond.atom_1.annotations.domain_type)):
-                    json_bond["type"] = "squiggle"
-
-        # If the starter unit contains an unknown moiety, number this R1
-        for atom in self.structure.graph:
-            if atom.type == '*' and not atom.annotations.unknown_index:
-                atom.annotations.unknown_index = 1
-        for atom in self.structure.graph:
-            if atom.draw.positioned:
-                json_atom = {"id": atom.nr,
-                             "type": atom.type,
-                             "text": '',
-                             "atom_x": atom.draw.position.x,
-                             "atom_y": atom.draw.position.y}
-
-                if atom.type != 'C' and atom.draw.positioned:
-                    text_h = ''
-                    text_h_pos = None
-
-                    if atom.type != 'C' or atom.draw.draw_explicit:
-                        text = atom.type
-                    else:
-                        text = ''
-
-                    if atom.annotations.domain_type:
-                        text = atom.annotations.domain_type
-
-                    horizontal_alignment = 'center'
-
-                    orientation = self.get_hydrogen_text_orientation(atom)
-                    if orientation == 'H_above_atom':
-                        text_h_pos = Vector(
-                            atom.draw.position.x, atom.draw.position.y + 6)
-                    if orientation == 'H_below_atom':
-                        text_h_pos = Vector(
-                            atom.draw.position.x, atom.draw.position.y - 6)
-
-                    atom_draw_position = Vector(
-                        atom.draw.position.x, atom.draw.position.y)
-
-                    if atom.type == '*':
-                        neighbouring_c = atom.get_neighbour('C')
-                        assert neighbouring_c
-                        # In order to not let the number of the sidechain overlap
-                        # with the bond, move Rx symbol along hor. axis depending on
-                        # if group is added to the left or right of the chain
-                        delta_x_r = self.get_delta_x_sidechain(
-                            atom, neighbouring_c)
-                        atom_draw_position.x += delta_x_r
-                        text = fr'$R_{atom.annotations.unknown_index}$'
-
-                    if not atom.charge and (atom.type != 'C' or atom.draw.draw_explicit or self.draw_Cs_in_pink ):
-
-                        if atom.draw.has_hydrogen:
-                            hydrogen_count = 0
-                            for neighbour in atom.neighbours:
-                                if neighbour.type == 'H' and not neighbour.draw.is_drawn:
-                                    hydrogen_count += 1
-
-                            if hydrogen_count:
-
-                                if hydrogen_count > 1:
-                                    if orientation == 'H_before_atom':
-                                        text = r'$H_{hydrogens}{atom_type}$'.format(hydrogens=hydrogen_count,
-                                                                                    atom_type=atom.type)
-                                        horizontal_alignment = 'right'
-                                        atom_draw_position.x += 3
-                                    elif orientation == 'H_below_atom' or orientation == 'H_above_atom':
-                                        text = atom.type
-                                        text_h = r'$H_{hydrogens}$'.format(
-                                            hydrogens=hydrogen_count)
-
-                                    else:
-                                        text = r'${atom_type}H_{hydrogens}$'.format(hydrogens=hydrogen_count,
-                                                                                    atom_type=atom.type)
-                                        horizontal_alignment = 'left'
-                                        atom_draw_position.x -= 3
-                                elif hydrogen_count == 1:
-                                    if orientation == 'H_before_atom':
-                                        text = f'H{atom.type}'
-                                        horizontal_alignment = 'right'
-                                        atom_draw_position.x += 3
-                                    elif orientation == 'H_below_atom' or orientation == 'H_above_atom':
-                                        text = atom.type
-                                        text_h = 'H'
-                                    else:
-                                        text = f'{atom.type}H'
-                                        horizontal_alignment = 'left'
-                                        atom_draw_position.x -= 3
-
-                    elif atom.charge:
-                        if atom.charge > 0:
-                            charge_symbol = '+'
-                        else:
-                            charge_symbol = '-'
-
-                        hydrogen_count = 0
-                        for neighbour in atom.neighbours:
-                            if neighbour.type == 'H' and not neighbour.draw.is_drawn:
-                                hydrogen_count += 1
-
-                        if not hydrogen_count:
-
-                            if abs(atom.charge) > 1:
-
-                                text = r'${atom_type}^{charge}{charge_symbol}$'.format(charge=atom.charge,
-                                                                                       atom_type=atom.type,
-                                                                                       charge_symbol=charge_symbol)
-                            elif abs(atom.charge) == 1:
-                                text = r'${atom_type}^{charge_symbol}$'.format(atom_type=atom.type,
-                                                                               charge_symbol=charge_symbol)
-
-                            horizontal_alignment = 'left'
-                            atom_draw_position.x -= 3
-                        else:
-
-                            if hydrogen_count > 1:
-                                if orientation == 'H_before_atom':
-                                    if abs(atom.charge) > 1:
-                                        text = r'$H_{hydrogens}{atom_type}^{charge}{charge_symbol}$'.format(
-                                            hydrogens=hydrogen_count,
-                                            atom_type=atom.type,
-                                            charge=atom.charge,
-                                            charge_symbol=charge_symbol)
-                                    elif abs(atom.charge) == 1:
-                                        text = r'$H_{hydrogens}{atom_type}^{charge_symbol}$'.format(
-                                            hydrogens=hydrogen_count,
-                                            atom_type=atom.type,
-                                            charge_symbol=charge_symbol)
-
-                                    horizontal_alignment = 'right'
-                                    atom_draw_position.x += 3
-                                elif orientation == 'H_above_atom' or orientation == 'H_below_atom':
-                                    text_h = r'$H_{hydrogens}$'.format(
-                                        hydrogens=hydrogen_count)
-                                    if abs(atom.charge) > 1:
-                                        text = r'${atom_type}^{charge}{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                               charge=atom.charge,
-                                                                                               charge_symbol=charge_symbol)
-                                    elif abs(atom.charge) == 1:
-                                        text = r'${atom_type}^{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                       charge_symbol=charge_symbol)
-                                else:
-                                    if abs(atom.charge) > 1:
-                                        text = r'${atom_type}H_{hydrogens}^{charge}{charge_symbol}$'.format(
-                                            hydrogens=hydrogen_count,
-                                            atom_type=atom.type,
-                                            charge=atom.charge,
-                                            charge_symbol=charge_symbol)
-                                    elif abs(atom.charge) == 1:
-                                        text = r'${atom_type}H_{hydrogens}^{charge_symbol}$'.format(
-                                            hydrogens=hydrogen_count,
-                                            atom_type=atom.type,
-                                            charge_symbol=charge_symbol)
-
-                                    horizontal_alignment = 'left'
-                                    atom_draw_position.x -= 3
-                            elif hydrogen_count == 1:
-                                if orientation == 'H_before_atom':
-                                    if abs(atom.charge) > 1:
-
-                                        text = r'$H{atom_type}^{charge}{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                                charge=atom.charge,
-                                                                                                charge_symbol=charge_symbol)
-                                    elif abs(atom.charge) == 1:
-                                        text = r'$H{atom_type}^{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                        charge_symbol=charge_symbol)
-                                    horizontal_alignment = 'right'
-                                    atom_draw_position.x += 3
-                                elif orientation == 'H_above_atom' or orientation == 'H_below_atom':
-                                    text_h = 'H'
-                                    if abs(atom.charge) > 1:
-
-                                        text = r'${atom_type}^{charge}{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                               charge=atom.charge,
-                                                                                               charge_symbol=charge_symbol)
-                                    elif abs(atom.charge) == 1:
-                                        text = r'${atom_type}^{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                       charge_symbol=charge_symbol)
-
-                                else:
-                                    if abs(atom.charge) > 1:
-                                        text = r'${atom_type}H^{charge}{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                                charge=atom.charge,
-                                                                                                charge_symbol=charge_symbol)
-
-                                    elif abs(atom.charge) == 1:
-                                        text = r'${atom_type}H^{charge_symbol}$'.format(atom_type=atom.type,
-                                                                                        charge_symbol=charge_symbol)
-                                    horizontal_alignment = 'left'
-                                    atom_draw_position.x -= 3
-                    atom_color = atom.draw.colour
-                    if self.draw_Cs_in_pink:
-                        if atom.type == 'C':
-                            atom_color = "magenta"
-                    if self.add_url:
-                        if text:
-                            plt.text(atom_draw_position.x, atom_draw_position.y,
-                                     text, url=str(atom),
-                                     horizontalalignment=horizontal_alignment,
-                                     verticalalignment='center',
-                                     color=atom_color)
-                        if text_h:
-                            plt.text(text_h_pos.x, text_h_pos.y,
-                                     text_h, url=str(atom),
-                                     horizontalalignment='center',
-                                     verticalalignment='center',
-                                     color=atom_color)
-                    else:
-                        if text:
-                            plt.text(atom_draw_position.x, atom_draw_position.y,
-                                     text, url=str(atom),
-                                     horizontalalignment=horizontal_alignment,
-                                     verticalalignment='center',
-                                     color=atom_color)
-                        if text_h:
-                            plt.text(text_h_pos.x, text_h_pos.y,
-                                     text_h, url=str(atom),
-                                     horizontalalignment='center',
-                                     verticalalignment='center',
-                                     color=atom_color)
-
-        # If a png filename is included in the initialization of the
-        # Raichu_drawer object, don't show the structure, but do save it as a
-        # png image to the provided filename
-        if self.dont_show:
-            return self
-
-        elif self.save_png is None and not self.dont_show and self.save_svg is None:
-            plt.show()
-
-        else:
-            if self.save_png:
-                plt.savefig(self.save_png)
-            elif self.save_svg:
-                plt.savefig(self.save_svg)
-            plt.clf()
-            plt.close()
-
     def find_clashing_atoms(self) -> List[Tuple[Atom, Atom]]:
         clashing_atoms = []
         for i, atom_1 in enumerate(self.drawn_atoms):
@@ -318,16 +60,19 @@ class RaichuDrawer(Drawer):
                 atom_2 = self.drawn_atoms[j]
                 if not self.structure.bond_exists(atom_1, atom_2):
                     distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
-                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H'):
-                        max_distance = self.options.bond_length_squared
+                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and \
+                            atom_2.type != 'C':
+                        max_distance = self.options.bond_length_squared * 1.5
+                    # elif atom_1.has_neighbour('H') or atom_2.has_neighbour('H'):
+                    #     max_distance = self.options.bond_length_squared / 1.5
                     else:
                         max_distance = self.options.bond_length_squared / 2
-                    if distance < max_distance:
-                        print(atom_1, atom_2, distance, max_distance)
+                    if distance <= max_distance:
                         clashing_atoms.append((atom_1, atom_2))
 
         return clashing_atoms
 
+    # TODO: add an option in pikachu Options object to set the min bond distance between which to consider fine-tuning
     def finetune_overlap_resolution(self, masked_bonds=None, highest_atom=None):
 
         if not masked_bonds:
@@ -336,86 +81,92 @@ class RaichuDrawer(Drawer):
         else:
             masked_bonds = set(masked_bonds)
 
-        if self.total_overlap_score > self.options.overlap_sensitivity:
-            clashing_atoms = self.find_clashing_atoms()
+        # if self.total_overlap_score > self.options.overlap_sensitivity:
+        clashing_atoms = self.find_clashing_atoms()
 
-            best_bonds = []
-            for atom_1, atom_2 in clashing_atoms:
-                shortest_path = self.find_shortest_path(atom_1, atom_2)
-                rotatable_bonds = []
-                distances = []
+        best_bonds = []
+        for atom_1, atom_2 in clashing_atoms:
 
-                for i, bond in enumerate(shortest_path):
-                    distance_1 = i
-                    distance_2 = len(shortest_path) - i
+            shortest_path = self.find_shortest_path(atom_1, atom_2)
+            rotatable_bonds = []
+            distances = []
 
-                    average_distance = len(shortest_path) / 2
+            for i, bond in enumerate(shortest_path):
+                distance_1 = i
+                distance_2 = len(shortest_path) - i
 
-                    distance_metric = abs(
-                        average_distance - distance_1) + abs(average_distance - distance_2)
+                average_distance = len(shortest_path) / 2
 
-                    if self.bond_is_rotatable(bond) and bond not in masked_bonds:
-                        rotatable_bonds.append(bond)
-                        distances.append(distance_metric)
+                distance_metric = abs(
+                    average_distance - distance_1) + abs(average_distance - distance_2)
 
-                best_bond = None
-                optimal_distance = float('inf')
-                for i, distance in enumerate(distances):
-                    if distance < optimal_distance:
-                        if highest_atom:
-                            if not atom_1.draw.position.y > highest_atom.draw.position.y and not atom_2.draw.position.y > highest_atom.draw.position.y:
-                                best_bond = rotatable_bonds[i]
-                                optimal_distance = distance
-                        else:
-                            best_bond = rotatable_bonds[i]
-                            optimal_distance = distance
+                if self.bond_is_rotatable(bond) and bond not in masked_bonds:
+                    rotatable_bonds.append(bond)
+                    distances.append(distance_metric)
 
-                if best_bond:
-                    best_bonds.append(best_bond)
+            best_bond = None
+            optimal_distance = float('inf')
+            for i, distance in enumerate(distances):
+                if distance < optimal_distance:
+                    # if highest_atom:
+                    #     if atom_1.draw.position.y < highest_atom.draw.position.y and \
+                    #             atom_2.draw.position.y < highest_atom.draw.position.y:
+                    #         best_bond = rotatable_bonds[i]
+                    #         optimal_distance = distance
+                    # else:
+                        best_bond = rotatable_bonds[i]
+                        optimal_distance = distance
 
-            best_bonds = list(set(best_bonds))
+            if best_bond:
+                best_bonds.append(best_bond)
 
-            for best_bond in best_bonds:
-                if self.total_overlap_score > self.options.overlap_sensitivity:
+        best_bonds = list(set(best_bonds))
 
-                    subtree_size_1 = self.get_subgraph_size(
-                        best_bond.atom_1, {best_bond.atom_2})
-                    subtree_size_2 = self.get_subgraph_size(
-                        best_bond.atom_2, {best_bond.atom_1})
+        for best_bond in best_bonds:
+            if self.total_overlap_score > self.options.overlap_sensitivity:
 
-                    if subtree_size_1 < subtree_size_2:
-                        rotating_atom = best_bond.atom_1
-                        parent_atom = best_bond.atom_2
-                    else:
-                        rotating_atom = best_bond.atom_2
-                        parent_atom = best_bond.atom_1
+                subtree_size_1 = self.get_subgraph_size(
+                    best_bond.atom_1, {best_bond.atom_2})
+                subtree_size_2 = self.get_subgraph_size(
+                    best_bond.atom_2, {best_bond.atom_1})
 
-                    overlap_score, _, _ = self.get_overlap_score()
+                if subtree_size_1 < subtree_size_2:
+                    rotating_atom = best_bond.atom_1
+                    parent_atom = best_bond.atom_2
+                else:
+                    rotating_atom = best_bond.atom_2
+                    parent_atom = best_bond.atom_1
 
-                    scores = [overlap_score]
+                overlap_score, _, _ = self.get_overlap_score()
 
-                    for i in range(12):
-                        self.rotate_subtree(rotating_atom, parent_atom, math.radians(
-                            30), parent_atom.draw.position)
-                        new_overlap_score, _, _ = self.get_overlap_score()
-                        scores.append(new_overlap_score)
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    15), parent_atom.draw.position)
 
-                    assert len(scores) == 13
+                new_overlap_score, _, _ = self.get_overlap_score()
 
-                    scores = scores[:12]
+                scores = [new_overlap_score]
 
-                    best_i = 0
-                    best_score = scores[0]
-
-                    for i, score in enumerate(scores):
-                        if score < best_score:
-                            best_score = score
-                            best_i = i
-
-                    self.total_overlap_score = best_score
-
+                for i in range(12):
                     self.rotate_subtree(rotating_atom, parent_atom, math.radians(
-                        30 * best_i + 1), parent_atom.draw.position)
+                        30), parent_atom.draw.position)
+                    new_overlap_score, _, _ = self.get_overlap_score()
+                    scores.append(new_overlap_score)
+
+                assert len(scores) == 13
+                scores = scores[:12]
+
+                best_i = 0
+                best_score = scores[0]
+
+                for i, score in enumerate(scores):
+                    if score < best_score:
+                        best_score = score
+                        best_i = i
+
+                self.total_overlap_score = best_score
+
+                self.rotate_subtree(rotating_atom, parent_atom, math.radians(
+                    30 * best_i + 1), parent_atom.draw.position)
 
     def draw(self, coords_only: bool = False) -> None:
 
@@ -426,7 +177,7 @@ class RaichuDrawer(Drawer):
         self.define_rings()
 
         if not self.multiple:
-            self.process_structure()
+            self._process_structure()
             if self.make_linear:
                 self.linearise()
             self.set_chiral_bonds()
@@ -435,6 +186,7 @@ class RaichuDrawer(Drawer):
         else:
             self.restore_ring_information()
 
+    # TODO: replace this entirely with PIKAChU's svg drawer
     def draw_structure(self):
         # Find the plotting dimensions of the molecule such that the canvas can be scaled to fit the molecule
 
@@ -487,14 +239,14 @@ class RaichuDrawer(Drawer):
                 if bond.type == 'single':
                     if bond in self.chiral_bonds:
                         orientation, chiral_center = self.chiral_bond_to_orientation[bond]
-                        self.plot_chiral_bond(orientation, chiral_center, line, ax, midpoint)
+                        self._plot_chiral_bond(orientation, chiral_center, line, ax, midpoint)
                     else:
-                        self.plot_halflines(line, ax, midpoint)
+                        self._plot_halflines(line, ax, midpoint)
                 elif bond.type == 'double':
-                    if not self.is_terminal(bond.atom_1) and not self.is_terminal(bond.atom_2):
-                        self.plot_halflines(line, ax, midpoint)
+                    if not self._is_terminal(bond.atom_1) and not self._is_terminal(bond.atom_2):
+                        self._plot_halflines(line, ax, midpoint)
 
-                        common_ring_numbers = self.get_common_rings(bond.atom_1, bond.atom_2)
+                        common_ring_numbers = self._get_common_rings(bond.atom_1, bond.atom_2)
 
                         if common_ring_numbers:
                             common_rings = []
@@ -507,7 +259,7 @@ class RaichuDrawer(Drawer):
                             second_line = line.double_line_towards_center(ring_centre, self.options.bond_spacing,
                                                                           self.options.double_bond_length)
                             second_line_midpoint = second_line.get_midpoint()
-                            self.plot_halflines_double(second_line, ax, second_line_midpoint)
+                            self._plot_halflines_double(second_line, ax, second_line_midpoint)
 
                         else:
                             bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
@@ -518,11 +270,11 @@ class RaichuDrawer(Drawer):
                                                                               self.options.bond_spacing,
                                                                               self.options.double_bond_length)
                                 second_line_midpoint = second_line.get_midpoint()
-                                self.plot_halflines_double(second_line, ax, second_line_midpoint)
+                                self._plot_halflines_double(second_line, ax, second_line_midpoint)
                             else:
                                 print("Shouldn't happen!")
                     else:
-                        if self.is_terminal(bond.atom_1) and self.is_terminal(bond.atom_2):
+                        if self._is_terminal(bond.atom_1) and self._is_terminal(bond.atom_2):
                             dummy_1 = Vector(bond.atom_1.draw.position.x + 1, bond.atom_1.draw.position.y + 1)
                             dummy_2 = Vector(bond.atom_1.draw.position.x - 1, bond.atom_1.draw.position.y - 1)
                             double_bond_line_1 = line.double_line_towards_center(dummy_1,
@@ -534,12 +286,12 @@ class RaichuDrawer(Drawer):
                                                                                  self.options.double_bond_length)
                             double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
 
-                            self.plot_halflines_double(double_bond_line_1, ax, double_bond_line_1_midpoint)
-                            self.plot_halflines_double(double_bond_line_2, ax, double_bond_line_2_midpoint)
+                            self._plot_halflines_double(double_bond_line_1, ax, double_bond_line_1_midpoint)
+                            self._plot_halflines_double(double_bond_line_2, ax, double_bond_line_2_midpoint)
 
                         else:
 
-                            if self.is_terminal(bond.atom_1):
+                            if self._is_terminal(bond.atom_1):
                                 terminal_atom = bond.atom_1
                                 branched_atom = bond.atom_2
                             else:
@@ -590,11 +342,11 @@ class RaichuDrawer(Drawer):
                                     if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
                                         double_bond_line_2.point_2 = intersection_2
 
-                                self.plot_halflines(double_bond_line_1, ax, double_bond_line_1_midpoint)
-                                self.plot_halflines(double_bond_line_2, ax, double_bond_line_2_midpoint)
+                                self._plot_halflines(double_bond_line_1, ax, double_bond_line_1_midpoint)
+                                self._plot_halflines(double_bond_line_2, ax, double_bond_line_2_midpoint)
 
                             else:
-                                self.plot_halflines(line, ax, midpoint)
+                                self._plot_halflines(line, ax, midpoint)
 
                                 bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
                                 if bond_neighbours:
@@ -603,17 +355,17 @@ class RaichuDrawer(Drawer):
                                     second_line = line.get_parallel_line(gravitational_point,
                                                                          self.options.bond_spacing)
                                     second_line_midpoint = second_line.get_midpoint()
-                                    self.plot_halflines(second_line, ax, second_line_midpoint)
+                                    self._plot_halflines(second_line, ax, second_line_midpoint)
                                 else:
                                     print("Shouldn't happen!")
 
                 elif bond.type == 'triple':
-                    self.plot_halflines(line, ax, midpoint)
+                    self._plot_halflines(line, ax, midpoint)
                     line_1, line_2 = line.get_parallel_lines(self.options.bond_spacing)
                     line_1_midpoint = line_1.get_midpoint()
                     line_2_midpoint = line_2.get_midpoint()
-                    self.plot_halflines(line_1, ax, line_1_midpoint)
-                    self.plot_halflines(line_2, ax, line_2_midpoint)
+                    self._plot_halflines(line_1, ax, line_1_midpoint)
+                    self._plot_halflines(line_2, ax, line_2_midpoint)
 
         # If the starter unit contains an unknown moiety, number this R1
         for atom in self.structure.graph:
@@ -637,7 +389,7 @@ class RaichuDrawer(Drawer):
 
                 horizontal_alignment = 'center'
 
-                orientation = self.get_hydrogen_text_orientation(atom)
+                orientation = self._get_hydrogen_text_orientation(atom)
                 if orientation == 'H_above_atom':
                     text_h_pos = Vector(
                         atom.draw.position.x, atom.draw.position.y + 6)
@@ -848,6 +600,9 @@ class RaichuDrawer(Drawer):
             plt.clf()
             plt.close()
 
+    def colour_modules(self):
+        pass
+
     def place_top_atom(self, backbone_atoms, attachment_point):
 
 
@@ -896,11 +651,11 @@ class RaichuDrawer(Drawer):
                 backbone_to_placement[atom] = 'left'
             else:
                 if atom not in backbone_to_placement:
-                    previous_placement = backbone_to_placement[backbone[i - 1]]
+                    previous_placement = backbone_to_placement.get(backbone[i - 1])
                     ring = atom_to_ring.get(atom)
                     if ring and len(ring) == 2:
                         if ring[0] in backbone_to_placement:
-                            backbone_to_placement[ring[1]] = backbone_to_placement[ring[0]]
+                            backbone_to_placement[ring[1]] = backbone_to_placement.get(ring[0])
                         else:
                             backbone_to_placement[atom] = self.get_opposite_placement(previous_placement)
                     elif hasattr(atom, "domain_type") and atom.annotations.domain_type == "Leader":
@@ -962,13 +717,15 @@ class RaichuDrawer(Drawer):
                 atom_2 = self.drawn_atoms[j]
                 distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
                 if atom_1 not in atom_2.neighbours:
-                    if distance < self.options.bond_length_squared:
+                    if distance < self.options.bond_length_squared + 1:
 
-                        if atom_1.has_neighbour('H') and atom_2.has_neighbour('H'):
+                        if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' \
+                                and atom_2.type != 'C':
 
-                            weight = self.options.overlap_sensitivity + (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                            weight = self.options.overlap_sensitivity + abs((self.options.bond_length - math.sqrt(distance))) / self.options.bond_length
+
                         else:
-                            weight = (self.options.bond_length - math.sqrt(distance)) / self.options.bond_length
+                            weight = abs((self.options.bond_length - math.sqrt(distance))) / self.options.bond_length
                         total += weight
                         overlap_scores[atom_1] += weight
                         overlap_scores[atom_2] += weight
@@ -1021,7 +778,7 @@ class RaichuDrawer(Drawer):
 
         self.structure.refresh_structure()
 
-        backbone, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
+        backbone, full_rings, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
         if len(domains) == 2:
             for domain in domains:
                 if domain.annotations.domain_type == 'Leader':
@@ -1043,7 +800,6 @@ class RaichuDrawer(Drawer):
 
             if backbone_to_placement[atom_1] == 'right' and backbone_to_placement[atom_2] == 'left':
                 desired_angle = 60.0
-
             elif backbone_to_placement[atom_1] == 'left' and backbone_to_placement[atom_2] == 'right':
                 desired_angle = 120.0
             elif backbone_to_placement[atom_1] == backbone_to_placement[atom_2]:
@@ -1064,6 +820,7 @@ class RaichuDrawer(Drawer):
                                         atom_1.draw.position)
                 elif len(atom_to_ring[atom_2]) == 3:
                     if atom_2 == atom_to_ring[atom_2][1]:
+
                         self.rotate_subtree(atom_2, atom_1, required_rotation_rad,
                                             atom_1.draw.position)
                     elif atom_2 == atom_to_ring[atom_2][2]:
@@ -1095,8 +852,9 @@ class RaichuDrawer(Drawer):
             i += 1
 
         atoms_in_rings = []
-        for ring in rings:
-            atoms_in_rings += ring
+        for ring in full_rings:
+            for atom in ring:
+                atoms_in_rings.append(atom)
         atoms_in_rings = set(atoms_in_rings)
 
         self.fix_rings(rings, backbone, backbone_to_placement)
@@ -1116,7 +874,7 @@ class RaichuDrawer(Drawer):
         self.finetune_overlap_resolution(
             masked_bonds=central_chain_bonds, highest_atom=backbone[0])
 
-        self.resolve_secondary_overlaps(sorted_overlap_scores)
+        # self.resolve_secondary_overlaps(sorted_overlap_scores)
 
         if self.horizontal:
             if horizontal_rotation == 'clockwise':
@@ -1124,11 +882,124 @@ class RaichuDrawer(Drawer):
             else:
                 self.rotate_structure(1.5707)
 
+    def resolve_overlaps(self, linear: bool = True, masked_bonds: Optional[Set["Bond"]] = None) -> None:
+        """
+
+        Parameters
+        ----------
+        linear: bool, if True, resolve overlaps for a linearised molecule; if False,
+            resolve overlaps for a non-linearised molecule
+        masked_bonds: set of bonds, bonds that are not allowed to be rotated
+
+        """
+        if not linear:
+
+            self.resolve_primary_overlaps()
+            self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
+            self.finetune_overlap_resolution()
+            self.resolve_secondary_overlaps(sorted_overlap_scores)
+
+        else:
+
+            pass
+
+    def find_high_atoms(self, atoms: List[Atom], max_y: float) -> List[Atom]:
+        """
+        Returns atoms that are drawn too high on the plot
+        Parameters
+        ----------
+        atoms: list of [Atom, ->]
+        max_y: float, maximum vertical y coordinate an atom is allowed to have
+
+        Returns
+        -------
+        high_atoms: list of [Atom, ->], atoms with a y coordinate higher than max_y
+        """
+        high_atoms: List[Atom] = []
+        for atom in atoms:
+            if atom.draw.position.y > max_y:
+                high_atoms.append(atom)
+        return high_atoms
+
+    def find_clashing_sidechain_atoms(self, sidechain_atoms):
+        clashing_atoms: List[Tuple[Atom, Atom]] = []
+        for i, atom_1 in enumerate(self.drawn_atoms):
+            for j in range(i + 1, len(self.drawn_atoms)):
+                atom_2 = self.drawn_atoms[j]
+                if atom_1 in sidechain_atoms and not self.structure.bond_exists(atom_1, atom_2):
+                    distance = Vector.subtract_vectors(atom_1.draw.position, atom_2.draw.position).get_squared_length()
+                    if atom_1.has_neighbour('H') and atom_2.has_neighbour('H') and atom_1.type != 'C' and \
+                            atom_2.type != 'C':
+                        max_distance = self.options.bond_length_squared * 1.5
+                    elif atom_1.has_neighbour('H') or atom_2.has_neighbour('H'):
+                        max_distance = self.options.bond_length_squared
+                    else:
+                        max_distance = self.options.bond_length_squared * 0.8
+                    if distance <= max_distance:
+                        clashing_atoms.append((atom_1, atom_2))
+
+        return clashing_atoms
+
+    def resolve_sidechain_overlaps(self, backbone, backbone_to_placement, backbone_rings, central_chain_bonds):
+        max_y = backbone[0].draw.position.y
+        placed_atoms: List[Atom] = []
+        backbone_to_sidechain: Dict[Atom, List[List[Atom]]] = {}
+        backbone_to_rotatable_bonds: Dict[Atom, List[Bond]] = {}
+
+        for backbone_atom in backbone:
+            sidechains = self.get_sidechains(backbone, backbone_atom, backbone_rings)
+            backbone_to_sidechain[backbone_atom] = sidechains
+            beta_atoms: List[Atom] = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+            for sidechain in sidechains:
+                beta_atom: Optional[Atom] = None
+
+                for atom in sidechain:
+                    if atom in beta_atoms:
+                        beta_atom = atom
+                        break
+
+                assert beta_atom
+
+                sidechain_bonds = self.get_sidechain_bonds(sidechain)
+                masked_bond = self.structure.bond_lookup[beta_atom][backbone_atom]
+                rotatable_bonds: List[Bond] = []
+
+                for bond in sidechain_bonds:
+                    if self.bond_is_rotatable(bond) and bond != masked_bond:
+                        rotatable_bonds.append(bond)
+                backbone_to_rotatable_bonds[backbone_atom] = rotatable_bonds
+
+
+            if len(sidechains) == 2:
+                pass
+            elif len(sidechains) == 1:
+                sidechain = sidechains[0]
+                atoms_to_adjust: List[Atom] = self.find_high_atoms(sidechain, max_y)
+                clashing_atoms = self.find_clashing_sidechain_atoms(sidechain)
+                if clashing_atoms or atoms_to_adjust:
+                    beta_atoms: List[Atom] = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+                    assert len(beta_atoms) == 1
+                    beta_atom = beta_atoms[0]
+
+                    sidechain_bonds = self.get_sidechain_bonds(sidechain)
+                    rotatable_bonds: List[Bond] = []
+
+                    masked_bond = self.structure.bond_lookup[beta_atom][backbone_atom]
+                    for bond in sidechain_bonds:
+                        if self.bond_is_rotatable(bond) and bond != masked_bond and \
+                                (bond.atom_1 in beta_atoms or bond.atom_2 in beta_atoms):
+                            rotatable_bonds.append(bond)
+
+                    if not rotatable_bonds:
+                        for bond in sidechain_bonds:
+                            if self.bond_is_rotatable(bond) and bond != masked_bond:
+                                rotatable_bonds.append(bond)
+
     def resolve_secondary_overlaps(self, sorted_scores: List[Tuple[float, Atom]]) -> None:
         for score, atom in sorted_scores:
             if score > self.options.overlap_sensitivity:
                 if len(atom.drawn_neighbours) <= 1:
-                    if atom.drawn_neighbours and atom.drawn_neighbours[0].adjacent_to_stereobond():
+                    if atom.drawn_neighbours and atom.drawn_neighbours[0]._adjacent_to_stereobond():
                         continue
 
                     closest_atom = self.get_closest_atom(atom)
@@ -1155,7 +1026,6 @@ class RaichuDrawer(Drawer):
                     # atom.draw.position.rotate_away_from_vector(closest_position, atom_previous_position,
                     #                                            math.radians(20))
 
-
     def rotate_subtree_ring(self, root, masked, angle, center):
         for atom in self.traverse_substructure(root, masked):
             atom.draw.position.rotate_around_vector(angle, center)
@@ -1163,33 +1033,139 @@ class RaichuDrawer(Drawer):
                 if anchored_ring.center:
                     anchored_ring.center.rotate_around_vector(angle, center)
 
+    def get_beta_atoms(self, backbone: List[Atom], backbone_atom: Atom, backbone_rings: List[Atom]) -> List[Atom]:
+        """
+        Returns atoms directly adjacent to the backbone atom that is not in the same ring as a backbone atom
+
+        Parameters
+        ----------
+        backbone: list of [Atom, ->] with each atom a backbone atom
+        backbone_atom: Atom instance, backbone atom for which the sidechains are determined
+        backbone_rings: list of [Atom, ->] with each atom a member of a ring that overlaps with the backbone
+
+        Returns
+        -------
+        beta_atoms: list of [Atom, ->], representing the atoms directly adjacent to the backbone atom
+        """
+        beta_atoms: List[Atom] = []
+        for neighbour in backbone_atom.neighbours:
+            if neighbour.type != 'H' and not neighbour.annotations.domain_type:
+                if neighbour not in backbone and neighbour not in backbone_rings:
+                    beta_atoms.append(neighbour)
+
+        return beta_atoms
+
+
+
+    def get_sidechains(self, backbone: List[Atom], backbone_atom: Atom, backbone_rings: List[Atom]) -> List[List[Atom]]:
+        """
+        Returns the non-ring sidechains of a backbone atom
+
+        Parameters
+        ----------
+        backbone: list of [Atom, ->] with each atom a backbone atom
+        backbone_atom: Atom instance, backbone atom for which the sidechains are determined
+        backbone_rings: list of [Atom, ->] with each atom a member of a ring that overlaps with the backbone
+
+        Returns
+        -------
+        sidechains: list of [[Atom, ->] ->], representing the sidechains coming out of the backbone atom
+
+        """
+        sidechains: List[List[Atom]] = []
+        beta_atoms = self.get_beta_atoms(backbone, backbone_atom, backbone_rings)
+        for beta_atom in beta_atoms:
+            sidechain: List[Atom] = []
+
+            for atom in self.traverse_substructure(beta_atom, {backbone_atom}):
+                sidechain.append(atom)
+            sidechains.append(sidechain)
+        return sidechains
+
+    def get_sidechain_bonds(self, sidechain: List[Atom]) -> List[Bond]:
+        """
+        Returns a list of bonds that exist between sidechain atoms
+
+        Parameters
+        ----------
+        sidechain: list of [Atom, ->]
+
+        Returns
+        -------
+        sidechain_bonds: list of [Bond, ->]
+
+        """
+        bonds: Set[Bond] = set()
+
+        for atom in sidechain:
+            for neighbour in atom.neighbours:
+                if neighbour in sidechain:
+                    bonds.add(self.structure.bond_lookup[atom][neighbour])
+
+        sidechain_bonds: List[Bond] = list(bonds)
+
+        return sidechain_bonds
+
     def position_sidechains(self, backbone, backbone_to_placement, atoms_in_backbone_rings):
 
-        sidechain_to_placement = {}
-        sidechain_to_neighbour = {}
+        backbone_to_neighbours = {}
 
         for backbone_atom in backbone:
+            neighbours = []
             for neighbour in backbone_atom.neighbours:
                 if neighbour.type != 'H' and not neighbour.annotations.domain_type:
-                    if neighbour not in backbone and not neighbour in atoms_in_backbone_rings and neighbour not in sidechain_to_placement:
+                    if neighbour not in backbone and neighbour not in atoms_in_backbone_rings \
+                            and neighbour not in neighbours:
+                        neighbours.append(neighbour)
+            backbone_to_neighbours[backbone_atom] = neighbours
 
-                        sidechain_to_placement[neighbour] = backbone_to_placement[backbone_atom]
-                        sidechain_to_neighbour[neighbour] = backbone_atom
+        for backbone_atom, neighbours in backbone_to_neighbours.items():
+            placement = backbone_to_placement[backbone_atom]
+            if len(neighbours) == 0:
+                pass
+            elif len(neighbours) == 1:
+                neighbour = neighbours[0]
 
-        for atom, placement in sidechain_to_placement.items():
-            backbone_atom = sidechain_to_neighbour[atom]
-            current_angle = get_angle(backbone_atom.draw.position, atom.draw.position)
-            if placement == 'right':
-                desired_angle = 180.0
-            elif placement == 'left':
-                desired_angle = 0.0
+                current_angle = get_angle(backbone_atom.draw.position, neighbour.draw.position)
+
+                if placement == 'right':
+                    desired_angle = 180.0
+                elif placement == 'left':
+                    desired_angle = 0.0
+                else:
+                    raise ValueError("Placement must be 'left' or 'right'.")
+
+                required_rotation_deg = desired_angle - current_angle
+                required_rotation_rad = math.radians(required_rotation_deg)
+
+                self.rotate_subtree(neighbour, backbone_atom, required_rotation_rad, backbone_atom.draw.position)
+
+            elif len(neighbours) == 2:
+                neighbour_1, neighbour_2 = neighbours
+
+                current_angle_1 = get_angle(backbone_atom.draw.position, neighbour_1.draw.position)
+                current_angle_2 = get_angle(backbone_atom.draw.position, neighbour_2.draw.position)
+
+                if placement == 'right':
+                    desired_angle_1 = 140.0
+                    desired_angle_2 = 220.0
+                elif placement == 'left':
+                    desired_angle_1 = 40.0
+                    desired_angle_2 = -40.0
+                else:
+                    raise ValueError("Placement must be 'left' or 'right'.")
+
+                required_rotation_deg_1 = desired_angle_1 - current_angle_1
+                required_rotation_rad_1 = math.radians(required_rotation_deg_1)
+
+                required_rotation_deg_2 = desired_angle_2 - current_angle_2
+                required_rotation_rad_2 = math.radians(required_rotation_deg_2)
+
+                self.rotate_subtree(neighbour_1, backbone_atom, required_rotation_rad_1, backbone_atom.draw.position)
+                self.rotate_subtree(neighbour_2, backbone_atom, required_rotation_rad_2, backbone_atom.draw.position)
             else:
-                raise ValueError("Placement must be 'left' or 'right'.")
+                raise ValueError("Backbone atoms can only have two non-backbone neighbours at most")
 
-            required_rotation_deg = desired_angle - current_angle
-            required_rotation_rad = math.radians(required_rotation_deg)
-
-            self.rotate_subtree(atom, backbone_atom, required_rotation_rad, backbone_atom.draw.position)
 
     def plot_halflines_s_domain(self, line, ax, midpoint):
         truncated_line = line.get_truncated_line(
@@ -1242,14 +1218,14 @@ class RaichuDrawer(Drawer):
                     if bond in self.chiral_bonds:
 
                         orientation, chiral_center = self.chiral_bond_to_orientation[bond]
-                        self.draw_chiral_bond(orientation, chiral_center, line, midpoint)
+                        self._draw_chiral_bond(orientation, chiral_center, line, midpoint)
                     else:
-                        self.draw_halflines(line, midpoint)
+                        self._draw_halflines(line, midpoint)
                 elif bond.type == 'double':
-                    if not self.is_terminal(bond.atom_1) and not self.is_terminal(bond.atom_2):
-                        self.draw_halflines(line, midpoint)
+                    if not self._is_terminal(bond.atom_1) and not self._is_terminal(bond.atom_2):
+                        self._draw_halflines(line, midpoint)
 
-                        common_ring_numbers = self.get_common_rings(bond.atom_1, bond.atom_2)
+                        common_ring_numbers = self._get_common_rings(bond.atom_1, bond.atom_2)
 
                         if common_ring_numbers:
                             common_rings = []
@@ -1262,7 +1238,7 @@ class RaichuDrawer(Drawer):
                             second_line = line.double_line_towards_center(ring_centre, self.options.bond_spacing,
                                                                           self.options.double_bond_length)
                             second_line_midpoint = second_line.get_midpoint()
-                            self.draw_halflines_double(second_line, second_line_midpoint)
+                            self._draw_halflines_double(second_line, second_line_midpoint)
 
                         else:
                             bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
@@ -1273,11 +1249,11 @@ class RaichuDrawer(Drawer):
                                                                               self.options.bond_spacing,
                                                                               self.options.double_bond_length)
                                 second_line_midpoint = second_line.get_midpoint()
-                                self.draw_halflines_double(second_line, second_line_midpoint)
+                                self._draw_halflines_double(second_line, second_line_midpoint)
                             else:
                                 print("Shouldn't happen!")
                     else:
-                        if self.is_terminal(bond.atom_1) and self.is_terminal(bond.atom_2):
+                        if self._is_terminal(bond.atom_1) and self._is_terminal(bond.atom_2):
                             dummy_1 = Vector(bond.atom_1.draw.position.x + 1, bond.atom_1.draw.position.y + 1)
                             dummy_2 = Vector(bond.atom_1.draw.position.x - 1, bond.atom_1.draw.position.y - 1)
                             double_bond_line_1 = line.double_line_towards_center(dummy_1,
@@ -1289,12 +1265,12 @@ class RaichuDrawer(Drawer):
                                                                                  self.options.double_bond_length)
                             double_bond_line_2_midpoint = double_bond_line_2.get_midpoint()
 
-                            self.draw_halflines_double(double_bond_line_1, double_bond_line_1_midpoint)
-                            self.draw_halflines_double(double_bond_line_2, double_bond_line_2_midpoint)
+                            self._draw_halflines_double(double_bond_line_1, double_bond_line_1_midpoint)
+                            self._draw_halflines_double(double_bond_line_2, double_bond_line_2_midpoint)
 
                         else:
 
-                            if self.is_terminal(bond.atom_1):
+                            if self._is_terminal(bond.atom_1):
                                 terminal_atom = bond.atom_1
                                 branched_atom = bond.atom_2
                             else:
@@ -1345,11 +1321,11 @@ class RaichuDrawer(Drawer):
                                     if intersection_2 and intersection_2.x < 100000 and intersection_2.y < 100000:
                                         double_bond_line_2.point_2 = intersection_2
 
-                                self.draw_halflines(double_bond_line_1, double_bond_line_1_midpoint)
-                                self.draw_halflines(double_bond_line_2, double_bond_line_2_midpoint)
+                                self._draw_halflines(double_bond_line_1, double_bond_line_1_midpoint)
+                                self._draw_halflines(double_bond_line_2, double_bond_line_2_midpoint)
 
                             else:
-                                self.draw_halflines(line, midpoint)
+                                self._draw_halflines(line, midpoint)
 
                                 bond_neighbours = bond.atom_1.drawn_neighbours + bond.atom_2.drawn_neighbours
                                 if bond_neighbours:
@@ -1358,17 +1334,17 @@ class RaichuDrawer(Drawer):
                                     second_line = line.get_parallel_line(gravitational_point,
                                                                          self.options.bond_spacing)
                                     second_line_midpoint = second_line.get_midpoint()
-                                    self.draw_halflines(second_line, second_line_midpoint)
+                                    self._draw_halflines(second_line, second_line_midpoint)
                                 else:
                                     print("Shouldn't happen!")
 
                 elif bond.type == 'triple':
-                    self.draw_halflines(line, midpoint)
+                    self._draw_halflines(line, midpoint)
                     line_1, line_2 = line.get_parallel_lines(self.options.bond_spacing)
                     line_1_midpoint = line_1.get_midpoint()
                     line_2_midpoint = line_2.get_midpoint()
-                    self.draw_halflines(line_1, line_1_midpoint)
-                    self.draw_halflines(line_2, line_2_midpoint)
+                    self._draw_halflines(line_1, line_1_midpoint)
+                    self._draw_halflines(line_2, line_2_midpoint)
 
         for atom in self.structure.graph:
             if atom.draw.positioned:
@@ -1379,16 +1355,18 @@ class RaichuDrawer(Drawer):
 
                 if atom.type != 'C' or atom.draw.draw_explicit or atom.charge:
                     if atom.type == 'C' and not atom.charge:
-                        svg_text = self.draw_text('.', atom.draw.position.x, atom.draw.position.y - 2)
+                        svg_text = self._draw_text('.', atom.draw.position.x, atom.draw.position.y - 2,
+                                                   color=atom.draw.colour)
                     else:
-                        svg_text = self.draw_text(atom.type, atom.draw.position.x, atom.draw.position.y)
+                        svg_text = self._draw_text(atom.type, atom.draw.position.x, atom.draw.position.y,
+                                                   color=atom.draw.colour)
                 if hasattr(atom, "domain_type") and atom.annotations.domain_type in ["Leader", "Follower", "ACP", "PCP"]:
                     svg_text = ''
 
                         # TODO: Make this possible in svg writing
                         # text = self.set_r_group_indices_subscript(atom.type)
 
-                orientation = self.get_hydrogen_text_orientation(atom)
+                orientation = self._get_hydrogen_text_orientation(atom)
 
                 # Swap up-down orientation due to swapped svg coordinate system
                 if orientation == 'H_below_atom':
@@ -1441,10 +1419,12 @@ class RaichuDrawer(Drawer):
                     charge_pos = Vector(charge_x, charge_y)
 
                     if hydrogen_count:
-                        svg_h_text = self.draw_text('H', h_pos.x, h_pos.y)
+                        svg_h_text = self._draw_text('H', h_pos.x, h_pos.y,
+                                                     color=atom.draw.colour)
                         if hydrogen_count > 1:
-                            svg_h_count_text = self.draw_text(hydrogen_count, h_subscript_pos.x, h_subscript_pos.y,
-                                                              font_size=self.options.svg_font_size_small)
+                            svg_h_count_text = self._draw_text(hydrogen_count, h_subscript_pos.x, h_subscript_pos.y,
+                                                               font_size=self.options.svg_font_size_small,
+                                                               color=atom.draw.colour)
                     if atom.charge:
                         if atom.charge > 0:
                             charge_symbol = '+'
@@ -1456,8 +1436,9 @@ class RaichuDrawer(Drawer):
                         else:
                             charge_text = charge_symbol
 
-                        svg_charge_text = self.draw_text(charge_text, charge_pos.x, charge_pos.y,
-                                                         font_size=self.options.svg_font_size_small)
+                        svg_charge_text = self._draw_text(charge_text, charge_pos.x, charge_pos.y,
+                                                          font_size=self.options.svg_font_size_small,
+                                                          color=atom.draw.colour)
 
                 if svg_text or svg_h_text or svg_charge_text or svg_h_count_text:
                     if self.structure_id:
@@ -1477,12 +1458,12 @@ class RaichuDrawer(Drawer):
                         text_group += svg_h_count_text
                         text_group += '\n'
                     text_group += '</g>'
-                    self.add_svg_element(text_group, atom)
+                    self._add_svg_element(text_group, atom)
 
         if numbered_atoms:
             self.show_atom_numbers(numbered_atoms)
 
-        svg = self.assemble_svg()
+        svg = self._assemble_svg()
         return svg
 
 

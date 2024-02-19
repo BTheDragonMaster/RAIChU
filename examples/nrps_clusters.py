@@ -1,6 +1,5 @@
 from raichu.run_raichu import ClusterRepresentation, ModuleRepresentation, DomainRepresentation, draw_cluster, \
-    draw_products, build_cluster
-from pikachu.general import svg_from_structure
+    draw_products, build_cluster, TailoringRepresentation, get_tailoring_sites
 
 # marformycin A
 
@@ -74,7 +73,7 @@ marformycin_cluster = ClusterRepresentation([ModuleRepresentation("NRPS", None, 
 
 draw_cluster(marformycin_cluster, "marformycin_A.svg")
 
-hormaomycin_cluster = ClusterRepresentation([ModuleRepresentation('NRPS', None, "pyrrole-2-carboxylic acid",
+hormaomycin_cluster = ClusterRepresentation([ModuleRepresentation('NRPS', None, "5‐chloropyrrole‐2‐carboxylic acid",
                                                                   [DomainRepresentation('HrmK', 'A'),
                                                                    DomainRepresentation('HrmL', 'PCP')]),
                                              ModuleRepresentation('NRPS', None, "3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine",
@@ -106,9 +105,15 @@ hormaomycin_cluster = ClusterRepresentation([ModuleRepresentation('NRPS', None, 
                                              ModuleRepresentation('NRPS', None, "4S-propenylproline",
                                                                   [DomainRepresentation('HrmP', 'C'),
                                                                    DomainRepresentation('HrmP', 'A'),
-                                                                   DomainRepresentation('HrmP', 'PCP')]),
+                                                                   DomainRepresentation('HrmP', 'PCP')])],
+                                            tailoring_enzymes=[
+                                                TailoringRepresentation(
+                                                    "unknown", "HYDROXYLASE", [["N_133"]])
                                              ])
-
+cluster = build_cluster(hormaomycin_cluster, strict=False)
+cluster.compute_structures(compute_cyclic_products=False)
+print(get_tailoring_sites(cluster.chain_intermediate,
+                          enzyme_name='HYDROXYLASE', out_file="hormaomycin_n.svg"))
 draw_cluster(hormaomycin_cluster, "hormaomycin.svg")
 print("drawn cluster")
 draw_products(hormaomycin_cluster, "hormaomycin")
@@ -139,7 +144,7 @@ figure_1_example = ClusterRepresentation([ModuleRepresentation('NRPS', None, "gl
 
 draw_cluster(figure_1_example, "figure_1_example_cycox.svg")
 draw_products(figure_1_example, "figure_1_example_cycox")
-
+#
 figure_1_example = ClusterRepresentation([ModuleRepresentation('NRPS', None, "glycine",
                                                                [DomainRepresentation('gene 1', 'A'),
                                                                 DomainRepresentation('gene 1', 'PCP')]),
@@ -174,5 +179,52 @@ figure_1_example = ClusterRepresentation([ModuleRepresentation('NRPS', None, "th
                                                                 DomainRepresentation('gene 1', 'PCP',),
                                                                 DomainRepresentation('gene 1', 'TD')])])
 
+side_chain_debug = ClusterRepresentation([ModuleRepresentation('NRPS', None, "5‐chloropyrrole‐2‐carboxylic acid",
+                                                               [DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP')]),
+                                          ModuleRepresentation('NRPS', None, "threonine",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP',)]),
+                                          ModuleRepresentation('NRPS', None, "tryptophan",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "aspartic acid",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "aspartic acid",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "4-hydroxyphenylglycine",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "2-methylserine",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "proline",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "4S-propenylproline",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "glutamic acid",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )]),
+                                          ModuleRepresentation('NRPS', None, "tryptophan",
+                                                               [DomainRepresentation('gene 1', 'C'),
+                                                                DomainRepresentation('gene 1', 'A'),
+                                                                DomainRepresentation('gene 1', 'PCP', )])
+                                          ])
+
 draw_cluster(figure_1_example, "figure_1_example_TD.svg")
 draw_products(figure_1_example, "figure_1_example_TD")
+
+draw_cluster(side_chain_debug, "nrps_side_chain_debug.svg")

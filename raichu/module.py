@@ -2,14 +2,15 @@ from typing import List, Union
 
 from pikachu.general import read_smiles
 from pikachu.chem.structure import Structure
+from pikachu.chem.atom import Atom
 
+from raichu.class_domain import CarrierDomain as ClassCarrierDomain
 from raichu.domain.domain import Domain, TailoringDomain, RecognitionDomain, \
     SynthesisDomain, CarrierDomain, TerminationDomain
 from raichu.central_chain_detection.label_central_chain import label_pk_central_chain, label_nrp_central_chain
 from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
 from raichu.substrate import PKSSubstrate
-from pikachu.general import structure_to_smiles
 
 @unique
 class ModuleType(Enum):
@@ -184,6 +185,19 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
 
         return
 
+    def add_module_label(self, structure):
+        for atom in structure.graph:
+            if type(atom) == Atom and not atom.annotations.has_annotation('module_nr'):
+                atom.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+
+            if type(atom) == ClassCarrierDomain:
+                for neighbour in structure.graph[atom]:
+                    if neighbour.type == 'S':
+                        if not neighbour.annotations.has_annotation('module_nr'):
+                            neighbour.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+                        else:
+                            neighbour.annotations.module_nr = f"module_{self.id + 1:02}"
+
     def do_pks_tailoring(self, structure: Structure) -> Structure:
         kr_domain = self.get_tailoring_domain("KR")
         dh_domain = self.get_tailoring_domain("DH")
@@ -274,6 +288,7 @@ class LinearPKSModule(_Module):
                     structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
                 structure = self.do_pks_tailoring(structure)
+            self.add_module_label(structure)
             return structure
 
 
@@ -301,6 +316,7 @@ class IterativePKSModule(_Module):
                             structure, substrate)
 
                     structure = self.do_pks_tailoring(structure)
+            self.add_module_label(structure)
             return structure
 
 
@@ -491,7 +507,8 @@ class TransATPKSModule(_Module):
                 else:
                     structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
                 structure = self.do_pks_tailoring(structure)
-                return structure
+            self.add_module_label(structure)
+            return structure
 
 
 class NRPSModule(_Module):
@@ -513,4 +530,5 @@ class NRPSModule(_Module):
                     structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
 
                 structure = self.do_nrps_tailoring(structure)
+            self.add_module_label(structure)
             return structure

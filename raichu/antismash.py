@@ -155,7 +155,7 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
             if feature.type == 'aSDomain':
                 domain = {}
                 domain["active"] = True
-                domain["id" ]= feature.qualifiers['domain_id'][0]
+                domain["id"] = feature.qualifiers['domain_id'][0]
                 domain["type"] = antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[feature.qualifiers['aSDomain'][0]
                                                                    ] if feature.qualifiers['aSDomain'][0] in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN else feature.qualifiers['aSDomain'][0]
                 domain["start"] = feature.location.start

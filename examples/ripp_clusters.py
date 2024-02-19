@@ -20,7 +20,7 @@ draw_ripp_structure(cyanobactin_cluster_trunkamide, "cyanobactin")
 sacti_peptide_cluster_thurincin = RiPPCluster("thnA", "METPVVQPRDWTCWSCLVCAACSVELLNLVTAATGASTAS",
                                               "DWTCWSCLVCAACSVELLNLVTAATGASTAS",
                                               tailoring_representations=[TailoringRepresentation(
-                                                  "thnB", "OXIDATIVE_BOND_FORMATION",
+                                                  "thnB", "OXIDATIVE_BOND_SYNTHASE",
                                                   [['S_109', "C_222"], ['S_66', "C_203"], ['S_90', "C_182"],
                                                    ['S_37', "C_156"]])]
                                                   )
@@ -39,11 +39,11 @@ thiopeptide_cluster_thiomuracin = RiPPCluster("tpdA", "MDLSDLPMDVFELADDGVAVESLTA
                                                   TailoringRepresentation("tpdF", "THIOPEPTIDE_CYCLASE",
                                                                           [["C_3", "C_89"]]),
                                                   TailoringRepresentation("tpdF", "METHYLTRANSFERASE", [["C_26"]]),
-                                                  TailoringRepresentation("tpdF", "HYDROXYLATION", [["C_33"]]),
+                                                  TailoringRepresentation("tpdF", "HYDROXYLASE", [["C_33"]]),
                                                   TailoringRepresentation(
-                                                      "tpdF", "DOUBLE_BOND_FORMATION",
+                                                      "tpdF", "DEHYDROGENASE",
                                                       [["C_67", "C_68"], ["C_3", "C_89"]]),
-                                                  TailoringRepresentation("tpdF", "EPOXIDATION", [["C_67", "C_68"]]),
+                                                  TailoringRepresentation("tpdF", "EPOXIDASE", [["C_67", "C_68"]]),
                                                   TailoringRepresentation("tpdF", "MONOAMINE_OXIDASE", [["N_0"]]),
                                                   TailoringRepresentation(
                                                       "tpdF", "DEHYDRATASE", [["C_1", "C_84"]])

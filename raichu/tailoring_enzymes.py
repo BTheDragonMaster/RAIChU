@@ -4,7 +4,7 @@ import itertools
 from pikachu.drawing.drawing import Drawer
 from raichu.reactions.general_tailoring_reactions import proteolytic_cleavage, find_atoms_for_tailoring, remove_atom, single_bond_oxidation, addition, oxidative_bond_formation, epoxidation, double_bond_reduction, double_bond_shift, macrolactam_formation, cyclodehydration, change_chirality, excise_from_structure, reductive_bond_breakage
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
-from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE, C1_AMINO_ACID_ATTACHED, ARGININE_SECONDARY_N, ESTER_BOND
+from raichu.data.molecular_moieties import CO_BOND, CC_DOUBLE_BOND, PEPTIDE_BOND, CC_SINGLE_BOND, KETO_GROUP, C_CARBOXYL, ASPARTIC_ACID, GLUTAMIC_ACID, CYSTEINE, SERINE, THREONINE, REDUCED_SERINE, REDUCED_THREONINE, C1_AMINO_ACID_ATTACHED, ARGININE_SECONDARY_N_1, ARGININE_SECONDARY_N_2, ARGININE_SECONDARY_N_3, ESTER_BOND
 from pikachu.reactions.functional_groups import find_atoms, find_bonds
 from pikachu.reactions.basic_reactions import hydrolysis
 
@@ -423,6 +423,8 @@ class TailoringEnzyme:
                 carbon = [carbon for carbon in nitrogen.get_neighbours("C") if [atom.type for atom in carbon.neighbours].count("N") == 3][0]
                 bond = nitrogen.get_bond(carbon)
                 assert bond
+                if bond.type == "double":
+                    bond.make_single()
                 structure.break_bond(bond)
                 structure_1, structure_2 = structure.split_disconnected_structures()
                 if nitrogen in structure_1.graph:
@@ -545,7 +547,10 @@ class TailoringEnzyme:
             alpha_cs_amino_acid_backbone = find_atoms(C1_AMINO_ACID_ATTACHED, structure)
             possible_sites.extend([[atom] for atom in alpha_cs_amino_acid_backbone])
         elif self.type.name == "ARGINASE":
-            arginine_n = find_atoms(ARGININE_SECONDARY_N, structure)
+            arginine_n1 = find_atoms(ARGININE_SECONDARY_N_1, structure)
+            arginine_n2 = find_atoms(ARGININE_SECONDARY_N_2, structure)
+            arginine_n3 = find_atoms(ARGININE_SECONDARY_N_3, structure)
+            arginine_n = arginine_n1 + arginine_n2 + arginine_n3
             possible_sites.extend([[atom] for atom in arginine_n])
         elif self.type.name == "THIOPEPTIDE_CYCLASE":
             ser_thr_c = find_atoms(REDUCED_SERINE, structure) + \

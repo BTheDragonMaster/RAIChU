@@ -291,7 +291,7 @@ def label_acid_central_chain(acid):
     c2_atom = None
     oh_o_atom = None
     oh_h_atom = None
-    visited = []
+    backbone = []
 
     c1_atoms_aa = find_atoms(ACID_C1, acid)
     if c1_atoms_aa:
@@ -334,82 +334,101 @@ def label_acid_central_chain(acid):
     c2_atom.annotations.in_central_chain = True
     c2_atom.annotations.c2_acid = True
 
-    visited.append(c1_atom)
-    visited.append(c2_atom)
+    backbone.append(c1_atom)
+    backbone.append(c2_atom)
 
-    starting_point = c1_atom
+    last_backbone_atom = c1_atom
     endpoint = False
-    ring_members = 0
-    if starting_point.in_ring(acid):
-        ring_members += 1
 
     # Add atoms in chain with exactly 2 non-H neighbours to the central chain
     while not endpoint:
-        for neighbour in starting_point.get_non_hydrogen_neighbours():
-            neighbour_in_ring = neighbour.in_ring(acid)
-            if neighbour_in_ring:
-                ring_members += 1
-            neighbour_found = False
-            if len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour.type == 'C' and neighbour not in visited \
-                    and not (ring_members > 2 and neighbour_in_ring):
-                neighbour.annotations.in_central_chain = True
-                visited.append(neighbour)
-                starting_point = neighbour
-                neighbour_found = True
 
-            if not neighbour_found and neighbour.type == 'C' and neighbour not in visited and \
-                    len(neighbour.get_non_hydrogen_bonds()) >= 2 and not (ring_members > 2 and neighbour_in_ring):
-                terminal_count = 0
-                for atom in neighbour.neighbours:
-                    if atom not in visited and len(atom.get_non_hydrogen_bonds()) == 1:
-                        terminal_count += 1
+        neighbours = last_backbone_atom.get_non_hydrogen_neighbours()[:]
+        for neighbour in last_backbone_atom.get_non_hydrogen_neighbours():
+            if neighbour in backbone:
+                neighbours.remove(neighbour)
 
-                if len(neighbour.get_non_hydrogen_bonds()) - terminal_count == 2:
-                    neighbour.annotations.in_central_chain = True
-                    visited.append(neighbour)
-                    starting_point = neighbour
-                    neighbour_found = True
+        if not neighbours:
+            endpoint = True
 
-                if neighbour_found:
-                    break
+        else:
+            # If the last backbone atom was the first ring member
+            if last_backbone_atom.in_ring(acid):
+                ring_members = last_backbone_atom.get_ring(acid)
+                outgoing_pairs = []
+                for atom in ring_members:
+                    for neighbour in atom.get_non_hydrogen_neighbours():
+                        if neighbour not in ring_members and neighbour not in backbone and not neighbour.in_ring(acid):
+                            outgoing_pairs.append((atom, neighbour))
 
-            if not neighbour_found and len(neighbour.get_non_hydrogen_bonds()) == 2 and neighbour not in visited \
-                    and not (ring_members > 2 and neighbour_in_ring):
-                neighbour.annotations.in_central_chain = True
-                visited.append(neighbour)
-                starting_point = neighbour
-                break
+                if not outgoing_pairs:
+                    endpoint = True
 
-            neighbours = []
-            for nb in starting_point.get_non_hydrogen_neighbours():
-                if nb not in visited:
-                    neighbours.append(nb)
+                else:
+                    longest_index = -1
+                    largest_subtree = 0
+                    best_shortest_path = None
+                    for i, pair in enumerate(outgoing_pairs):
+                        ring_atom, outgoing_atom = pair
+                        shortest_path = find_shortest_path_ring(ring_atom, last_backbone_atom, ring_members)
+                        subtree_size = acid.get_subtree_size(outgoing_atom, set(ring_members))
+                        if len(shortest_path) < 4 and subtree_size > largest_subtree:
+                            longest_index = i
+                            best_shortest_path = shortest_path
 
-            if any(atom.in_ring(acid) for atom in neighbours) and neighbour_in_ring:
-                endpoint = True
-                for atom in neighbours:
-                    if len(atom.get_non_hydrogen_bonds()) == 1 and atom.get_non_hydrogen_bonds()[0].type == 'single':
-                        atom.annotations.in_central_chain = True
-                break
+                    if longest_index >= 0:
 
-            elif not any(len(atom.get_non_hydrogen_bonds()) == 2 for atom in neighbours):
+                        backbone_ring_atom, next_backbone_atom = outgoing_pairs[longest_index]
+                        for atom in best_shortest_path:
+                            shortest_path_atom = acid.get_atom(atom)
+                            if shortest_path_atom not in backbone:
+                                shortest_path_atom.annotations.in_central_chain = True
+                                backbone.append(shortest_path_atom)
+                            next_backbone_atom = acid.get_atom(next_backbone_atom)
+                            next_backbone_atom.annotations.in_central_chain = True
+                            backbone.append(next_backbone_atom)
+                            last_backbone_atom = next_backbone_atom
+                    else:
+                        endpoint = True
 
-                endpoint = True
+            else:
+                longest_index = -1
+                largest_subtree = 0
 
-                for atom in neighbours:
-                    terminal_count = 0
-                    for atom_2 in atom.neighbours:
-                        if atom_2 not in visited and len(atom_2.get_non_hydrogen_bonds()) == 1:
-                            terminal_count += 1
+                for i, neighbour in enumerate(neighbours):
+                    subtree_size = acid.get_subtree_size(neighbour, set(backbone))
+                    if subtree_size > largest_subtree:
+                        largest_subtree = subtree_size
+                        longest_index = i
 
-                    if len(atom.get_non_hydrogen_bonds()) - terminal_count == 2:
-                        endpoint = False
-                        break
+                if longest_index >= 0:
+                    next_backbone_atom = acid.get_atom(neighbours[longest_index])
+                else:
+                    next_backbone_atom = acid.get_atom(neighbours[0])
 
-                if endpoint:
+                next_backbone_atom.annotations.in_central_chain = True
+                backbone.append(next_backbone_atom)
+                last_backbone_atom = next_backbone_atom
 
-                    # Add the last atom in the chain to the central chain
-                    for atom in neighbours:
-                        if len(atom.get_non_hydrogen_bonds()) == 1 and atom.get_non_hydrogen_bonds()[0].type == 'single':
-                            atom.annotations.in_central_chain = True
-                    break
+
+def find_shortest_path_ring(atom_1, atom_2, atom_list):
+    max_distance = len(atom_list) // 2
+    atom_1_idx = None
+    atom_2_idx = None
+    for i, atom in enumerate(atom_list):
+        if atom == atom_1:
+            atom_1_idx = i
+        if atom == atom_2:
+            atom_2_idx = i
+
+    assert atom_1_idx is not None
+    assert atom_2_idx is not None
+
+    large_index = max([atom_1_idx, atom_2_idx])
+    small_index = min([atom_1_idx, atom_2_idx])
+
+    shortest_path = atom_list[small_index:large_index + 1]
+    if len(shortest_path) - 1 > max_distance:
+        shortest_path = atom_list[large_index:] + atom_list[:small_index + 1]
+
+    return shortest_path

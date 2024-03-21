@@ -153,9 +153,9 @@ class TailoringEnzyme:
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
-                atom = atom[0]  # only one atom is methylated at a time
+                atom = atom[0]  # only one atom is acetylated at a time
                 atom = structure.get_atom(atom)
-                structure = addition(atom, "[H]C(C)=O", structure)
+                structure = addition(atom, "C(C)=O", structure)
         elif self.type.name == "ACYLTRANSFERASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:

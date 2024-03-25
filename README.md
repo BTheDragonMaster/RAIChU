@@ -9,11 +9,11 @@ However, it's important to note that while RAIChU strives for accuracy, the natu
 
 View the general.py script to learn about RAIChU's functionalities
 
-Explore our wiki to dive deeper into RAIChU's features and capabilities: Home
+Explore our wiki to dive deeper into RAIChU's features and capabilities:
+[Home](https://github.com/SophieVromans/RAIChU/wiki)
 
-Getting Started with RAIChU
+[Getting Started with RAIChU](https://github.com/SophieVromans/RAIChU/wiki/Getting-Started)
 
-Visualizing Tailoring Reactions and instructions on tailoring enzymes
+[Visualizing Tailoring Reactions and instructions on tailoring enzymes](https://github.com/SophieVromans/RAIChU/wiki/Tailoring-enzymes)
 
-Examples of implemented RiPP families
-
+[Examples of implemented RiPP families](https://github.com/SophieVromans/RAIChU/wiki/Examples-of-RiPP-families-that-can-be-implemented)

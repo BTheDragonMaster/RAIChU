@@ -36,7 +36,7 @@ _PKS_TO_SMILES = {"WILDCARD": r"SC(C([*])C(O)=O)=O",
                   "HYDROXYPROPIONYL_COA_2R": r"C[C@@H](O)C(S)=O",
                   "DIHYDROXY_PROPANOLYL_COA_33": r"OC(O)CC(O)S",
                   "LACTYL_COA": r"C[C@@H](O)C(S)=O",
-                  "PHENYLACETYLCOA": r"SC(=O)CC1=CC=CC=C1",
+                  "PHENYLACETYL_COA": r"SC(=O)CC1=CC=CC=C1",
                   "METHOXYFORMYL_COA": r"COC(S)=O"
                   }
 
@@ -66,20 +66,15 @@ class PksStarterSubstrate(Enum):
     GLYCINE = 13
     HYDROXY_PROPENOYL_COA_3_23E = 14  # 3-hydroxy-2,3-E-propenoyl-CoA
     HYDROXY_BUTENOYL_COA_3_23E = 15  # 3-hydroxy-2,3-E-butenoyl-CoA
-    DIHYDROXY_BUTANOLYL_COA_2R3 = 16  # 2R,3-dihydroxy-butanolyl-CoA
-    TRIHYDROXY_PROPANOLYL_COA_233 = 17  # 2,3,3-trihydroxy-propanolyl-CoA
-    O_METHYLACETYL_COA = 18  # O-methylacetyl-CoA
-    HYDROXY_PROPENOYL_COA_3_23Z = 19  # 3-hydroxy-2,3-Z-propenoyl-CoA
-    OXOMALONYL_COA_2 = 20  # 2-oxomalonyl-CoA
-    METHYL_HYDROXY_PROPENOYL_COA_2_3_23Z = 21  # 2-methyl-3-hydroxy-2,3-Z-propenoyl-CoA
-    DIHYDROXY_BUTANOLYL_COA_23 = 22  # 2,3-dihydroxy-butanolyl-CoA
-    DIHYDROXY_BUTANOLYL_COA_2S3S = 23  # 2S,3S-dihydroxy-butanolyl-CoA
-    HEPTATRIENOYL_COA = 24  # 2,4,6-heptatrienoyl-CoA
-    HYDROXYPROPIONYL_COA_2R = 25  # 2R-hydroxypropionyl-CoA
-    DIHYDROXY_PROPANOLYL_COA_33 = 26  # 3,3-dihydroxy-propanolyl-CoA
-    LACTYL_COA=27
-    PHENYLACETYLCOA=28
-    METHOXYFORMYL_COA=29
+    O_METHYLACETYL_COA = 16  # O-methylacetyl-CoA
+    HYDROXY_PROPENOYL_COA_3_23Z = 17  # 3-hydroxy-2,3-Z-propenoyl-CoA
+    OXOMALONYL_COA_2 = 18  # 2-oxomalonyl-CoA
+    METHYL_HYDROXY_PROPENOYL_COA_2_3_23Z = 19  # 2-methyl-3-hydroxy-2,3-Z-propenoyl-CoA
+    HEPTATRIENOYL_COA = 20  # 2,4,6-heptatrienoyl-CoA
+    HYDROXYPROPIONYL_COA_2R = 21  # 2R-hydroxypropionyl-CoA
+    LACTYL_COA = 22
+    PHENYLACETYL_COA = 23
+    METHOXYFORMYL_COA = 24
 
     @staticmethod
     def from_string(label: str):

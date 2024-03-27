@@ -608,7 +608,7 @@ class TailoringEnzyme:
             peptide_bonds = find_bonds(CC_SINGLE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
-
+            
         elif self.type.name == "REDUCTIVE_LYASE":
             possible_sites.extend(
                 [

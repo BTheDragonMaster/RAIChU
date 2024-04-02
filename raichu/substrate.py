@@ -149,15 +149,16 @@ class PKSSubstrate(Substrate):
 
             raise ValueError(f"Cannot fetch SMILES string for PKS substrate {name}.")
         super().__init__(name, smiles)
-        if name in [v.name for v in PksElongationSubstrate]:
+        if name == "WILDCARD":
+            self.smiles = _PKS_TO_SMILES.get("WILDCARD_STARTER", None)
+            self.starter_monomer = make_starter_monomer("WILDCARD_STARTER", self.smiles)
+            self.elongation_monomer = make_elongation_monomer(self.name)
+        elif name in [v.name for v in PksElongationSubstrate]:
             self.elongation_monomer = make_elongation_monomer(self.name)
             self.starter_monomer = None
         elif name in [v.name for v in PksStarterSubstrate]:
             self.elongation_monomer = None
             self.starter_monomer = make_starter_monomer(self.name, self.smiles)
-        if name == "WILDCARD":
-            self.smiles = _PKS_TO_SMILES.get("WILDCARD_STARTER", None)
-            self.starter_monomer = make_starter_monomer("WILDCARD_STARTER", self.smiles)
         else:
             raise ValueError(f"PKS substrate {self.name} is not recognised by RAIChU.")
 

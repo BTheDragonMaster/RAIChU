@@ -201,7 +201,7 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
                 self.synthesis_domain = SynthesisDomain("DUMMY_C")
             else:
                 self.is_broken = True
-        if not self.recognition_domain:
+        if module_subtype != "PKS_TRANS" and not self.recognition_domain:
             self.is_broken = True
 
         if self.is_termination_module and not self.termination_domain:

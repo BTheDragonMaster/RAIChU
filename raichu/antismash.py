@@ -194,7 +194,9 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                                     domain_representation.subtype == "PKS_TRANS"
                                     or domain_representation.type == "Trans-AT_docking"
                                 )
-                                in domain_representations
+                                for domain_representation in [
+                                    domain["representation"] for domain in domains
+                                ]
                             ]
                         )
                     ):

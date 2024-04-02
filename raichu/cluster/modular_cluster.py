@@ -49,7 +49,7 @@ class ModularCluster(Cluster):
                     j = i + 1
                     next_module = self.modules[j]
                     if next_module.is_broken:
-                        while next_module.is_broken:
+                        while next_module.is_broken and j < len(self.modules):
                             next_module = self.modules[j]
                             j += 1
                     if next_module.type.name == "PKS":

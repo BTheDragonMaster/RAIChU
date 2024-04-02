@@ -170,6 +170,8 @@ def build_cluster(
             )
         if module.is_broken and module.is_starter_module:
             new_starter = True
+        if module.is_broken:
+            print(f"Module {module} is broken.")
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
 

@@ -160,6 +160,7 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                                     if feature.type == "aSModule"
                                 ]
                             )
+                            - 1
                             and strand == -1
                         ):
                             if substrate not in [v.name for v in PksStarterSubstrate]:

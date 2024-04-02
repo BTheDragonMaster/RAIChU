@@ -162,10 +162,7 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                             )
                             and strand == -1
                         ):
-                            if (
-                                substrate not in [v.name for v in PksStarterSubstrate]
-                                or substrate != "WILDCARD"
-                            ):
+                            if substrate not in [v.name for v in PksStarterSubstrate]:
                                 substrate = "WILDCARD"
                     else:
                         if module_type == "NRPS":

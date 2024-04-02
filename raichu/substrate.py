@@ -8,7 +8,7 @@ _PKS_TO_SMILES = {
     "WILDCARD_STARTER": r"SC(C([*]))=O",
     "MALONYL_COA": r"SC(CC(O)=O)=O",
     "METHYLMALONYL_COA": r"SC([C@H](C)C(O)=O)=O",
-    "METHOXYMALONYL_ACP": r"SC(C(C(O)=O)OC)=O",
+    "METHOXYMALONYL_COA": r"SC(C(C(O)=O)OC)=O",
     "METHYLBUTYRYL_COA_2S": r"SC(=O)[C@@H](C)CC",
     "METHYLBUTYRYL_COA_2R": r"SC(=O)[C@H](C)CC",
     "ETHYLMALONYL_COA": r"SC(C(C(O)=O)CC)=O",
@@ -102,7 +102,7 @@ class PksElongationSubstrate(Enum):
     WILDCARD = 1
     MALONYL_COA = 2
     METHYLMALONYL_COA = 3
-    METHOXYMALONYL_ACP = 4
+    METHOXYMALONYL_COA = 4
     # TODO: something is wrong with those substrates
     # METHYLBUTYRYL_COA_2S = 5
     # METHYLBUTYRYL_COA_2R = 6

@@ -92,6 +92,10 @@ def build_cluster(
     new_starter = False
     modules = []
     previous_domain = None
+    if len(cluster_repr.modules) == 0:
+        raise ValueError(
+            "Cluster is empty.This can happen with Type III PKS clusters. Please check the input file."
+        )
     for i, module_repr in enumerate(cluster_repr.modules):
         if i == 0 or new_starter:
             starter = True

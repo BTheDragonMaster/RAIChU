@@ -41,11 +41,11 @@ AS_TO_NRPS = {
     "trp": "tryptophan",
     "tyr": "tyrosine",
     "val": "valine",
-    "3-me-glu": "4-methylglutamicacid",
+    "3-me-glu": "4-methylglutamic acid",
     "4ppro": "**Unknown**",
-    "aad": "2-aminoadipicacid",
-    "abu": "2-aminobutyricacid",
-    "aeo": "2-amino-9,10-epoxy-8-oxodecanoidacid",
+    "aad": "2-aminoadipic acid",
+    "abu": "2-aminobutyric acid",
+    "aeo": "2-amino-9,10-epoxy-8-oxodecanoid acid",
     "ala-b": "beta-alanine",
     "ala-d": "d-alanine",
     "allo-thr": "allo-threonine",
@@ -54,8 +54,8 @@ AS_TO_NRPS = {
     "bmt": "4-butenyl-4-methylthreonine",
     "cap": "capreomycidine",
     "bht": "**Unknown**",
-    "dab": "2,4-diaminobutyricacid",
-    "dhb": "2,3-dihydroxybenzoicacid",
+    "dab": "2,4-diaminobutyric acid",
+    "dhb": "2,3-dihydroxybenzoic acid",
     "dhpg": "3,5-dihydroxyphenylglycine",
     "dht": "dehydrobutyrine",
     "dpg": "3,5-dihydroxyphenylglycine",
@@ -79,7 +79,7 @@ AS_TO_NRPS = {
     "alle": "allo-isoleucine",
     "alaninol": "alaninol",
     "n-(1,1-dimethyl-1-allyl)trp": "**Unknown**",
-    "d-lyserg": "d-lysergicacid",
+    "d-lyserg": "d-lysergic acid",
     "ser-thr": "**Unknown**",
     "mephe": "**Unknown**",
     "haorn": "**Unknown**",
@@ -88,7 +88,7 @@ AS_TO_NRPS = {
     "s-nmethoxy-trp": "**Unknown**",
     "alpha-hydroxy-isocaproic-acid": "**Unknown**",
     "mehoval": "**Unknown**",
-    "2-oxo-isovaleric-acid": "alpha-ketoisovalericacid",
+    "2-oxo-isovaleric-acid": "alpha-ketoisovaleric acid",
     "aoda": "**Unknown**",
     "x": "**Unknown**",
 }
@@ -108,6 +108,7 @@ antiSMASH_DOMAIN_TO_RAICHU_DOMAIN = {
     "Condensation": "C",
     "nMT": "nMT",
     "PP-binding": "CP",
+    "Heterocyclization": "CYC",
 }
 
 domains_to_be_refined = ["KR", "KS", "A", "AT"]
@@ -280,10 +281,6 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                                 else False
                             )
 
-                        elif "KR stereochemistry:" in spec:
-                            specificity = spec.split("KR stereochemistry:")[1].strip()
-                            if specificity != "(unknown)":
-                                domain["subtype"] = specificity
                         elif "transATor:" in spec:
                             domain["subtype"] = (
                                 spec.split("transATor:")[1]

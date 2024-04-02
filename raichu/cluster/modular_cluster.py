@@ -118,9 +118,12 @@ class ModularCluster(Cluster):
                 self.modules[i].recognition_domain.substrate = substrate
 
     def compute_structures(self, compute_cyclic_products=True):
+        new_starter = False
         for module in self.modules:
             structure = module.run_module(self.chain_intermediate)
-            if module.carrier_domain:
+            if module.carrier_domain and not (
+                module.is_broken and module.is_starter_module
+            ):
                 self.modular_intermediates.append(structure.deepcopy())
             self.chain_intermediate = structure
             if module.is_termination_module:
@@ -244,9 +247,14 @@ class ModularCluster(Cluster):
     def get_spaghettis(self, whitespace=30):
         drawings = []
         widths = []
+        correct_modules = -1
+        for i, module in enumerate(self.modules):
+            if module.is_broken:
+                widths.append((0, 0))
+                continue
 
-        for i, structure in enumerate(self.modular_intermediates):
-
+            correct_modules += 1
+            structure = self.modular_intermediates[correct_modules]
             drawing = RaichuDrawer(structure, dont_show=True)
 
             drawing.flip_y_axis()

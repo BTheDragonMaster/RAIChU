@@ -148,17 +148,30 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                     ]
                     if len(substrate) > 0:
                         substrate = substrate[0]
-                        if module_type == "PKS" and len(modules) == 0:
-                            if substrate not in [v.name for v in PksStarterSubstrate]:
-                                substrate = "ACETYL_COA"
+                        # Also account for reversing cluster if on different strand
+                        if module_type == "PKS" and (
+                            len(modules) == 0
+                            and strand == 1
+                            or len(modules)
+                            == len(
+                                [
+                                    feature
+                                    for feature in record.features
+                                    if feature.type == "aSModule"
+                                ]
+                            )
+                            and strand == -1
+                        ):
+                            if (
+                                substrate not in [v.name for v in PksStarterSubstrate]
+                                or substrate != "WILDCARD"
+                            ):
+                                substrate = "WILDCARD"
                     else:
                         if module_type == "NRPS":
                             substrate = "**Unknown**"
                         elif module_type == "PKS":
-                            if len(modules) == 0:
-                                substrate = "ACETYL_COA"
-                            else:
-                                substrate = "WILDCARD"
+                            substrate = "WILDCARD"
                         else:
                             raise ValueError("Module type can only be NRPS or PKS")
 
@@ -172,7 +185,20 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                         if module_type == "PKS":
                             if domain_representation.type == "AT":
                                 module_subtype = "PKS_CIS"
-
+                    if (
+                        module_type == "PKS"
+                        and module_subtype == "PKS_TRANS"
+                        and not any(
+                            [
+                                (
+                                    domain_representation.subtype == "PKS_TRANS"
+                                    or domain_representation.type == "Trans-AT_docking"
+                                )
+                                in domain_representations
+                            ]
+                        )
+                    ):
+                        module_subtype = "PKS_CIS"
                     if strand == -1:
                         domain_representations.reverse()
                     # Check if CP in every module
@@ -281,9 +307,7 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
 
 def load_antismash_gbk(gbk_file, version=7.0):
     domains = parse_antismash_domains_gbk(gbk_file, version)
-    print(domains)
     cluster_representation = map_domains_to_modules_gbk(gbk_file, domains)
-    print(cluster_representation)
     return cluster_representation
 
 

@@ -89,12 +89,13 @@ def build_cluster(
 ) -> ModularCluster:
 
     genes = set()
-
+    new_starter = False
     modules = []
     previous_domain = None
     for i, module_repr in enumerate(cluster_repr.modules):
-        if i == 0:
+        if i == 0 or new_starter:
             starter = True
+            new_starter = False
         else:
             starter = False
 
@@ -167,6 +168,8 @@ def build_cluster(
             raise ValueError(
                 f"Module {module} does not contain a carrier protein domain."
             )
+        if module.is_broken and module.is_starter_module:
+            new_starter = True
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
 

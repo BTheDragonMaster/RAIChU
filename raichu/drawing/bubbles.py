@@ -74,7 +74,6 @@ def draw_bubbles(
     cp_positions_bubbles = []
     previous_space_right = 0.0
     previous_cp_position = 0.0
-
     for i, module in enumerate(cluster.modules):
         current_y = bubble_height
         for j, domain in enumerate(module.domains):
@@ -107,7 +106,11 @@ def draw_bubbles(
                 x_bubbles -= 1
                 x -= 1
 
-            if domain.supertype.name == "CARRIER" and domain.used:
+            if (
+                domain.supertype.name == "CARRIER"
+                and domain.used
+                and not module.is_broken
+            ):
                 cp_positions_bubbles.append(x_bubbles)
 
                 current_space_left, current_space_right = widths[i]
@@ -157,6 +160,7 @@ def draw_bubbles(
     module_texts = []
 
     for i, module in enumerate(cluster.modules):
+        correct_modules = 0
         start_x = current_x - 15
         current_y = bubble_height
 
@@ -229,8 +233,9 @@ def draw_bubbles(
         # Shift modules based on width of structures
 
         module_shift = 0.0
-        if i != len(cluster.modules) - 1 and cluster.modules[i + 1].carrier_domain:
-            module_shift = module_shifts[i + 1]
+        if i != len(cluster.modules) - 1 and not cluster.modules[i + 1].is_broken:
+            correct_modules += 1
+            module_shift = module_shifts[correct_modules]
 
         end_x = current_x - 15
         lines.append(draw_line(start_x, end_x, y=bubble_height - 26))

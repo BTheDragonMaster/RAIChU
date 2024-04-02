@@ -24,7 +24,8 @@ for genbank_file in os.listdir(input_dir):
         cluster_out = os.path.join(out_bgc, "raichu_cluster")
         if not os.path.exists(cluster_out):
             os.mkdir(cluster_out)
+        cluster.write_cluster(cluster_out)
         draw_cluster_from_modular_cluster_representation(cluster, out_path)
         draw_products_from_modular_cluster_representation(cluster, out_bgc)
-        cluster.write_cluster(cluster_out)
+
 

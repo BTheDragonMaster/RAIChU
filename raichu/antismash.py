@@ -289,6 +289,7 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                                 spec.split("transATor:")[1]
                                 .strip()
                                 .replace("-", "_")
+                                .replace("/", "_")
                                 .upper()
                                 .replace("(UNKNOWN)", "MISCELLANEOUS")
                             )

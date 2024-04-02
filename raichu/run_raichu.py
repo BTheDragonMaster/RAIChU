@@ -1,3 +1,5 @@
+import os
+
 from raichu.cluster.modular_cluster import ModularCluster
 from raichu.cluster.ripp_cluster import RiPPCluster
 from raichu.cluster.terpene_cluster import TerpeneCluster
@@ -9,7 +11,8 @@ from raichu.domain.domain_types import TailoringDomainType, TerminationDomainTyp
     SynthesisDomainType, RecognitionDomainType
 from raichu.cluster.alkaloid_cluster import AlkaloidCluster
 from raichu.tailoring_enzymes import TailoringEnzyme, TailoringEnzymeType
-from raichu.representations import *
+from raichu.representations import ClusterRepresentation, DomainRepresentation, ModuleRepresentation, \
+    TailoringRepresentation, CleavageSiteRepresentation, MacrocyclizationRepresentation
 
 DOMAIN_TO_SUPERTYPE = {}
 for domain_name in TailoringDomainType.__members__:
@@ -198,13 +201,13 @@ def draw_alkaloid_structure(alkaloid_cluster: AlkaloidCluster) -> None:
         as_string=False, out_file="tailoring_test_alkaloid.svg")
 
 
-def get_spaghettis(cluster_repr: ClusterRepresentation) -> List[str]:
+def get_spaghettis(cluster_repr: ClusterRepresentation) -> list[str]:
 
     cluster = build_cluster(cluster_repr)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
     cluster.draw_cluster()
-    spaghettis = cluster.draw_spaghettis()
+    spaghettis = cluster.get_spaghettis()
 
     return spaghettis
 

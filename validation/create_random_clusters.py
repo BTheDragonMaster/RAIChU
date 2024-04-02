@@ -3,7 +3,7 @@ import os
 from sys import argv
 from raichu.run_raichu import draw_cluster
 from raichu.representations import ClusterRepresentation, ModuleRepresentation, DomainRepresentation
-from paras.features import _METADATA
+from raichu.smiles_handling import _METADATA
 from raichu.substrate import PksStarterSubstrate, PksElongationSubstrate 
 from raichu.domain.domain_types import KRDomainSubtype, ERDomainSubtype
 import traceback
@@ -391,9 +391,9 @@ if __name__ == "__main__":
     hybrid_folder = os.path.join(out_folder, "hybrid")
     acid_folder = os.path.join(out_folder, "acid")
 
-    generate_random_clusters(1000, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
-    generate_random_clusters(1000, acid_folder, nrps=True, cis_pks=False, trans_pks=False, acid=True)
-    generate_random_clusters(1000, cis_at_pks_folder, nrps=False, cis_pks=True, trans_pks=False)
-    generate_random_clusters(1000, trans_at_pks_folder, nrps=False, cis_pks=False, trans_pks=True)
-    generate_random_clusters(1000, pks_folder, nrps=False, cis_pks=True, trans_pks=True)
-    generate_random_clusters(1000, hybrid_folder, nrps=True, cis_pks=True, trans_pks=True)
+    generate_random_clusters(10, nrps_folder, nrps=True, cis_pks=False, trans_pks=False)
+    generate_random_clusters(10, acid_folder, nrps=True, cis_pks=False, trans_pks=False, acid=True)
+    generate_random_clusters(10, cis_at_pks_folder, nrps=False, cis_pks=True, trans_pks=False)
+    generate_random_clusters(10, trans_at_pks_folder, nrps=False, cis_pks=False, trans_pks=True)
+    generate_random_clusters(10, pks_folder, nrps=False, cis_pks=True, trans_pks=True)
+    generate_random_clusters(10, hybrid_folder, nrps=True, cis_pks=True, trans_pks=True)

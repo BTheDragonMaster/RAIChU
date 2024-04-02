@@ -1,6 +1,7 @@
 import json
 import os
 import re
+from sys import argv
 from Bio import SeqIO
 from raichu.representations import (
     ClusterRepresentation,
@@ -8,6 +9,7 @@ from raichu.representations import (
     DomainRepresentation,
 )
 from raichu.run_raichu import draw_cluster, build_cluster
+from raichu.substrate import PksStarterSubstrate
 
 
 NRPS_PKS_RULES = {
@@ -144,9 +146,21 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                         if domain["substrate"] is not None
                     ]
                     if len(substrate) > 0:
+
                         substrate = substrate[0]
+                        if module_type == 'PKS' and len(modules) == 0:
+                            if substrate not in [v.name for v in PksStarterSubstrate]:
+                                substrate = "ACETYL_COA"
                     else:
-                        substrate = "**Unknown**"
+                        if module_type == 'NRPS':
+                            substrate = "**Unknown**"
+                        elif module_type == 'PKS':
+                            if len(modules) == 0:
+                                substrate = "ACETYL_COA"
+                            else:
+                                substrate = "WILDCARD"
+                        else:
+                            raise ValueError("Module type can only be NRPS or PKS")
 
                     if module_type == "PKS":
                         module_subtype = "PKS_TRANS"

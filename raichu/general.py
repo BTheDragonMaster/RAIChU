@@ -1,4 +1,5 @@
 from raichu.cluster.modular_cluster import ModularCluster
+import os
 from raichu.cluster.ripp_cluster import RiPPCluster
 from raichu.cluster.terpene_cluster import TerpeneCluster
 from raichu.run_raichu import make_domain, build_cluster
@@ -10,8 +11,9 @@ from raichu.domain.domain_types import TailoringDomainType, TerminationDomainTyp
     SynthesisDomainType, RecognitionDomainType
 from raichu.cluster.alkaloid_cluster import AlkaloidCluster
 from raichu.tailoring_enzymes import TailoringEnzyme, TailoringEnzymeType
-from raichu.representations import *
+from raichu.representations import ClusterRepresentation
 from raichu.antismash import load_antismash_gbk, parse_antismash_to_cluster_file
+
 
 def draw_cluster_from_antiSMASH_output(antismash_file: str, out_file: str) -> None:
     draw_cluster_from_modular_cluster_representation(
@@ -21,7 +23,7 @@ def draw_cluster_from_antiSMASH_output(antismash_file: str, out_file: str) -> No
 
 
 def draw_cluster_from_modular_cluster_representation(cluster_repr: ClusterRepresentation, out_file=None, colour_by_module=True) -> None:
-    cluster = build_cluster(cluster_repr, strict= False)
+    cluster = build_cluster(cluster_repr, strict=False)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
 
@@ -32,7 +34,7 @@ def draw_cluster_from_modular_cluster_representation(cluster_repr: ClusterRepres
 
 
 def draw_products_from_modular_cluster_representation(cluster_repr: ClusterRepresentation, out_dir) -> None:
-    cluster = build_cluster(cluster_repr)
+    cluster = build_cluster(cluster_repr, strict=False)
     cluster.compute_structures(compute_cyclic_products=False)
     cluster.do_tailoring()
     cluster.cyclise_all()

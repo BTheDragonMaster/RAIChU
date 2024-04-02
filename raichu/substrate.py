@@ -1,4 +1,4 @@
-from paras.features import get_smiles
+from raichu.smiles_handling import get_smiles
 from raichu.data.molecular_moieties import make_elongation_monomer, make_starter_monomer
 from enum import Enum, unique
 
@@ -142,6 +142,7 @@ class PKSSubstrate(Substrate):
     def __init__(self, name: str) -> None:
         smiles = _PKS_TO_SMILES.get(name, None)
         if smiles is None:
+
             raise ValueError(f"Cannot fetch SMILES string for PKS substrate {name}.")
         super().__init__(name, smiles)
         if name in [v.name for v in PksElongationSubstrate]:

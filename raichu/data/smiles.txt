@@ -276,3 +276,6 @@ isoleucine, valine	NC(*)C(=O)O
 2-amino-9,10-epoxy-8-oxodecanoic acid	C1C(O1)C(=O)CCCCC[C@@H](C(=O)O)N
 5‐chloropyrrole‐2‐carboxylic acid	OC(=O)C1=CC=C(N1)Cl
 6-hydroxy-tetrahydro-isoquinoline-3-carboxylic acid	C1C(NCC2=CC=CC=C21)C(=O)O
+homophenylalanine	C1=CC=C(C=C1)CC[C@@H](C(=O)O)N
+4-hydroxy-tetrahydropyridazine-3-carboxylic acid	OC1C[C@H](NN=C1)C(=O)O
+2-ethyl-3-aminoproprionic acid	OC(=O)C(CC)CN

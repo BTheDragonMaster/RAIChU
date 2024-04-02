@@ -277,7 +277,7 @@ class Cluster:
             structure_svgs.append(structure_svg)
             padding = drawing.options.padding
 
-        assert svg_style and padding
+        assert padding
 
         x1 = 0
         x2 = target_x + padding
@@ -357,7 +357,7 @@ class Cluster:
             structure_svgs.append(structure_svg)
             padding = drawing.options.padding
 
-        assert svg_style and padding
+        assert padding
 
         x1 = 0
         x2 = target_x + padding

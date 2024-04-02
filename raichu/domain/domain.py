@@ -18,7 +18,7 @@ class Domain:
     supertype: DomainSuperClass
     type: Union[TailoringDomainType, CarrierDomainType, SynthesisDomainType, RecognitionDomainType,
                 TerminationDomainType]
-    subtype: Union[None, KRDomainSubtype, KSDomainSubtype]
+    subtype: Union[None, KRDomainSubtype, KSDomainSubtype, ERDomainSubtype]
     domain_name: Union[str, None]
     active: bool = True
     gene: Union[str, None] = None
@@ -72,7 +72,7 @@ class TailoringDomain(Domain):
         elif self.type.name == 'DH' or self.type.name == 'DUMMY_DH':
             return dehydration(structure)
         elif self.type.name == 'EDH' or self.type.name == 'DUMMY_EDH':
-            return dehydration(structure,"E")
+            return dehydration(structure, "E")
         elif self.type.name == 'ZDH' or self.type.name == 'DUMMY_ZDH':
             return dehydration(structure, "Z")
         elif self.type.name == 'ER' or self.type.name == 'DUMMY_ER':

@@ -172,8 +172,39 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                         if module_type == "PKS":
                             if domain_representation.type == "AT":
                                 module_subtype = "PKS_CIS"
+
                     if strand == -1:
                         domain_representations.reverse()
+                    # Check if CP in every module
+
+                    if not any(
+                        [
+                            domain_representation.type in ["CP", "ACP", "PCP"]
+                            for domain_representation in domain_representations
+                        ]
+                    ):
+                        # Check if ACP/PCP is actually existing
+                        if strand == -1:
+                            next_domain_index = domains.index(domains_in_module[0]) - 1
+                        else:
+                            next_domain_index = domains.index(domains_in_module[-1]) + 1
+                        if next_domain_index < len(domains):
+                            next_domain = domains[next_domain_index]
+                            if next_domain["representation"].type in [
+                                "ACP",
+                                "PCP",
+                                "CP",
+                            ]:
+                                domain_representations.append(
+                                    DomainRepresentation(
+                                        feature.qualifiers["locus_tags"][0],
+                                        "PCP" if module_type == "NRPS" else "ACP",
+                                        subtype=None,
+                                        name=None,
+                                        active=True,
+                                        used=True,
+                                    )
+                                )
                     module_representation = ModuleRepresentation(
                         module_type, module_subtype, substrate, domain_representations
                     )
@@ -250,7 +281,9 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
 
 def load_antismash_gbk(gbk_file, version=7.0):
     domains = parse_antismash_domains_gbk(gbk_file, version)
+    print(domains)
     cluster_representation = map_domains_to_modules_gbk(gbk_file, domains)
+    print(cluster_representation)
     return cluster_representation
 
 

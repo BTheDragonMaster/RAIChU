@@ -1,5 +1,5 @@
 import os
-
+import csv
 from raichu.cluster.modular_cluster import ModularCluster
 from raichu.cluster.ripp_cluster import RiPPCluster
 from raichu.cluster.terpene_cluster import TerpeneCluster
@@ -244,7 +244,6 @@ def draw_ripp_structure(ripp_cluster: RiPPCluster, out_folder: str) -> None:
         order.append("cyclisation")
 
     if ripp_cluster.cleavage_sites:
-        print("here")
         ripp_cluster.do_proteolytic_cleavage()
         ripp_cluster.draw_product(
             as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg")
@@ -254,6 +253,53 @@ def draw_ripp_structure(ripp_cluster: RiPPCluster, out_folder: str) -> None:
     ripp_cluster.draw_pathway(
         out_file=os.path.join(out_folder, "ripp_pathway.svg"), order=tuple(order)
     )
+
+
+def compute_all_ripp_masses(
+    precursor: str, out_file: str, min_length=3, max_length=100
+) -> None:
+    def find_substrings(input_string) -> list[str]:
+        # Initialize an empty set to store unique substrings
+        substrings = set()
+
+        # Get the length of the input string
+        n = len(input_string)
+
+        # Outer loop for substring start index
+        for i in range(n):
+            # Inner loop for substring end index
+            for j in range(i + min_length, min(i + max_length + 1, n + 1)):
+                # Slice the string from i to j
+                substring = input_string[i:j]
+
+                # Add the substring to the set
+                substrings.add(substring)
+
+        # Convert the set to a list to return
+        return list(substrings)
+
+    entries = []
+
+    core_peptides = find_substrings(precursor)
+    for core_peptide in core_peptides:
+        ripp_cluster = RiPPCluster("placeholder_gene", precursor, core_peptide)
+        ripp_cluster.make_peptide()
+        mass = ripp_cluster.linear_product.get_mass()
+        formatted_precursor = precursor.lower().replace(
+            core_peptide.lower(), core_peptide
+        )
+
+        entries.append([core_peptide, formatted_precursor, mass, mass + 1.007276])
+    # Sort based on mass
+    sorted_entries = sorted(entries, key=lambda x: x[2])
+    with open(out_file, "w", newline="") as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(
+            ["CorePeptide", "PrecursorWithCorePeptide", "Mass", "[M+H]+"]
+        )
+
+        for entry in sorted_entries:
+            csvwriter.writerow([entry[0], entry[1], str(entry[2]), str(entry[3])])
 
 
 def draw_terpene_structure(terpene_cluster: TerpeneCluster) -> None:

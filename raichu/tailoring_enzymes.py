@@ -34,9 +34,9 @@ from raichu.data.molecular_moieties import (
     REDUCED_SERINE,
     REDUCED_THREONINE,
     C1_AMINO_ACID_ATTACHED,
-    ARGININE_SECONDARY_N1,
-    ARGININE_SECONDARY_N2,
-    ARGININE_SECONDARY_N3,
+    ARGININE_SECONDARY_N_1,
+    ARGININE_SECONDARY_N_2,
+    ARGININE_SECONDARY_N_3,
     ESTER_BOND,
 )
 from pikachu.reactions.functional_groups import find_atoms, find_bonds

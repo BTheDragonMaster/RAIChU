@@ -224,6 +224,7 @@ class TailoringEnzyme:
                 structure = remove_atom(oxygen, structure)
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "N", structure)
+
         elif self.type.name == "THIOAMIDATION":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -234,9 +235,17 @@ class TailoringEnzyme:
                 structure = double_bond_reduction(atom, oxygen, structure)
                 oxygen = structure.get_atom(oxygen)
                 structure = remove_atom(oxygen, structure)
-
-                atom = structure.get_atom(atom)
                 structure = addition(atom, "S", structure)
+                atom = structure.get_atom(atom)
+
+                sulfur_1 = atom.get_neighbour("S")
+                carbon_2_candidates = sulfur_1.get_neighbours("C")
+                for carbon_2_candidate in carbon_2_candidates:
+                    if carbon_2_candidate.has_neighbour("N"):
+                        carbon_2 = carbon_2_candidate
+                assert carbon_2
+                structure = single_bond_oxidation(carbon_2, sulfur_1, structure)
+                
         elif self.type.name == "KETO_REDUCTION":
             for atom in self.modification_sites:
                 if len(atom) == 0:

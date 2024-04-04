@@ -58,6 +58,7 @@ class TailoringEnzymeType(Enum):
     AMINOTRANSFERASE = 10
     HALOGENASE = 11
     METHYL_MUTASE = 12
+    THIOAMIDATION = 35
 
     # Oxidoreduction
     DOUBLE_BOND_REDUCTASE = 13
@@ -215,14 +216,27 @@ class TailoringEnzyme:
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
-                atom1 = atom[0]  # only one atom is modified at a time
-                atom1 = structure.get_atom(atom1)
-                oxygen = atom1.get_neighbour("O")
-                structure = double_bond_reduction(atom1, oxygen, structure)
+                atom = atom[0]  # only one atom is modified at a time
+                atom = structure.get_atom(atom)
+                oxygen = atom.get_neighbour("O")
+                structure = double_bond_reduction(atom, oxygen, structure)
                 oxygen = structure.get_atom(oxygen)
                 structure = remove_atom(oxygen, structure)
                 atom = structure.get_atom(atom)
                 structure = addition(atom, "N", structure)
+        elif self.type.name == "THIOAMIDATION":
+            for atom in self.modification_sites:
+                if len(atom) == 0:
+                    continue
+                atom = atom[0]  # only one atom is modified at a time
+                atom = structure.get_atom(atom)
+                oxygen = atom.get_neighbour("O")
+                structure = double_bond_reduction(atom, oxygen, structure)
+                oxygen = structure.get_atom(oxygen)
+                structure = remove_atom(oxygen, structure)
+
+                atom = structure.get_atom(atom)
+                structure = addition(atom, "S", structure)
         elif self.type.name == "KETO_REDUCTION":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -629,6 +643,11 @@ class TailoringEnzyme:
                         )
 
         elif self.type.name == "AMINOTRANSFERASE":
+            possible_sites.extend(
+                [[atom] for atom in find_atoms(KETO_GROUP, structure)]
+            )
+
+        elif self.type.name == "THIOAMIDATION":
             possible_sites.extend(
                 [[atom] for atom in find_atoms(KETO_GROUP, structure)]
             )

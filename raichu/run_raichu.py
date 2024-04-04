@@ -214,13 +214,13 @@ def get_tailoring_sites(structure, enzyme_name='all', out_file=None):
     if enzyme_name == 'all':
         for enzyme_type in TailoringEnzymeType:
             tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
-            tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(
-                structure)
+            tailoring_sites[enzyme_type.name] = list(set(tailoring_enzyme.get_possible_sites(
+                structure)))
     else:
         for enzyme_type in TailoringEnzymeType:
             if enzyme_type.name == enzyme_name:
                 tailoring_enzyme = TailoringEnzyme("gene", enzyme_type.name)
-                tailoring_sites[enzyme_type.name] = tailoring_enzyme.get_possible_sites(structure, out_file=out_file)
+                tailoring_sites[enzyme_type.name] = list(set(tailoring_enzyme.get_possible_sites(structure, out_file=out_file)))
 
     return tailoring_sites
 

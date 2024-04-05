@@ -88,9 +88,9 @@ class TailoringDomain(Domain):
         elif self.type.name == 'GDH' or self.type.name == 'DUMMY_GDH':
             return gamma_beta_dehydratase(structure)
         elif self.type.name == 'EGDH' or self.type.name == 'DUMMY_EGDH':
-            return gamma_beta_dehydratase(structure,"E")
+            return gamma_beta_dehydratase(structure, "E")
         elif self.type.name == 'ZGDH' or self.type.name == 'DUMMY_ZGDH':
-            return gamma_beta_dehydratase(structure,"Z")
+            return gamma_beta_dehydratase(structure, "Z")
         elif self.type.name == 'OMT' or self.type.name == 'DUMMY_OMT':
             return beta_hydroxy_methyl_transferase(structure)
         elif self.type.name == 'BMT' or self.type.name == 'DUMMY_BMT':
@@ -160,7 +160,7 @@ class RecognitionDomain(Domain):
 
         super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
 
-        if self.type.name == 'A' or self.type.name == 'DUMMY_A':
+        if self.type.name == 'A' or self.type.name == 'DUMMY_A' or self.type.name == 'CAL':
             self.substrate = NRPSSubstrate(substrate_name)
         elif self.type.name == 'AT' or self.type.name == 'DUMMY_AT':
             self.substrate = PKSSubstrate(substrate_name)

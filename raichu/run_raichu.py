@@ -56,6 +56,7 @@ def make_domain(
     domain_repr: DomainRepresentation, substrate: str, strict: bool = True
 ) -> Domain:
     domain_class = DOMAIN_TO_SUPERTYPE.get(domain_repr.type)
+
     if not domain_repr.name:
         domain_repr.name = domain_repr.type
     if domain_class:
@@ -165,17 +166,16 @@ def build_cluster(
         else:
             raise ValueError(f"Unrecognised module type: {module_repr.type}")
 
-        if (
-            not any([domain.type in ["CP", "ACP", "PCP"] for domain in module.domains])
-            and strict == True
-        ):
-            raise ValueError(
-                f"Module {module} does not contain a carrier protein domain."
-            )
+        if not any([domain.type in ["CP", "ACP", "PCP"] for domain in module.domains]) and strict:
+            raise ValueError(f"Module {module} does not contain a carrier protein domain.")
+
         if module.is_broken and module.is_starter_module:
             new_starter = True
-        if module.is_broken:
-            print(f"Module {module} is broken.")
+        # if module.is_broken:
+        #     print(f"Module {module.id} is broken.")
+        # for domain in module.domains:
+        #     print(domain)
+
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
 

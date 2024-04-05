@@ -61,6 +61,7 @@ class NRPSDomainType(Enum):
     TD = 8
     UNKNOWN = 9
     OX = 10
+    CAL = 11
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":
@@ -92,6 +93,7 @@ class PKSDomainType(Enum):
     DUMMY_EGDH = 18  # E-Gamma-beta-dehydrogenase
     DUMMY_OMT = 19  # Beta-Hydroxymethyltransferase
     DUMMY_BMT = 20  # Beta-Methyltransferase
+    CAL = 21
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -201,6 +203,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
                 self.synthesis_domain = SynthesisDomain("DUMMY_C")
             else:
                 self.is_broken = True
+
+        if not self.is_starter_module and self.recognition_domain and self.recognition_domain.domain_name == 'CAL':
+            self.is_broken = True
+
         if module_subtype != "PKS_TRANS" and not self.recognition_domain:
             self.is_broken = True
 
@@ -291,9 +297,11 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
             if not epimerized:
                 e_domain.used = False
         if n_mt_domain and n_mt_domain.active and n_mt_domain.used:
+
             structure, methylated = n_mt_domain.do_tailoring(structure)
             if not methylated:
                 n_mt_domain.used = False
+
         if cyc_domain and cyc_domain.active and cyc_domain.used:
             structure, cyclised = cyc_domain.do_tailoring(structure)
             if not cyclised:
@@ -303,6 +311,9 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
                 structure, oxidated = ox_domain.do_tailoring(structure)
                 if not oxidated:
                     ox_domain.used = False
+
+        elif ox_domain:
+            ox_domain.used = False
 
         return structure
 
@@ -334,9 +345,13 @@ class LinearPKSModule(_Module):
             if self.recognition_domain:
                 if structure is None:
                     assert self.is_starter_module
-                    structure = (
-                        self.recognition_domain.substrate.starter_monomer.attach_to_acp()
-                    )
+                    if self.recognition_domain.domain_name != 'CAL':
+                        structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                    else:
+                        starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
+                        label_nrp_central_chain(starter_unit)
+                        structure = attach_to_domain_nrp(starter_unit)
+
                 else:
                     structure = self.synthesis_domain.do_elongation(
                         structure, self.recognition_domain.substrate
@@ -372,6 +387,7 @@ class IterativePKSModule(_Module):
                     if structure is None:
                         assert self.is_starter_module
                         structure = substrate.starter_monomer.attach_to_acp()
+                        
                     else:
                         structure = self.synthesis_domain.do_elongation(
                             structure, substrate

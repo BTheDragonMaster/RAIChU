@@ -59,14 +59,7 @@ def make_module_text(start_x, end_x, y, module_nr, offset_1=True):
     return text
 
 
-def draw_bubbles(
-    cluster,
-    widths,
-    delta_x=29,
-    bubble_height=80,
-    min_gene_padding=20,
-    min_module_padding=10,
-):
+def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding=20, min_module_padding=10):
     x = 30.0
     x_bubbles = 30.0
 
@@ -74,9 +67,12 @@ def draw_bubbles(
     cp_positions_bubbles = []
     previous_space_right = 0.0
     previous_cp_position = 0.0
+
     for i, module in enumerate(cluster.modules):
         current_y = bubble_height
         for j, domain in enumerate(module.domains):
+
+            # Take note of whether the domain is part of a new gene (modules can be split across multiple genes)
             new_gene = False
             if j < len(module.domains) - 1:
                 current_gene = domain.gene
@@ -84,10 +80,9 @@ def draw_bubbles(
                 if current_gene != next_gene:
                     new_gene = True
 
-            if (
-                domain.supertype.name == "UNKNOWN"
-                or domain.supertype.name == "TAILORING"
-            ):
+            # Move up bubbles representing unknown and tailoring domains
+
+            if domain.supertype.name == "UNKNOWN" or domain.supertype.name == "TAILORING":
 
                 if current_y == bubble_height - 7:
                     level_change = False
@@ -95,6 +90,7 @@ def draw_bubbles(
                     level_change = True
 
                 current_y = bubble_height - 7
+
             else:
                 if current_y == bubble_height:
                     level_change = False
@@ -102,22 +98,24 @@ def draw_bubbles(
                     level_change = True
                 current_y = bubble_height
 
+            # If there is a level change, you can place the bubble closer to the previous one
+
             if level_change and j != 0:
                 x_bubbles -= 1
                 x -= 1
 
-            if (
-                domain.supertype.name == "CARRIER"
-                and domain.used
-                and not module.is_broken
-            ):
+            # Only note the position of the cp domain if the module is not broken
+
+            if domain.supertype.name == "CARRIER" and domain.used and not module.is_broken:
                 cp_positions_bubbles.append(x_bubbles)
+
+                # Record how much space the structures take up left and right
 
                 current_space_left, current_space_right = widths[i]
 
-                minimum_x = (
-                    previous_cp_position + current_space_left + previous_space_right
-                )
+                minimum_x = previous_cp_position + current_space_left + previous_space_right
+
+                # If structures take up more space than the bubbles, shift the CP domain to the right
 
                 x = max([minimum_x, x])
                 cp_positions.append(x)
@@ -126,6 +124,9 @@ def draw_bubbles(
 
             x_bubbles += delta_x
             x += delta_x
+
+            # If a new gene is introduced, move the bubbles over
+
             if new_gene:
                 x_bubbles += min_gene_padding
                 x += min_gene_padding
@@ -134,6 +135,8 @@ def draw_bubbles(
         x_bubbles += min_module_padding
 
     module_shifts = []
+
+    # Calculate how much each module has to shift
 
     for i, cp_position in enumerate(cp_positions):
         module_shift = cp_positions[i] - cp_positions_bubbles[i]
@@ -159,8 +162,10 @@ def draw_bubbles(
     genes = []
     module_texts = []
 
+    correct_modules = 0
+
     for i, module in enumerate(cluster.modules):
-        correct_modules = 0
+
         start_x = current_x - 15
         current_y = bubble_height
 
@@ -234,8 +239,9 @@ def draw_bubbles(
 
         module_shift = 0.0
         if i != len(cluster.modules) - 1 and not cluster.modules[i + 1].is_broken:
+
+            module_shift = module_shifts[correct_modules + 1]
             correct_modules += 1
-            module_shift = module_shifts[correct_modules]
 
         end_x = current_x - 15
         lines.append(draw_line(start_x, end_x, y=bubble_height - 26))

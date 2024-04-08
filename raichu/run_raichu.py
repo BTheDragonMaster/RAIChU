@@ -1,5 +1,6 @@
 import os
 
+from raichu.substrate import PksStarterSubstrate
 from raichu.cluster.modular_cluster import ModularCluster
 from raichu.cluster.ripp_cluster import RiPPCluster
 from raichu.cluster.terpene_cluster import TerpeneCluster
@@ -85,22 +86,25 @@ def make_domain(
     return domain
 
 
-def build_cluster(
-    cluster_repr: ClusterRepresentation, strict: bool = True
-) -> ModularCluster:
+def build_cluster(cluster_repr: ClusterRepresentation, strict: bool = True) -> ModularCluster:
 
     genes = set()
     new_starter = False
     modules = []
     previous_domain = None
+
     if len(cluster_repr.modules) == 0:
-        raise ValueError(
-            "Cluster is empty.This can happen with Type III PKS clusters. Please check the input file."
-        )
+        raise ValueError("Cluster is empty.This can happen with Type III PKS clusters. Please check the input file.")
+
     for i, module_repr in enumerate(cluster_repr.modules):
         if i == 0 or new_starter:
             starter = True
+            if new_starter:
+
+                if not strict and module_repr.type == 'PKS' and module_repr.subtype == 'PKS_CIS' and module_repr.substrate not in [v.name for v in PksStarterSubstrate]:
+                    module_repr.substrate = "WILDCARD"
             new_starter = False
+
         else:
             starter = False
 
@@ -171,10 +175,6 @@ def build_cluster(
 
         if module.is_broken and module.is_starter_module:
             new_starter = True
-        # if module.is_broken:
-        #     print(f"Module {module.id} is broken.")
-        # for domain in module.domains:
-        #     print(domain)
 
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
@@ -244,7 +244,6 @@ def draw_ripp_structure(ripp_cluster: RiPPCluster, out_folder: str) -> None:
         order.append("cyclisation")
 
     if ripp_cluster.cleavage_sites:
-        print("here")
         ripp_cluster.do_proteolytic_cleavage()
         ripp_cluster.draw_product(
             as_string=False, out_file=os.path.join(out_folder, "cleavage_test_ripp.svg")

@@ -238,10 +238,13 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
         # Shift modules based on width of structures
 
         module_shift = 0.0
+
+        if not cluster.modules[i].is_broken:
+            correct_modules += 1
+
         if i != len(cluster.modules) - 1 and not cluster.modules[i + 1].is_broken:
 
-            module_shift = module_shifts[correct_modules + 1]
-            correct_modules += 1
+            module_shift = module_shifts[correct_modules]
 
         end_x = current_x - 15
         lines.append(draw_line(start_x, end_x, y=bubble_height - 26))

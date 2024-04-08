@@ -29,6 +29,7 @@ class RecognitionDomainType(Enum):
     AT = 2
     DUMMY_A = 3
     DUMMY_AT = 4
+    CAL = 5
 
     @staticmethod
     def from_string(label: str) -> "RecognitionDomainType":

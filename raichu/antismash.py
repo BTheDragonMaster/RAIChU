@@ -109,6 +109,7 @@ antiSMASH_DOMAIN_TO_RAICHU_DOMAIN = {
     "nMT": "nMT",
     "PP-binding": "CP",
     "Heterocyclization": "CYC",
+    "CAL_domain": "CAL"
 }
 
 domains_to_be_refined = ["KR", "KS", "A", "AT"]
@@ -142,13 +143,9 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                     ]
                     strand = domains_in_module[0]["strand"]
                     strands.append(strand)
-                    substrate = [
-                        domain["substrate"]
-                        for domain in domains_in_module
-                        if domain["substrate"] is not None
-                    ]
-                    if len(substrate) > 0:
-                        substrate = substrate[0]
+                    substrates = [domain["substrate"] for domain in domains_in_module if domain["substrate"] is not None]
+                    if len(substrates) > 0:
+                        substrate = substrates[0]
                         # Also account for reversing cluster if on different strand
                         if module_type == "PKS" and (
                             len(modules) == 0
@@ -176,14 +173,17 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
 
                     if module_type == "PKS":
                         module_subtype = "PKS_TRANS"
+
                     for domain_representation in domain_representations:
                         if domain_representation.type == "CP":
                             domain_representation.type = (
                                 "ACP" if module_type == "PKS" else "PCP"
                             )
                         if module_type == "PKS":
-                            if domain_representation.type == "AT":
+                            if domain_representation.type == "AT" or domain_representation.type == 'CAL':
                                 module_subtype = "PKS_CIS"
+                            if domain_representation.type == "CAL" and substrate == "WILDCARD":
+                                substrate = "**Unknown**"
                     if (
                         module_type == "PKS"
                         and module_subtype == "PKS_TRANS"
@@ -241,6 +241,7 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
     ):  # reverse whole cluster, if completely on -1 strand
         modules.reverse()
     cluster_representation = ClusterRepresentation(modules)
+
     return cluster_representation
 
 
@@ -259,11 +260,15 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                     in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN
                     else feature.qualifiers["aSDomain"][0]
                 )
+                if domain["type"] == 'MT' and feature.qualifiers["domain_subtypes"] and feature.qualifiers["domain_subtypes"][0] == 'nMT':
+                    domain["type"] = "nMT"
+
                 domain["start"] = feature.location.start
                 domain["end"] = feature.location.end
                 domain["subtype"] = None
                 domain["substrate"] = None
                 domain["strand"] = feature.location.strand
+
                 if "specificity" in feature.qualifiers:
                     for spec in feature.qualifiers["specificity"]:
                         if "consensus:" in spec:
@@ -280,6 +285,14 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                                 if spec.split("KR activity:")[1].strip() == "active"
                                 else False
                             )
+
+                        elif "KR stereochemistry:" in spec:
+                            domain_subtype = spec.split("KR stereochemistry:")[1].strip()
+                            if domain_subtype == '(unknown)':
+
+                                domain["subtype"] = "UNKNOWN"
+                            else:
+                                domain["subtype"] = domain_subtype
 
                         elif "transATor:" in spec:
                             domain["subtype"] = (
@@ -299,6 +312,7 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                     domain["active"],
                     domain["active"],
                 )
+
                 domains.append(domain)
     return domains
 
@@ -356,9 +370,7 @@ def refine_domain_js(start, gene, details_data_region):
             return [KR_subtype, None]
 
 
-def get_cluster_representation_js(
-    region_visualizer, details_data_region, version=7.0
-) -> ClusterRepresentation:
+def get_cluster_representation_js(region_visualizer, details_data_region, version=7.0) -> ClusterRepresentation:
     module_array = []
     # only get first entry
     modules = region_visualizer[next(iter(region_visualizer))]["modules"]
@@ -409,7 +421,15 @@ def get_cluster_representation_js(
     return ClusterRepresentation(module_array)
 
 
+def load_antismash_json(json_file, version="7.1.0"):
+    antismash_data = json.load(json_file)
+    for record in antismash_data["records"]:
+        cluster_name = record["id"]
+
+
+
 def load_antismash_js(js_file, region, version=7.0):
+
     with open(js_file) as file:
         complete_data = file.read()
     pattern_results_data = re.compile(r"var\s+resultsData\s*=\s*([\s\S]*?)(?=$)")

@@ -1,5 +1,6 @@
 import os
-import csv
+
+from raichu.substrate import PksStarterSubstrate
 from raichu.cluster.modular_cluster import ModularCluster
 from raichu.cluster.ripp_cluster import RiPPCluster
 from raichu.cluster.terpene_cluster import TerpeneCluster
@@ -93,14 +94,27 @@ def build_cluster(
     new_starter = False
     modules = []
     previous_domain = None
+
     if len(cluster_repr.modules) == 0:
         raise ValueError(
             "Cluster is empty.This can happen with Type III PKS clusters. Please check the input file."
         )
+
     for i, module_repr in enumerate(cluster_repr.modules):
         if i == 0 or new_starter:
             starter = True
+            if new_starter:
+
+                if (
+                    not strict
+                    and module_repr.type == "PKS"
+                    and module_repr.subtype == "PKS_CIS"
+                    and module_repr.substrate
+                    not in [v.name for v in PksStarterSubstrate]
+                ):
+                    module_repr.substrate = "WILDCARD"
             new_starter = False
+
         else:
             starter = False
 
@@ -166,15 +180,16 @@ def build_cluster(
         else:
             raise ValueError(f"Unrecognised module type: {module_repr.type}")
 
-        if not any([domain.type in ["CP", "ACP", "PCP"] for domain in module.domains]) and strict:
-            raise ValueError(f"Module {module} does not contain a carrier protein domain.")
+        if (
+            not any([domain.type in ["CP", "ACP", "PCP"] for domain in module.domains])
+            and strict
+        ):
+            raise ValueError(
+                f"Module {module} does not contain a carrier protein domain."
+            )
 
         if module.is_broken and module.is_starter_module:
             new_starter = True
-        # if module.is_broken:
-        #     print(f"Module {module.id} is broken.")
-        # for domain in module.domains:
-        #     print(domain)
 
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)

@@ -126,10 +126,18 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
     modules = []
     strands = []
     for record in SeqIO.parse(antismash_gbk, "genbank"):
+
+        nr_all_modules = len([feature for feature in record.features if feature.type == "aSModule"])
+        nr_unknown_modules = len([feature for feature in record.features if
+                                  feature.type == "aSModule" and "unknown" in feature.qualifiers["type"]])
+
+        nr_nrps_pks_modules = nr_all_modules - nr_unknown_modules
+
         for feature in record.features:
             if feature.type == "aSModule":
                 module_type = feature.qualifiers["type"][0].upper()
                 module_subtype = None
+
                 if module_type == "NRPS" or module_type == "PKS":
                     start = feature.location.start
                     end = feature.location.end
@@ -141,27 +149,17 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                     domain_representations = [
                         domain["representation"] for domain in domains_in_module
                     ]
+
                     strand = domains_in_module[0]["strand"]
                     strands.append(strand)
                     substrates = [domain["substrate"] for domain in domains_in_module if domain["substrate"] is not None]
                     if len(substrates) > 0:
                         substrate = substrates[0]
+
                         # Also account for reversing cluster if on different strand
-                        if module_type == "PKS" and (
-                            len(modules) == 0
-                            and strand == 1
-                            or len(modules)
-                            == len(
-                                [
-                                    feature
-                                    for feature in record.features
-                                    if feature.type == "aSModule"
-                                ]
-                            )
-                            - 1
-                            and strand == -1
-                        ):
+                        if module_type == "PKS" and ((len(modules) == 0 and strand == 1) or (len(modules) == nr_nrps_pks_modules - 1 and strand == -1)):
                             if substrate not in [v.name for v in PksStarterSubstrate]:
+
                                 substrate = "WILDCARD"
                     else:
                         if module_type == "NRPS":
@@ -314,6 +312,7 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                 )
 
                 domains.append(domain)
+
     return domains
 
 

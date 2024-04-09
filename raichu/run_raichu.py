@@ -181,11 +181,13 @@ def build_cluster(
             raise ValueError(f"Unrecognised module type: {module_repr.type}")
 
         if (
-            not any([domain.type in ["CP", "ACP", "PCP"] for domain in module.domains])
+            not any(
+                [domain.type.name in ["CP", "ACP", "PCP"] for domain in module.domains]
+            )
             and strict
         ):
             raise ValueError(
-                f"Module {module} does not contain a carrier protein domain."
+                f"Module {module.id} does not contain a carrier protein domain."
             )
 
         if module.is_broken and module.is_starter_module:

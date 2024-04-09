@@ -163,8 +163,8 @@ def make_elongation_monomer(name):
         monomer = PksElongationUnit("Malonyl CoA", "CC=O", 0, 1)
     elif name == "METHYLMALONYL_COA":
         monomer = PksElongationUnit("Methylmalonyl CoA", "O=CCC", 2, 1)
-    elif name == "METHOXYMALONYL_ACP":
-        monomer = PksElongationUnit("Methoxymalonyl ACP", "O=CCOC", 2, 1)
+    elif name == "METHOXYMALONYL_COA":
+        monomer = PksElongationUnit("Methoxymalonyl CoA", "O=CCOC", 2, 1)
     elif name == "ETHYLMALONYL_COA":
         monomer = PksElongationUnit("Ethylmalonyl CoA", "O=CCCC", 2, 1)
     elif name == "WILDCARD":

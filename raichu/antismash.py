@@ -10,6 +10,7 @@ from raichu.representations import (
 )
 from raichu.run_raichu import draw_cluster, build_cluster
 from raichu.substrate import PksStarterSubstrate
+from dataclasses import dataclass, field
 
 
 NRPS_PKS_RULES = {
@@ -122,9 +123,75 @@ AS_TO_PKS = {
 }
 
 
+@dataclass
+class AntiSmashDomain:
+    name: str
+    type: str
+    subtype: str
+    start: int
+    end: int
+    strand: str
+    gene: str
+
+
+class AntiSmashModule:
+    name: str
+    nr: int
+    type: str
+    subtype: str
+    start: int
+    end: int
+    domains: list[AntiSmashDomain] = field(default_factory=list)
+
+
+class AntiSmashGene:
+    name: str
+    start: int
+    end: int
+    strand: str
+    modules: list[AntiSmashModule] = field(default_factory=list)
+
+    def sort_modules(self):
+        self.modules.sort(key=lambda m: m.start)
+        if self.strand == -1:
+            self.modules.reverse()
+
+        for i, module in enumerate(self.modules):
+            module.nr = i
+
+
+def sort_genes(gene_to_coords, gene_to_strand):
+    genes = list(gene_to_coords.keys())
+    genes.sort(key=lambda gene: gene_to_coords[gene])
+    gene_groups = []
+    gene_group = []
+    previous_direction = None
+    for i, gene in enumerate(genes):
+        current_direction = gene_to_strand[gene]
+        if current_direction != previous_direction:
+            if gene_group:
+                if previous_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+            gene_group = [gene]
+            previous_direction = current_direction
+        else:
+            gene_group.append(gene)
+            if i == len(genes) - 1:
+                if current_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+    return gene_groups
+
+
 def map_domains_to_modules_gbk(antismash_gbk, domains):
     modules = []
     strands = []
+    gene_to_coords = {}
+    gene_to_strand = {}
+    gene_to_modules = {}
     for record in SeqIO.parse(antismash_gbk, "genbank"):
 
         nr_all_modules = len([feature for feature in record.features if feature.type == "aSModule"])
@@ -139,8 +206,16 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                 module_subtype = None
 
                 if module_type == "NRPS" or module_type == "PKS":
+
                     start = feature.location.start
                     end = feature.location.end
+                    gene = feature.qualifiers["locus_tags"][0]
+                    if gene not in gene_to_coords:
+                        gene_to_coords[gene] = start
+                    else:
+                        if gene_to_coords[gene] > start:
+                            gene_to_coords[gene] = start
+
                     domains_in_module = [
                         domain
                         for domain in domains
@@ -151,6 +226,10 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                     ]
 
                     strand = domains_in_module[0]["strand"]
+                    for domain in domains_in_module:
+                        if domain["gene"] not in gene_to_strand:
+                            gene_to_strand[domain["gene"]] = domain["strand"]
+
                     strands.append(strand)
                     substrates = [domain["substrate"] for domain in domains_in_module if domain["substrate"] is not None]
                     if len(substrates) > 0:
@@ -208,7 +287,7 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                             for domain_representation in domain_representations
                         ]
                     ):
-                        # Check if ACP/PCP is actually existing
+                        # Check if ACP/PCP exists elsewhere
                         if strand == -1:
                             next_domain_index = domains.index(domains_in_module[0]) - 1
                         else:
@@ -234,10 +313,13 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                         module_type, module_subtype, substrate, domain_representations
                     )
                     modules.append(module_representation)
+
     if all(
         strand == -1 for strand in strands
     ):  # reverse whole cluster, if completely on -1 strand
         modules.reverse()
+    gene_groups = sort_genes(gene_to_coords, gene_to_strand)
+
     cluster_representation = ClusterRepresentation(modules)
 
     return cluster_representation
@@ -252,20 +334,22 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                 domain = {}
                 domain["active"] = True
                 domain["id"] = feature.qualifiers["domain_id"][0]
-                domain["type"] = (
-                    antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[feature.qualifiers["aSDomain"][0]]
-                    if feature.qualifiers["aSDomain"][0]
-                    in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN
-                    else feature.qualifiers["aSDomain"][0]
-                )
-                if domain["type"] == 'MT' and feature.qualifiers["domain_subtypes"] and feature.qualifiers["domain_subtypes"][0] == 'nMT':
+                domain["name"] = None
+                domain_type = feature.qualifiers["aSDomain"][0]
+                if domain_type in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN:
+                    domain["type"] = antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[domain_type]
+                elif domain_type == 'MT' and feature.qualifiers["domain_subtypes"] and feature.qualifiers["domain_subtypes"][0] == 'nMT':
                     domain["type"] = "nMT"
+                else:
+                    domain["type"] = "UNKNOWN"
+                    domain["name"] = domain_type
 
                 domain["start"] = feature.location.start
                 domain["end"] = feature.location.end
                 domain["subtype"] = None
                 domain["substrate"] = None
                 domain["strand"] = feature.location.strand
+                domain["gene"] = feature.qualifiers["locus_tag"][0]
 
                 if "specificity" in feature.qualifiers:
                     for spec in feature.qualifiers["specificity"]:
@@ -303,10 +387,10 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                             )
 
                 domain["representation"] = DomainRepresentation(
-                    feature.qualifiers["locus_tag"][0],
+                    domain["gene"],
                     domain["type"],
                     domain["subtype"],
-                    None,
+                    domain["name"],
                     domain["active"],
                     domain["active"],
                 )

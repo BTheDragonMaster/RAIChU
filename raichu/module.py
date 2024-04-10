@@ -346,6 +346,8 @@ class LinearPKSModule(_Module):
                 if structure is None:
                     assert self.is_starter_module
                     if self.recognition_domain.domain_name != 'CAL':
+                        if not self.recognition_domain.substrate.starter_monomer:
+                            raise ValueError("Substrate of cis-AT PKS starter module is not a starter substrate")
                         structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
                     else:
                         starter_unit = read_smiles(self.recognition_domain.substrate.smiles)
@@ -383,9 +385,11 @@ class IterativePKSModule(_Module):
             for i in range(0, self.iterations):
                 if self.recognition_domain:
                     # make new substrate to enable reuse of substrate
-                    substrate = PKSSubstrate(self.recognition_domain.substrate_name)
+                    substrate = PKSSubstrate(self.recognition_domain.substrate.name)
                     if structure is None:
                         assert self.is_starter_module
+                        if not self.recognition_domain.substrate.starter_monomer:
+                            substrate = PKSSubstrate("ACETYL_COA")
                         structure = substrate.starter_monomer.attach_to_acp()
                         
                     else:

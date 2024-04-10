@@ -1,6 +1,8 @@
 import json
 import os
 import re
+from typing import Optional
+
 from sys import argv
 from Bio import SeqIO
 from raichu.representations import (
@@ -8,7 +10,7 @@ from raichu.representations import (
     ModuleRepresentation,
     DomainRepresentation,
 )
-from raichu.run_raichu import draw_cluster, build_cluster
+from raichu.run_raichu import draw_cluster
 from raichu.substrate import PksStarterSubstrate
 from dataclasses import dataclass, field
 
@@ -110,7 +112,8 @@ antiSMASH_DOMAIN_TO_RAICHU_DOMAIN = {
     "nMT": "nMT",
     "PP-binding": "CP",
     "Heterocyclization": "CYC",
-    "CAL_domain": "CAL"
+    "CAL_domain": "CAL",
+    "TD": "TD"
 }
 
 domains_to_be_refined = ["KR", "KS", "A", "AT"]
@@ -125,31 +128,213 @@ AS_TO_PKS = {
 
 @dataclass
 class AntiSmashDomain:
-    name: str
+    id: str
     type: str
-    subtype: str
     start: int
     end: int
     strand: str
     gene: str
 
+    subtype: Optional[str] = None
+    active: bool = True
+    substrate: Optional[str] = None
+    name: Optional[str] = None
+    raichu_type: Optional[str] = None
+    raichu_subtype: Optional[str] = None
 
+    def set_raichu_type(self):
+        if self.type in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN:
+            self.raichu_type = antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[self.type]
+        elif self.type == 'MT' and self.subtype and self.subtype == 'nMT':
+            self.raichu_type = 'nMT'
+        else:
+            self.raichu_type = "UNKNOWN"
+            self.name = self.type
+
+    def add_domain_information(self, features):
+        if "domain_subtypes" in features:
+            self.subtype = features["domain_subtypes"][0]
+        if "specificity" in features:
+            for spec in features["specificity"]:
+                if "consensus:" in spec:
+                    specificity = spec.split("consensus:")[1].strip().lower()
+
+                    if specificity in AS_TO_NRPS:
+                        substrate_name = AS_TO_NRPS[specificity]
+                        self.substrate = substrate_name
+                    elif specificity in AS_TO_PKS:
+                        substrate_name = AS_TO_PKS[specificity]
+                        self.substrate = substrate_name
+                elif "KR activity:" in spec:
+                    self.active = True if spec.split("KR activity:")[1].strip() == "active" else False
+
+                elif "KR stereochemistry:" in spec:
+                    domain_subtype = spec.split("KR stereochemistry:")[1].strip()
+                    if domain_subtype == '(unknown)':
+                        self.raichu_subtype = "UNKNOWN"
+                    else:
+                        self.raichu_subtype = domain_subtype
+
+                elif "transATor:" in spec:
+                    self.subtype = spec.split("transATor:")[1].strip().replace("-", "_").replace("/", "_").upper().replace("(UNKNOWN)", "MISCELLANEOUS")
+
+    def __repr__(self):
+        return f"{self.raichu_type}_{self.start}_{self.end}"
+
+
+@dataclass
 class AntiSmashModule:
-    name: str
-    nr: int
-    type: str
-    subtype: str
     start: int
     end: int
+    strand: int
+
+    complete: bool = True
+    starter_complete: bool = True
+    type: Optional[str] = None
+    subtype: Optional[str] = None
     domains: list[AntiSmashDomain] = field(default_factory=list)
 
+    def __post_init__(self):
+        self.set_module_type()
+        self.determine_completeness()
 
+    def __eq__(self, other):
+        if self.start == other.start and self.end == other.end and self.strand == other.strand:
+            return True
+        return False
+
+    def __hash__(self):
+        return self.start, self.end
+
+    def __repr__(self):
+        return f"{self.start}_{self.end}_{'-'.join([d.raichu_type for d in self.domains])}"
+
+    def set_module_type(self):
+
+        for domain in self.domains:
+            if domain.raichu_type == 'C':
+                if self.type == 'NRPS' or self.type is None:
+                    self.type = 'NRPS'
+                else:
+                    raise ValueError(f"Can't set module type for module {self.__repr__()}. Cannot have C domain in {self.type} module.")
+
+            if domain.raichu_type == 'A':
+                if self.type == 'NRPS' or self.type is None:
+                    self.type = 'NRPS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have A domain in {self.type} module.")
+            if domain.raichu_type == 'KR':
+                if self.type == 'PKS' or self.type is None:
+                    self.type = 'PKS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have KR domain in {self.type} module.")
+
+            if domain.raichu_type == 'KS':
+                if self.type == 'PKS' or self.type is None:
+                    self.type = 'PKS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have KS domain in {self.type} module.")
+
+            if domain.raichu_type == 'ER':
+                if self.type == 'PKS' or self.type is None:
+                    self.type = 'PKS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have ER domain in {self.type} module.")
+
+            if domain.raichu_type == 'DH':
+                if self.type == 'PKS' or self.type is None:
+                    self.type = 'PKS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have DH domain in {self.type} module.")
+
+            if domain.raichu_type == 'AT':
+
+                if self.type == 'PKS' or self.type is None:
+                    self.type = 'PKS'
+                else:
+                    raise ValueError(
+                        f"Can't set module type for module {self.__repr__()}. Cannot have AT domain in {self.type} module.")
+
+        if self.type == 'PKS':
+            has_recognition_domain = False
+            for domain in self.domains:
+                if domain.raichu_type == 'AT' or domain.raichu_type == 'CAL':
+                    has_recognition_domain = True
+
+            if has_recognition_domain:
+                self.subtype = 'PKS_CIS'
+            else:
+                self.subtype = 'PKS_TRANS'
+
+    def determine_completeness(self):
+        self.complete = False
+        self.starter_complete = False
+
+        if self.type == 'PKS':
+
+            has_ks = False
+            has_acp = False
+            has_at = False
+
+            for domain in self.domains:
+                if domain.raichu_type == 'KS':
+                    has_ks = True
+                if domain.raichu_type == 'CP':
+                    has_acp = True
+                if domain.raichu_type == 'AT':
+                    has_at = True
+
+            if has_acp:
+                if self.subtype == 'PKS_TRANS':
+                    self.starter_complete = True
+                elif self.subtype == 'PKS_CIS' and has_at:
+                    self.starter_complete = True
+
+                if has_ks:
+                    if self.subtype == 'PKS_TRANS':
+                        self.complete = True
+                    elif self.subtype == 'PKS_CIS' and has_at:
+                        self.complete = True
+
+        elif self.type == 'NRPS':
+            has_c = False
+            has_a = False
+            has_pcp = False
+
+            for domain in self.domains:
+                if domain.raichu_type == 'C':
+                    has_c = True
+                if domain.raichu_type == 'CP':
+                    has_pcp = True
+                if domain.raichu_type == 'A':
+                    has_a = True
+
+            if has_a and has_pcp:
+                self.starter_complete = True
+
+                if has_c:
+                    self.complete = True
+
+
+@dataclass
 class AntiSmashGene:
     name: str
     start: int
     end: int
-    strand: str
+    strand: int
+    synonyms: list[str] = field(default_factory=list)
+    domains: list[AntiSmashDomain] = field(default_factory=list)
     modules: list[AntiSmashModule] = field(default_factory=list)
+
+    def sort_domains(self):
+        self.domains.sort(key=lambda d: d.start)
+        if self.strand == -1:
+            self.domains.reverse()
 
     def sort_modules(self):
         self.modules.sort(key=lambda m: m.start)
@@ -159,29 +344,165 @@ class AntiSmashGene:
         for i, module in enumerate(self.modules):
             module.nr = i
 
+    def __eq__(self, other):
+        if self.start == other.start and self.end == other.end and self.strand == other.strand:
+            return True
+        return False
 
-def sort_genes(gene_to_coords, gene_to_strand):
-    genes = list(gene_to_coords.keys())
-    genes.sort(key=lambda gene: gene_to_coords[gene])
+    def __hash__(self):
+        return self.start, self.end
+
+    def __repr__(self):
+        return f"{self.name}"
+
+
+def get_nrps_pks_genes(antismash_gbk):
+    as_domains = parse_antismash_domains_gbk(antismash_gbk)
+    genes = []
+    for record in SeqIO.parse(antismash_gbk, "genbank"):
+        for feature in record.features:
+            if feature.type == 'CDS':
+
+                qualifiers = feature.qualifiers
+                synonyms = []
+
+                if 'gene' in qualifiers:
+                    synonyms.append(qualifiers['gene'][0])
+                if 'protein' in qualifiers:
+                    synonyms.append(qualifiers['protein'][0])
+                if 'locus_tag' in qualifiers:
+                    synonyms.append(qualifiers['locus_tag'][0])
+                if 'protein_id' in qualifiers:
+                    synonyms.append(qualifiers['protein_id'][0])
+
+                if synonyms:
+                    gene = AntiSmashGene(synonyms[0],
+                                         int(feature.location.start),
+                                         int(feature.location.end),
+                                         int(feature.location.strand),
+                                         synonyms)
+                    if gene not in genes:
+                        genes.append(gene)
+                else:
+                    print(f"Warning: No identifier found for a CDS. Domains on this gene will not be processed.")
+                    # for domain in as_domains:
+                    #     if domain.gene in synonyms:
+
+    for domain in as_domains:
+        gene_found = False
+        for gene in genes:
+            if domain.gene in gene.synonyms:
+                gene_found = True
+                gene.domains.append(domain)
+                break
+        if not gene_found:
+            print(f"Warning: No CDS found for {domain.gene}. Domains on this gene will not be processed.")
+
+    for gene in genes:
+        gene.sort_domains()
+
+    gene_groups = sort_genes(genes)
+
+    filtered_groups = []
+    for gene_group in gene_groups:
+        filtered_groups += filter_genes(gene_group)
+
+    modules = make_modules(filtered_groups)
+    print(modules)
+
+    for module_list in modules:
+        for module in module_list:
+            print(module, module.complete, module.starter_complete)
+
+    return filtered_groups
+
+
+def make_modules(gene_groups):
+    module_groups = []
+    for gene_group in gene_groups:
+        domains = []
+
+        for gene in gene_group:
+            domains += gene.domains
+
+        modules = []
+        module = []
+
+        for domain in domains:
+            if not module and not modules:
+                module.append(domain)
+
+            elif domain.raichu_type in ["C", "KS"]:
+                if module:
+                    modules.append(module)
+                module = [domain]
+            else:
+                module.append(domain)
+
+        if module:
+            modules.append(module)
+
+        antismash_modules = []
+
+        for module in modules:
+            start = min([domain.start for domain in module] + [domain.end for domain in module])
+            end = max([domain.start for domain in module] + [domain.end for domain in module])
+            strand = module[0].strand
+            antismash_module = AntiSmashModule(start, end, strand, domains=module)
+            antismash_modules.append(antismash_module)
+
+        module_groups.append(antismash_modules)
+
+    return module_groups
+
+
+def find_optimal_order(gene_groups):
+    pass
+
+
+def filter_genes(genes):
+    gene_groups = []
+    gene_group = []
+
+    for gene in genes:
+
+        if gene.domains:
+            gene_group.append(gene)
+        else:
+            if gene_group:
+                gene_groups.append(gene_group)
+                gene_group = []
+
+    if gene_group:
+        gene_groups.append(gene_group)
+
+    return gene_groups
+
+
+def sort_genes(genes):
+    genes.sort(key=lambda gene: gene.start)
     gene_groups = []
     gene_group = []
     previous_direction = None
+
     for i, gene in enumerate(genes):
-        current_direction = gene_to_strand[gene]
+        current_direction = gene.strand
         if current_direction != previous_direction:
             if gene_group:
                 if previous_direction == -1:
                     gene_group.reverse()
-                gene_groups += gene_group
+                gene_groups.append(gene_group)
 
             gene_group = [gene]
             previous_direction = current_direction
+
         else:
             gene_group.append(gene)
-            if i == len(genes) - 1:
-                if current_direction == -1:
-                    gene_group.reverse()
-                gene_groups += gene_group
+
+        if i == len(genes) - 1:
+            if current_direction == -1:
+                gene_group.reverse()
+            gene_groups.append(gene_group)
 
     return gene_groups
 
@@ -237,6 +558,7 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
 
                         # Also account for reversing cluster if on different strand
                         if module_type == "PKS" and ((len(modules) == 0 and strand == 1) or (len(modules) == nr_nrps_pks_modules - 1 and strand == -1)):
+                            print("Expecting to be here..")
                             if substrate not in [v.name for v in PksStarterSubstrate]:
 
                                 substrate = "WILDCARD"
@@ -325,76 +647,20 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
     return cluster_representation
 
 
-def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
+def parse_antismash_domains_gbk(antismash_gbk, version="7.1.0"):
     domains = []
 
     for record in SeqIO.parse(antismash_gbk, "genbank"):
         for feature in record.features:
             if feature.type == "aSDomain":
-                domain = {}
-                domain["active"] = True
-                domain["id"] = feature.qualifiers["domain_id"][0]
-                domain["name"] = None
-                domain_type = feature.qualifiers["aSDomain"][0]
-                if domain_type in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN:
-                    domain["type"] = antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[domain_type]
-                elif domain_type == 'MT' and feature.qualifiers["domain_subtypes"] and feature.qualifiers["domain_subtypes"][0] == 'nMT':
-                    domain["type"] = "nMT"
-                else:
-                    domain["type"] = "UNKNOWN"
-                    domain["name"] = domain_type
-
-                domain["start"] = feature.location.start
-                domain["end"] = feature.location.end
-                domain["subtype"] = None
-                domain["substrate"] = None
-                domain["strand"] = feature.location.strand
-                domain["gene"] = feature.qualifiers["locus_tag"][0]
-
-                if "specificity" in feature.qualifiers:
-                    for spec in feature.qualifiers["specificity"]:
-                        if "consensus:" in spec:
-                            specificity = spec.split("consensus:")[1].strip().lower()
-                            if specificity in AS_TO_NRPS:
-                                substrate_name = AS_TO_NRPS[specificity]
-                                domain["substrate"] = substrate_name
-                            elif specificity in AS_TO_PKS:
-                                substrate_name = AS_TO_PKS[specificity]
-                                domain["substrate"] = substrate_name
-                        elif "KR activity:" in spec:
-                            domain["active"] = (
-                                True
-                                if spec.split("KR activity:")[1].strip() == "active"
-                                else False
-                            )
-
-                        elif "KR stereochemistry:" in spec:
-                            domain_subtype = spec.split("KR stereochemistry:")[1].strip()
-                            if domain_subtype == '(unknown)':
-
-                                domain["subtype"] = "UNKNOWN"
-                            else:
-                                domain["subtype"] = domain_subtype
-
-                        elif "transATor:" in spec:
-                            domain["subtype"] = (
-                                spec.split("transATor:")[1]
-                                .strip()
-                                .replace("-", "_")
-                                .replace("/", "_")
-                                .upper()
-                                .replace("(UNKNOWN)", "MISCELLANEOUS")
-                            )
-
-                domain["representation"] = DomainRepresentation(
-                    domain["gene"],
-                    domain["type"],
-                    domain["subtype"],
-                    domain["name"],
-                    domain["active"],
-                    domain["active"],
-                )
-
+                domain = AntiSmashDomain(feature.qualifiers["domain_id"][0],
+                                         feature.qualifiers["aSDomain"][0],
+                                         int(feature.location.start),
+                                         int(feature.location.end),
+                                         feature.location.strand,
+                                         feature.qualifiers["locus_tag"][0])
+                domain.add_domain_information(feature.qualifiers)
+                domain.set_raichu_type()
                 domains.append(domain)
 
     return domains
@@ -415,135 +681,9 @@ def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
     cluster.write_cluster(out_directory)
 
 
-def refine_domain_js(start, gene, details_data_region):
-    details_data_region_orf = [
-        orf for orf in details_data_region["orfs"] if orf["id"] == gene
-    ][0]
-    details_data_region_orf_domain = [
-        domain
-        for domain in details_data_region_orf["domains"]
-        if domain["start"] == start
-    ][0]
-    substrate = None
-    KS_subtype = None
-    KR_subtype = None
-    if details_data_region_orf_domain["abbreviation"] == "AT":
-        substrate = details_data_region_orf_domain["predictions"][1][1]
-        return [None, substrate.replace("-", "_").upper()]
-
-    if details_data_region_orf_domain["abbreviation"] == "A":
-        substrate = AS_TO_NRPS[
-            details_data_region_orf_domain["predictions"][0][1].lower()
-        ]
-        substrate = substrate.lower() if substrate != "**Unknown**" else substrate
-        return [None, substrate]
-
-    if details_data_region_orf_domain["abbreviation"] == "KS":
-        if len(details_data_region_orf_domain["predictions"]) > 0:
-            KS_subtype = details_data_region_orf_domain["predictions"][0][1]
-            return [KS_subtype, None]
-        else:
-            return [None, None]
-
-    if details_data_region_orf_domain["abbreviation"] == "KR":
-        if len(details_data_region_orf_domain["predictions"]) > 0:
-            KR_subtype = details_data_region_orf_domain["predictions"][1][1]
-            if KR_subtype == "(unknown)":
-                KR_subtype = None
-            return [KR_subtype, None]
-
-
-def get_cluster_representation_js(region_visualizer, details_data_region, version=7.0) -> ClusterRepresentation:
-    module_array = []
-    # only get first entry
-    modules = region_visualizer[next(iter(region_visualizer))]["modules"]
-
-    for module in modules:
-        domain_array = []
-        module_subtype = None
-        domain_substrate = None
-        substrate = "X"
-        if module["complete"] == True:
-            for domain in module["domains"]:
-                name = None
-                active = True if domain["inactive"] == False else False
-                used = active
-                domain_type = domain["name"]
-                if domain_type == "":
-                    domain_type = domain["description"]
-                description = domain["description"]
-                gene = domain["cds"]
-                start = domain["start"]
-                subtype = None
-                if domain_type in domains_to_be_refined:
-                    subtype, domain_substrate = refine_domain_js(
-                        start, gene, details_data_region
-                    )
-                    if domain_substrate:
-                        substrate = domain_substrate
-                domain_array.append(
-                    DomainRepresentation(gene, domain_type, subtype, name, active, used)
-                )
-            if "A" in [domain.type for domain in domain_array]:
-                module_type = "NRPS"
-            else:
-                module_type = "PKS"
-            if module_type == "PKS":
-                if "AT" in [domain.type for domain in domain_array]:
-                    module_subtype = "PKS_CIS"
-                else:
-                    module_subtype = "PKS_TRANS"
-            for domain in domain_array:
-                if domain.type == "CP":
-                    domain.type = "ACP" if module_type == "PKS" else "PCP"
-            module_array.append(
-                ModuleRepresentation(
-                    module_type, module_subtype, substrate, domain_array
-                )
-            )
-    return ClusterRepresentation(module_array)
-
-
-def load_antismash_json(json_file, version="7.1.0"):
-    antismash_data = json.load(json_file)
-    for record in antismash_data["records"]:
-        cluster_name = record["id"]
-
-
-
-def load_antismash_js(js_file, region, version=7.0):
-
-    with open(js_file) as file:
-        complete_data = file.read()
-    pattern_results_data = re.compile(r"var\s+resultsData\s*=\s*([\s\S]*?)(?=$)")
-    results_data = pattern_results_data.search(complete_data).group(1)
-    pattern_details_data = re.compile(r"var\s+details_data\s*=\s*([\s\S]*?)(?=var|$)")
-    details_data = pattern_details_data.search(complete_data).group(1)
-    if not details_data and results_data:
-        raise ValueError("Not correct antiSMASH input.")
-    details_data = json.loads(f'{{"results":{details_data[:-2]}}}')["results"]
-    results_data = json.loads(results_data[:-1])
-    if "nrpspks" in details_data:
-        print(details_data["nrpspks"].keys())
-        if region in details_data["nrpspks"]:
-            details_data_region = details_data["nrpspks"][region]
-        else:
-            raise ValueError("Cluster is not a modular cluster.")
-    else:
-        raise ValueError("Cluster is not a modular cluster.")
-
-    region_visualizer = results_data[region][
-        "antismash.outputs.html.visualisers.bubble_view"
-    ]
-    raw_cluster_representation = get_cluster_representation_js(
-        region_visualizer, details_data_region, version
-    )
-
-    return raw_cluster_representation
-
-
 if __name__ == "__main__":
-    draw_cluster(
-        load_antismash_gbk(argv[1]),
-        out_file=argv[2],
-    )
+    print(get_nrps_pks_genes(argv[1]))
+    # draw_cluster(
+    #     load_antismash_gbk(argv[1]),
+    #     out_file=argv[2],
+    # )

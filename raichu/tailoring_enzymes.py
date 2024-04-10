@@ -250,8 +250,9 @@ class TailoringEnzyme:
             for atom in self.modification_sites:
                 if len(atom) == 0:
                     continue
-                atom1 = atom[0]  # only one atom is modified at a time
-                atom1 = structure.get_atom(atom1)
+                atom = atom[0]  # only one atom is modified at a time
+                atom = structure.get_atom(atom)
+                atom1 = atom.get_neighbour("O")
                 if atom1.type != "O":
                     raise ValueError(
                         f"Can not perform KETO_REDUCTION on atom {atom1}, since there is no oxygen to be reduced."

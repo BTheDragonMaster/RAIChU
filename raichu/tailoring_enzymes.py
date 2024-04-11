@@ -25,6 +25,7 @@ from raichu.data.molecular_moieties import (
     PEPTIDE_BOND,
     CC_SINGLE_BOND,
     KETO_GROUP,
+    AMIDE_GROUP,
     C_CARBOXYL,
     ASPARTIC_ACID,
     GLUTAMIC_ACID,
@@ -233,18 +234,19 @@ class TailoringEnzyme:
                 atom = structure.get_atom(atom)
                 oxygen = atom.get_neighbour("O")
                 structure = double_bond_reduction(atom, oxygen, structure)
-                oxygen = structure.get_atom(oxygen)
                 structure = remove_atom(oxygen, structure)
                 structure = addition(atom, "S", structure)
                 atom = structure.get_atom(atom)
 
-                sulfur_1 = atom.get_neighbour("S")
-                carbon_2_candidates = sulfur_1.get_neighbours("C")
+                sulfur = atom.get_neighbour("S")
+                carbon_2_candidates = sulfur.get_neighbours("C")
+                carbon_2 = None
                 for carbon_2_candidate in carbon_2_candidates:
                     if carbon_2_candidate.has_neighbour("N"):
                         carbon_2 = carbon_2_candidate
-                assert carbon_2
-                structure = single_bond_oxidation(carbon_2, sulfur_1, structure)
+                if not carbon_2:
+                    raise ValueError("No nitrogen next to keto group, no thioamide can be formed.")
+                structure = single_bond_oxidation(carbon_2, sulfur, structure)
                 
         elif self.type.name == "KETO_REDUCTION":
             for atom in self.modification_sites:
@@ -659,7 +661,7 @@ class TailoringEnzyme:
 
         elif self.type.name == "THIOAMIDATION":
             possible_sites.extend(
-                [[atom] for atom in find_atoms(KETO_GROUP, structure)]
+                [[atom] for atom in find_atoms(AMIDE_GROUP, structure)]
             )
 
         elif self.type.name == "KETO_REDUCTION":

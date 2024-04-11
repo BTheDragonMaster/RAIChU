@@ -2,6 +2,7 @@ import json
 import os
 import re
 from typing import Optional
+from itertools import permutations
 
 from sys import argv
 from Bio import SeqIO
@@ -188,8 +189,8 @@ class AntiSmashModule:
     end: int
     strand: int
 
-    complete: bool = True
-    starter_complete: bool = True
+    complete: bool = False
+    starter_complete: bool = False
     type: Optional[str] = None
     subtype: Optional[str] = None
     domains: list[AntiSmashDomain] = field(default_factory=list)
@@ -320,6 +321,183 @@ class AntiSmashModule:
                 if has_c:
                     self.complete = True
 
+    def has_termination_domain(self):
+        for domain in self.domains:
+            if domain.raichu_type in ["TE", "TD"]:
+                return True
+        return False
+
+    def has_c_starter(self):
+        if self.domains and self.domains[0].subtype == "Condensation_Starter":
+            return True
+        return False
+
+    def is_potential_starter(self):
+        if self.starter_complete and not self.complete:
+            return True
+
+        return False
+
+
+@dataclass
+class ModuleBlock:
+    start: int
+    end: int
+    strand: int
+    modules: list[AntiSmashModule] = field(default_factory=list)
+    is_starter_candidate: bool = False
+    has_c_starter: bool = False
+    has_termination_domain: bool = False
+
+    def __post_init__(self):
+        self.label_module_block()
+
+    def __repr__(self):
+        return '\n'.join([m.__repr__() for m in self.modules])
+
+    def __eq__(self, other):
+        if self.start == other.start and self.end == other.end and self.strand == other.strand:
+            return True
+
+        return False
+
+    def __hash__(self):
+        return self.start, self.end, self.strand
+
+    def label_module_block(self):
+        if self.modules:
+            if self.modules[0].is_potential_starter():
+                self.is_starter_candidate = True
+            if self.modules[0].has_c_starter():
+                self.has_c_starter = True
+            if self.modules[-1].has_termination_domain():
+                self.has_termination_domain = True
+
+
+class ModuleBlocks:
+
+    def __init__(self, module_blocks: list[ModuleBlock]):
+        self.module_blocks = module_blocks
+        self.block_order = module_blocks
+        self.optimal_solution = False
+        self.modules = []
+
+    def sort_collinear_blocks(self):
+
+        starter_candidates = []
+        terminator_candidates = []
+
+        for block in self.module_blocks:
+            if block.is_starter_candidate:
+                starter_candidates.append(block)
+
+        for block in self.module_blocks:
+            if block.has_c_starter:
+                starter_candidates.append(block)
+            if block.has_termination_domain:
+                terminator_candidates.append(block)
+
+        found_optimal_solution = False
+        best_block_order = self.block_order[:]
+        best_solution = self.check_broken_modules()
+
+        if starter_candidates and terminator_candidates:
+
+            for starter_candidate in starter_candidates:
+                for terminator_candidate in terminator_candidates:
+                    central_blocks = []
+                    for module_block in self.module_blocks:
+                        if module_block != starter_candidate and module_block != terminator_candidate:
+                            central_blocks.append(module_block)
+
+                    for module_order in permutations(central_blocks):
+                        self.block_order = [starter_candidate] + list(module_order) + [terminator_candidate]
+                        if self.check_broken_modules() < best_solution:
+                            best_block_order = self.block_order[:]
+                        if self.check_broken_modules() == 0:
+                            found_optimal_solution = True
+                            break
+                    if found_optimal_solution:
+                        break
+                if found_optimal_solution:
+                    break
+        elif starter_candidates:
+            for starter_candidate in starter_candidates:
+                central_blocks = []
+                for module_block in self.module_blocks:
+                    if module_block != starter_candidate:
+                        central_blocks.append(module_block)
+
+                for module_order in permutations(central_blocks):
+                    self.block_order = [starter_candidate] + list(module_order)
+                    if self.check_broken_modules() < best_solution:
+                        best_block_order = self.block_order[:]
+                        best_solution = self.check_broken_modules()
+                    if self.check_broken_modules() == 0:
+                        found_optimal_solution = True
+                        break
+                if found_optimal_solution:
+                    break
+
+        elif terminator_candidates:
+            for terminator_candidate in terminator_candidates:
+                central_blocks = []
+                for module_block in self.module_blocks:
+                    if module_block != terminator_candidate:
+                        central_blocks.append(module_block)
+
+                for module_order in permutations(central_blocks):
+                    self.block_order = list(module_order) + [terminator_candidate]
+                    if self.check_broken_modules() < best_solution:
+                        best_block_order = self.block_order[:]
+                        best_solution = self.check_broken_modules()
+                    if self.check_broken_modules() == 0:
+                        found_optimal_solution = True
+                        break
+                if found_optimal_solution:
+                    break
+
+        self.optimal_solution = found_optimal_solution
+        self.block_order = best_block_order
+        self.move_broken_modules()
+
+    def move_broken_modules(self):
+        module_block = self.recreate_modules()
+        print(module_block.modules)
+        standalone_gene = False
+        for i, module_1 in enumerate(module_block.modules):
+
+            for j, module_2 in enumerate(module_block.modules):
+                continue
+
+    def recreate_modules(self):
+        domains = []
+        for block in self.block_order:
+            for module in block.modules:
+                domains += module.domains
+
+        module_block = make_modules(domains)
+        return module_block
+
+    def check_broken_modules(self):
+        module_block = self.recreate_modules()
+        nr_broken = 0
+        end_cluster = False
+
+        for i, module in enumerate(module_block.modules):
+            if end_cluster:
+                nr_broken += 1
+                continue
+            if not module.complete:
+                if i != 0:
+                    nr_broken += 1
+                elif not module.starter_complete:
+                    nr_broken += 1
+            if module.has_termination_domain():
+                end_cluster = True
+
+        return nr_broken
+
 
 @dataclass
 class AntiSmashGene:
@@ -407,17 +585,27 @@ def get_nrps_pks_genes(antismash_gbk):
     for gene_group in gene_groups:
         filtered_groups += filter_genes(gene_group)
 
-    modules = make_modules(filtered_groups)
-    print(modules)
+    modules_per_collinear_block = ModuleBlocks(make_modules_from_gene_groups(filtered_groups))
+    modules_per_collinear_block.sort_collinear_blocks()
+    print(modules_per_collinear_block.optimal_solution)
+    print(modules_per_collinear_block.block_order)
 
-    for module_list in modules:
-        for module in module_list:
-            print(module, module.complete, module.starter_complete)
+    if not modules_per_collinear_block.optimal_solution:
+        filtered_genes = []
+
+        for gene_group in filtered_groups:
+            for gene in gene_group:
+                filtered_genes.append([gene])
+
+        modules_per_gene = ModuleBlocks(make_modules_from_gene_groups(filtered_genes))
+        modules_per_gene.sort_collinear_blocks()
+        print(modules_per_gene.optimal_solution)
+        print(modules_per_gene.block_order)
 
     return filtered_groups
 
 
-def make_modules(gene_groups):
+def make_modules_from_gene_groups(gene_groups):
     module_groups = []
     for gene_group in gene_groups:
         domains = []
@@ -425,39 +613,108 @@ def make_modules(gene_groups):
         for gene in gene_group:
             domains += gene.domains
 
-        modules = []
-        module = []
+        module_block = make_modules(domains)
 
-        for domain in domains:
-            if not module and not modules:
-                module.append(domain)
-
-            elif domain.raichu_type in ["C", "KS"]:
-                if module:
-                    modules.append(module)
-                module = [domain]
-            else:
-                module.append(domain)
-
-        if module:
-            modules.append(module)
-
-        antismash_modules = []
-
-        for module in modules:
-            start = min([domain.start for domain in module] + [domain.end for domain in module])
-            end = max([domain.start for domain in module] + [domain.end for domain in module])
-            strand = module[0].strand
-            antismash_module = AntiSmashModule(start, end, strand, domains=module)
-            antismash_modules.append(antismash_module)
-
-        module_groups.append(antismash_modules)
+        module_groups.append(module_block)
 
     return module_groups
 
 
-def find_optimal_order(gene_groups):
-    pass
+def make_modules(domains):
+
+    modules = []
+    module = []
+    end_cluster = False
+
+    for i, domain in enumerate(domains):
+        if not module and not modules:
+            module.append(domain)
+
+        elif domain.raichu_type in ["C", "KS"]:
+            if module:
+                if module[-1].gene == domain.gene and module[-1].raichu_type == "UNKNOWN" and len(module) == 1:
+                    module.append(domain)
+                else:
+                    modules.append(module)
+                    module = [domain]
+            else:
+                module = [domain]
+        elif domain.raichu_type in ["TD", "TE"]:
+            if not end_cluster:
+                if 'CP' in [d.raichu_type for d in module]:
+                    module.append(domain)
+                    modules.append(module)
+                    module = []
+
+                # Dealing with a standalone TE domain
+                else:
+                    if module:
+                        modules.append(module)
+
+                    module = [domain]
+                    modules.append(module)
+                    module = []
+
+            else:
+                if module:
+                    modules.append(module)
+                module = [domain]
+                modules.append(module)
+                module = []
+
+            end_cluster = True
+
+        elif domain.raichu_type in [d.raichu_type for d in module] and domain.raichu_type != "UNKNOWN":
+            if i != 0:
+                previous_domain = domains[i - 1]
+                if previous_domain.gene != domain.gene:
+                    modules.append(module)
+                    module = [domain]
+                else:
+
+                    if 'CP' in [d.raichu_type for d in module]:
+                        if module:
+                            modules.append(module)
+                        module = [domain]
+                    else:
+                        module.append(domain)
+
+            else:
+                raise Exception("Well done biology, you have managed to access an impossible location in our code.")
+
+        elif domain.raichu_type == "UNKNOWN":
+            if i != 0:
+                previous_domain = domains[i - 1]
+                if previous_domain.gene != domain.gene:
+                    if module:
+                        modules.append(module)
+                    module = [domain]
+                else:
+                    module.append(domain)
+            else:
+                raise Exception("Well done biology, you have managed to access an impossible location in our code.")
+
+        else:
+            module.append(domain)
+
+    if module:
+        modules.append(module)
+
+    antismash_modules = []
+
+    for module in modules:
+        start = min([domain.start for domain in module] + [domain.end for domain in module])
+        end = max([domain.start for domain in module] + [domain.end for domain in module])
+        strand = module[0].strand
+        antismash_module = AntiSmashModule(start, end, strand, domains=module)
+        antismash_modules.append(antismash_module)
+
+    block_start = min([module.start for module in antismash_modules] + [module.end for module in antismash_modules])
+    block_end = max([module.start for module in antismash_modules] + [module.end for module in antismash_modules])
+    block_strand = antismash_modules[0].strand
+    module_block = ModuleBlock(block_start, block_end, block_strand, antismash_modules)
+
+    return module_block
 
 
 def filter_genes(genes):
@@ -558,7 +815,6 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
 
                         # Also account for reversing cluster if on different strand
                         if module_type == "PKS" and ((len(modules) == 0 and strand == 1) or (len(modules) == nr_nrps_pks_modules - 1 and strand == -1)):
-                            print("Expecting to be here..")
                             if substrate not in [v.name for v in PksStarterSubstrate]:
 
                                 substrate = "WILDCARD"
@@ -682,7 +938,7 @@ def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
 
 
 if __name__ == "__main__":
-    print(get_nrps_pks_genes(argv[1]))
+    get_nrps_pks_genes(argv[1])
     # draw_cluster(
     #     load_antismash_gbk(argv[1]),
     #     out_file=argv[2],

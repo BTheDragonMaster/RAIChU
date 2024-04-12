@@ -1,6 +1,5 @@
-import json
+
 import os
-import re
 from typing import Optional
 from itertools import permutations
 
@@ -126,6 +125,22 @@ AS_TO_PKS = {
     "emal": "ETHYLMALONYL_COA",
 }
 
+DOMAIN_TO_MODULE_TYPE = {"KS": "PKS",
+                         "AT": "PKS",
+                         "ER": "PKS",
+                         "DH": "PKS",
+                         "KR": "PKS",
+                         "C": "NRPS",
+                         "A": "NRPS",
+                         "E": "NRPS",
+                         "nMT": "NRPS",
+                         "CYC": "NRPS",
+                         "CP": "EITHER",
+                         "TE": "EITHER",
+                         "TD": "EITHER",
+                         "CAL": "EITHER",
+                         "UNKNOWN": "EITHER"}
+
 
 @dataclass
 class AntiSmashDomain:
@@ -177,7 +192,7 @@ class AntiSmashDomain:
                         self.raichu_subtype = domain_subtype
 
                 elif "transATor:" in spec:
-                    self.subtype = spec.split("transATor:")[1].strip().replace("-", "_").replace("/", "_").upper().replace("(UNKNOWN)", "MISCELLANEOUS")
+                    self.raichu_subtype = spec.split("transATor:")[1].strip().replace("-", "_").replace("/", "_").upper().replace("(UNKNOWN)", "MISCELLANEOUS")
 
     def __repr__(self):
         return f"{self.raichu_type}_{self.start}_{self.end}"
@@ -272,6 +287,9 @@ class AntiSmashModule:
             else:
                 self.subtype = 'PKS_TRANS'
 
+        if self.type is None:
+            self.type = "NRPS"
+
     def determine_completeness(self):
         self.complete = False
         self.starter_complete = False
@@ -281,6 +299,7 @@ class AntiSmashModule:
             has_ks = False
             has_acp = False
             has_at = False
+            has_cal = False
 
             for domain in self.domains:
                 if domain.raichu_type == 'KS':
@@ -289,11 +308,13 @@ class AntiSmashModule:
                     has_acp = True
                 if domain.raichu_type == 'AT':
                     has_at = True
+                if domain.raichu_type == 'CAL':
+                    has_cal = True
 
             if has_acp:
                 if self.subtype == 'PKS_TRANS':
                     self.starter_complete = True
-                elif self.subtype == 'PKS_CIS' and has_at:
+                elif self.subtype == 'PKS_CIS' and (has_at or has_cal):
                     self.starter_complete = True
 
                 if has_ks:
@@ -306,6 +327,7 @@ class AntiSmashModule:
             has_c = False
             has_a = False
             has_pcp = False
+            has_cal = False
 
             for domain in self.domains:
                 if domain.raichu_type == 'C':
@@ -314,12 +336,26 @@ class AntiSmashModule:
                     has_pcp = True
                 if domain.raichu_type == 'A':
                     has_a = True
+                if domain.raichu_type == 'CAL':
+                    has_cal = True
 
-            if has_a and has_pcp:
+            if has_pcp and (has_a or has_cal):
                 self.starter_complete = True
 
                 if has_c:
                     self.complete = True
+
+    def is_broken(self, module_nr):
+        if module_nr == 0:
+            if self.complete or self.starter_complete:
+                return False
+        elif len(self.domains) == 1 and self.domains[0].raichu_type == 'UNKNOWN':
+            return False
+
+        elif self.complete:
+            return False
+
+        return True
 
     def has_termination_domain(self):
         for domain in self.domains:
@@ -374,12 +410,12 @@ class ModuleBlock:
                 self.has_termination_domain = True
 
 
-class ModuleBlocks:
+class ModuleOrder:
 
     def __init__(self, module_blocks: list[ModuleBlock]):
         self.module_blocks = module_blocks
         self.block_order = module_blocks
-        self.optimal_solution = False
+        self.modules_broken = None
         self.modules = []
 
     def sort_collinear_blocks(self):
@@ -412,9 +448,11 @@ class ModuleBlocks:
 
                     for module_order in permutations(central_blocks):
                         self.block_order = [starter_candidate] + list(module_order) + [terminator_candidate]
-                        if self.check_broken_modules() < best_solution:
+                        nr_broken_modules = self.check_broken_modules()
+                        if nr_broken_modules < best_solution:
                             best_block_order = self.block_order[:]
-                        if self.check_broken_modules() == 0:
+                            best_solution = nr_broken_modules
+                        if nr_broken_modules == 0:
                             found_optimal_solution = True
                             break
                     if found_optimal_solution:
@@ -430,10 +468,11 @@ class ModuleBlocks:
 
                 for module_order in permutations(central_blocks):
                     self.block_order = [starter_candidate] + list(module_order)
-                    if self.check_broken_modules() < best_solution:
+                    nr_broken_modules = self.check_broken_modules()
+                    if nr_broken_modules < best_solution:
                         best_block_order = self.block_order[:]
-                        best_solution = self.check_broken_modules()
-                    if self.check_broken_modules() == 0:
+                        best_solution = nr_broken_modules
+                    if nr_broken_modules == 0:
                         found_optimal_solution = True
                         break
                 if found_optimal_solution:
@@ -448,27 +487,106 @@ class ModuleBlocks:
 
                 for module_order in permutations(central_blocks):
                     self.block_order = list(module_order) + [terminator_candidate]
-                    if self.check_broken_modules() < best_solution:
+                    nr_broken_modules = self.check_broken_modules()
+                    if nr_broken_modules < best_solution:
                         best_block_order = self.block_order[:]
-                        best_solution = self.check_broken_modules()
-                    if self.check_broken_modules() == 0:
+                        best_solution = nr_broken_modules
+                    if nr_broken_modules == 0:
                         found_optimal_solution = True
                         break
                 if found_optimal_solution:
                     break
 
-        self.optimal_solution = found_optimal_solution
         self.block_order = best_block_order
+        self.modules_broken = self.check_broken_modules()
+
         self.move_broken_modules()
 
     def move_broken_modules(self):
         module_block = self.recreate_modules()
-        print(module_block.modules)
-        standalone_gene = False
-        for i, module_1 in enumerate(module_block.modules):
+        modules = module_block.modules[:]
+        broken_modules = []
+        complete_modules = []
+        end_cluster = False
 
-            for j, module_2 in enumerate(module_block.modules):
-                continue
+        for i, module in enumerate(module_block.modules):
+            if module.is_broken(i) or end_cluster:
+
+                broken_modules.append(module)
+            else:
+                complete_modules.append(module)
+
+            if module.has_termination_domain():
+                end_cluster = True
+
+        genes_with_complete_modules = set()
+
+        for module in complete_modules:
+            for domain in module.domains:
+                genes_with_complete_modules.add(domain.gene)
+
+        movable_broken_modules = []
+
+        for broken_module in broken_modules:
+            genes = set()
+            for domain in broken_module.domains:
+                genes.add(domain.gene)
+
+            if not genes.intersection(genes_with_complete_modules):
+                movable_broken_modules.append(broken_module)
+
+        for broken_module in movable_broken_modules:
+            modules.remove(broken_module)
+            inserted = False
+            for i, module in enumerate(modules[:]):
+                if module.start > broken_module.start:
+                    modules.insert(i, broken_module)
+                    inserted = True
+                    break
+
+            if not inserted:
+                modules.append(broken_module)
+
+        self.modules = modules
+
+    def make_raichu_cluster(self):
+        module_representations = []
+        for i, module in enumerate(self.modules):
+            domain_representations = []
+
+            substrates = [domain.substrate for domain in module.domains if domain.substrate is not None]
+            if len(substrates) > 0:
+                substrate = substrates[0]
+
+                if module.type == "PKS" and i == 0:
+                    if substrate not in [v.name for v in PksStarterSubstrate]:
+                        substrate = "WILDCARD"
+            else:
+                if module.type == "NRPS":
+                    substrate = "**Unknown**"
+                elif module.type == "PKS":
+                    substrate = "WILDCARD"
+                else:
+                    raise ValueError("Module type can only be NRPS or PKS")
+
+            for domain in module.domains:
+                if domain.raichu_type == 'CP':
+                    if module.type == 'NRPS':
+                        domain.raichu_type = "PCP"
+                    else:
+                        domain.raichu_type = "ACP"
+
+                if module.type == "PKS":
+                    if domain.raichu_type == "CAL" and substrate == "WILDCARD":
+                        substrate = "**Unknown**"
+
+                domain_representation = DomainRepresentation(domain.gene, domain.raichu_type, domain.raichu_subtype,
+                                                             domain.active, True)
+                domain_representations.append(domain_representation)
+            module_representation = ModuleRepresentation(module.type, module.subtype, substrate, domain_representations)
+            module_representations.append(module_representation)
+        cluster_representation = ClusterRepresentation(module_representations)
+        return cluster_representation
 
     def recreate_modules(self):
         domains = []
@@ -488,11 +606,8 @@ class ModuleBlocks:
             if end_cluster:
                 nr_broken += 1
                 continue
-            if not module.complete:
-                if i != 0:
-                    nr_broken += 1
-                elif not module.starter_complete:
-                    nr_broken += 1
+            if module.is_broken(i):
+                nr_broken += 1
             if module.has_termination_domain():
                 end_cluster = True
 
@@ -534,7 +649,7 @@ class AntiSmashGene:
         return f"{self.name}"
 
 
-def get_nrps_pks_genes(antismash_gbk):
+def get_nrps_pks_modules(antismash_gbk):
     as_domains = parse_antismash_domains_gbk(antismash_gbk)
     genes = []
     for record in SeqIO.parse(antismash_gbk, "genbank"):
@@ -585,24 +700,27 @@ def get_nrps_pks_genes(antismash_gbk):
     for gene_group in gene_groups:
         filtered_groups += filter_genes(gene_group)
 
-    modules_per_collinear_block = ModuleBlocks(make_modules_from_gene_groups(filtered_groups))
+    modules_per_collinear_block = ModuleOrder(make_modules_from_gene_groups(filtered_groups))
     modules_per_collinear_block.sort_collinear_blocks()
-    print(modules_per_collinear_block.optimal_solution)
-    print(modules_per_collinear_block.block_order)
 
-    if not modules_per_collinear_block.optimal_solution:
+    module_blocks = modules_per_collinear_block
+
+    # If there are broken modules, also play around with the gene order
+
+    if modules_per_collinear_block.modules_broken:
         filtered_genes = []
 
         for gene_group in filtered_groups:
             for gene in gene_group:
                 filtered_genes.append([gene])
 
-        modules_per_gene = ModuleBlocks(make_modules_from_gene_groups(filtered_genes))
+        modules_per_gene = ModuleOrder(make_modules_from_gene_groups(filtered_genes))
         modules_per_gene.sort_collinear_blocks()
-        print(modules_per_gene.optimal_solution)
-        print(modules_per_gene.block_order)
 
-    return filtered_groups
+        if modules_per_collinear_block.modules_broken > modules_per_gene.modules_broken:
+            module_blocks = modules_per_gene
+
+    return module_blocks
 
 
 def make_modules_from_gene_groups(gene_groups):
@@ -629,9 +747,24 @@ def make_modules(domains):
     for i, domain in enumerate(domains):
         if not module and not modules:
             module.append(domain)
+            if domain.raichu_type in ["TD", "TE"]:
+                modules.append(module)
+                module = []
+                end_cluster = True
+
+        # When encountering a synthesis domain, start a new module
+
+        elif (DOMAIN_TO_MODULE_TYPE[domain.raichu_type] == 'PKS' and "NRPS" in [DOMAIN_TO_MODULE_TYPE[d.raichu_type] for d in module]) or \
+                (DOMAIN_TO_MODULE_TYPE[domain.raichu_type] == 'NRPS' and "PKS" in [DOMAIN_TO_MODULE_TYPE[d.raichu_type] for d in module]):
+            if module:
+                modules.append(module)
+                module = [domain]
+            else:
+                raise Exception("Module can't be empty if it contains a domain. Fix code.")
 
         elif domain.raichu_type in ["C", "KS"]:
             if module:
+                # Don't start a new module when the previous domain could be a docking domain
                 if module[-1].gene == domain.gene and module[-1].raichu_type == "UNKNOWN" and len(module) == 1:
                     module.append(domain)
                 else:
@@ -639,6 +772,7 @@ def make_modules(domains):
                     module = [domain]
             else:
                 module = [domain]
+
         elif domain.raichu_type in ["TD", "TE"]:
             if not end_cluster:
                 if 'CP' in [d.raichu_type for d in module]:
@@ -655,6 +789,8 @@ def make_modules(domains):
                     modules.append(module)
                     module = []
 
+            # If a previous termination domain has been encountered, always consider the domain as a standalone domain
+
             else:
                 if module:
                     modules.append(module)
@@ -664,15 +800,25 @@ def make_modules(domains):
 
             end_cluster = True
 
-        elif domain.raichu_type in [d.raichu_type for d in module] and domain.raichu_type != "UNKNOWN":
+        # If a domain of known function is encountered already in the active module
+        elif (domain.raichu_type in [d.raichu_type for d in module] and domain.raichu_type != "UNKNOWN") or \
+                (domain.raichu_type in ["AT", "A", "CAL"] and ("AT" in [d.raichu_type for d in module] or
+                                                               "A" in [d.raichu_type for d in module] or
+                                                               "CAL" in [d.raichu_type for d in module])):
             if i != 0:
                 previous_domain = domains[i - 1]
+                # If the domain is on a new gene, always start a new module
                 if previous_domain.gene != domain.gene:
                     modules.append(module)
                     module = [domain]
+
+                # If the domain is on the same gene, start a new module if a carrier domain has already been encountered
                 else:
 
-                    if 'CP' in [d.raichu_type for d in module]:
+                    # Double CP domains in a module CAN occur, so don't start a new module when the duplicated domain
+                    # Is a CP domain on the same gene
+
+                    if 'CP' in [d.raichu_type for d in module] and domain.raichu_type != 'CP':
                         if module:
                             modules.append(module)
                         module = [domain]
@@ -680,7 +826,7 @@ def make_modules(domains):
                         module.append(domain)
 
             else:
-                raise Exception("Well done biology, you have managed to access an impossible location in our code.")
+                raise Exception("Module can't be empty if it contains a domain. Fix code.")
 
         elif domain.raichu_type == "UNKNOWN":
             if i != 0:
@@ -692,8 +838,7 @@ def make_modules(domains):
                 else:
                     module.append(domain)
             else:
-                raise Exception("Well done biology, you have managed to access an impossible location in our code.")
-
+                raise Exception("Module can't be empty if it contains a domain. Fix code.")
         else:
             module.append(domain)
 
@@ -764,145 +909,6 @@ def sort_genes(genes):
     return gene_groups
 
 
-def map_domains_to_modules_gbk(antismash_gbk, domains):
-    modules = []
-    strands = []
-    gene_to_coords = {}
-    gene_to_strand = {}
-    gene_to_modules = {}
-    for record in SeqIO.parse(antismash_gbk, "genbank"):
-
-        nr_all_modules = len([feature for feature in record.features if feature.type == "aSModule"])
-        nr_unknown_modules = len([feature for feature in record.features if
-                                  feature.type == "aSModule" and "unknown" in feature.qualifiers["type"]])
-
-        nr_nrps_pks_modules = nr_all_modules - nr_unknown_modules
-
-        for feature in record.features:
-            if feature.type == "aSModule":
-                module_type = feature.qualifiers["type"][0].upper()
-                module_subtype = None
-
-                if module_type == "NRPS" or module_type == "PKS":
-
-                    start = feature.location.start
-                    end = feature.location.end
-                    gene = feature.qualifiers["locus_tags"][0]
-                    if gene not in gene_to_coords:
-                        gene_to_coords[gene] = start
-                    else:
-                        if gene_to_coords[gene] > start:
-                            gene_to_coords[gene] = start
-
-                    domains_in_module = [
-                        domain
-                        for domain in domains
-                        if domain["start"] >= start and domain["end"] <= end
-                    ]
-                    domain_representations = [
-                        domain["representation"] for domain in domains_in_module
-                    ]
-
-                    strand = domains_in_module[0]["strand"]
-                    for domain in domains_in_module:
-                        if domain["gene"] not in gene_to_strand:
-                            gene_to_strand[domain["gene"]] = domain["strand"]
-
-                    strands.append(strand)
-                    substrates = [domain["substrate"] for domain in domains_in_module if domain["substrate"] is not None]
-                    if len(substrates) > 0:
-                        substrate = substrates[0]
-
-                        # Also account for reversing cluster if on different strand
-                        if module_type == "PKS" and ((len(modules) == 0 and strand == 1) or (len(modules) == nr_nrps_pks_modules - 1 and strand == -1)):
-                            if substrate not in [v.name for v in PksStarterSubstrate]:
-
-                                substrate = "WILDCARD"
-                    else:
-                        if module_type == "NRPS":
-                            substrate = "**Unknown**"
-                        elif module_type == "PKS":
-                            substrate = "WILDCARD"
-                        else:
-                            raise ValueError("Module type can only be NRPS or PKS")
-
-                    if module_type == "PKS":
-                        module_subtype = "PKS_TRANS"
-
-                    for domain_representation in domain_representations:
-                        if domain_representation.type == "CP":
-                            domain_representation.type = (
-                                "ACP" if module_type == "PKS" else "PCP"
-                            )
-                        if module_type == "PKS":
-                            if domain_representation.type == "AT" or domain_representation.type == 'CAL':
-                                module_subtype = "PKS_CIS"
-                            if domain_representation.type == "CAL" and substrate == "WILDCARD":
-                                substrate = "**Unknown**"
-                    if (
-                        module_type == "PKS"
-                        and module_subtype == "PKS_TRANS"
-                        and not any(
-                            [
-                                (
-                                    domain_representation.subtype == "PKS_TRANS"
-                                    or domain_representation.type == "Trans-AT_docking"
-                                )
-                                for domain_representation in [
-                                    domain["representation"] for domain in domains
-                                ]
-                            ]
-                        )
-                    ):
-                        module_subtype = "PKS_CIS"
-                    if strand == -1:
-                        domain_representations.reverse()
-                    # Check if CP in every module
-
-                    if not any(
-                        [
-                            domain_representation.type in ["CP", "ACP", "PCP"]
-                            for domain_representation in domain_representations
-                        ]
-                    ):
-                        # Check if ACP/PCP exists elsewhere
-                        if strand == -1:
-                            next_domain_index = domains.index(domains_in_module[0]) - 1
-                        else:
-                            next_domain_index = domains.index(domains_in_module[-1]) + 1
-                        if next_domain_index < len(domains):
-                            next_domain = domains[next_domain_index]
-                            if next_domain["representation"].type in [
-                                "ACP",
-                                "PCP",
-                                "CP",
-                            ]:
-                                domain_representations.append(
-                                    DomainRepresentation(
-                                        feature.qualifiers["locus_tags"][0],
-                                        "PCP" if module_type == "NRPS" else "ACP",
-                                        subtype=None,
-                                        name=None,
-                                        active=True,
-                                        used=True,
-                                    )
-                                )
-                    module_representation = ModuleRepresentation(
-                        module_type, module_subtype, substrate, domain_representations
-                    )
-                    modules.append(module_representation)
-
-    if all(
-        strand == -1 for strand in strands
-    ):  # reverse whole cluster, if completely on -1 strand
-        modules.reverse()
-    gene_groups = sort_genes(gene_to_coords, gene_to_strand)
-
-    cluster_representation = ClusterRepresentation(modules)
-
-    return cluster_representation
-
-
 def parse_antismash_domains_gbk(antismash_gbk, version="7.1.0"):
     domains = []
 
@@ -923,8 +929,8 @@ def parse_antismash_domains_gbk(antismash_gbk, version="7.1.0"):
 
 
 def load_antismash_gbk(gbk_file, version=7.0):
-    domains = parse_antismash_domains_gbk(gbk_file, version)
-    cluster_representation = map_domains_to_modules_gbk(gbk_file, domains)
+    module_blocks = get_nrps_pks_modules(gbk_file)
+    cluster_representation = module_blocks.make_raichu_cluster()
     return cluster_representation
 
 
@@ -938,8 +944,4 @@ def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
 
 
 if __name__ == "__main__":
-    get_nrps_pks_genes(argv[1])
-    # draw_cluster(
-    #     load_antismash_gbk(argv[1]),
-    #     out_file=argv[2],
-    # )
+    draw_cluster(load_antismash_gbk(argv[1]), "test.svg")

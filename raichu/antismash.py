@@ -575,6 +575,12 @@ class ModuleOrder:
 
                 inserted = False
                 for i, module in enumerate(modules[:]):
+                    if i > 1:
+                        current_module_genes = set([d1.gene for d1 in module.domains])
+                        previous_module_genes = set([d2.gene for d2 in modules[i - 1].domains])
+                        if current_module_genes.intersection(previous_module_genes):
+                            continue
+
                     if module.start > modules_start:
                         modules = modules[:i] + gene_modules + modules[i:]
                         inserted = True
@@ -586,6 +592,12 @@ class ModuleOrder:
         for standalone_module in self.standalone_modules:
             inserted = False
             for i, module in enumerate(modules[:]):
+                if i > 1:
+                    current_module_genes = set([d1.gene for d1 in module.domains])
+                    previous_module_genes = set([d2.gene for d2 in modules[i - 1].domains])
+                    if current_module_genes.intersection(previous_module_genes):
+                        continue
+
                 if module.start > standalone_module.start:
                     modules = modules[:i] + [standalone_module] + modules[i:]
                     inserted = True
@@ -593,6 +605,8 @@ class ModuleOrder:
 
             if not inserted:
                 modules.append(standalone_module)
+
+        print(modules)
 
         self.modules = modules
 

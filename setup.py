@@ -18,5 +18,5 @@ setup(
     package_data={"": ["*.png", "*.svg", "*.txt"]},
     install_requires=['matplotlib',
                       'biopython==1.76',
-                      'pikachu-chem>=1.0.13'],
+                      'pikachu-chem>=1.1.1'],
     scripts=["bin/raichu"],)

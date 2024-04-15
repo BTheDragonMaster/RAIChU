@@ -7,9 +7,25 @@ Our tool is particularly adept at visualizing the sequence of tailoring reaction
 
 However, it's important to note that while RAIChU strives for accuracy, the nature of some reactions, such as cationic cascade reactions in terpenes, necessitates programmatic shortcuts, potentially leading to simplified representations of reaction intermediates. To address this, RAIChU offers a summarized pathway view, highlighting only the initial and final intermediates for a clearer, albeit simplified, overview.
 
+## Installation
+
+First, create a new environment with python version 3.9.12, for instance with conda:
+
+```
+conda create -n raichu python==3.9.12
+conda activate raichu
+```
+
+Then, install raichu with pip:
+
+```
+pip install raichu
+```
+
+
 View the general.py script to learn about RAIChU's functionalities
 
-Explore our wiki to dive deeper into RAIChU's features and capabilities:
+Explore our wiki to dive deeper into RAIChU's features:
 [Home](https://github.com/SophieVromans/RAIChU/wiki)
 
 [Getting Started with RAIChU](https://github.com/SophieVromans/RAIChU/wiki/Getting-Started)

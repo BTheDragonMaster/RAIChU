@@ -21,7 +21,7 @@ ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	KS	EXOMETHYLENE	None	True	True
 ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
 ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	MT	None	None	True	True
-ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ACY01401.1	5	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ACY01401.1	6	PKS	PKS_TRANS	**Unknown**	1	KS	ALPHAME_BETA_D_OH	None	True	True
 ACY01401.1	6	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ACY01401.1	6	PKS	PKS_TRANS	**Unknown**	1	KR	C2	None	False	False
@@ -42,5 +42,5 @@ ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	KS	RED	None	True	True
 ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	PKS_DH2	None	None	True	True
 ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
-ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 ACY01402.1	10	PKS	PKS_TRANS	**Unknown**	1	TE	None	None	True	True

@@ -10,6 +10,7 @@ from raichu.representations import (
 )
 from raichu.run_raichu import draw_cluster, build_cluster
 from raichu.substrate import PksStarterSubstrate
+from dataclasses import dataclass, field
 
 
 NRPS_PKS_RULES = {
@@ -41,11 +42,11 @@ AS_TO_NRPS = {
     "trp": "tryptophan",
     "tyr": "tyrosine",
     "val": "valine",
-    "3-me-glu": "4-methylglutamicacid",
+    "3-me-glu": "4-methylglutamic acid",
     "4ppro": "**Unknown**",
-    "aad": "2-aminoadipicacid",
-    "abu": "2-aminobutyricacid",
-    "aeo": "2-amino-9,10-epoxy-8-oxodecanoidacid",
+    "aad": "2-aminoadipic acid",
+    "abu": "2-aminobutyric acid",
+    "aeo": "2-amino-9,10-epoxy-8-oxodecanoid acid",
     "ala-b": "beta-alanine",
     "ala-d": "d-alanine",
     "allo-thr": "allo-threonine",
@@ -54,8 +55,8 @@ AS_TO_NRPS = {
     "bmt": "4-butenyl-4-methylthreonine",
     "cap": "capreomycidine",
     "bht": "**Unknown**",
-    "dab": "2,4-diaminobutyricacid",
-    "dhb": "2,3-dihydroxybenzoicacid",
+    "dab": "2,4-diaminobutyric acid",
+    "dhb": "2,3-dihydroxybenzoic acid",
     "dhpg": "3,5-dihydroxyphenylglycine",
     "dht": "dehydrobutyrine",
     "dpg": "3,5-dihydroxyphenylglycine",
@@ -79,7 +80,7 @@ AS_TO_NRPS = {
     "alle": "allo-isoleucine",
     "alaninol": "alaninol",
     "n-(1,1-dimethyl-1-allyl)trp": "**Unknown**",
-    "d-lyserg": "d-lysergicacid",
+    "d-lyserg": "d-lysergic acid",
     "ser-thr": "**Unknown**",
     "mephe": "**Unknown**",
     "haorn": "**Unknown**",
@@ -88,7 +89,7 @@ AS_TO_NRPS = {
     "s-nmethoxy-trp": "**Unknown**",
     "alpha-hydroxy-isocaproic-acid": "**Unknown**",
     "mehoval": "**Unknown**",
-    "2-oxo-isovaleric-acid": "alpha-ketoisovalericacid",
+    "2-oxo-isovaleric-acid": "alpha-ketoisovaleric acid",
     "aoda": "**Unknown**",
     "x": "**Unknown**",
 }
@@ -107,6 +108,9 @@ antiSMASH_DOMAIN_TO_RAICHU_DOMAIN = {
     "Epimerization": "E",
     "Condensation": "C",
     "nMT": "nMT",
+    "PP-binding": "CP",
+    "Heterocyclization": "CYC",
+    "CAL_domain": "CAL"
 }
 
 domains_to_be_refined = ["KR", "KS", "A", "AT"]
@@ -119,17 +123,99 @@ AS_TO_PKS = {
 }
 
 
+@dataclass
+class AntiSmashDomain:
+    name: str
+    type: str
+    subtype: str
+    start: int
+    end: int
+    strand: str
+    gene: str
+
+
+class AntiSmashModule:
+    name: str
+    nr: int
+    type: str
+    subtype: str
+    start: int
+    end: int
+    domains: list[AntiSmashDomain] = field(default_factory=list)
+
+
+class AntiSmashGene:
+    name: str
+    start: int
+    end: int
+    strand: str
+    modules: list[AntiSmashModule] = field(default_factory=list)
+
+    def sort_modules(self):
+        self.modules.sort(key=lambda m: m.start)
+        if self.strand == -1:
+            self.modules.reverse()
+
+        for i, module in enumerate(self.modules):
+            module.nr = i
+
+
+def sort_genes(gene_to_coords, gene_to_strand):
+    genes = list(gene_to_coords.keys())
+    genes.sort(key=lambda gene: gene_to_coords[gene])
+    gene_groups = []
+    gene_group = []
+    previous_direction = None
+    for i, gene in enumerate(genes):
+        current_direction = gene_to_strand[gene]
+        if current_direction != previous_direction:
+            if gene_group:
+                if previous_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+            gene_group = [gene]
+            previous_direction = current_direction
+        else:
+            gene_group.append(gene)
+            if i == len(genes) - 1:
+                if current_direction == -1:
+                    gene_group.reverse()
+                gene_groups += gene_group
+
+    return gene_groups
+
+
 def map_domains_to_modules_gbk(antismash_gbk, domains):
     modules = []
     strands = []
+    gene_to_coords = {}
+    gene_to_strand = {}
+    gene_to_modules = {}
     for record in SeqIO.parse(antismash_gbk, "genbank"):
+
+        nr_all_modules = len([feature for feature in record.features if feature.type == "aSModule"])
+        nr_unknown_modules = len([feature for feature in record.features if
+                                  feature.type == "aSModule" and "unknown" in feature.qualifiers["type"]])
+
+        nr_nrps_pks_modules = nr_all_modules - nr_unknown_modules
+
         for feature in record.features:
             if feature.type == "aSModule":
                 module_type = feature.qualifiers["type"][0].upper()
                 module_subtype = None
+
                 if module_type == "NRPS" or module_type == "PKS":
+
                     start = feature.location.start
                     end = feature.location.end
+                    gene = feature.qualifiers["locus_tags"][0]
+                    if gene not in gene_to_coords:
+                        gene_to_coords[gene] = start
+                    else:
+                        if gene_to_coords[gene] > start:
+                            gene_to_coords[gene] = start
+
                     domains_in_module = [
                         domain
                         for domain in domains
@@ -138,51 +224,104 @@ def map_domains_to_modules_gbk(antismash_gbk, domains):
                     domain_representations = [
                         domain["representation"] for domain in domains_in_module
                     ]
-                    strand = domains_in_module[0]["strand"]
-                    strands.append(strand)
-                    substrate = [
-                        domain["substrate"]
-                        for domain in domains_in_module
-                        if domain["substrate"] is not None
-                    ]
-                    if len(substrate) > 0:
 
-                        substrate = substrate[0]
-                        if module_type == 'PKS' and len(modules) == 0:
+                    strand = domains_in_module[0]["strand"]
+                    for domain in domains_in_module:
+                        if domain["gene"] not in gene_to_strand:
+                            gene_to_strand[domain["gene"]] = domain["strand"]
+
+                    strands.append(strand)
+                    substrates = [domain["substrate"] for domain in domains_in_module if domain["substrate"] is not None]
+                    if len(substrates) > 0:
+                        substrate = substrates[0]
+
+                        # Also account for reversing cluster if on different strand
+                        if module_type == "PKS" and ((len(modules) == 0 and strand == 1) or (len(modules) == nr_nrps_pks_modules - 1 and strand == -1)):
                             if substrate not in [v.name for v in PksStarterSubstrate]:
-                                substrate = "ACETYL_COA"
-                    else:
-                        if module_type == 'NRPS':
-                            substrate = "**Unknown**"
-                        elif module_type == 'PKS':
-                            if len(modules) == 0:
-                                substrate = "ACETYL_COA"
-                            else:
+
                                 substrate = "WILDCARD"
+                    else:
+                        if module_type == "NRPS":
+                            substrate = "**Unknown**"
+                        elif module_type == "PKS":
+                            substrate = "WILDCARD"
                         else:
                             raise ValueError("Module type can only be NRPS or PKS")
 
                     if module_type == "PKS":
                         module_subtype = "PKS_TRANS"
+
                     for domain_representation in domain_representations:
                         if domain_representation.type == "CP":
                             domain_representation.type = (
                                 "ACP" if module_type == "PKS" else "PCP"
                             )
                         if module_type == "PKS":
-                            if domain_representation.type == "AT":
+                            if domain_representation.type == "AT" or domain_representation.type == 'CAL':
                                 module_subtype = "PKS_CIS"
+                            if domain_representation.type == "CAL" and substrate == "WILDCARD":
+                                substrate = "**Unknown**"
+                    if (
+                        module_type == "PKS"
+                        and module_subtype == "PKS_TRANS"
+                        and not any(
+                            [
+                                (
+                                    domain_representation.subtype == "PKS_TRANS"
+                                    or domain_representation.type == "Trans-AT_docking"
+                                )
+                                for domain_representation in [
+                                    domain["representation"] for domain in domains
+                                ]
+                            ]
+                        )
+                    ):
+                        module_subtype = "PKS_CIS"
                     if strand == -1:
                         domain_representations.reverse()
+                    # Check if CP in every module
+
+                    if not any(
+                        [
+                            domain_representation.type in ["CP", "ACP", "PCP"]
+                            for domain_representation in domain_representations
+                        ]
+                    ):
+                        # Check if ACP/PCP exists elsewhere
+                        if strand == -1:
+                            next_domain_index = domains.index(domains_in_module[0]) - 1
+                        else:
+                            next_domain_index = domains.index(domains_in_module[-1]) + 1
+                        if next_domain_index < len(domains):
+                            next_domain = domains[next_domain_index]
+                            if next_domain["representation"].type in [
+                                "ACP",
+                                "PCP",
+                                "CP",
+                            ]:
+                                domain_representations.append(
+                                    DomainRepresentation(
+                                        feature.qualifiers["locus_tags"][0],
+                                        "PCP" if module_type == "NRPS" else "ACP",
+                                        subtype=None,
+                                        name=None,
+                                        active=True,
+                                        used=True,
+                                    )
+                                )
                     module_representation = ModuleRepresentation(
                         module_type, module_subtype, substrate, domain_representations
                     )
                     modules.append(module_representation)
+
     if all(
         strand == -1 for strand in strands
     ):  # reverse whole cluster, if completely on -1 strand
         modules.reverse()
+    gene_groups = sort_genes(gene_to_coords, gene_to_strand)
+
     cluster_representation = ClusterRepresentation(modules)
+
     return cluster_representation
 
 
@@ -195,17 +334,23 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                 domain = {}
                 domain["active"] = True
                 domain["id"] = feature.qualifiers["domain_id"][0]
-                domain["type"] = (
-                    antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[feature.qualifiers["aSDomain"][0]]
-                    if feature.qualifiers["aSDomain"][0]
-                    in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN
-                    else feature.qualifiers["aSDomain"][0]
-                )
+                domain["name"] = None
+                domain_type = feature.qualifiers["aSDomain"][0]
+                if domain_type in antiSMASH_DOMAIN_TO_RAICHU_DOMAIN:
+                    domain["type"] = antiSMASH_DOMAIN_TO_RAICHU_DOMAIN[domain_type]
+                elif domain_type == 'MT' and feature.qualifiers["domain_subtypes"] and feature.qualifiers["domain_subtypes"][0] == 'nMT':
+                    domain["type"] = "nMT"
+                else:
+                    domain["type"] = "UNKNOWN"
+                    domain["name"] = domain_type
+
                 domain["start"] = feature.location.start
                 domain["end"] = feature.location.end
                 domain["subtype"] = None
                 domain["substrate"] = None
                 domain["strand"] = feature.location.strand
+                domain["gene"] = feature.qualifiers["locus_tag"][0]
+
                 if "specificity" in feature.qualifiers:
                     for spec in feature.qualifiers["specificity"]:
                         if "consensus:" in spec:
@@ -224,27 +369,34 @@ def parse_antismash_domains_gbk(antismash_gbk, version=7.0):
                             )
 
                         elif "KR stereochemistry:" in spec:
-                            specificity = spec.split("KR stereochemistry:")[1].strip()
-                            if specificity != "(unknown)":
-                                domain["subtype"] = specificity
+                            domain_subtype = spec.split("KR stereochemistry:")[1].strip()
+                            if domain_subtype == '(unknown)':
+
+                                domain["subtype"] = "UNKNOWN"
+                            else:
+                                domain["subtype"] = domain_subtype
+
                         elif "transATor:" in spec:
                             domain["subtype"] = (
                                 spec.split("transATor:")[1]
                                 .strip()
                                 .replace("-", "_")
+                                .replace("/", "_")
                                 .upper()
                                 .replace("(UNKNOWN)", "MISCELLANEOUS")
                             )
 
                 domain["representation"] = DomainRepresentation(
-                    feature.qualifiers["locus_tag"][0],
+                    domain["gene"],
                     domain["type"],
                     domain["subtype"],
-                    None,
+                    domain["name"],
                     domain["active"],
                     domain["active"],
                 )
+
                 domains.append(domain)
+
     return domains
 
 
@@ -301,9 +453,7 @@ def refine_domain_js(start, gene, details_data_region):
             return [KR_subtype, None]
 
 
-def get_cluster_representation_js(
-    region_visualizer, details_data_region, version=7.0
-) -> ClusterRepresentation:
+def get_cluster_representation_js(region_visualizer, details_data_region, version=7.0) -> ClusterRepresentation:
     module_array = []
     # only get first entry
     modules = region_visualizer[next(iter(region_visualizer))]["modules"]
@@ -354,7 +504,15 @@ def get_cluster_representation_js(
     return ClusterRepresentation(module_array)
 
 
+def load_antismash_json(json_file, version="7.1.0"):
+    antismash_data = json.load(json_file)
+    for record in antismash_data["records"]:
+        cluster_name = record["id"]
+
+
+
 def load_antismash_js(js_file, region, version=7.0):
+
     with open(js_file) as file:
         complete_data = file.read()
     pattern_results_data = re.compile(r"var\s+resultsData\s*=\s*([\s\S]*?)(?=$)")

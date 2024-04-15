@@ -7,7 +7,7 @@ AIU36103.1	1	PKS	PKS_TRANS	**Unknown**	1	KR	None	None	True	True
 AIU36103.1	1	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True
 AIU36103.1	2	PKS	PKS_TRANS	**Unknown**	1	KS	DB	None	True	True
 AIU36103.1	2	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
-AIU36103.1	2	PKS	PKS_TRANS	**Unknown**	1	PP-binding	None	None	True	True
+AIU36103.1	2	PKS	PKS_TRANS	**Unknown**	1	CP	None	None	True	True
 AIU36103.1	3	PKS	PKS_TRANS	**Unknown**	1	KS	KETO	None	True	True
 AIU36103.1	3	PKS	PKS_TRANS	**Unknown**	1	Trans-AT_docking	None	None	True	True
 AIU36103.1	3	PKS	PKS_TRANS	**Unknown**	1	ACP	None	None	True	True

@@ -5,9 +5,18 @@ from pikachu.chem.structure import Structure
 from pikachu.chem.atom import Atom
 
 from raichu.class_domain import CarrierDomain as ClassCarrierDomain
-from raichu.domain.domain import Domain, TailoringDomain, RecognitionDomain, \
-    SynthesisDomain, CarrierDomain, TerminationDomain
-from raichu.central_chain_detection.label_central_chain import label_pk_central_chain, label_nrp_central_chain
+from raichu.domain.domain import (
+    Domain,
+    TailoringDomain,
+    RecognitionDomain,
+    SynthesisDomain,
+    CarrierDomain,
+    TerminationDomain,
+)
+from raichu.central_chain_detection.label_central_chain import (
+    label_pk_central_chain,
+    label_nrp_central_chain,
+)
 from raichu.attach_to_domain import attach_to_domain_pk, attach_to_domain_nrp
 from enum import Enum, unique
 from raichu.substrate import PKSSubstrate
@@ -52,6 +61,7 @@ class NRPSDomainType(Enum):
     TD = 8
     UNKNOWN = 9
     OX = 10
+    CAL = 11
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":
@@ -83,6 +93,7 @@ class PKSDomainType(Enum):
     DUMMY_EGDH = 18  # E-Gamma-beta-dehydrogenase
     DUMMY_OMT = 19  # Beta-Hydroxymethyltransferase
     DUMMY_BMT = 20  # Beta-Methyltransferase
+    CAL = 21
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -94,18 +105,27 @@ class PKSDomainType(Enum):
 
 class _Module:
 
-    def __init__(self, nr: int, module_type: str, domains: List[Domain], *,
-                 module_subtype: Union[str, None] = None,
-                 starter: bool = False, terminator: bool = False) -> None:
+    def __init__(
+        self,
+        nr: int,
+        module_type: str,
+        domains: List[Domain],
+        *,
+        module_subtype: Union[str, None] = None,
+        starter: bool = False,
+        terminator: bool = False,
+    ) -> None:
         self.id = nr
         self.type = ModuleType.from_string(module_type)
         self.subtype = None
 
         if module_subtype is not None:
-            if self.type.name == 'PKS':
+            if self.type.name == "PKS":
                 self.subtype = PKSModuleSubtype.from_string(module_subtype)
             else:
-                raise ValueError(f"Module subtypes not supported for {self.type.name} modules.")
+                raise ValueError(
+                    f"Module subtypes not supported for {self.type.name} modules."
+                )
 
         self.domains = domains
 
@@ -121,42 +141,51 @@ class _Module:
         self.is_termination_module = terminator
 
         for domain in self.domains:
-            if self.type.name == 'NRPS':
+            if self.type.name == "NRPS":
                 if domain.type.name not in [v.name for v in NRPSDomainType]:
-                    raise ValueError(f'Unknown NRPS domain type {domain.type.name}')
-            if self.type.name == 'PKS':
+                    raise ValueError(f"Unknown NRPS domain type {domain.type.name}")
+            if self.type.name == "PKS":
                 if domain.type.name not in [v.name for v in PKSDomainType]:
-                    raise ValueError(
-                        f'Unknown PKS domain type {domain.type.name}')
+                    raise ValueError(f"Unknown PKS domain type {domain.type.name}")
 
             if domain.used and domain.active:
                 if isinstance(domain, TailoringDomain):
-                    if domain.type.name not in [d.type.name for d in self.tailoring_domains]:
+                    if domain.type.name not in [
+                        d.type.name for d in self.tailoring_domains
+                    ]:
                         self.tailoring_domains.append(domain)
                     else:
-                        raise ValueError(f"Cannot have two used tailoring domains of type {domain.type.name} in one \
-module. Remove domain or set the 'used' or 'active' flag to False")
+                        raise ValueError(
+                            f"Cannot have two used tailoring domains of type {domain.type.name} in one \
+module. Remove domain or set the 'used' or 'active' flag to False"
+                        )
 
                 if isinstance(domain, RecognitionDomain):
                     if not self.recognition_domain:
                         self.recognition_domain = domain
                     else:
-                        raise ValueError(f"Cannot have more than one used recognition domain in one \
-module. Remove a domain or set the 'used' or 'active' flag to False")
+                        raise ValueError(
+                            f"Cannot have more than one used recognition domain in one \
+module. Remove a domain or set the 'used' or 'active' flag to False"
+                        )
 
                 if isinstance(domain, SynthesisDomain) and domain.is_elongating:
                     if not self.synthesis_domain:
                         self.synthesis_domain = domain
                     else:
-                        raise ValueError("Cannot have more than one used and elongating synthesis domains \
-in one module. Remove a domain, set the 'used' or 'active' flag to False, or set the 'is_elongating' flag to False.")
+                        raise ValueError(
+                            "Cannot have more than one used and elongating synthesis domains \
+in one module. Remove a domain, set the 'used' or 'active' flag to False, or set the 'is_elongating' flag to False."
+                        )
 
                 if isinstance(domain, CarrierDomain):
                     if not self.carrier_domain:
                         self.carrier_domain = domain
                     else:
-                        raise ValueError("Cannot have more than one used carrier domain in one \
-module. Remove a domain or set the 'used' or 'active' flag to False")
+                        raise ValueError(
+                            "Cannot have more than one used carrier domain in one \
+module. Remove a domain or set the 'used' or 'active' flag to False"
+                        )
 
                 if isinstance(domain, TerminationDomain):
                     if not self.termination_domain:
@@ -164,17 +193,36 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
                         if not self.is_termination_module:
                             self.termination_domain.used = False
                     else:
-                        raise ValueError("Cannot have more than one used termination domain in one \
-module. Remove a domain or set the 'used' or 'active' flag to False")
+                        raise ValueError(
+                            "Cannot have more than one used termination domain in one \
+module. Remove a domain or set the 'used' or 'active' flag to False"
+                        )
         # I would rather implement a "dont do anything"- broken module
         if not self.is_starter_module and not self.synthesis_domain:
             if "CYC" in [domain.type.name for domain in self.tailoring_domains]:
                 self.synthesis_domain = SynthesisDomain("DUMMY_C")
-            else: 
+            else:
                 self.is_broken = True
+
+        if (
+            not self.is_starter_module
+            and self.recognition_domain
+            and self.recognition_domain.domain_name == "CAL"
+        ):
+            self.is_broken = True
+
+        if module_subtype != "PKS_TRANS" and not self.recognition_domain:
+            self.is_broken = True
 
         if self.is_termination_module and not self.termination_domain:
             self.termination_domain = TerminationDomain("DUMMY_TE")
+
+        if not self.carrier_domain:
+            self.is_broken = True
+
+        if self.is_broken:
+            for domain in self.domains:
+                domain.used = False
 
     def run_module(self, structure: Union[Structure, None] = None):
         raise NotImplementedError
@@ -188,14 +236,16 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
 
     def add_module_label(self, structure):
         for atom in structure.graph:
-            if type(atom) == Atom and not atom.annotations.has_annotation('module_nr'):
-                atom.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+            if type(atom) == Atom and not atom.annotations.has_annotation("module_nr"):
+                atom.annotations.add_annotation("module_nr", f"module_{self.id + 1:02}")
 
             if type(atom) == ClassCarrierDomain:
                 for neighbour in structure.graph[atom]:
-                    if neighbour.type == 'S':
-                        if not neighbour.annotations.has_annotation('module_nr'):
-                            neighbour.annotations.add_annotation('module_nr', f"module_{self.id + 1:02}")
+                    if neighbour.type == "S":
+                        if not neighbour.annotations.has_annotation("module_nr"):
+                            neighbour.annotations.add_annotation(
+                                "module_nr", f"module_{self.id + 1:02}"
+                            )
                         else:
                             neighbour.annotations.module_nr = f"module_{self.id + 1:02}"
 
@@ -208,12 +258,17 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
             assert kr_domain.subtype is not None
             structure, kr_tailored = kr_domain.do_tailoring(structure)
             if kr_tailored:
-                if not kr_domain.subtype.name == 'C1' and not kr_domain.subtype.name == 'C2':
+                if (
+                    not kr_domain.subtype.name == "C1"
+                    and not kr_domain.subtype.name == "C2"
+                ):
                     if dh_domain and dh_domain.active and dh_domain.used:
                         structure, dh_tailored = dh_domain.do_tailoring(structure)
                         if dh_tailored:
                             if er_domain and er_domain.active and er_domain.used:
-                                structure, er_tailored = er_domain.do_tailoring(structure)
+                                structure, er_tailored = er_domain.do_tailoring(
+                                    structure
+                                )
                                 if not er_tailored:
                                     er_domain.used = False
 
@@ -236,19 +291,21 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
         return structure
 
     def do_nrps_tailoring(self, structure: Structure) -> Structure:
-        e_domain = self.get_tailoring_domain('E')
-        n_mt_domain = self.get_tailoring_domain('nMT')
-        cyc_domain = self.get_tailoring_domain('CYC')
-        ox_domain = self.get_tailoring_domain('OX')
+        e_domain = self.get_tailoring_domain("E")
+        n_mt_domain = self.get_tailoring_domain("nMT")
+        cyc_domain = self.get_tailoring_domain("CYC")
+        ox_domain = self.get_tailoring_domain("OX")
 
         if e_domain and e_domain.active and e_domain.used:
             structure, epimerized = e_domain.do_tailoring(structure)
             if not epimerized:
                 e_domain.used = False
         if n_mt_domain and n_mt_domain.active and n_mt_domain.used:
+
             structure, methylated = n_mt_domain.do_tailoring(structure)
             if not methylated:
                 n_mt_domain.used = False
+
         if cyc_domain and cyc_domain.active and cyc_domain.used:
             structure, cyclised = cyc_domain.do_tailoring(structure)
             if not cyclised:
@@ -258,6 +315,9 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
                 structure, oxidated = ox_domain.do_tailoring(structure)
                 if not oxidated:
                     ox_domain.used = False
+
+        elif ox_domain:
+            ox_domain.used = False
 
         return structure
 
@@ -273,7 +333,14 @@ module. Remove a domain or set the 'used' or 'active' flag to False")
 class LinearPKSModule(_Module):
 
     def __init__(self, nr, domains, starter=False, terminator=False):
-        super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_CIS")
+        super().__init__(
+            nr,
+            "PKS",
+            domains,
+            starter=starter,
+            terminator=terminator,
+            module_subtype="PKS_CIS",
+        )
 
     def run_module(self, structure: Union[Structure, None] = None) -> Structure:
         if self.is_broken:
@@ -282,9 +349,21 @@ class LinearPKSModule(_Module):
             if self.recognition_domain:
                 if structure is None:
                     assert self.is_starter_module
-                    structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                    if self.recognition_domain.domain_name != "CAL":
+                        structure = (
+                            self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                        )
+                    else:
+                        starter_unit = read_smiles(
+                            self.recognition_domain.substrate.smiles
+                        )
+                        label_nrp_central_chain(starter_unit)
+                        structure = attach_to_domain_nrp(starter_unit)
+
                 else:
-                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+                    structure = self.synthesis_domain.do_elongation(
+                        structure, self.recognition_domain.substrate
+                    )
 
                 structure = self.do_pks_tailoring(structure)
             self.add_module_label(structure)
@@ -292,8 +371,17 @@ class LinearPKSModule(_Module):
 
 
 class IterativePKSModule(_Module):
-    def __init__(self, nr, domains, starter=False, terminator=False, iterations: int = 1) -> None:
-        super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_ITER")
+    def __init__(
+        self, nr, domains, starter=False, terminator=False, iterations: int = 1
+    ) -> None:
+        super().__init__(
+            nr,
+            "PKS",
+            domains,
+            starter=starter,
+            terminator=terminator,
+            module_subtype="PKS_ITER",
+        )
         self.iterations = iterations
 
     def run_module(self, structure=None):
@@ -307,9 +395,11 @@ class IterativePKSModule(_Module):
                     if structure is None:
                         assert self.is_starter_module
                         structure = substrate.starter_monomer.attach_to_acp()
+
                     else:
                         structure = self.synthesis_domain.do_elongation(
-                            structure, substrate)
+                            structure, substrate
+                        )
 
                     structure = self.do_pks_tailoring(structure)
             self.add_module_label(structure)
@@ -317,13 +407,22 @@ class IterativePKSModule(_Module):
 
 
 class TransATPKSModule(_Module):
-    def __init__(self, nr, domains, substrate_name="MALONYL_COA", starter=False, terminator=False) -> None:
-        super().__init__(nr, "PKS", domains, starter=starter, terminator=terminator, module_subtype="PKS_TRANS")
+    def __init__(
+        self, nr, domains, substrate_name="MALONYL_COA", starter=False, terminator=False
+    ) -> None:
+        super().__init__(
+            nr,
+            "PKS",
+            domains,
+            starter=starter,
+            terminator=terminator,
+            module_subtype="PKS_TRANS",
+        )
         if not self.recognition_domain:
             self.recognition_domain = RecognitionDomain("DUMMY_AT", substrate_name)
 
     def do_pks_tailoring(self, structure: Structure) -> Structure:
-        
+
         kr_domain = self.get_tailoring_domain("KR")
         if not kr_domain:
             kr_domain = self.get_tailoring_domain("DUMMY_KR")
@@ -374,11 +473,32 @@ class TransATPKSModule(_Module):
             structure, ah_tailored = ah_domain.do_tailoring(structure)
             if not ah_tailored:
                 ah_domain.used = False
+        if amt_domain and amt_domain.active and amt_domain.used:
+            structure, amt_tailored = amt_domain.do_tailoring(structure)
+            if not amt_tailored:
+                amt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
+            structure.refresh_structure()
+        if almt_domain and almt_domain.active and almt_domain.used:
+            structure, almt_tailored = almt_domain.do_tailoring(structure)
+            if not almt_tailored:
+                almt_domain.used = False
+            if emo_domain and emo_domain.active and emo_domain.used:
+                structure, emo_tailored = emo_domain.do_tailoring(structure)
+                if not emo_tailored:
+                    emo_domain.used = False
         if kr_domain and kr_domain.active and kr_domain.used:
             assert kr_domain.subtype is not None
 
             structure, kr_tailored = kr_domain.do_tailoring(structure)
-            if not kr_tailored or kr_domain.subtype.name == 'C1' or kr_domain.subtype.name == 'C2':
+            if (
+                not kr_tailored
+                or kr_domain.subtype.name == "C1"
+                or kr_domain.subtype.name == "C2"
+            ):
                 kr_domain.used = False
                 if omt_domain:
                     omt_domain.used = False
@@ -388,7 +508,10 @@ class TransATPKSModule(_Module):
                     bmt_domain.used = False
                 if er_domain:
                     er_domain.used = False
-            if not kr_domain.subtype.name == 'C1' and not kr_domain.subtype.name == 'C2':
+            if (
+                not kr_domain.subtype.name == "C1"
+                and not kr_domain.subtype.name == "C2"
+            ):
                 if bmt_domain and bmt_domain.active and bmt_domain.used:
                     structure, bmt_tailored = bmt_domain.do_tailoring(structure)
                     if not bmt_tailored:
@@ -415,7 +538,7 @@ class TransATPKSModule(_Module):
 
                         if er_domain:
                             er_domain.used = False
-                        
+
                     else:
                         if er_domain and er_domain.active and er_domain.used:
                             structure, er_tailored = er_domain.do_tailoring(structure)
@@ -444,7 +567,9 @@ class TransATPKSModule(_Module):
                             if not er_tailored:
                                 er_domain.used = False
                 elif egdh_domain and egdh_domain.active and egdh_domain.used:
-                    structure, egdh_domain_tailored = egdh_domain.do_tailoring(structure)
+                    structure, egdh_domain_tailored = egdh_domain.do_tailoring(
+                        structure
+                    )
                     if not egdh_domain_tailored:
                         egdh_domain.used = False
                         if er_domain:
@@ -455,7 +580,9 @@ class TransATPKSModule(_Module):
                             if not er_tailored:
                                 er_domain.used = False
                 elif zgdh_domain and zgdh_domain.active and zgdh_domain.used:
-                    structure, zgdh_domain_tailored = zgdh_domain.do_tailoring(structure)
+                    structure, zgdh_domain_tailored = zgdh_domain.do_tailoring(
+                        structure
+                    )
                     if not zgdh_domain_tailored:
                         zgdh_domain.used = False
                         if er_domain:
@@ -469,23 +596,7 @@ class TransATPKSModule(_Module):
             structure, sc_tailored = sc_domain.do_tailoring(structure)
             if not sc_tailored:
                 sc_domain.used = False
-        if amt_domain and amt_domain.active and amt_domain.used:
-            structure, amt_tailored = amt_domain.do_tailoring(structure)
-            if not amt_tailored:
-                amt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
-            structure.refresh_structure()
-        if almt_domain and almt_domain.active and almt_domain.used:
-            structure, almt_tailored = almt_domain.do_tailoring(structure)
-            if not almt_tailored:
-                almt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
+
         structure.refresh_structure()
         return structure
 
@@ -496,9 +607,13 @@ class TransATPKSModule(_Module):
             if self.recognition_domain:
                 if structure is None:
                     assert self.is_starter_module
-                    structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                    structure = (
+                        self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+                    )
                 else:
-                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+                    structure = self.synthesis_domain.do_elongation(
+                        structure, self.recognition_domain.substrate
+                    )
                 structure = self.do_pks_tailoring(structure)
             self.add_module_label(structure)
             return structure
@@ -520,7 +635,9 @@ class NRPSModule(_Module):
                     label_nrp_central_chain(starter_unit)
                     structure = attach_to_domain_nrp(starter_unit)
                 else:
-                    structure = self.synthesis_domain.do_elongation(structure, self.recognition_domain.substrate)
+                    structure = self.synthesis_domain.do_elongation(
+                        structure, self.recognition_domain.substrate
+                    )
 
                 structure = self.do_nrps_tailoring(structure)
             self.add_module_label(structure)

@@ -20,14 +20,15 @@ FILL_COLOURS = {'ACP': '#81bef7',
                 'nMT': '#dadada',
                 'CYC': '#dadada',
                 'OX': '#dadada',
-                "UNKNOWN": '#dadada'}
+                "UNKNOWN": '#dadada',
+                "CAL": '#dadada'}
 
 OUTLINE_COLOURS = {'ACP': '#3d79d6', 'AT': '#df5d5d', 'KS': '#5fc65f',
                    'KR': '#5fbb87', 'DH': '#ca9862', 'ER': '#61bbad',
                    'TE': '#a25ba0', 'KR*': '#5fbb87', 'C': '#5858b6',
                    'A': '#74399b', 'PCP': '#306dd2', 'E': '#5858b6',
                    'nMT': '#a2a2a2', 'CYC': '#a2a2a2', 'OX': '#a2a2a2',
-                   "UNKNOWN": '#a2a2a2', 'TD': '#ED96E7'}
+                   "UNKNOWN": '#a2a2a2', "CAL": '#a2a2a2', 'TD': '#ED96E7'}
 
 
 TRANSPARENT_FILL_COLOURS = {'ACP': '#c0defb',
@@ -52,7 +53,8 @@ TRANSPARENT_FILL_COLOURS = {'ACP': '#c0defb',
                             'nMT': '#ececec',
                             'CYC': '#ececec',
                             'OX': '#ececec',
-                            "UNKNOWN": '#ececec'}
+                            "UNKNOWN": '#ececec',
+                            "CAL": '#ececec'}
 
 TRANSPARENT_OUTLINE_COLOURS = {'ACP': '#9ab8e9',
                                'PCP': '#9ab8e9',
@@ -76,7 +78,8 @@ TRANSPARENT_OUTLINE_COLOURS = {'ACP': '#9ab8e9',
                                'nMT': '#d0d0d0',
                                'CYC': '#d0d0d0',
                                'OX': '#d0d0d0',
-                               "UNKNOWN": '#d0d0d0'}
+                               "UNKNOWN": '#d0d0d0',
+                               "CAL": '#d0d0d0'}
 
 TEXT_COLOUR = 'black'
 TRANSPARENT_TEXT_COLOURS = {'ACP': '#606e7e',
@@ -101,13 +104,14 @@ TRANSPARENT_TEXT_COLOURS = {'ACP': '#606e7e',
                             'nMT': '#767676',
                             'OX': '#767676',
                             'CYC': '#767676',
-                            "UNKNOWN": '#767676'}
+                            "UNKNOWN": '#767676',
+                            "CAL": '#767676'}
 
 DOMAIN_ABBREVIATIONS = {'ACP': 'CP', 'AT': 'AT', 'KS': 'KS',
                         'KR': 'KR', 'DH': 'DH', 'ER': 'ER',
                         'TE': 'TE', 'TD': 'TD', 'C': 'C',
                         'A': 'A', 'PCP': 'CP', 'E': 'E',
-                        'nMT': 'nMT', 'oMT': 'oMT', 'cMT': 'cMT', 'CYC': 'Cy', 'OX': 'Ox'}
+                        'nMT': 'nMT', 'oMT': 'oMT', 'cMT': 'cMT', 'CYC': 'Cy', 'OX': 'Ox', "CAL": "CL"}
 
 AMINO_ACID_FILL_COLOURS = {"A": "#81bef7",
                                 "R": "#81f781",

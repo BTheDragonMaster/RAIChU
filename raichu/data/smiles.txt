@@ -77,6 +77,7 @@ phenylpyruvic acid	C1=CC=C(C=C1)CC(=O)C(=O)O
 citrulline	C(C[C@@H](C(=O)O)N)CNC(=O)N
 enduracididine	C1[C@H](NC(=N1)N)C[C@@H](C(=O)O)N
 3,5-dichloro-4-hydroxyphenylglycine	C1=C(Cl)C(=C(Cl)C=C1[C@@H](C(=O)O)N)O
+3,5-dichloro-4-hydroxyphenylalanine	C1=C(Cl)C(=C(Cl)C=C1C[C@@H](C(=O)O)N)O
 allo-threonine	C[C@@H]([C@@H](C(=O)O)N)O
 N5-acetyl-N5-hydroxyornithine	CC(=O)N(CCC[C@@H](C(=O)O)N)O
 3-hydroxy-O-methyl-5-methyltyrosine	C1=C(O)C(=C(C)C=C1C[C@@H](C(=O)O)N)OC

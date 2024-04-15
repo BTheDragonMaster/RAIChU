@@ -195,7 +195,9 @@ class AntiSmashDomain:
 
                 elif "transATor:" in spec:
                     self.raichu_subtype = spec.split("transATor:")[1].strip().replace("-", "_").replace("/", "_").upper().replace("(UNKNOWN)", "MISCELLANEOUS")
-
+        if not self.active and self.raichu_subtype == "C2":
+            self.active = True
+            
     def __repr__(self):
         return f"{self.raichu_type}_{self.start}_{self.end}"
 

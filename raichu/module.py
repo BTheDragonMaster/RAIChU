@@ -94,6 +94,7 @@ class PKSDomainType(Enum):
     DUMMY_OMT = 19  # Beta-Hydroxymethyltransferase
     DUMMY_BMT = 20  # Beta-Methyltransferase
     CAL = 21
+    DUMMY_AT = 22
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -219,6 +220,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
         if self.is_broken:
             for domain in self.domains:
                 domain.used = False
+
+        for domain in self.domains[:]:
+            if "DUMMY" in domain.type.name:
+                self.domains.remove(domain)
 
     def run_module(self, structure: Union[Structure, None] = None):
         raise NotImplementedError

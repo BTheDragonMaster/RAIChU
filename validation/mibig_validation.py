@@ -17,7 +17,12 @@ for genbank_file in os.listdir(input_dir):
         path = os.path.join(input_dir, genbank_file)
         out_name = genbank_file.split('.gbk')[0]
         print(f"Working on {out_name}...")
-        cluster = load_antismash_gbk(path)
+
+        try:
+            cluster = load_antismash_gbk(path)
+        except Exception:
+            print(traceback.format_exc())
+            continue
 
         out_bgc = os.path.join(out_dir, out_name)
         if not os.path.exists(out_bgc):
@@ -31,6 +36,7 @@ for genbank_file in os.listdir(input_dir):
         try:
             draw_cluster_from_modular_cluster_representation(cluster, out_path)
             draw_products_from_modular_cluster_representation(cluster, out_bgc)
+
         except Exception:
             print(traceback.format_exc())
 

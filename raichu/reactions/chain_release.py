@@ -5,7 +5,7 @@ from pikachu.reactions.functional_groups import find_bonds, find_atoms
 from pikachu.reactions.basic_reactions import hydrolysis, internal_condensation
 from pikachu.general import structure_to_smiles
 
-from raichu.data.molecular_moieties import SC_BOND, O_OH, O_BETAPROPRIOLACTONE_O,\
+from raichu.data.molecular_moieties import SC_BOND, SC_BOND_MINIMAL, O_OH, O_BETAPROPRIOLACTONE_O,\
     O_BETAPROPRIOLACTONE_TERMINAL_O, O_BETAPROPRIOLACTONE_KETO_OH, O_BETAPROPRIOLACTONE_KETO_C
 from raichu.reactions.general import initialise_atom_attributes
 from raichu.drawing.drawer import RaichuDrawer
@@ -13,6 +13,8 @@ from raichu.drawing.drawer import RaichuDrawer
 
 def release_linear_reduction(chain_intermediate: Structure) -> Structure:
     sc_bonds = find_bonds(SC_BOND, chain_intermediate)
+    if not sc_bonds:
+        sc_bonds = find_bonds(SC_BOND_MINIMAL, chain_intermediate)
     if len(sc_bonds) != 1:
         raise ValueError("Cannot release product from carrier domain as no SC bond is present")
 
@@ -50,6 +52,9 @@ def release_linear_thioesterase(chain_intermediate):
     """
     # Find S-H bond in chain intermediate and break the bond and define atoms
     sc_bonds = find_bonds(SC_BOND, chain_intermediate)
+    if not sc_bonds:
+        sc_bonds = find_bonds(SC_BOND_MINIMAL, chain_intermediate)
+
     assert len(sc_bonds) == 1
     carbon = sc_bonds[0].get_neighbour('C')
 
@@ -203,7 +208,7 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
 
     # Define -OH group that should not be used to carry out the thioesterase
     # reaction (distance -S and internal -OH group)
-    o_not_to_use = find_o_betapropriolactone(linear_product)
+    # o_not_to_use = find_o_betapropriolactone(linear_product)
 
     list_product_drawings = []
     circular_smiles = []

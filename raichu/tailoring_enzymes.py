@@ -34,6 +34,9 @@ from raichu.data.molecular_moieties import (
     THREONINE,
     REDUCED_SERINE,
     REDUCED_THREONINE,
+    CYCL_THREONINE,
+    CYCL_SERINE,
+    CYCL_CYSTEINE,
     C1_AMINO_ACID_ATTACHED,
     ARGININE_SECONDARY_N_1,
     ARGININE_SECONDARY_N_2,
@@ -344,9 +347,9 @@ class TailoringEnzyme:
                             if neighbour_2.type == "C":
                                 nitrogen = neighbour_2.get_neighbour("N")
                                 if nitrogen:
-                                    carbon = nitrogen.get_neighbour("C")
+                                    carbon = [carbon for carbon in nitrogen.neighbours if carbon != neighbour_2 and carbon.type == "C"][0]
                                     oxygen = carbon.get_neighbour("O")
-                                    if carbon and nitrogen:
+                                    if carbon and oxygen:
                                         structure = cyclodehydration(
                                             structure, atom1, oxygen
                                         )
@@ -713,9 +716,9 @@ class TailoringEnzyme:
             possible_sites.extend(asp_glu_oxygen)
         elif self.type.name == "CYCLODEHYDRASE":
             cys_ser_thr_x = (
-                find_atoms(CYSTEINE, structure)
-                + find_atoms(SERINE, structure)
-                + find_atoms(THREONINE, structure)
+                find_atoms(CYCL_CYSTEINE, structure)
+                + find_atoms(CYCL_SERINE, structure)
+                + find_atoms(CYCL_THREONINE, structure)
             )
             possible_sites.extend([[atom] for atom in cys_ser_thr_x])
         elif self.type.name == "THREONINE_SERINE_DEHYDRATASE":

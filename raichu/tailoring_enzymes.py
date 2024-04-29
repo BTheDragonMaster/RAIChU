@@ -25,7 +25,10 @@ from raichu.data.molecular_moieties import (
     PEPTIDE_BOND,
     CC_SINGLE_BOND,
     KETO_GROUP,
-    AMIDE_GROUP,
+    THIOKETONE_GROUP,
+    AMIDE_GROUP_O,
+    AMIDE_GROUP_S,
+    N_NH,
     C_CARBOXYL,
     ASPARTIC_ACID,
     GLUTAMIC_ACID,
@@ -362,6 +365,29 @@ class TailoringEnzyme:
                     raise ValueError(
                         "No downstream amino acid for cyclodehydration availiable."
                     )
+
+        elif self.type.name == "MACROLACTAMIDINATION":
+            for atom in self.modification_sites:
+                if len(atom) <2:
+                    continue
+                atom1 = atom[0]  
+                atom2 = atom[1]
+                atom1 = structure.get_atom(atom1)
+                terminal_nitrogen = None
+                terminal_nitrogen = structure.get_atom(atom2)
+                for neighbour in atom1.neighbours:
+                    if neighbour.type == "O" or neighbour.type == "S":
+                        oxygen_sulfur = neighbour
+                        assert oxygen_sulfur
+                        structure = double_bond_reduction(oxygen_sulfur, atom1, structure)
+                nitrogen = atom1.get_neighbour("N")                
+                structure = remove_atom(oxygen_sulfur, structure)
+                structure = oxidative_bond_formation(atom1, terminal_nitrogen, structure)
+                structure = single_bond_oxidation(atom1, nitrogen, structure)
+                structure.refresh_structure()
+                return structure
+                     
+
         elif self.type.name == "THIOPEPTIDE_CYCLASE":
             for atoms in self.modification_sites:
                 if len(atoms) != 2:
@@ -664,7 +690,7 @@ class TailoringEnzyme:
 
         elif self.type.name == "THIOAMIDATION":
             possible_sites.extend(
-                [[atom] for atom in find_atoms(AMIDE_GROUP, structure)]
+                [[atom] for atom in find_atoms(AMIDE_GROUP_O, structure)]
             )
 
         elif self.type.name == "KETO_REDUCTION":
@@ -718,11 +744,19 @@ class TailoringEnzyme:
             cys_ser_thr_x = (
                 find_atoms(CYCL_CYSTEINE, structure)
                 + find_atoms(CYCL_SERINE, structure)
-                + find_atoms(CYCL_THREONINE, structure)
             )
             possible_sites.extend([[atom] for atom in cys_ser_thr_x])
+
+        elif self.type.name == "MACROLACTAMIDINATION":
+            keto_thioketo_group = (find_atoms(AMIDE_GROUP_O, structure) + find_atoms(AMIDE_GROUP_S, structure))
+            #possible_sites.extend([[atom] for atom in keto_thioketo_group])
+            nitrogens = find_atoms(N_NH, structure)
+            primary_amine = [nitrogen for nitrogen in nitrogens if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2]            
+            combinations = [list(t) for t in itertools.product(keto_thioketo_group, primary_amine)]
+            possible_sites.extend(combinations)
+
         elif self.type.name == "THREONINE_SERINE_DEHYDRATASE":
-            ser_thr_x = find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
+            ser_thr_x = find_atoms(SERINE, structure)
             possible_sites.extend([[atom] for atom in ser_thr_x])
         elif self.type.name == "LANTHIPEPTIDE_CYCLASE":
             cys_x = find_atoms(CYSTEINE, structure)
@@ -736,7 +770,7 @@ class TailoringEnzyme:
             possible_sites.extend(combinations)
         elif self.type.name == "LANTHIONINE_SYNTHETASE":
             cys_x = find_atoms(CYSTEINE, structure)
-            ser_thr_x = find_atoms(SERINE, structure) + find_atoms(THREONINE, structure)
+            ser_thr_x = find_atoms(SERINE, structure)
             ser_thr_c = [atom.get_neighbour("C") for atom in ser_thr_x]
             combinations = [list(t) for t in itertools.product(cys_x, ser_thr_c)]
             combinations.extend(

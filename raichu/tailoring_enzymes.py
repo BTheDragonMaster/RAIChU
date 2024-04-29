@@ -774,10 +774,8 @@ class TailoringEnzyme:
             ser_thr_x = find_atoms(SERINE, structure)
             ser_thr_c = [atom.get_neighbour("C") for atom in ser_thr_x]
             combinations = [list(t) for t in itertools.product(cys_x, ser_thr_c)]
-            combinations.extend(
-                [list(t) for t in itertools.product(ser_thr_c, ser_thr_c)]
-            )
             possible_sites.extend(combinations)
+            
         elif self.type.name == "AMINO_ACID_EPIMERASE":
             alpha_cs_amino_acid_backbone = find_atoms(C1_AMINO_ACID_ATTACHED, structure)
             possible_sites.extend([[atom] for atom in alpha_cs_amino_acid_backbone])

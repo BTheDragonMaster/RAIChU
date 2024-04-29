@@ -245,7 +245,7 @@ ARGININE_SECONDARY_N_2 = GroupDefiner(
 ARGININE_SECONDARY_N_3 = GroupDefiner(
     "arginine_secondary_n_3", "C(N)(=N)NC", 3)
 CYSTEINE = GroupDefiner('cysteine', 'NC(CS)C=O', 3)
-SERINE = GroupDefiner('serine', 'NC(CO)C=O', 3)
+SERINE = GroupDefiner('serine', 'C(CO)C=O', 2)
 THREONINE = GroupDefiner('threonine', 'NC(C(O)C)C=O', 3)
 REDUCED_SERINE = GroupDefiner('reduced_serine', 'NC(=C)C=O', 2)
 REDUCED_THREONINE = GroupDefiner('reduced_threonine', 'C=CC(N)C', 0)

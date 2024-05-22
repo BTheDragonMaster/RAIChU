@@ -98,6 +98,7 @@ class TailoringEnzymeType(Enum):
     MACROLACTAMIDINATION = 36
     OMEGA_AMIDE = 37
     OMEGA_ESTER = 38
+    OMEGA_THIOESTER = 39
     
 
     # Epimerization
@@ -367,6 +368,27 @@ class TailoringEnzyme:
                 return cyclic_product
 
         elif self.type.name == "OMEGA_ESTER":
+            for atom in self.modification_sites:
+                if len(atom) < 2:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom2 = atom[1]
+                atom1 = structure.get_atom(atom1)
+                c_atom = atom1.get_neighbour("C")
+                assert c_atom
+                oh_bond = atom1.get_bond(c_atom)
+                assert oh_bond
+                terminal_sh = None
+                terminal_sh = structure.get_atom(atom2)
+                assert terminal_sh
+                h_atom = terminal_sh.get_neighbour("H")
+                h_bond = terminal_sh.get_bond(h_atom)
+                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product.refresh_structure()
+                initialise_atom_attributes(cyclic_product)
+                return cyclic_product
+
+        elif self.type.name == "OMEGA_THIOESTER":
             for atom in self.modification_sites:
                 if len(atom) < 2:
                     continue
@@ -802,8 +824,13 @@ class TailoringEnzyme:
         elif self.type.name == "OMEGA_ESTER":
             asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
             ser_thr_x = find_atoms(SERINE, structure) 
-            #ser_thr_c = [atom.get_neighbour("C") for atom in ser_thr_x]
             combinations = [list(t) for t in itertools.product(asp_glu_oxygen, ser_thr_x)]
+            possible_sites.extend(combinations)
+
+        elif self.type.name == "OMEGA_THIOESTER":
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
+            cys_x = find_atoms(CYSTEINE, structure) 
+            combinations = [list(t) for t in itertools.product(asp_glu_oxygen, cys_x)]
             possible_sites.extend(combinations)
             
         elif self.type.name == "CYCLODEHYDRASE":

@@ -522,8 +522,8 @@ def macrolactam_formation(structure, o_oh_carboxyl):
     terminal_nitrogen = None
     for atom in structure.graph:
         if (
-            atom.annotations.in_central_chain
-            and atom.type == "N"
+            #atom.annotations.in_central_chain
+            atom.type == "N"
             and [neighbour.type for neighbour in atom.neighbours].count("H") == 2
         ):
             terminal_nitrogen = atom

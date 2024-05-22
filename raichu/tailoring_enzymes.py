@@ -2,6 +2,8 @@ from enum import Enum, unique
 import itertools
 
 from pikachu.drawing.drawing import Drawer
+from pikachu.reactions.basic_reactions import internal_condensation
+from raichu.reactions.general import initialise_atom_attributes
 from raichu.reactions.general_tailoring_reactions import (
     proteolytic_cleavage,
     find_atoms_for_tailoring,
@@ -17,6 +19,8 @@ from raichu.reactions.general_tailoring_reactions import (
     change_chirality,
     excise_from_structure,
     reductive_bond_breakage,
+    
+    
 )
 from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
 from raichu.data.molecular_moieties import (
@@ -92,6 +96,9 @@ class TailoringEnzymeType(Enum):
     LANTHIONINE_SYNTHETASE = 30
     THIOPEPTIDE_CYCLASE = 31
     MACROLACTAMIDINATION = 36
+    OMEGA_AMIDE = 37
+    OMEGA_ESTER = 38
+    
 
     # Epimerization
     AMINO_ACID_EPIMERASE = 32
@@ -338,6 +345,50 @@ class TailoringEnzyme:
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
                 structure = macrolactam_formation(structure, atom1)
+        elif self.type.name == "OMEGA_AMIDE":
+            for atom in self.modification_sites:
+                if len(atom) < 2:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom2 = atom[1]
+                atom1 = structure.get_atom(atom1)
+                c_atom = atom1.get_neighbour("C")
+                assert c_atom
+                oh_bond = atom1.get_bond(c_atom)
+                assert oh_bond
+                terminal_nitrogen = None
+                terminal_nitrogen = structure.get_atom(atom2)
+                assert terminal_nitrogen
+                h_atom = terminal_nitrogen.get_neighbour("H")
+                h_bond = terminal_nitrogen.get_bond(h_atom)
+                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product.refresh_structure()
+                initialise_atom_attributes(cyclic_product)
+                return cyclic_product
+
+        elif self.type.name == "OMEGA_ESTER":
+            for atom in self.modification_sites:
+                if len(atom) < 2:
+                    continue
+                atom1 = atom[0]  # only one atom is modified at a time
+                atom2 = atom[1]
+                atom1 = structure.get_atom(atom1)
+                c_atom = atom1.get_neighbour("C")
+                assert c_atom
+                oh_bond = atom1.get_bond(c_atom)
+                assert oh_bond
+                terminal_oh = None
+                terminal_oh = structure.get_atom(atom2)
+                assert terminal_oh
+                h_atom = terminal_oh.get_neighbour("H")
+                h_bond = terminal_oh.get_bond(h_atom)
+                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product.refresh_structure()
+                initialise_atom_attributes(cyclic_product)
+                return cyclic_product
+
+
+                #structure = omega_amide_formation(structure, atom1)
         elif self.type.name == "CYCLODEHYDRASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -741,6 +792,20 @@ class TailoringEnzyme:
                 GLUTAMIC_ACID, structure
             )
             possible_sites.extend(asp_glu_oxygen)
+        elif self.type.name == "OMEGA_AMIDE":
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
+            nitrogens = find_atoms(N_NH, structure)
+            primary_amine = [nitrogen for nitrogen in nitrogens if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2]            
+            combinations = [list(t) for t in itertools.product(asp_glu_oxygen, primary_amine)]
+            possible_sites.extend(combinations)
+
+        elif self.type.name == "OMEGA_ESTER":
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
+            ser_thr_x = find_atoms(SERINE, structure) 
+            #ser_thr_c = [atom.get_neighbour("C") for atom in ser_thr_x]
+            combinations = [list(t) for t in itertools.product(asp_glu_oxygen, ser_thr_x)]
+            possible_sites.extend(combinations)
+            
         elif self.type.name == "CYCLODEHYDRASE":
             cys_ser_thr_x = (
                 find_atoms(CYCL_CYSTEINE, structure)
@@ -750,7 +815,6 @@ class TailoringEnzyme:
 
         elif self.type.name == "MACROLACTAMIDINATION":
             keto_thioketo_group = (find_atoms(AMIDE_GROUP_O, structure) + find_atoms(AMIDE_GROUP_S, structure))
-            #possible_sites.extend([[atom] for atom in keto_thioketo_group])
             nitrogens = find_atoms(N_NH, structure)
             primary_amine = [nitrogen for nitrogen in nitrogens if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2]            
             combinations = [list(t) for t in itertools.product(keto_thioketo_group, primary_amine)]

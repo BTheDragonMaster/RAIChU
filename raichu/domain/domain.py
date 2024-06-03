@@ -2,13 +2,43 @@ from typing import Union, Tuple
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
-from raichu.reactions.pks_tailoring_reactions import exo_methylen_oxidase, ketoreduction, enoylreduction, dehydration, alpha_L_methyl_transferase, alpha_methyl_transferase, smallest_cyclisation, alpha_hydroxylase, gamma_beta_dehydratase, beta_hydroxy_methyl_transferase, beta_methyl_transferase
-from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate, nrps_cyclodehydration, nrps_oxidation
+from raichu.reactions.pks_tailoring_reactions import (
+    exo_methylen_oxidase,
+    ketoreduction,
+    enoylreduction,
+    dehydration,
+    alpha_L_methyl_transferase,
+    alpha_methyl_transferase,
+    smallest_cyclisation,
+    alpha_hydroxylase,
+    gamma_beta_dehydratase,
+    beta_hydroxy_methyl_transferase,
+    beta_methyl_transferase,
+    beta_branching_cassette,
+)
+from raichu.reactions.nrps_tailoring_reactions import (
+    epimerize,
+    n_methylate,
+    nrps_cyclodehydration,
+    nrps_oxidation,
+)
 from raichu.reactions.pks_elongation_reactions import pks_elongation
 from raichu.reactions.nrps_elongation_reactions import nrps_elongation
-from raichu.reactions.chain_release import release_linear_reduction, release_linear_thioesterase
-from raichu.domain.domain_types import DomainSuperClass, RecognitionDomainType, CarrierDomainType, \
-    TailoringDomainType, SynthesisDomainType, TerminationDomainType, KSDomainSubtype, KRDomainSubtype, ERDomainSubtype
+from raichu.reactions.chain_release import (
+    release_linear_reduction,
+    release_linear_thioesterase,
+)
+from raichu.domain.domain_types import (
+    DomainSuperClass,
+    RecognitionDomainType,
+    CarrierDomainType,
+    TailoringDomainType,
+    SynthesisDomainType,
+    TerminationDomainType,
+    KSDomainSubtype,
+    KRDomainSubtype,
+    ERDomainSubtype,
+)
 
 from dataclasses import dataclass
 
@@ -16,8 +46,13 @@ from dataclasses import dataclass
 @dataclass
 class Domain:
     supertype: DomainSuperClass
-    type: Union[TailoringDomainType, CarrierDomainType, SynthesisDomainType, RecognitionDomainType,
-                TerminationDomainType]
+    type: Union[
+        TailoringDomainType,
+        CarrierDomainType,
+        SynthesisDomainType,
+        RecognitionDomainType,
+        TerminationDomainType,
+    ]
     subtype: Union[None, KRDomainSubtype, KSDomainSubtype, ERDomainSubtype]
     domain_name: Union[str, None]
     active: bool = True
@@ -40,108 +75,148 @@ class UnknownDomain(Domain):
         superclass = DomainSuperClass.from_string("TAILORING")
         domain_type = TailoringDomainType.from_string("UNKNOWN")
         assert domain_name
-        super().__init__(superclass, domain_type, None, domain_name, active=active, used=False)
+        super().__init__(
+            superclass, domain_type, None, domain_name, active=active, used=False
+        )
 
 
 class TailoringDomain(Domain):
-    def __init__(self, domain_type: str, domain_subtype: Union[str, None] = None, active: bool = True,
-                 domain_name: Union[str, None] = None, used: bool = True) -> None:
+    def __init__(
+        self,
+        domain_type: str,
+        domain_subtype: Union[str, None] = None,
+        active: bool = True,
+        domain_name: Union[str, None] = None,
+        used: bool = True,
+    ) -> None:
         superclass = DomainSuperClass.from_string("TAILORING")
         domain_type = TailoringDomainType.from_string(domain_type)
         if domain_subtype is not None:
-            if domain_type.name == 'KR' or domain_type.name == 'DUMMY_KR':
+            if domain_type.name == "KR" or domain_type.name == "DUMMY_KR":
                 domain_subtype = KRDomainSubtype.from_string(domain_subtype)
-            elif domain_type.name == 'ER' or domain_type.name == 'DUMMY_ER':
+            elif domain_type.name == "ER" or domain_type.name == "DUMMY_ER":
                 domain_subtype = ERDomainSubtype.from_string(domain_subtype)
             else:
-                raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
+                raise ValueError(
+                    f"RAIChU does not support domain subtypes for {domain_type.name}"
+                )
         else:
-            if domain_type.name == 'KR' or domain_type.name == 'DUMMY_KR':
+            if domain_type.name == "KR" or domain_type.name == "DUMMY_KR":
                 domain_subtype = KRDomainSubtype.from_string("UNKNOWN")
-            elif domain_type.name == 'ER' or domain_type.name == 'DUMMY_ER':
+            elif domain_type.name == "ER" or domain_type.name == "DUMMY_ER":
                 domain_subtype = ERDomainSubtype.from_string("UNKNOWN")
 
-        super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
+        super().__init__(
+            superclass,
+            domain_type,
+            domain_subtype,
+            domain_name,
+            active=active,
+            used=used,
+        )
 
     def do_tailoring(self, structure) -> Tuple[Structure, bool]:
         """
         Performs tailoring reaction
         """
-        if self.type.name == 'KR' or self.type.name == 'DUMMY_KR':
+        if self.type.name == "KR" or self.type.name == "DUMMY_KR":
             return ketoreduction(structure, self.subtype)
-        elif self.type.name == 'DH' or self.type.name == 'DUMMY_DH':
+        elif self.type.name == "DH" or self.type.name == "DUMMY_DH":
             return dehydration(structure)
-        elif self.type.name == 'EDH' or self.type.name == 'DUMMY_EDH':
+        elif self.type.name == "EDH" or self.type.name == "DUMMY_EDH":
             return dehydration(structure, "E")
-        elif self.type.name == 'ZDH' or self.type.name == 'DUMMY_ZDH':
+        elif self.type.name == "ZDH" or self.type.name == "DUMMY_ZDH":
             return dehydration(structure, "Z")
-        elif self.type.name == 'ER' or self.type.name == 'DUMMY_ER':
+        elif self.type.name == "ER" or self.type.name == "DUMMY_ER":
             return enoylreduction(structure, self.subtype)
-        elif self.type.name == 'ALMT' or self.type.name == 'DUMMY_ALMT':
+        elif self.type.name == "ALMT" or self.type.name == "DUMMY_ALMT":
             return alpha_L_methyl_transferase(structure)
-        elif self.type.name == 'AMT' or self.type.name == 'DUMMY_AMT':
+        elif self.type.name == "AMT" or self.type.name == "DUMMY_AMT":
             return alpha_methyl_transferase(structure)
-        elif self.type.name == 'SC' or self.type.name == 'DUMMY_SC':
+        elif self.type.name == "SC" or self.type.name == "DUMMY_SC":
             return smallest_cyclisation(structure)
-        elif self.type.name == 'AH' or self.type.name == 'DUMMY_AH':
+        elif self.type.name == "AH" or self.type.name == "DUMMY_AH":
             return alpha_hydroxylase(structure)
-        elif self.type.name == 'GDH' or self.type.name == 'DUMMY_GDH':
+        elif self.type.name == "GDH" or self.type.name == "DUMMY_GDH":
             return gamma_beta_dehydratase(structure)
-        elif self.type.name == 'EGDH' or self.type.name == 'DUMMY_EGDH':
+        elif self.type.name == "EGDH" or self.type.name == "DUMMY_EGDH":
             return gamma_beta_dehydratase(structure, "E")
-        elif self.type.name == 'ZGDH' or self.type.name == 'DUMMY_ZGDH':
+        elif self.type.name == "ZGDH" or self.type.name == "DUMMY_ZGDH":
             return gamma_beta_dehydratase(structure, "Z")
-        elif self.type.name == 'OMT' or self.type.name == 'DUMMY_OMT':
+        elif self.type.name == "OMT" or self.type.name == "DUMMY_OMT":
             return beta_hydroxy_methyl_transferase(structure)
-        elif self.type.name == 'BMT' or self.type.name == 'DUMMY_BMT':
+        elif self.type.name == "BMT" or self.type.name == "DUMMY_BMT":
             return beta_methyl_transferase(structure)
-        elif self.type.name == 'EMO' or self.type.name == 'DUMMY_EMO':
+        elif self.type.name == "EMO" or self.type.name == "DUMMY_EMO":
             return exo_methylen_oxidase(structure)
-        elif self.type.name == 'E':
+        elif self.type.name == "BR" or self.type.name == "DUMMY_BR":
+            return beta_branching_cassette(structure)
+        elif self.type.name == "E":
             return epimerize(structure)
-        elif self.type.name == 'nMT':
+        elif self.type.name == "nMT":
             return n_methylate(structure)
-        elif self.type.name == 'CYC':
+        elif self.type.name == "CYC":
             return nrps_cyclodehydration(structure)
-        elif self.type.name == 'OX':
+        elif self.type.name == "OX":
             return nrps_oxidation(structure)
         else:
-            raise Warning(f"Tailoring domain {self.domain_name} not recognised by RAIChU. Ignored.")
+            raise Warning(
+                f"Tailoring domain {self.domain_name} not recognised by RAIChU. Ignored."
+            )
 
 
 class SynthesisDomain(Domain):
-    def __init__(self, domain_type: str, domain_subtype: Union[str, None] = None, active: bool = True,
-                 domain_name: Union[str, None] = None, is_elongating: bool = True,
-                 used: bool = True) -> None:
+    def __init__(
+        self,
+        domain_type: str,
+        domain_subtype: Union[str, None] = None,
+        active: bool = True,
+        domain_name: Union[str, None] = None,
+        is_elongating: bool = True,
+        used: bool = True,
+    ) -> None:
         superclass = DomainSuperClass.from_string("SYNTHESIS")
         domain_type = SynthesisDomainType.from_string(domain_type)
 
         if domain_subtype is not None:
-            if domain_type.name == 'KS' or domain_type.name == "DUMMY_KS":
+            if domain_type.name == "KS" or domain_type.name == "DUMMY_KS":
                 domain_subtype = KSDomainSubtype.from_string(domain_subtype)
             else:
-                raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
+                raise ValueError(
+                    f"RAIChU does not support domain subtypes for {domain_type.name}"
+                )
 
-        super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
+        super().__init__(
+            superclass,
+            domain_type,
+            domain_subtype,
+            domain_name,
+            active=active,
+            used=used,
+        )
         self.is_elongating = is_elongating
 
     def do_elongation(self, structure, substrate) -> Structure:
         """
         Performs elongation reaction
         """
-        if self.type.name == 'C' or self.type.name == "DUMMY_C":
+        if self.type.name == "C" or self.type.name == "DUMMY_C":
             if self.is_elongating:
                 building_block = read_smiles(substrate.smiles)
                 return nrps_elongation(building_block, structure)
             else:
                 return structure
-        elif self.type.name == 'KS' or self.type.name == "DUMMY_KS":
+        elif self.type.name == "KS" or self.type.name == "DUMMY_KS":
             if self.is_elongating:
-                if self.subtype is None or self.subtype.name in [v.name for v in KSDomainSubtype]:
+                if self.subtype is None or self.subtype.name in [
+                    v.name for v in KSDomainSubtype
+                ]:
                     building_block = substrate.elongation_monomer
                     return pks_elongation(structure, building_block)
                 else:
-                    raise ValueError(f"RAIChU does not support domain subtype {self.subtype.name}")
+                    raise ValueError(
+                        f"RAIChU does not support domain subtype {self.subtype.name}"
+                    )
             else:
                 return structure
         else:
@@ -149,20 +224,40 @@ class SynthesisDomain(Domain):
 
 
 class RecognitionDomain(Domain):
-    def __init__(self, domain_type: str, substrate_name: str, domain_subtype: Union[str, None] = None,
-                 active: bool = True, domain_name: Union[str, None] = None, used: bool = True) -> None:
+    def __init__(
+        self,
+        domain_type: str,
+        substrate_name: str,
+        domain_subtype: Union[str, None] = None,
+        active: bool = True,
+        domain_name: Union[str, None] = None,
+        used: bool = True,
+    ) -> None:
 
         superclass = DomainSuperClass.from_string("RECOGNITION")
         domain_type = RecognitionDomainType.from_string(domain_type)
 
         if domain_subtype is not None:
-            raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
+            raise ValueError(
+                f"RAIChU does not support domain subtypes for {domain_type.name}"
+            )
 
-        super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
+        super().__init__(
+            superclass,
+            domain_type,
+            domain_subtype,
+            domain_name,
+            active=active,
+            used=used,
+        )
 
-        if self.type.name == 'A' or self.type.name == 'DUMMY_A' or self.type.name == 'CAL':
+        if (
+            self.type.name == "A"
+            or self.type.name == "DUMMY_A"
+            or self.type.name == "CAL"
+        ):
             self.substrate = NRPSSubstrate(substrate_name)
-        elif self.type.name == 'AT' or self.type.name == 'DUMMY_AT':
+        elif self.type.name == "AT" or self.type.name == "DUMMY_AT":
             self.substrate = PKSSubstrate(substrate_name)
         else:
             raise ValueError(f"Unknown type of recognition domain: {self.type}")
@@ -177,28 +272,57 @@ class RecognitionDomain(Domain):
 
 
 class CarrierDomain(Domain):
-    def __init__(self, domain_type: str, domain_subtype: Union[str, None] = None,
-                 domain_name: Union[str, None] = None, active: bool = True,
-                 used: bool = True) -> None:
+    def __init__(
+        self,
+        domain_type: str,
+        domain_subtype: Union[str, None] = None,
+        domain_name: Union[str, None] = None,
+        active: bool = True,
+        used: bool = True,
+    ) -> None:
         superclass = DomainSuperClass.from_string("CARRIER")
         domain_type = CarrierDomainType.from_string(domain_type)
 
         if domain_subtype is not None:
-            raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
+            raise ValueError(
+                f"RAIChU does not support domain subtypes for {domain_type.name}"
+            )
 
-        super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
+        super().__init__(
+            superclass,
+            domain_type,
+            domain_subtype,
+            domain_name,
+            active=active,
+            used=used,
+        )
 
 
 class TerminationDomain(Domain):
-    def __init__(self, domain_type: str, domain_subtype: Union[str, None] = None, active: bool = True,
-                 domain_name: Union[str, None] = None, used: bool = True) -> None:
+    def __init__(
+        self,
+        domain_type: str,
+        domain_subtype: Union[str, None] = None,
+        active: bool = True,
+        domain_name: Union[str, None] = None,
+        used: bool = True,
+    ) -> None:
         superclass = DomainSuperClass.from_string("TERMINATION")
         domain_type = TerminationDomainType.from_string(domain_type)
 
         if domain_subtype is not None:
-            raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
+            raise ValueError(
+                f"RAIChU does not support domain subtypes for {domain_type.name}"
+            )
 
-        super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
+        super().__init__(
+            superclass,
+            domain_type,
+            domain_subtype,
+            domain_name,
+            active=active,
+            used=used,
+        )
 
     def release_chain(self, structure) -> Structure:
         """

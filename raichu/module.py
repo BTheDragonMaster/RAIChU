@@ -94,6 +94,7 @@ class PKSDomainType(Enum):
     DUMMY_OMT = 19  # Beta-Hydroxymethyltransferase
     DUMMY_BMT = 20  # Beta-Methyltransferase
     CAL = 21
+    DUMMY_BR = 22
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -468,6 +469,9 @@ class TransATPKSModule(_Module):
         bmt_domain = self.get_tailoring_domain("BMT")
         if not bmt_domain:
             bmt_domain = self.get_tailoring_domain("DUMMY_BMT")
+        br_domain = self.get_tailoring_domain("BR")
+        if not br_domain:
+            br_domain = self.get_tailoring_domain("DUMMY_BR")
 
         if ah_domain and ah_domain.active and ah_domain.used:
             structure, ah_tailored = ah_domain.do_tailoring(structure)
@@ -506,6 +510,8 @@ class TransATPKSModule(_Module):
                     dh_domain.used = False
                 if bmt_domain:
                     bmt_domain.used = False
+                if br_domain:
+                    br_domain.used = False
                 if er_domain:
                     er_domain.used = False
             if (
@@ -516,6 +522,10 @@ class TransATPKSModule(_Module):
                     structure, bmt_tailored = bmt_domain.do_tailoring(structure)
                     if not bmt_tailored:
                         bmt_domain.used = False
+                if br_domain and br_domain.active and br_domain.used:
+                    structure, br_tailored = br_domain.do_tailoring(structure)
+                    if not br_tailored:
+                        br_domain.used = False 
                 if omt_domain and omt_domain.active and omt_domain.used:
                     structure, omt_tailored = omt_domain.do_tailoring(structure)
                     if not omt_tailored:

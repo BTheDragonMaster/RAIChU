@@ -130,6 +130,8 @@ class TailoringDomainType(Enum):
     OX = 25
     DUMMY_EMO = 26
     DUMMY_BR = 27  # Beta-branching cassette
+    AMT = 28
+    BMT = 29
 
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":

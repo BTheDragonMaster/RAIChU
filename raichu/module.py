@@ -95,6 +95,8 @@ class PKSDomainType(Enum):
     DUMMY_BMT = 20  # Beta-Methyltransferase
     CAL = 21
     DUMMY_BR = 22
+    AMT = 23
+    BMT = 24
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -254,6 +256,12 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
         kr_domain = self.get_tailoring_domain("KR")
         dh_domain = self.get_tailoring_domain("DH")
         er_domain = self.get_tailoring_domain("ER")
+        amt_domain = self.get_tailoring_domain("AMT")
+        if not amt_domain:
+            amt_domain = self.get_tailoring_domain("DUMMY_AMT")
+        bmt_domain = self.get_tailoring_domain("BMT")
+        if not bmt_domain:
+            bmt_domain = self.get_tailoring_domain("DUMMY_BMT")
 
         if kr_domain and kr_domain.active and kr_domain.used:
             assert kr_domain.subtype is not None
@@ -263,6 +271,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
                     not kr_domain.subtype.name == "C1"
                     and not kr_domain.subtype.name == "C2"
                 ):
+                    if bmt_domain and bmt_domain.active and bmt_domain.used:
+                        structure, bmt_tailored = bmt_domain.do_tailoring(structure)
+                        if not bmt_tailored:
+                            bmt_domain.used = False
                     if dh_domain and dh_domain.active and dh_domain.used:
                         structure, dh_tailored = dh_domain.do_tailoring(structure)
                         if dh_tailored:
@@ -283,12 +295,19 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
                     dh_domain.used = False
                 if er_domain:
                     er_domain.used = False
+                if bmt_domain:
+                    bmt_domain.used = False
         else:
             if dh_domain:
                 dh_domain.used = False
             if er_domain:
                 er_domain.used = False
-
+            if bmt_domain:
+                bmt_domain.used = False
+        if amt_domain and amt_domain.active and amt_domain.used:
+            structure, amt_tailored = amt_domain.do_tailoring(structure)
+            if not amt_tailored:
+                amt_domain.used = False
         return structure
 
     def do_nrps_tailoring(self, structure: Structure) -> Structure:
@@ -525,7 +544,7 @@ class TransATPKSModule(_Module):
                 if br_domain and br_domain.active and br_domain.used:
                     structure, br_tailored = br_domain.do_tailoring(structure)
                     if not br_tailored:
-                        br_domain.used = False 
+                        br_domain.used = False
                 if omt_domain and omt_domain.active and omt_domain.used:
                     structure, omt_tailored = omt_domain.do_tailoring(structure)
                     if not omt_tailored:

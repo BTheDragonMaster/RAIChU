@@ -754,7 +754,16 @@ def beta_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
     target_atom:  PIKAChU atom object
     """
     # find atom to add methylgroup
-    beta_c = find_atoms(RECENT_BETA_C, structure)
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)[0]
+    if not alpha_c:
+        return structure, False
+    beta_c = [
+        atom
+        for atom in alpha_c.neighbours
+        if atom.annotations.in_central_chain == True
+        and atom.type == "C"
+        and atom.has_neighbour("H")
+    ]
     if beta_c:
         if beta_c[0].has_neighbour("H"):
             structure = methylation(beta_c[0], structure)

@@ -64,7 +64,7 @@ TRANSATOR_CLADE_TO_TAILORING_REACTIONS = {
         ("DUMMY_KR", None),
         ("DUMMY_DH", None),
         ("DUMMY_ER", None),
-        ("DUMMY_AMT", None),
+        ("DUMMY_BMT", None),
         ("DUMMY_EMO", None),
     ],
     "ALPHAME_ZDB": [("DUMMY_KR", None), ("DUMMY_ZDH", None), ("DUMMY_AMT", None)],

@@ -500,19 +500,13 @@ class TransATPKSModule(_Module):
             structure, amt_tailored = amt_domain.do_tailoring(structure)
             if not amt_tailored:
                 amt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
+
             structure.refresh_structure()
         if almt_domain and almt_domain.active and almt_domain.used:
             structure, almt_tailored = almt_domain.do_tailoring(structure)
             if not almt_tailored:
                 almt_domain.used = False
-            if emo_domain and emo_domain.active and emo_domain.used:
-                structure, emo_tailored = emo_domain.do_tailoring(structure)
-                if not emo_tailored:
-                    emo_domain.used = False
+
         if kr_domain and kr_domain.active and kr_domain.used:
             assert kr_domain.subtype is not None
 
@@ -541,6 +535,7 @@ class TransATPKSModule(_Module):
                     structure, bmt_tailored = bmt_domain.do_tailoring(structure)
                     if not bmt_tailored:
                         bmt_domain.used = False
+
                 if br_domain and br_domain.active and br_domain.used:
                     structure, br_tailored = br_domain.do_tailoring(structure)
                     if not br_tailored:
@@ -621,6 +616,18 @@ class TransATPKSModule(_Module):
                             structure, er_tailored = er_domain.do_tailoring(structure)
                             if not er_tailored:
                                 er_domain.used = False
+                if (
+                    er_domain
+                    and er_domain.active
+                    and bmt_domain
+                    and bmt_domain.used
+                    and emo_domain
+                    and emo_domain.active
+                    and emo_domain.used
+                ):
+                    structure, emo_tailored = emo_domain.do_tailoring(structure)
+                    if not emo_tailored:
+                        emo_domain.used = False
         if sc_domain and sc_domain.active and sc_domain.used:
             structure, sc_tailored = sc_domain.do_tailoring(structure)
             if not sc_tailored:

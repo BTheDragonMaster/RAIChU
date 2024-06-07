@@ -724,21 +724,34 @@ def alpha_methyl_transferase(structure: Structure) -> Tuple[Structure, bool]:
 
 def exo_methylen_oxidase(structure: Structure) -> Tuple[Structure, bool]:
     """
-    Returns the structure thats has a exomethylengroup at the alpha-c.
+    Returns the structure thats has a exomethylengroup at the beta-c.
 
     structure: PIKAChU Structure object
     target_atom:  PIKAChU atom object
     """
     # find atom
     alpha_c = find_atoms(RECENT_ALPHA_C, structure)[0]
+    if not alpha_c:
+        return structure, False
+    beta_c = [
+        atom
+        for atom in alpha_c.neighbours
+        if atom.annotations.in_central_chain == True
+        and atom.type == "C"
+        and atom.has_neighbour("H")
+    ]
+    if not beta_c:
+        print("false")
+        return structure, False
+    beta_c = beta_c[0]
     methyl_c = [
         neighbour
-        for neighbour in alpha_c.neighbours
+        for neighbour in beta_c.neighbours
         if neighbour.type == "C" and not neighbour.annotations.in_central_chain
     ][0]
-    if alpha_c and methyl_c:
-        if alpha_c.has_neighbour("H"):
-            structure = single_bond_oxidation(alpha_c, methyl_c, structure)
+    if beta_c and methyl_c:
+        if beta_c.has_neighbour("H"):
+            structure = single_bond_oxidation(beta_c, methyl_c, structure)
             return structure, True
         else:
             return structure, False

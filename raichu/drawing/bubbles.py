@@ -214,6 +214,8 @@ def draw_bubbles(
                         abbreviation = domain.domain_name[:3]
                     else:
                         abbreviation = domain.domain_name
+            if abbreviation == "KS" and not domain.is_elongating:
+                abbreviation = "KS0"
             if (
                 domain.supertype.name == "UNKNOWN"
                 or domain.supertype.name == "TAILORING"

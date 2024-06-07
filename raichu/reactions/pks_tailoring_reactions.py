@@ -730,14 +730,14 @@ def exo_methylen_oxidase(structure: Structure) -> Tuple[Structure, bool]:
     target_atom:  PIKAChU atom object
     """
     # find atom
-    alpha_c = find_atoms(RECENT_ALPHA_C, structure)
+    alpha_c = find_atoms(RECENT_ALPHA_C, structure)[0]
     methyl_c = [
         neighbour
-        for neighbour in alpha_c.neighbours()
-        if neighbour.type == "C" and not neighbour.get("in_central_chain")
+        for neighbour in alpha_c.neighbours
+        if neighbour.type == "C" and not neighbour.annotations.in_central_chain
     ][0]
     if alpha_c and methyl_c:
-        if alpha_c[0].has_neighbour("H"):
+        if alpha_c.has_neighbour("H"):
             structure = single_bond_oxidation(alpha_c, methyl_c, structure)
             return structure, True
         else:

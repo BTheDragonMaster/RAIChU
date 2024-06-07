@@ -465,7 +465,7 @@ class TransATPKSModule(_Module):
         if not amt_domain:
             amt_domain = self.get_tailoring_domain("DUMMY_AMT")
         emo_domain = self.get_tailoring_domain("EMO")
-        if not amt_domain:
+        if not emo_domain:
             emo_domain = self.get_tailoring_domain("DUMMY_EMO")
         sc_domain = self.get_tailoring_domain("SC")
         if not sc_domain:

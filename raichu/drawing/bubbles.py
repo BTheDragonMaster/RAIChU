@@ -16,7 +16,8 @@ def make_circle(x_coord, y_coord, domain):
     x_coord: int, x-coordinate of the center of the circle to be drawn
     domain_type: str, PKS domain type (ACP, KS, AT, KR, DH or ER)
     """
-    if domain.used:
+    # Also show Unknown domains
+    if domain.used or domain.type.name == "UNKNOWN":
         colour = FILL_COLOURS[domain.type.name]
         outline_colour = OUTLINE_COLOURS[domain.type.name]
     else:
@@ -59,7 +60,14 @@ def make_module_text(start_x, end_x, y, module_nr, offset_1=True):
     return text
 
 
-def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding=20, min_module_padding=10):
+def draw_bubbles(
+    cluster,
+    widths,
+    delta_x=29,
+    bubble_height=80,
+    min_gene_padding=20,
+    min_module_padding=10,
+):
     x = 30.0
     x_bubbles = 30.0
 
@@ -82,7 +90,10 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
 
             # Move up bubbles representing unknown and tailoring domains
 
-            if domain.supertype.name == "UNKNOWN" or domain.supertype.name == "TAILORING":
+            if (
+                domain.supertype.name == "UNKNOWN"
+                or domain.supertype.name == "TAILORING"
+            ):
 
                 if current_y == bubble_height - 7:
                     level_change = False
@@ -106,14 +117,20 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
 
             # Only note the position of the cp domain if the module is not broken
 
-            if domain.supertype.name == "CARRIER" and domain.used and not module.is_broken:
+            if (
+                domain.supertype.name == "CARRIER"
+                and domain.used
+                and not module.is_broken
+            ):
                 cp_positions_bubbles.append(x_bubbles)
 
                 # Record how much space the structures take up left and right
 
                 current_space_left, current_space_right = widths[i]
 
-                minimum_x = previous_cp_position + current_space_left + previous_space_right
+                minimum_x = (
+                    previous_cp_position + current_space_left + previous_space_right
+                )
 
                 # If structures take up more space than the bubbles, shift the CP domain to the right
 
@@ -193,8 +210,10 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
             if abbreviation is None:
                 abbreviation = DOMAIN_ABBREVIATIONS.get(domain.domain_name)
                 if abbreviation is None:
-                    abbreviation = ""
-
+                    if len(domain.domain_name) > 3:
+                        abbreviation = domain.domain_name[:3]
+                    else:
+                        abbreviation = domain.domain_name
             if (
                 domain.supertype.name == "UNKNOWN"
                 or domain.supertype.name == "TAILORING"
@@ -218,7 +237,7 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
             circles.append(make_circle(current_x, current_y, domain))
 
             text_colour = TEXT_COLOUR
-            if not domain.used:
+            if not domain.used and not domain.type.name == "UNKNOWN":
                 text_colour = TRANSPARENT_TEXT_COLOURS[domain.type.name]
 
             text = f"""<text x="{current_x}" y="{current_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{13}">\

@@ -268,8 +268,11 @@ def draw_bubbles(
             module_shift = module_shifts[correct_modules]
 
         end_x = current_x - 15
-        lines.append(draw_line(start_x, end_x, y=bubble_height - 26))
-        module_texts.append(make_module_text(start_x, end_x, bubble_height - 34, i))
+
+        if not cluster.modules[i].is_broken:
+
+            lines.append(draw_line(start_x, end_x, y=bubble_height - 26))
+            module_texts.append(make_module_text(start_x, end_x, bubble_height - 34, correct_modules - 1))
 
         current_x += min_module_padding + module_shift
 

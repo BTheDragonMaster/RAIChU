@@ -94,9 +94,10 @@ class PKSDomainType(Enum):
     DUMMY_OMT = 19  # Beta-Hydroxymethyltransferase
     DUMMY_BMT = 20  # Beta-Methyltransferase
     CAL = 21
-    DUMMY_BR = 22
-    AMT = 23
-    BMT = 24
+    DUMMY_AT = 22
+    DUMMY_BR = 23
+    AMT = 24
+    BMT = 25
 
     @staticmethod
     def from_string(label: str) -> "PKSDomainType":
@@ -226,6 +227,10 @@ module. Remove a domain or set the 'used' or 'active' flag to False"
         if self.is_broken:
             for domain in self.domains:
                 domain.used = False
+
+        for domain in self.domains[:]:
+            if "DUMMY" in domain.type.name:
+                self.domains.remove(domain)
 
     def run_module(self, structure: Union[Structure, None] = None):
         raise NotImplementedError
@@ -369,10 +374,12 @@ class LinearPKSModule(_Module):
             if self.recognition_domain:
                 if structure is None:
                     assert self.is_starter_module
-                    if self.recognition_domain.domain_name != "CAL":
-                        structure = (
-                            self.recognition_domain.substrate.starter_monomer.attach_to_acp()
-                        )
+
+                    if self.recognition_domain.domain_name != 'CAL':
+                        if not self.recognition_domain.substrate.starter_monomer:
+                            raise ValueError("Substrate of cis-AT PKS starter module is not a starter substrate")
+                        structure = self.recognition_domain.substrate.starter_monomer.attach_to_acp()
+
                     else:
                         starter_unit = read_smiles(
                             self.recognition_domain.substrate.smiles
@@ -411,9 +418,11 @@ class IterativePKSModule(_Module):
             for i in range(0, self.iterations):
                 if self.recognition_domain:
                     # make new substrate to enable reuse of substrate
-                    substrate = PKSSubstrate(self.recognition_domain.substrate_name)
+                    substrate = PKSSubstrate(self.recognition_domain.substrate.name)
                     if structure is None:
                         assert self.is_starter_module
+                        if not self.recognition_domain.substrate.starter_monomer:
+                            substrate = PKSSubstrate("ACETYL_COA")
                         structure = substrate.starter_monomer.attach_to_acp()
 
                     else:

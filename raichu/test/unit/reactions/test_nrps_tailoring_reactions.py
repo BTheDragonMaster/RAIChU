@@ -1,4 +1,3 @@
-from joblib import load
 from pathlib import Path
 import unittest
 from raichu.reactions.nrps_tailoring_reactions import epimerize, n_methylate

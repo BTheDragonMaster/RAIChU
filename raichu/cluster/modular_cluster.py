@@ -125,6 +125,8 @@ class ModularCluster(Cluster):
                 self.modular_intermediates.append(structure.deepcopy())
             self.chain_intermediate = structure
             if module.is_termination_module:
+                if not structure:
+                    raise ValueError("No product to release. Check if cluster has functional modules.")
                 self.linear_product = module.release_chain(structure)
                 self.chain_intermediate = self.linear_product
                 if module.termination_domain.type.name in ["TE", "DUMMY_TE"]:

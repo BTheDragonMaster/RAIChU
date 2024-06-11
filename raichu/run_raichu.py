@@ -105,14 +105,10 @@ def build_cluster(
             starter = True
             if new_starter:
 
-                if (
-                    not strict
-                    and module_repr.type == "PKS"
-                    and module_repr.subtype == "PKS_CIS"
-                    and module_repr.substrate
-                    not in [v.name for v in PksStarterSubstrate]
-                ):
-                    module_repr.substrate = "WILDCARD"
+                if not strict and module_repr.type == 'PKS' and module_repr.subtype == 'PKS_CIS':
+                    if "AT" in [domain.type for domain in module_repr.domains] and module_repr.substrate not in [v.name for v in PksStarterSubstrate]:
+                        module_repr.substrate = "WILDCARD"
+
             new_starter = False
 
         else:
@@ -195,6 +191,12 @@ def build_cluster(
 
         modules.append(module)
     cluster = ModularCluster(modules, cluster_repr.tailoring_enzymes)
+    has_functional_modules = False
+    for module in cluster.modules:
+        if not module.is_broken:
+            has_functional_modules = True
+    if not has_functional_modules:
+        print("WARNING: Cluster has no functional modules. Drawing this cluster will result in errors.")
 
     return cluster
 

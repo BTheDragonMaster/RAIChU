@@ -22,7 +22,7 @@ from raichu.reactions.general_tailoring_reactions import (
     
     
 )
-from raichu.data.attributes import PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES
+from raichu.data.attributes import (PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES , ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES)
 from raichu.data.molecular_moieties import (
     CO_BOND,
     CC_DOUBLE_BOND,
@@ -179,8 +179,12 @@ class TailoringEnzyme:
                     continue
                 atom = atom[0]  # only one atom is methylated at a time
                 atom = structure.get_atom(atom)
-                if self.substrate:
-                    structure = addition(atom, self.substrate, structure)
+                if self.substrate not in ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES:
+                    raise ValueError(
+                        f"Not implemented prenyltransferase substrate: {self.substrate}"
+                    )
+                substrate = ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES[self.substrate]
+                structure = addition(atom, substrate, structure)
         elif self.type.name == "OXIDATIVE_BOND_SYNTHASE":
             for atoms in self.modification_sites:
                 if len(atoms) < 2:
@@ -789,12 +793,11 @@ class TailoringEnzyme:
                 for neighbouring_bond in neighbouring_bonds:
                     if (
                         not "H" in [atom.type for atom in neighbouring_bond.neighbours]
+                        #and not "C=O" in [bond.type for bond in neighbouring_bonds]
                         and neighbouring_bond.type == "single"
                     ):
                         for neighbouring_atom in neighbouring_bond.neighbours:
-                            if neighbouring_atom != co_bond.get_neighbour(
-                                "C"
-                            ) and neighbouring_atom.has_neighbour("H"):
+                            if neighbouring_atom != co_bond.get_neighbour("C") and neighbouring_atom.has_neighbour("H"):
                                 possible_sites.append(neighbouring_bond.neighbours)
 
         elif self.type.name == "MONOAMINE_OXIDASE":

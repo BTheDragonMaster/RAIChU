@@ -1,6 +1,6 @@
 from enum import Enum, unique
 import itertools
-
+from pikachu.general import structure_to_smiles
 from pikachu.drawing.drawing import Drawer
 from pikachu.reactions.basic_reactions import internal_condensation
 from raichu.reactions.general import initialise_atom_attributes
@@ -323,11 +323,24 @@ class TailoringEnzyme:
                     continue
                 atom1 = atom[0]  # only one atom is modified at a time
                 atom1 = structure.get_atom(atom1)
+                carbon = atom1.get_neighbour("C")
+
                 if atom1.type != "N":
                     raise ValueError(
                         f"Can not perform MONOAMINE_OXYDASE on atom {atom1}, since there is no nitrogen to be removed."
                     )
-                structure = remove_atom(atom1, structure)
+                has_oxygen = True if any([neighbour.type == "O" for neighbour in carbon.neighbours]) else False
+                print(has_oxygen)
+                if has_oxygen:
+                        structure = remove_atom(atom1, structure)
+                else:
+
+                        structure = remove_atom(atom1, structure)
+                        structure = addition(carbon, "O", structure)
+                        structure.refresh_structure()
+                        carbon = structure.get_atom(carbon)
+                        oxygen = carbon.get_neighbour("O")
+                        structure = single_bond_oxidation(oxygen, carbon, structure)
         elif self.type.name == "HALOGENASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:

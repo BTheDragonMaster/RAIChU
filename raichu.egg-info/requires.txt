@@ -1,3 +1,4 @@
+biopython==1.76
 matplotlib
-pikachu-chem
 paras
+pikachu-chem>=1.0.13

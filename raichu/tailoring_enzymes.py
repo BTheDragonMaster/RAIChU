@@ -646,7 +646,10 @@ class TailoringEnzyme:
                 else:
                     structure = structure_2
                 structure.add_atom("H", [nitrogen])
-                structure.add_atom("H", [nitrogen])
+                structure.refresh_structure(find_cycles=True)
+                nitrogen = structure.get_atom(nitrogen)
+                if len(nitrogen.neighbours)<2:
+                    structure.add_atom("H", [nitrogen])
                 structure.refresh_structure(find_cycles=True)
         elif self.type.name == "METHYL_MUTASE":
             for atoms in self.modification_sites:

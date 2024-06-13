@@ -2,8 +2,12 @@ Metadata-Version: 2.1
 Name: raichu
 Version: 0.0.2
 Summary: RAIChU
+Home-page: UNKNOWN
 Author: Barbara Terlouw
 Author-email: barbara.r.terlouw@gmail.com
+License: UNKNOWN
+Platform: UNKNOWN
 License-File: LICENSE.txt
 
-An interactive PKS/NRPS visualizer.
+A package to automatically draw natural product biosynthesis pathways.
+

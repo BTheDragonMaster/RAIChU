@@ -62,6 +62,7 @@ class NRPSDomainType(Enum):
     UNKNOWN = 9
     OX = 10
     CAL = 11
+    DUMMY_A = 12
 
     @staticmethod
     def from_string(label: str) -> "NRPSDomainType":

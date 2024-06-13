@@ -275,3 +275,7 @@ isoleucine, valine	NC(*)C(=O)O	Ile|Val	amino_acid	L	Ile
 2-amino-9,10-epoxy-8-oxodecanoic acid	C1C(O1)C(=O)CCCCC[C@@H](C(=O)O)N	Oda	amino_acid	L	C10:0-NH2(2)-Ep(9)-oxo(8)
 4-hydroxy-tetrahydropyridazine-3-carboxylic acid	OC1C[C@H](NN=C1)C(=O)O	oh-Pyr	amino_acid	L	None
 2-ethyl-3-aminoproprionic acid	OC(=O)C(CC)CN	et-Prp	amino_acid	None	None
+3,5-dichloro-4-hydroxyphenylalanine	C1=C(Cl)C(=C(Cl)C=C1C[C@@H](C(=O)O)N)O	2Cl-Tyr	amino_acid	L	None
+5‐chloro‐1‐hydroxypyrrole‐2‐carboxylic acid	ON1C(Cl)=CC=C1C(O)=O	Cl-oh-Pyr	acid	None	None
+isoquinoline-3-carboxylic acid	C1C(NCC2=CC=CC=C21)C(=O)O	isoQui	acid	None	None
+5‐chloropyrrole‐2‐carboxylic acid	OC(=O)C1=CC=C(N1)Cl	Cl-Pyr	acid	None	None

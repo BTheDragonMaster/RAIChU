@@ -1,0 +1,281 @@
+substrate	smiles	abbreviation	aa_type	D/L configuration	norine
+proline	C1C[C@H](NC1)C(=O)O	Pro	amino_acid	L	Pro
+para-aminobenzoic acid	O=C(O)c1ccc(N)cc1	nBza	acid	None	pNH2-Bz
+R-aza-beta-tyrosine	C1=CC(=NC=C1O)[C@@H](CC(=O)O)N	aza-bTyr	beta_amino_acid	None	None
+tyrosine	C1=CC(=CC=C1C[C@@H](C(=O)O)N)O	Tyr	amino_acid	L	Tyr
+3S-cyclohex-2-enylalanine	C1C=C[C@H](CC1)C[C@@H](C(=O)O)N	cycHexAla	amino_acid	L	None
+4-hydroxyphenylglycine	C1=CC(=CC=C1[C@@H](C(=O)O)N)O	Hpg	amino_acid	L	Hpg
+hydroxyphenylglycine	C1=CC(=CC=C1[C@@H](C(=O)O)N)O	Hpg	amino_acid	L	Hpg
+D-alanine	C[C@H](C(=O)O)N	D-Ala	amino_acid	D	D-Ala
+3-amino-4-hydroxybenzoic acid	C1=CC(=C(C=C1C(=O)O)N)O	nohBza	acid	None	None
+acetic acid	CC(=O)O	Ac	acid	None	None
+malic acid	C(C(C(=O)O)O)C(=O)O	MalAc	acid	None	None
+aspartic acid	C([C@@H](C(=O)O)N)C(=O)O	Asp	amino_acid	L	Asp
+cysteine	C([C@@H](C(=O)O)N)S	Cys	amino_acid	L	Cys
+3,5-dihydroxyphenylglycine	N[C@H](C(=O)O)c1cc(O)cc(O)c1	dHpg	amino_acid	L	Dhpg
+tryptophan	C1=CC=C2C(=C1)C(=CN2)C[C@@H](C(=O)O)N	Trp	amino_acid	L	Trp
+glutamic acid	C(CC(=O)O)[C@@H](C(=O)O)N	Glu	amino_acid	L	Glu
+3-hydroxyasparagine	N[C@H](C(O)=O)C(O)C(N)=O	ohAsn	amino_acid	L	OH-Asn
+threonine	C[C@H]([C@@H](C(=O)O)N)O	Thr	amino_acid	L	Thr
+glycine	NCC(=O)O	Gly	amino_acid	L	Gly
+alanine	C[C@@H](C(=O)O)N	Ala	amino_acid	L	Ala
+lysine	C(CCN)C[C@@H](C(=O)O)N	Lys	amino_acid	L	Lys
+3-methoxyaspartic acid	N[C@H](C(C(=O)O)OC)(C(=O)O)	mxAsp	amino_acid	L	OMe-Asp
+3-hydroxyaspartic acid	N[C@@H](C(C(=O)O)O)(C(=O)O)	ohAsp	amino_acid	L	OH-Asp
+asparagine	C([C@@H](C(=O)O)N)C(=O)N	Asn	amino_acid	L	Asn
+3R-methylglutamic acid	C[C@H](CC(=O)O)[C@@H](C(=O)O)N	3R-meGlu	amino_acid	L	3Me-Glu
+isoleucine	CC[C@H](C)[C@@H](C(=O)O)N	Ile	amino_acid	L	Ile
+valine	CC(C)[C@@H](C(=O)O)N	Val	amino_acid	L	Val
+phenylalanine	C1=CC=C(C=C1)C[C@@H](C(=O)O)N	Phe	amino_acid	L	Phe
+leucine	CC(C)C[C@@H](C(=O)O)N	Leu	amino_acid	L	Leu
+2-carboxy-6-hydroxyoctahydroindole	N1[C@H](C(=O)O)C[C@@H]2CC[C@@H](O)C[C@H]12	cohOhi	amino_acid	L	None
+serine	C([C@@H](C(=O)O)N)O	Ser	amino_acid	L	Ser
+N5-hydroxyornithine	C(C[C@@H](C(=O)O)N)CNO	ohOrn	amino_acid	L	OH-Orn
+N5-formyl-N5-hydroxyornithine	C(C[C@@H](C(=O)O)N)CN(C=O)O	fohOrn	amino_acid	L	Fo-OH-Orn
+salicylic acid	C1=CC=C(C(=C1)C(=O)O)O	Sal	acid	None	None
+arginine	C(C[C@@H](C(=O)O)N)CN=C(N)N	Arg	amino_acid	L	Arg
+homotyrosine	C1=CC(=CC=C1CC[C@@H](C(=O)O)N)O	hTyr	amino_acid	L	Hty
+pipecolic acid	C1CCN[C@@H](C1)C(=O)O	Pip	amino_acid	L	Hpr
+N1-methoxytryptophan	C1=CC=C2C(=C1)C(=CN(OC)2)C[C@@H](C(=O)O)N	mxTrp	amino_acid	L	OMe-Trp
+2S-amino-8-oxodecanoic acid	CCC(=O)CCCCC[C@@H](C(=O)O)N	n-oxo-Dec	amino_acid	L	None
+2R-hydroxy-3-methylpentanoic acid	CCC(C)[C@H](C(=O)O)O	ohmePen	acid	None	Hmp
+allo-isoleucine	CC[C@@H](C)[C@@H](C(=O)O)N	aIle	amino_acid	L	aIle
+2,3-dihydroxybenzoic acid	C1=CC(=C(C(=C1)O)O)C(=O)O	2,3-dohBza	acid	None	diOH-Bz
+ornithine	C(C[C@@H](C(=O)O)N)CN	Orn	amino_acid	L	Orn
+histidine	C1=C(NC=N1)C[C@@H](C(=O)O)N	His	amino_acid	L	His
+R-beta-hydroxytyrosine	C1=CC(=CC=C1[C@H]([C@@H](C(=O)O)N)O)O	R-ohTyr	amino_acid	L	bOH-Tyr
+2R-hydroxyisovaleric acid	CC(C)[C@H](C(=O)O)O	2R-Hiv	acid	None	D-Hiv
+coumaric acid	C1=CC(=CC=C1/C=C/C(=O)O)O	Cou	acid	None	None
+3S-hydroxyasparagine	N[C@H](C(O)=O)[C@H](O)C(N)=O	3S-ohAsn	amino_acid	L	OH-Asn
+2,3-diaminopropionic acid	C([C@@H](C(=O)O)N)N	Dpr	amino_acid	L	Dpr
+capreomycidine	C1CN=C(N[C@H]1[C@@H](C(=O)O)N)N	Cap	amino_acid	L	Cap
+beta-lysine	C(C[C@@H](CC(=O)O)N)CN	bLys	beta_amino_acid		bLys
+2-aminoadipic acid	C(C[C@@H](C(=O)O)N)CC(=O)O	Aad	amino_acid	L	Aad
+2-ketoisocaproic acid	O=C(C(=O)O)CC(C)C	Kic	acid	None	None
+2-ketoisovaleric acid	O=C(C(=O)O)C(C)C	Kiv	acid	None	None
+glutamine	C(CC(=O)N)[C@@H](C(=O)O)N	Gln	amino_acid	L	Gln
+3,5-dichloro-4-hydroxybenzoylformic acid	C1=C(Cl)C(=C(Cl)C=C1C(=O)C(=O)O)O	dclohBfa	acid	None	None
+guanidinoacetic acid	C(C(=O)O)N=C(N)N	Gua	acid	None	None
+4-acetamidopyrrole-2-carboxylic acid	CC(=O)NC1=CNC(=C1)C(=O)O	nacPyr	acid	None	None
+2,4-diaminobutyric acid	C(CN)[C@@H](C(=O)O)N	Dab	amino_acid	L	Dab
+3-amino-6-hydroxy-2-piperidone	C1CC(NC(=O)C1N)O	nohPid	ter_amino	None	Ahp
+3-chlorotyrosine	C1=C(Cl)C(=CC=C1C[C@@H](C(=O)O)N)O	clTyr	amino_acid	L	Cl-Tyr
+1-(1,1-dimethylallyl)-tryptophan	CC(C)(C=C)N1C=C(C2=CC=CC=C21)C[C@@H](C(=O)O)N	dmeaTrp	amino_acid	L	None
+N-(1-methyl)-tryptophan	C1=CC=C2C(=C1)C(=CN(C)2)C[C@@H](C(=O)O)N	meTrp	amino_acid	L	1Me-Trp
+N-(1-propargyl)-tryptophan	C1=CC=C2C(=C1)C(=CN(CC#C)2)C[C@@H](C(=O)O)N	parTrp	amino_acid	L	None
+2-amino-3,5-dimethyl-4-hexenoic Acid	CC(C=C(C)C)C(C(=O)O)N	ndmHex	amino_acid	L	None
+4R-E-butenyl-4R-methylthreonine	C[C@H](C/C=C/C)[C@@H](O)[C@H](N)C(=O)O	Bmt	amino_acid	L	Bmt
+2-aminobutyric acid	CC[C@@H](C(=O)O)N	Abu	amino_acid	L	Abu
+S-beta-hydroxyphenylalanine	O[C@@H](C1=CC=CC=C1)[C@@H](C(=O)O)N	S-ohPhe	amino_acid	L	None
+kynurenine	C1=CC=C(C(=C1)C(=O)C[C@@H](C(=O)O)N)N	Kyn	amino_acid	L	Kyn
+beta-alanine	NCCC(=O)O	bAla	beta_amino_acid	L	bAla
+2,4-dihydroxypentanoic acid	CC(CC(C(=O)O)O)O	DHPea	acid	None	None
+2-hydroxypent-4-enoic acid	C=CCC(C(=O)O)O	Hpea	acid	None	None
+2-hydroxy-4-methylpentanoic acid	CC(C)CC(C(=O)O)O	ohmePea	acid	None	4Me-Hva
+quinoxaline-2-carboxylic acid	C1=CC=C2C(=C1)N=CC(=N2)C(=O)O	Qui	acid	None	COOH-Qui
+phenylpyruvic acid	C1=CC=C(C=C1)CC(=O)C(=O)O	Ppa	acid	None	None
+citrulline	C(C[C@@H](C(=O)O)N)CNC(=O)N	Cit	amino_acid	L	Cit
+enduracididine	C1[C@H](NC(=N1)N)C[C@@H](C(=O)O)N	End	amino_acid	L	End
+3,5-dichloro-4-hydroxyphenylglycine	C1=C(Cl)C(=C(Cl)C=C1[C@@H](C(=O)O)N)O	DClHpg	amino_acid	L	Cl2-Hpg
+allo-threonine	C[C@@H]([C@@H](C(=O)O)N)O	aThr	amino_acid	L	aThr
+N5-acetyl-N5-hydroxyornithine	CC(=O)N(CCC[C@@H](C(=O)O)N)O	acohOrn	amino_acid	L	Ac-OH-Orn
+3-hydroxy-O-methyl-5-methyltyrosine	C1=C(O)C(=C(C)C=C1C[C@@H](C(=O)O)N)OC	ohdmTyr	amino_acid	L	None
+fatty acid	*CC(=O)O	fa	acid	None	None
+3S-methylaspartic acid	C[C@@H]([C@@H](C(=O)O)N)C(=O)O	meAsp	amino_acid	L	bMe-Asp
+2-chlorobenzoic acid	C1=CC=C(C(=C1)C(=O)O)Cl	2ClBza	acid	None	None
+4-chlorobenzoic acid	C1=CC(=CC=C1C(=O)O)Cl	4ClBza	acid	None	None
+benzoic acid	C1=CC=C(C=C1)C(=O)O	Bza	acid	None	Bz
+anthranilic acid	C1=CC=C(C(=C1)C(=O)O)N	Ant	acid	None	None
+3S-hydroxypipecolic acid	C1C[C@@H]([C@H](NC1)C(=O)O)O	ohPip	amino_acid	L	None
+D-pipecolic acid	C1CCN[C@H](C1)C(=O)O	D-Pip	amino_acid	D	D-Hpr
+4S,5-dihydroxy-2S-aminopentanoic acid	O[C@@H](C[C@@H](C(=O)O)N)CO	4oh-Orn	amino_acid	L	None
+3S-hydroxy-6-chlorohistidine	C1=C(NC(Cl)=N1)[C@H]([C@@H](C(=O)O)N)O	HClHis	amino_acid	L	None
+alaninol	C[C@@H](CO)N	Aol	ter_amino	None	None
+2,3-dihydroxyhexadecanoic acid	CCCCCCCCCCCCCC(C(C(=O)O)O)O	Dhhd	acid	None	None
+3-(2-nitrocyclopropylalanine)	C1[C@H]([C@@H]1[N+](=O)[O-])C[C@@H](C(=O)O)N	niCpa	amino_acid	L	None
+R-beta-methylphenylalanine	C[C@H](C1=CC=CC=C1)[C@@H](C(=O)O)N	mePhe	amino_acid	L	bMe-Phe
+4S-propenylproline	C/C=C\[C@H]1C[C@H](NC1)C(=O)O	pPro	amino_acid	L	None
+6-chlorotryptophan	C1=C(Cl)C=C2C(=C1)C(=CN2)C[C@@H](C(=O)O)N	ClTrp	amino_acid	L	None
+6-chloro-4-hydroxyindole-3-carboxylic acid	c1(Cl)cc2c(c(c1)O)c(c[nH]2)C(=O)O	ClHic	acid	None	None
+2-methylserine	C[C@](CO)(C(=O)O)N	meSer	amino_acid	L	None
+2-(1-methylcyclopropyl)-D-glycine	CC1(CC1)[C@H](C(=O)O)N	Cyc-D-Gly	amino_acid	D	None
+piperazic acid	C1C[C@H](NNC1)C(=O)O	Piz	amino_acid	L	None
+6,7-dichlorotryptophan	C1=C(Cl)C(Cl)=C2C(=C1)C(=CN2)C[C@@H](C(=O)O)N	dclTrp	amino_acid	L	None
+pyrrole-2-carboxylic acid	C1=CNC(=C1)C(=O)O	Pca	acid	None	None
+4S-hydroxylysine	NCC[C@H](O)C[C@@H](C(=O)O)N	ohLys	amino_acid	L	None
+D-leucine	CC(C)C[C@H](C(=O)O)N	D-Leu	amino_acid	D	D-Leu
+beta-hydroxyphenylalanine	OC(C1=CC=CC=C1)[C@@H](C(=O)O)N	ohPhe	amino_acid	L	Ph-Ser
+3R-hydroxyleucine	CC(C)[C@H]([C@@H](C(=O)O)N)O	3R-ohLeu	amino_acid	L	3OH-Leu
+S-beta-hydroxyenduracididine	C1[C@H](NC(=N1)N)[C@H](O)[C@@H](C(=O)O)N	ohEnd	amino_acid	L	None
+3-hydroxyvaline	CC(O)(C)[C@@H](C(=O)O)N	ohVal	amino_acid	L	bOH-Val
+beta-hydroxy-3-hydroxy-O-methyl-5-methyltyrosine	C1=C(C)C(=C(O)C=C1C(O)[C@@H](C(=O)O)N)OC	dohmTyr	amino_acid	L	None
+4S-methylproline	C[C@H]1C[C@H](NC1)C(=O)O	4S-mePro	amino_acid	L	4Me-Pro
+3-methoxyanthranilic acid	COC1=CC=CC(=C1N)C(=O)O	mxAnt	acid	None	None
+4R-propylproline	CCC[C@@H]1C[C@H](NC1)C(=O)O	proPro	amino_acid	L	None
+glycolic acid	C(C(=O)O)O	Glyca	acid	None	None
+4,5-dehydroarginine	O=C(O)[C@@H](N)C/C=C/NC(N)=N	4,5-dhArg	amino_acid	L	None
+meta-tyrosine	C1=CC(=CC(=C1)O)C[C@@H](C(=O)O)N	mTyr	amino_acid	L	None
+3-hydroxy-O-methyltyrosine	C1=C(O)C(=CC=C1C[C@@H](C(=O)O)N)OC	ohmeTyr	amino_acid	L	None
+homoserine	C(CO)[C@@H](C(=O)O)N	hSer	amino_acid	L	Hse
+O-methyltyrosine	COC1=CC=C(C=C1)C[C@@H](C(=O)O)N	OmeTyr	amino_acid	L	None
+cysteic acid	C([C@@H](C(=O)O)N)S(=O)(=O)O	Cya	amino_acid	L	CysA
+3-hydroxyquinaldic acid	c1ccc2c(c1)cc(c(n2)C(=O)O)O	Hqa	acid	None	None
+norcoronamic acid	C[C@H]1C[C@]1(C(=O)O)N	Nca	amino_acid	None	norCMA
+pyruvic acid	CC(=O)C(=O)O	Pyv	acid	None	None
+3-hydroxypicolinic acid	C1=CC(=C(N=C1)C(=O)O)O	Hpa	acid	None	Hpa
+3S-methylleucine	CC(C)[C@H](C)[C@@H](C(=O)O)N	meLeu	amino_acid	L	None
+phenylglycine	C1=CC=C(C=C1)[C@@H](C(=O)O)N	phGly	amino_acid	L	Ph-Gly
+4R-hydroxyproline	C1[C@H](NC[C@@H]1O)C(=O)O	4R-ohPro	amino_acid	L	4OH-Pro
+3R-hydroxyasparagine	N[C@H](C(O)=O)[C@@H](O)C(N)=O	3R-ohAsn	amino_acid	L	OH-Asn
+2S,3S-diaminobutyric acid	C[C@@H]([C@@H](C(=O)O)N)N	3Dab	amino_acid	L	L-Dbu
+6-hydroxy-tetrahydro-isoquinoline-3-carboxylic acid	C1C(NCC2=CC=CC=C21)C(=O)O	Htia	amino_acid	None	None
+methionine	CSCC[C@@H](C(=O)O)N	Met	amino_acid	L	Met
+(4S)-5,5,5-trichloroleucine	C[C@@H](C[C@H](N)C(=O)O)C(Cl)(Cl)Cl	3ClLeu	amino_acid	L	None
+R-beta-tyrosine	C1=CC(=CC=C1[C@@H](CC(=O)O)N)O	R-bTyr	beta_amino_acid	L	bTyr
+S-beta-hydroxycyclohex-2S-enylalanine	C1C=C[C@H](CC1)[C@H](O)[C@@H](C(=O)O)N	Hch	amino_acid	L	None
+S-adenosylmethionine	C[S+](CC[C@@H](C(=O)O)N)C[C@@H]1[C@H]([C@H]([C@@H](O1)N2C=NC3=C(N=CN=C32)N)O)O	Sam	amino_acid	L	None
+3R-methylbeta-alanine	NC[C@@H](C)C(=O)O	me-bAla	beta_amino_acid	None	None
+D-glutamic acid branched	C(CC(=O)O)[C@H](C(=O)O)N	D-Glu	branched_amino_acid	D	D-Glu
+cinnamic acid	C1=CC=C(C=C1)/C=C/C(=O)O	Cin	acid	None	None
+D-aspartic acid branched	C([C@H](C(=O)O)N)C(=O)O	D-Asp	branched_amino_acid	D	D-Asp
+3S-methyl-D-aspartic acid branched	N[C@H]([C@H](O)C(O)=O)C(O)=O	D-3S-meAsp	branched_amino_acid	D	D-bMe-Asp
+aspartic acid branched	C([C@@H](C(=O)O)N)C(=O)O	Asp	branched_amino_acid	L	Asp
+N6-hydroxylysine	C(CCNO)C[C@@H](C(=O)O)N	ohLys	amino_acid	L	None
+4,5-dihydroxyornithine	C([C@@H](C(=O)O)N)C(C(N)O)O	Dho	amino_acid	L	None
+3S,4S-dihydroxyhomotyrosine	C1=CC(=CC=C1[C@H](O)[C@H]([C@@H](C(=O)O)N)O)O	doh-Hty	amino_acid	L	None
+3-hydroxyglutamine	C(C([C@@H](C(=O)O)N)O)C(=O)N	ohGln	amino_acid	L	bOH-Gln
+3S-hydroxy-4S-methylproline	C[C@@H]1[C@H](O)[C@H](NC1)C(=O)O	3S-oh-4S-mePro	amino_acid	L	None
+3S-hydroxyproline	C1CN[C@@H]([C@H]1O)C(=O)O	3S-ohPro	amino_acid	L	3OH-Pro
+R-3-hydroxy-3-methylproline	C[C@]1(CCN[C@@H]1C(=O)O)O	3R-oh-3-mePro	amino_acid	L	None
+3S-hydroxyleucine	CC(C)[C@@H]([C@@H](C(=O)O)N)O	3S-ohLeu	amino_acid	L	3OH-Leu
+3-(3-pyridyl)-alanine	C1=CC(=CN=C1)C[C@@H](C(=O)O)N	PyrAla	amino_acid	L	None
+3,4-dehydrolysine	C(CCN)=C[C@@H](C(=O)O)N	dhLys	amino_acid	L	None
+dimethylsulfoniopropionic acid	C[S+](C)CCC(=O)O	dmesulf-Pra	acid	None	None
+4-aminophenylalanine	C1=CC(=CC=C1C[C@@H](C(=O)O)N)N	nPhe	amino_acid	L	None
+2-aminoisobutyric acid	O=C(O)C(N)(C)C	Aib	amino_acid	None	Aib
+2S-amino-9,10-epoxy-8-oxodecanoic acid	C1C(O1)C(=O)CCCCC[C@@H](C(=O)O)N	n-epox-oxoDec	amino_acid	L	C10:0-NH2(2)-Ep(9)-oxo(8)
+3R-hydroxyhomotyrosine	C1=CC(=CC=C1C[C@H]([C@@H](C(=O)O)N)O)O	oh-hTyr	amino_acid	L	None
+1-aminocyclopropane-1-carboxylic acid	C1CC1(C(=O)O)N	ncyc-Prca	amino_acid	None	None
+N5-trans-anhydromevalonyl-N5-hydroxyornithine	C(C[C@@H](C(=O)O)N)CN(O)C(=O)/C=C(C)/CCO	E-ahmohOrn	amino_acid	L	None
+2-amino-3-hydroxycyclopent-2-enone	C1CC(=O)C(=C1O)N	noh-cycPen	ter_amino	None	None
+5-aminolevulinic acid	C(CC(=O)O)C(=O)CN	nLev	acid	None	None
+(E)-4-methylhex-2-enoic acid	CCC(C)/C=C/C(=O)O	meHex	acid	None	None
+4-methylproline	CC1C[C@H](NC1)C(=O)O	4mePro	amino_acid	L	4Me-Pro
+2-amino-6-hydroxy-4-methyl-8-oxodecanoic acid	CCC(=O)CC(CC(C)CC(C(=O)O)N)O	nohme-oxo-Dec	amino_acid	None	None
+3-hydroxyleucine	CC(C)C([C@@H](C(=O)O)N)O	3-oh-Leu	amino_acid	L	3OH-Leu
+6-chloro-4-hydroxy-1-methyl-indole-3-carboxylic acid	C(O)1=C(Cl)C=C2C(=C1)C(=CN(C)2)C(=O)O	Cl-oh-me-ind-Car	acid	None	None
+linoleic acid	CCCCC/C=C\C/C=C\CCCCCCCC(=O)O	Lin	acid	None	None
+S-beta-tyrosine	C1=CC(=CC=C1[C@H](CC(=O)O)N)O	S-bTyr	beta_amino_acid	D	bTyr
+3R-chloroproline	C1[C@@H](Cl)[C@H](NC1)C(=O)O	Cl-Pro	amino_acid	L	None
+3S,4R-dichloroproline	Cl[C@H]1[C@@H](Cl)[C@H](NC1)C(=O)O	dClPro	amino_acid	L	Cl2-Pro
+R-beta-phenylalanine	C1=CC=C(C=C1)[C@@H](CC(=O)O)N	R-bPhe	beta_amino_acid	L	bPhe
+dehydrotryptophan	C1=CC=C2C(=C1)C(=CN2)/C=C(/C(=O)O)\N	dhTrp	amino_acid	None	dh-Trp
+R-beta-methyltryptophan	C[C@H](C1=CNC2=CC=CC=C21)[C@@H](C(=O)O)N	meTrp	amino_acid	L	None
+3-hydroxy-para-aminobenzoic acid	C1=CC(=C(C=C1C(=O)O)O)N	ohnBza	acid	None	None
+2,3-dihydroxy-para-aminobenzoic acid	C1=CC(=C(C(=C(N)1)O)O)C(=O)O	2,3-doh-4-nBza	acid	None	None
+4R-methylproline	C[C@@H]1C[C@H](NC1)C(=O)O	4R-mePro	amino_acid	L	4Me-Pro
+(2S,3R)-2-amino-3-hydroxy-4-(4-nitrophenyl)butanoic acid	C1=CC(=CC=C1C[C@H]([C@@H](C(=O)O)N)O)[N+](=O)[O-]	n-oh-nitropheBut	amino_acid	L	None
+2,3-diamino-3-methylpropanoic acid	NC(C)[C@@H](C(=O)O)N	dnmeProp	amino_acid	L	None
+3-methylaspartic acid	CC([C@@H](C(=O)O)N)C(=O)O	meAsp	amino_acid	L	bMe-Asp
+3S-methylproline	C1[C@H](C)[C@H](NC1)C(=O)O	3S-mePro	amino_acid	L	3Me-Pro
+D-phenyllactic acid	C1=CC=C(C=C1)C[C@H](C(=O)O)O	D-pheLac	acid	None	D-Ph-Lac
+2S-hydroxyisovaleric acid	CC(C)[C@@H](C(=O)O)O	2S-Hiv	acid	None	Hiv
+homophenylalanine	C1=CC=C(C=C1)CC[C@@H](C(=O)O)N	hPhe	amino_acid	L	Hph
+p-hydroxymandelate	C1=CC(=CC=C1C(C(=O)O)O)O	ohMan	acid	None	None
+6-methylsalicylic acid	CC1=C(C(=CC=C1)O)C(=O)O	meSal	acid	None	None
+2S-aminooctanoic acid	CCCCCC[C@@H](C(=O)O)N	nOct	amino_acid	L	None
+2S-aminododecanoic acid	CCCCCCCCCC[C@@H](C(=O)O)N	nDodec	amino_acid	L	None
+5-chlorotryptophan	C1=CC2=C(C=C1Cl)C(=CN2)C[C@@H](C(=O)O)N	ClTrp	amino_acid	L	None
+dehydrovaline	CC(=C(C(=O)O)N)C	dhVal	amino_acid	None	None
+3-nitrotyrosine	C1=CC(=C(C=C1C[C@@H](C(=O)O)N)[N+](=O)[O-])O	nitroTyr	amino_acid	L	3NO2-Tyr
+trans-2-crotylglycine	C/C=C/C[C@@H](C(=O)O)N	croGly	amino_acid	L	None
+butyric acid	CCCC(=O)O	But	acid	None	C4:0
+pentanoic acid	CCCCC(=O)O	Pen	acid	None	None
+R-beta-hydroxyphenylalanine	O[C@H](C1=CC=CC=C1)[C@@H](C(=O)O)N	ohPhe	amino_acid	L	None
+lactic acid	C[C@@H](C(=O)O)O	Lac	acid	None	Lac
+3R-methyl-D-aspartic acid branched	N[C@H]([C@@H](O)C(O)=O)C(O)=O	D-3R-meAsp	branched_amino_acid	D	bMe-Asp
+beta-hydroxyarginine	C(C(O)[C@@H](C(=O)O)N)CN=C(N)N	ohArg	amino_acid	L	None
+dehydroarginine	C(CN=C(N)N)/C=C(/C(=O)O)\N	dhArg	amino_acid	None	None
+3R-hydroxy-2,4-diaminobutyric acid	NC[C@@H](O)[C@@H](C(=O)O)N	ohDab	amino_acid	L	None
+(S,E)-2-amino-4-decenoic acid	CCCCC/C=C/C[C@@H](C(=O)O)N	nDece	amino_acid	L	None
+(2S,6R)-diamino-(5R,7)-dihydroxy-heptanoic acid	C(C[C@@H](C(=O)O)N)[C@H]([C@@H](CO)N)O	dn-doh-Hep	amino_acid	L	None
+2S-hydroxyisocaproic acid	CC(C)C[C@@H](C(=O)O)O	2S-Hic	acid	None	None
+3S-aminobutyric acid	C[C@@H](CC(=O)O)N	3S-Abu	beta_amino_acid	L	None
+3,4-dihydroxybenzoic acid	C1=CC(=C(C=C1C(=O)O)O)O	3,4-dohBza	acid	None	None
+benzoxazolinate	c1ccc2c(c1)nc(o2)C(=O)O	Boz	acid	None	None
+2-chloro-3,5-dihydroxy-4-methylphenylglycine	CC1=C(O)C(Cl)=C(C=C(O)1)[C@@H](C(=O)O)N	Cl-me-Dpg	amino_acid	L	None
+3-amino-2,4-dihydroxybenzoic acid	C1=CC(=C(C(=C1C(=O)O)O)N)O	2,4-doh-3-nBza	acid	None	None
+2-sulfamoylacetic acid	C(C(=O)O)S(=O)(=O)N	Sma	acid	None	None
+hydroxyproline	C(*)1C[C@H](NC(*)1)C(=O)O	ohPro	amino_acid	L	None
+2-ketoglutaric acid	C(CC(=O)O)C(=O)C(=O)O	Kga	acid	None	None
+succinic semialdehyde	C(CC(=O)O)C=O	Suc	acid	None	None
+An acid hydrazine polyene (intermediate 14)	OC(=O)CCC(=O)NNCC(=O)O	HyzPoly	double_acid	None	None
+succinyl-hydrazinoacetic acid	N/N=C/C=C/C=C/C=C/C=C/C=C/C(=O)O	SucHyzAc	acid	None	None
+graminine	O=NN(O)CCC[C@H](N)(C(=O)O	Gram	amino_acid	L	None
+phenazine-1,6-dicarboxylic acid	C1=CC(=C2C(=C1)N=C3C(=N2)C=CC=C3C(=O)O)C(=O)O	dcPhz	double_acid	None	None
+N-formylglycine	C(C(=O)O)NC=O	foGly	amino_acid	None	None
+5-chloroanthranilic acid	C1=CC(=C(C=C1Cl)C(=O)O)N	clAnt	acid	None	None
+4-hydroxy-3-nitrobenzoic acid	C1=CC(=C(C=C1C(=O)O)[N+](=O)[O-])O	oh-nitroBza	acid	None	None
+Compound 4 (formed by the decarboxylative condensation of L-Phe and succinyl-CoA)	C1=CC=C(C=C1)C[C@@H](C(=O)CCC(=O)O)N	PheSuc	acid	None	None
+azetidine-2-carboxylic acid	O=C(O)[C@H]1NCC1	cAze	acid	None	None
+beta-hydroxytyrosine	C1=CC(=CC=C1C([C@@H](C(=O)O)N)O)O	ohTyr	amino_acid	L	bOH-Tyr
+3-methylasparagine	CC([C@@H](C(=O)O)N)C(=O)N	meAsn	amino_acid	L	bMe-Asn
+3-hydroxy-4-methylproline	CC1C(O)[C@H](NC1)C(=O)O	3-oh-4-mePro	amino_acid	L	None
+4-nitrotryptophan	C1=CC=C2C(=C1[N+](=O)[O-])C(=CN2)C[C@@H](C(=O)O)N	nitroTrp	amino_acid	L	None
+3-hydroxytyrosine	C1=CC(=C(C=C1C[C@@H](C(=O)O)N)O)O	3-ohTyr	amino_acid	L	None
+O-methylthreonine	C[C@H]([C@@H](C(=O)O)N)OC	meTyr	amino_acid	L	None
+1-pyrroline-5-carboxylic acid	O=C(O)C1/N=C\CC1	cPyr	acid	None	None
+D-phenylalanine	C1=CC=C(C=C1)C[C@H](C(=O)O)N	D-phe	amino_acid	D	D-Phe
+4-aminobutyric acid	NCCCC(=O)O	4-Abu	acid	None	None
+4-hydroxyglutamine	C(C(O)C(=O)N)[C@@H](C(=O)O)N	4-ohGln	amino_acid	L	None
+2S-aminodecanoic acid	CCCCCCCC[C@H](N)C(=O)O	nDec	amino_acid	L	None
+dehydrophenylalanine	N/C(=C\C1=CC=CC=C1)/C(=O)O	dhPhe	amino_acid	None	None
+3-aminoisobutyric acid	CC(CN)C(=O)O	Ibu	acid	None	None
+5,5-dimethylpipecolic acid	C1C(C)(C)CN[C@@H](C1)C(=O)O	dmePip	amino_acid	L	None
+4-hydroxy-D-kynurenine	C1=C(O)C=C(C(=C1)C(=O)C[C@H](C(=O)O)N)N	oh-D-Kyn	amino_acid	D	None
+N5-cis-anhydromevalonyl-N5-hydroxyornithine	C(N(C(=O)\C=C(/CCO)\C)O)CC[C@@H](C(O)=O)N	Z-ahmohOrn	amino_acid	L	None
+5-methylorsellinic acid	C=1(C=C(C(=C(C1C)C)C(=O)O)O)O	meOrs	acid	None	None
+4-hydroxyphenylpyruvic acid	C1=CC(=CC=C1CC(=O)C(=O)O)O	oh-ph-Pyr	acid	None	None
+betaine	C[N+](C)(C)CC(=O)O	Bet	acid	None	None
+4-methoxytryptophan	C1=CC=C2C(=C1OC)C(=CN2)C[C@@H](C(=O)O)N	mxTrp	amino_acid	L	None
+nicotinic acid	C1=CC(=CN=C1)C(=O)O	Nic	acid	None	None
+4-hydroxybenzoic acid	C1=CC(=CC=C1C(=O)O)O	4-ohBza	acid	None	pOH-Bz
+3R-hydroxyaspartic acid	N[C@@H]([C@H](C(=O)O)O)(C(=O)O)	3R-ohAsp	amino_acid	L	OH-Asp
+5-methoxytyrosine	C1=C(OC)C(=CC=C1C[C@@H](C(=O)O)N)O	mxTyr	amino_acid	L	None
+5S-methylproline	C1C[C@H](N[C@@H](C)1)C(=O)O	5S-mePro	amino_acid	L	5Me-Pro
+6S-methyl-pipecolic acid	C1C[C@H](C)N[C@@H](C1)C(=O)O	mePip	amino_acid	L	None
+2S-methyl-3-oxobutyrine	CC(=O)[C@](C)(N)C(=O)O	me-oxo-But	amino_acid	None	None
+4S-acetyl-5S-methylproline	CC(=O)O[C@H]1C[C@H](N[C@H](C)1)C(=O)O	ac-mePro	amino_acid	L	None
+N-hydroxyvaline	CC(C)[C@@H](C(=O)O)NO	ohVal	amino_acid	L	None
+4S-methylazetidine-2S-carboxylic acid	C[C@H]1C[C@H](N1)C(=O)O	meAzca	acid	None	None
+cysteine branched	C([C@@H](C(=O)O)N)S	Cys	branched_amino_acid	L	Cys
+4-amino-2-hydroxy-3-isopropoxybenzoic acid	CC(C)OC1=C(C=CC(=C1O)C(=O)O)N	noh-isopox-Bza	acid	None	None
+3-hydroxykynurenine	C1=CC(=C(C(=C1)O)N)C(=O)C[C@@H](C(=O)O)N	oh-Kyn	amino_acid	L	None
+isovaline	NC(CC)(C)C(=O)O	Iva	amino_acid	None	Ival
+valinol	CC(C)[C@@H](CO)N	Valol	ter_amino	None	Valol
+Z-dehydroaminobutyric acid	C/C=C(/C(=O)O)\N	dhAbu	amino_acid	None	dhAbu
+Z-dehydrotyrosine	C1=CC(=CC=C1/C=C(/C(=O)O)\N)O	dhTyr	amino_acid	None	None
+D-lysergic acid	CN1C[C@@H](C=C2C1CC3=CNC4=CC=CC2=C34)C(=O)O	D-Lya	acid	None	None
+3-methylglutamic acid	NC(C(C)CC(=O))C(=O)O	meGlu	amino_acid	None	3Me-Glu
+l-piperazic acid	C1C[C@H](NNC1)C(=O)O	Piz	amino_acid	L	None
+dehydrobutyrine	C/C=C(/C(=O)O)\N	dhAbu	amino_acid	None	dhAbu
+d-alanine	C[C@H](C(=O)O)N	D-Ala	amino_acid	D	D-Ala
+alpha-ketoisovaleric acid	O=C(C(=O)O)C(C)C	Kiv	acid	None	None
+alpha-ketoisocaproic acid	O=C(C(=O)O)CC(C)C	Kic	acid	None	None
+4-butenyl-4-methyl threonine	C[C@H](C/C=C/C)[C@@H](O)[C@H](N)C(=O)O	bumeThr	amino_acid	L	None
+3-hydroxy-4-o-methyl-5-methyl-tyrosine	C1=C(O)C(=C(C)C=C1C[C@@H](C(=O)O)N)OC	ohdmeTyr	amino_acid	L	None
+2-hydroxyisovalerate	CC(C)[C@@H](C(=O)O)O	ohIva	acid	None	Hiv
+valine, isoleucine	NC(*)C(=O)O	Val|Ile	amino_acid	L	Val
+salicylic acid, 2,3-dihydroxybenzoic acid	NC(*)C(=O)O	Sal|Dhb	acid	None	diOH-Bz
+phenylalanine, tyrosine	NC(*)C(=O)O	Phe|Tyr	amino_acid	L	Phe
+phenylalanine, tryptophan	NC(*)C(=O)O	Phe|Trp	amino_acid	L	Phe
+isoleucine, valine	NC(*)C(=O)O	Ile|Val	amino_acid	L	Ile
+3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	C1[C@H]([C@@H]1[N+](=O)[O-])C[C@@H](C(=O)O)N	Cpa	amino_acid	L	None
+2-aminobutyric acid, isovaline	NC(*)C(=O)O	Abu|Iva	amino_acid	L	Abu
+2-amino-9,10-epoxy-8-oxodecanoic acid	C1C(O1)C(=O)CCCCC[C@@H](C(=O)O)N	Oda	amino_acid	L	C10:0-NH2(2)-Ep(9)-oxo(8)
+4-hydroxy-tetrahydropyridazine-3-carboxylic acid	OC1C[C@H](NN=C1)C(=O)O	oh-Pyr	amino_acid	L	None
+2-ethyl-3-aminoproprionic acid	OC(=O)C(CC)CN	et-Prp	amino_acid	None	None
+3,5-dichloro-4-hydroxyphenylalanine	C1=C(Cl)C(=C(Cl)C=C1C[C@@H](C(=O)O)N)O	2Cl-Tyr	amino_acid	L	None
+5‐chloro‐1‐hydroxypyrrole‐2‐carboxylic acid	ON1C(Cl)=CC=C1C(O)=O	Cl-oh-Pyr	acid	None	None
+isoquinoline-3-carboxylic acid	C1C(NCC2=CC=CC=C21)C(=O)O	isoQui	acid	None	None
+5‐chloropyrrole‐2‐carboxylic acid	OC(=O)C1=CC=C(N1)Cl	Cl-Pyr	acid	None	None

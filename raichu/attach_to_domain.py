@@ -7,6 +7,7 @@ from pikachu.general import read_smiles
 POLYKETIDE_S = GroupDefiner('Sulphur atom polyketide', 'SC(C)=O', 0)
 POLYKETIDE_S_INSERTED_O = GroupDefiner(
     'Sulphur atom polyketide inserted O', 'SC(O)=O', 0)
+POLYKETIDE_S_REDUCED_STARTER = GroupDefiner('Sulphur atom polyketide reduced O', 'SC(C)O', 0)
 NRP_C = GroupDefiner('C atom to attach to PCP domain', 'NCC(O)=O', 2)
 RIPP_N = GroupDefiner('N atom to attach to leader', 'NCC=O', 0)
 AMINO_ACID_BACKBONE = read_smiles('NCC(=O)O')
@@ -103,6 +104,7 @@ def condensation_with_reverse_numbering(structure_1, structure_2, oh_bond, h_bon
 
     return [product, water]
 
+
 def attach_to_domain_pk(polyketide):
     """
     Attaches the sulphur atom in the input polyketide to a PKS domain and
@@ -123,6 +125,8 @@ def attach_to_domain_pk(polyketide):
     if len(locations_sulphur) == 0:
         locations_sulphur = find_atoms(
             POLYKETIDE_S_INSERTED_O, polyketide)
+        if len(locations_sulphur) == 0:
+            locations_sulphur = find_atoms(POLYKETIDE_S_REDUCED_STARTER, polyketide)
     assert len(locations_sulphur) == 1
     sulphur_2 = locations_sulphur[0]
     carbon = sulphur_2.get_neighbour('C')
@@ -171,18 +175,32 @@ def attach_to_domain_nrp(nrp):
         assert len(locations_c_to_domain) == 1
         c_atom_to_domain = locations_c_to_domain[0]
     elif nrp.find_substructures(B_AMINO_ACID_BACKBONE):
-        locations_c_to_domain = find_atoms(B_NRP_C, nrp)
-        asp_acid_cs = find_atoms(ASP_ACID_C, nrp)
-        mal_amino_cs = find_atoms(MAL_AMINO, nrp)
 
-        for asp_acid_c in asp_acid_cs:
-            if asp_acid_c in locations_c_to_domain:
-                locations_c_to_domain.remove(asp_acid_c)
-        for mal_amino_c in mal_amino_cs:
-            if mal_amino_c in locations_c_to_domain:
-                locations_c_to_domain.remove(mal_amino_c)
-        assert len(locations_c_to_domain) == 1
-        c_atom_to_domain = locations_c_to_domain[0]
+        locations_c_to_domain = find_atoms(B_NRP_C, nrp)
+        location_c_indices = []
+
+        for i, c_atom in enumerate(locations_c_to_domain):
+            for neighbour in c_atom.neighbours:
+                if neighbour.annotations.leaving_oh_o:
+                    location_c_indices.append(i)
+
+        assert len(location_c_indices) == 1
+        index = location_c_indices[0]
+        c_atom_to_domain = locations_c_to_domain[index]
+
+        # asp_acid_cs = find_atoms(ASP_ACID_C, nrp)
+        # print(asp_acid_cs)
+        # mal_amino_cs = find_atoms(MAL_AMINO, nrp)
+        # print(mal_amino_cs)
+
+        # for asp_acid_c in asp_acid_cs:
+        #     if asp_acid_c in locations_c_to_domain:
+        #         locations_c_to_domain.remove(asp_acid_c)
+        # for mal_amino_c in mal_amino_cs:
+        #     if mal_amino_c in locations_c_to_domain:
+        #         locations_c_to_domain.remove(mal_amino_c)
+        # assert len(locations_c_to_domain) == 1
+        # c_atom_to_domain = locations_c_to_domain[0]
     else:
         c_atom_to_domain = None
         for atom in nrp.graph:

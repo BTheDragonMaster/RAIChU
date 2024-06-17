@@ -18,7 +18,7 @@ class Domain:
     supertype: DomainSuperClass
     type: Union[TailoringDomainType, CarrierDomainType, SynthesisDomainType, RecognitionDomainType,
                 TerminationDomainType]
-    subtype: Union[None, KRDomainSubtype, KSDomainSubtype]
+    subtype: Union[None, KRDomainSubtype, KSDomainSubtype, ERDomainSubtype]
     domain_name: Union[str, None]
     active: bool = True
     gene: Union[str, None] = None
@@ -72,7 +72,7 @@ class TailoringDomain(Domain):
         elif self.type.name == 'DH' or self.type.name == 'DUMMY_DH':
             return dehydration(structure)
         elif self.type.name == 'EDH' or self.type.name == 'DUMMY_EDH':
-            return dehydration(structure,"E")
+            return dehydration(structure, "E")
         elif self.type.name == 'ZDH' or self.type.name == 'DUMMY_ZDH':
             return dehydration(structure, "Z")
         elif self.type.name == 'ER' or self.type.name == 'DUMMY_ER':
@@ -88,9 +88,9 @@ class TailoringDomain(Domain):
         elif self.type.name == 'GDH' or self.type.name == 'DUMMY_GDH':
             return gamma_beta_dehydratase(structure)
         elif self.type.name == 'EGDH' or self.type.name == 'DUMMY_EGDH':
-            return gamma_beta_dehydratase(structure,"E")
+            return gamma_beta_dehydratase(structure, "E")
         elif self.type.name == 'ZGDH' or self.type.name == 'DUMMY_ZGDH':
-            return gamma_beta_dehydratase(structure,"Z")
+            return gamma_beta_dehydratase(structure, "Z")
         elif self.type.name == 'OMT' or self.type.name == 'DUMMY_OMT':
             return beta_hydroxy_methyl_transferase(structure)
         elif self.type.name == 'BMT' or self.type.name == 'DUMMY_BMT':
@@ -155,13 +155,12 @@ class RecognitionDomain(Domain):
         superclass = DomainSuperClass.from_string("RECOGNITION")
         domain_type = RecognitionDomainType.from_string(domain_type)
 
-
         if domain_subtype is not None:
             raise ValueError(f"RAIChU does not support domain subtypes for {domain_type.name}")
 
         super().__init__(superclass, domain_type, domain_subtype, domain_name, active=active, used=used)
 
-        if self.type.name == 'A' or self.type.name == 'DUMMY_A':
+        if self.type.name == 'A' or self.type.name == 'DUMMY_A' or self.type.name == 'CAL':
             self.substrate = NRPSSubstrate(substrate_name)
         elif self.type.name == 'AT' or self.type.name == 'DUMMY_AT':
             self.substrate = PKSSubstrate(substrate_name)

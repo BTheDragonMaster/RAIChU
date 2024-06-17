@@ -519,6 +519,6 @@ def test_cyclodehydrase():
 
     )
 if __name__ == "__main__":
-    test_macrolactam_synthetase()
+    test_thiopeptide_cyclase()
 
 

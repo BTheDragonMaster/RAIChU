@@ -16,6 +16,8 @@ ENZYME_TO_NAME = {"METHYLTRANSFERASE": "methyltransferase",
                   "ACYLTRANSFERASE": "acyltransferase",
                   "AMINOTRANSFERASE": "aminotransferase",
                   "HALOGENASE": "halogenase",
+                  "METHYL_MUTASE" : "methyl mutase",
+                  "THIOAMIDATION" : "thioamidation",
                   "DOUBLE_BOND_REDUCTASE": "double bond reduction",
                   "DOUBLE_BOND_ISOMERASE": "double bond shift",
                   "DEHYDROGENASE": "double bond formation",
@@ -85,6 +87,21 @@ PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES = {
     "PHYTOENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C(=C/C=C\C=C(/C)\CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)/C)/C)/C)C"
 }
 
+ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES = {
+    "PALAMITIC_ACID": r"CCCCCCCCCCCCCCCC([O-])=O",
+    "STREARIC_ACID" : r"CCCCCCCCCCCCCCCCCC([O-])=O",
+    "DIHYDROXYSTEARIC_ACID" : r"CCCCCCCCC(C(CCCCCCCC(=O)O)O)O",
+    "OLEIC_ACID" : r"CCCCCCCCC=CCCCCCCCC(=O)O",
+    "RICINOLEIC_ACID" : r"CCCCCCC(CC=CCCCCCCCC(=O)O)O",
+    "LINOLEIC_ACID" : r"CCCCCC=CCC=CCCCCCCCC(=O)O",
+    "LINOLEnIC_ACID" : r"CCC=CCC=CCC=CCCCCCCCC(=O)O",
+    "BEHENIC_ACID" : r"CCCCCCCCCCCCCCCCCCCCCC(=O)O",
+    
+}
+
 SUGARS_TO_SMILES = {
 
 }
+
+
+ 

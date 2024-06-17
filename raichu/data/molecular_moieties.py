@@ -8,6 +8,7 @@ from pikachu.reactions.functional_groups import (
 from raichu.reactions.general import initialise_atom_attributes
 
 
+
 _STARTER_PKS_TO_SULPHUR = {
     "WILDCARD_STARTER": 0,
     "PROPIONYL_COA": 0,
@@ -37,7 +38,7 @@ _STARTER_PKS_TO_SULPHUR = {
     "HYDROXYPROPIONYL_COA_2R": 5,
     "DIHYDROXY_PROPANOLYL_COA_33": 6,
     "LACTYL_COA": 5,
-    "PHENYLACETYLCOA": 0,
+    "PHENYLACETYL_COA": 0,
     "METHOXYFORMYL_COA": 3,
 }
 
@@ -71,7 +72,7 @@ _STARTER_PKS_TO_BACKBONE = {
     "HYDROXYPROPIONYL_COA_2R": [0, 1, 4],
     "DIHYDROXY_PROPANOLYL_COA_33": [0, 1, 3, 4],
     "LACTYL_COA": [0, 1, 4],
-    "PHENYLACETYLCOA": [1, 3, 4, 5, 6],
+    "PHENYLACETYL_COA": [1, 3, 4, 5, 6],
     "METHOXYFORMYL_COA": [0, 1, 2],
 }
 
@@ -116,6 +117,7 @@ class PksStarterUnit:
         initialise_atom_attributes(tethered_polyketide)
 
         return tethered_polyketide
+
 
 
 class PksElongationUnit:
@@ -226,28 +228,40 @@ N_AMINO = GroupDefiner("N_amino", "CN", 1)
 C_CARBOXYL = GroupDefiner("c_carboxyl", "C(O)=O", 0)
 O_OH = GroupDefiner("O_oh", "CO", 1)
 C_CH = GroupDefiner("C_Ch", "CC", 0)
-N_NH = GroupDefiner("N_nh", "CN", 1)
-KETO_GROUP = BondDefiner("keto_group", "C=O", 0, 1)
+N_NH = GroupDefiner('N_nh', 'CN', 1)
+KETO_GROUP = BondDefiner('keto_group', 'C=O', 0, 1)
+THIOKETONE_GROUP = BondDefiner('keto_group', 'C=S', 0, 1)
+AMIDE_GROUP_O = GroupDefiner ('amide_group', 'CC(=O)N[H]', 1)
+AMIDE_GROUP_S = GroupDefiner ('amide_group', 'CC(=S)N[H]', 1)
 KETO_GROUP_C = GroupDefiner("keto_group_c", "C=O", 0)
-O_BETAPROPRIOLACTONE = GroupDefiner("o_betapropriolactone", "SC(CCO)=O", 4)
-O_BETAPROPRIOLACTONE_O = GroupDefiner("o_betapropriolactone", "OC(CCO)=O", 4)
-O_BETAPROPRIOLACTONE_KETO_C = GroupDefiner("o_betapropriolactone_keto", "C(CCO)=O", 1)
-O_BETAPROPRIOLACTONE_KETO_OH = GroupDefiner("o_betapropriolactone_keto", "C(CCO)=O", 4)
-O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner("o_betapropriolactone", "OC(CCO)=O", 0)
-O_BETAPROPRIOLACTONE_TERMINAL_S = GroupDefiner("o_betapropriolactone", "SC(CCO)=O", 0)
-ASPARTIC_ACID = GroupDefiner("aspartic_acid", "NC(CC(O)=O)C=O", 4)
-GLUTAMIC_ACID = GroupDefiner("glutamic_acid", "NC(CCC(O)=O)C=O", 5)
-ARGININE_SECONDARY_N = GroupDefiner("arginine_secondary_n", "NC(CCCNC(N)=N)C(O)=O", 5)
-CYSTEINE = GroupDefiner("cysteine", "NC(CS)C=O", 3)
-SERINE = GroupDefiner("serine", "NC(CO)C=O", 3)
-THREONINE = GroupDefiner("threonine", "CC(O)C(N)C=O", 2)
-REDUCED_SERINE = GroupDefiner("reduced_serine", "NC(=C)C=O", 2)
-REDUCED_THREONINE = GroupDefiner("reduced_threonine", "C=CC(N)C=O", 0)
-PYROPHOSPHATE_BOND = BondDefiner("pyrophosphate_bond", "COP", 0, 1)
-ATTACHED_SERINE_OX = GroupDefiner("attached_serine", "O=CNC(CO)C(S)=O", 0)
-ATTACHED_CYSTEINE_OX = GroupDefiner("attached_cysteine", "O=CNC(CS)C(S)=O", 0)
-ATTACHED_SERINE_O = GroupDefiner("attached_serine", "O=CNC(CO)C(S)=O", 5)
-ATTACHED_CYSTEINE_S = GroupDefiner("attached_cysteine", "O=CNC(CS)C(S)=O", 5)
+O_BETAPROPRIOLACTONE = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 4)
+O_BETAPROPRIOLACTONE_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 4)
+O_BETAPROPRIOLACTONE_KETO_C = GroupDefiner('o_betapropriolactone_keto', 'C(CCO)=O', 1)
+O_BETAPROPRIOLACTONE_KETO_OH = GroupDefiner('o_betapropriolactone_keto', 'C(CCO)=O', 4)
+O_BETAPROPRIOLACTONE_TERMINAL_O = GroupDefiner('o_betapropriolactone', 'OC(CCO)=O', 0)
+O_BETAPROPRIOLACTONE_TERMINAL_S = GroupDefiner('o_betapropriolactone', 'SC(CCO)=O', 0)
+ASPARTIC_ACID = GroupDefiner('aspartic_acid', 'NC(CC(O)=O)C=O', 4)
+GLUTAMIC_ACID = GroupDefiner('glutamic_acid', 'NC(CCC(O)=O)C=O', 5)
+ARGININE_SECONDARY_N_1 = GroupDefiner(
+    "arginine_secondary_n_1", "C(N)(N)=NC", 3)
+ARGININE_SECONDARY_N_2 = GroupDefiner(
+    "arginine_secondary_n_2", "C(=N)(N)NC", 3)
+ARGININE_SECONDARY_N_3 = GroupDefiner(
+    "arginine_secondary_n_3", "C(N)(=N)NC", 3)
+CYSTEINE = GroupDefiner('cysteine', 'NC(CS)C=O', 3)
+SERINE = GroupDefiner('serine', 'C(CO)C=O', 2)
+THREONINE = GroupDefiner('threonine', 'NC(C(O)C)C=O', 3)
+REDUCED_SERINE = GroupDefiner('reduced_serine', 'NC(=C)C=O', 2)
+REDUCED_THREONINE = GroupDefiner('reduced_threonine', 'C=CC(N)C', 0)
+CYCL_THREONINE = GroupDefiner ('cycl_threonine' , 'CC(NC=O)C(O[H])C', 6)
+CYCL_SERINE = GroupDefiner ('cycl_serine' , 'CC(NC=O)CO[H]', 6)
+CYCL_CYSTEINE = GroupDefiner ('cycl_cysteine' , 'CC(NC=O)CS[H]', 6)
+PYROPHOSPHATE_BOND = BondDefiner(
+    "pyrophosphate_bond", "COP", 0, 1)
+ATTACHED_SERINE_OX = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 0)
+ATTACHED_CYSTEINE_OX = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 0)
+ATTACHED_SERINE_O = GroupDefiner('attached_serine', 'O=CNC(CO)C(S)=O', 5)
+ATTACHED_CYSTEINE_S = GroupDefiner('attached_cysteine', 'O=CNC(CS)C(S)=O', 5)
 METHYLMALONYL_SIDECHAIN_CARBON = GroupDefiner("mmal_sidechain_c", "SC(=O)C(C)C(=O)", 4)
 METHYLMALONYL_SULPHUR_CARBON = GroupDefiner("mmal_sidechain_sc", "SC(=O)C(C)C(=O)", 1)
 METHYLMALONYL_MAINCHAIN_CARBON = GroupDefiner("mmal_sidechain_mc", "SC(=O)C(C)C(=O)", 5)

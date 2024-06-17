@@ -6,6 +6,7 @@ class DomainSuperClass(Enum):
     """
     An Enum representing the superclass of domains supported by RAIChU
     """
+
     RECOGNITION = 1
     SYNTHESIS = 2
     CARRIER = 3
@@ -25,6 +26,7 @@ class RecognitionDomainType(Enum):
     """
     An Enum representing the types of recognition domains supported by RAIChU
     """
+
     A = 1
     AT = 2
     DUMMY_A = 3
@@ -44,6 +46,7 @@ class TerminationDomainType(Enum):
     """
     An Enum representing the types of termination domains supported by RAIChU
     """
+
     TE = 1
     TD = 2
     DUMMY_TE = 3
@@ -62,6 +65,7 @@ class SynthesisDomainType(Enum):
     """
     An Enum representing the types of synthesis domains supported by RAIChU
     """
+
     C = 1
     KS = 2
     DUMMY_C = 3
@@ -80,6 +84,7 @@ class CarrierDomainType(Enum):
     """
     An Enum representing the types of carrier domains supported by RAIChU
     """
+
     PCP = 1
     ACP = 2
     DUMMY_PCP = 3
@@ -98,23 +103,24 @@ class TailoringDomainType(Enum):
     """
     An Enum representing the types of tailoring domains supported by RAIChU
     """
+
     ER = 1
     KR = 2
     DH = 3
     E = 5
     nMT = 6
     UNKNOWN = 7
-    DUMMY_ALMT = 8 #Alpha-L-Methyltransferase
-    DUMMY_AMT = 9 #Alpha-Methyltransferase
-    DUMMY_SC = 10 #Smalles cyclase for creating pyran/furan rings
-    DUMMY_ZDH = 11 #E-configured double bonds
-    DUMMY_EDH = 12 #Z-configured double bonds
-    DUMMY_AH = 13 #Alpha-hydroxylase
-    DUMMY_GDH = 14 #Gamma-beta-dehydrogenase
-    DUMMY_ZGDH = 15 #Z-Gamma-beta-dehydrogenase
-    DUMMY_EGDH = 16 #E-Gamma-beta-dehydrogenase
-    DUMMY_OMT = 17 #Beta-Hydroxymethyltransferase
-    DUMMY_BMT = 18 #Beta-Methyltransferase
+    DUMMY_ALMT = 8  # Alpha-L-Methyltransferase
+    DUMMY_AMT = 9  # Alpha-Methyltransferase
+    DUMMY_SC = 10  # Smalles cyclase for creating pyran/furan rings
+    DUMMY_ZDH = 11  # E-configured double bonds
+    DUMMY_EDH = 12  # Z-configured double bonds
+    DUMMY_AH = 13  # Alpha-hydroxylase
+    DUMMY_GDH = 14  # Gamma-beta-dehydrogenase
+    DUMMY_ZGDH = 15  # Z-Gamma-beta-dehydrogenase
+    DUMMY_EGDH = 16  # E-Gamma-beta-dehydrogenase
+    DUMMY_OMT = 17  # Beta-Hydroxymethyltransferase
+    DUMMY_BMT = 18  # Beta-Methyltransferase
     DUMMY_ER = 19
     DUMMY_KR = 20
     DUMMY_DH = 21
@@ -123,6 +129,9 @@ class TailoringDomainType(Enum):
     CYC = 24
     OX = 25
     DUMMY_EMO = 26
+    DUMMY_BR = 27  # Beta-branching cassette
+    AMT = 28
+    BMT = 29
 
     @staticmethod
     def from_string(label: str) -> "TailoringDomainType":
@@ -137,6 +146,7 @@ class KRDomainSubtype(Enum):
     """
     An Enum representing the subtypes of KR domain supported by RAIChU
     """
+
     A1 = 1
     A2 = 2
     B1 = 3
@@ -158,6 +168,7 @@ class KSDomainSubtype(Enum):
     """
     An Enum representing the subtypes of KS domain supported by RAIChU
     """
+
     CIS = 1
     UNKNOWN = 2
     NON_ELONGATING_BETA_L_OH = 3
@@ -216,11 +227,13 @@ class KSDomainSubtype(Enum):
                 return value
         raise ValueError(f"Unknown KS domain subtype: {label}")
 
+
 @unique
 class ERDomainSubtype(Enum):
     """
     An Enum representing the subtypes of KS domain supported by RAIChU
     """
+
     S = 1
     R = 2
     UNKNOWN = 3

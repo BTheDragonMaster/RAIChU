@@ -205,7 +205,8 @@ def thioesterase_all_products(chain_intermediate, out_folder=None):
             if len(atom.get_neighbours('H')) == 2 and atom.has_neighbour('C') and not atom.aromatic and atom \
                     not in amino_n_atoms_filtered:
                 amino_n_atoms_filtered.append(atom)
-
+    
+    o_not_to_use = None
     # Define -OH group that should not be used to carry out the thioesterase
     # reaction (distance -S and internal -OH group)
     # o_not_to_use = find_o_betapropriolactone(linear_product)

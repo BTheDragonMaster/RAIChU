@@ -412,7 +412,6 @@ raichu/alkaloid.py
 raichu/antismash.py
 raichu/attach_to_domain.py
 raichu/class_domain.py
-raichu/module.py
 raichu/representations.py
 raichu/ripp.py
 raichu/run_raichu.py

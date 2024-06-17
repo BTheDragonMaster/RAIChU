@@ -1,8 +1,9 @@
-from paras.features import get_smiles
-from raichu.data.molecular_moieties import make_elongation_monomer
+from raichu.smiles_handling import get_smiles
+from raichu.data.molecular_moieties import make_elongation_monomer, make_starter_monomer
 from enum import Enum, unique
 
 _PKS_TO_SMILES = {"WILDCARD": r"SC(C([*])C(O)=O)=O",
+                  "WILDCARD_STARTER": r"SC(C([*]))=O",
                   "MALONYL_COA": r"SC(CC(O)=O)=O",
                   "METHYLMALONYL_COA": r"SC([C@H](C)C(O)=O)=O",
                   "METHOXYMALONYL_ACP": r"SC(C(C(O)=O)OC)=O",
@@ -40,14 +41,16 @@ _PKS_TO_SMILES = {"WILDCARD": r"SC(C([*])C(O)=O)=O",
                   "METHOXYFORMYL_COA": r"COC(S)=O"
                   }
 
+
 _TERPENE_PRECURSOR_TO_SMILES = {
     "DIMETHYLALLYL_PYROPHOSPHATE": r"CC(=CCOP(=O)(O)OP(=O)(O)O)C",
     "GERANYL_PYROPHOSPHATE": r"O=P(O)(O)OP(=O)(OC/C=C(/CC\C=C(/C)C)C)O",
     "FARNESYL_PYROPHOSPHATE": r"CC(=CCC/C(=C/CC/C(=C/COP(=O)(O)OP(=O)(O)O)/C)/C)C",
     "GERANYLGERANYL_PYROPHOSPHATE": r"O=P(O)(O)OP(=O)(O)OC/C=C(/CC\C=C(/C)CC\C=C(/C)CC\C=C(/C)C)C",
     "SQUALENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C=C(/CC/C=C(/CCC=C(C)C)\C)\C)/C)/C)C",
-    "PHYTOENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C(=C/C=C\C=C(/C)\CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)/C)/C)/C)C"
+    "PHYTOENE": r"CC(=CCC/C(=C/CC/C(=C/CC/C(=C/C=C\C=C(/C)\CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)/C)/C)/C)C",
 }
+
 
 @unique
 class PksStarterSubstrate(Enum):
@@ -75,6 +78,7 @@ class PksStarterSubstrate(Enum):
     LACTYL_COA = 22
     PHENYLACETYL_COA = 23
     METHOXYFORMYL_COA = 24
+    WILDCARD_STARTER = 25
 
     @staticmethod
     def from_string(label: str):
@@ -97,10 +101,10 @@ class PksElongationSubstrate(Enum):
     WILDCARD = 1
     MALONYL_COA = 2
     METHYLMALONYL_COA = 3
-    METHOXYMALONYL_ACP = 4
-    #TODO: something is wrong with those substrates
-    #METHYLBUTYRYL_COA_2S = 5
-    #METHYLBUTYRYL_COA_2R = 6
+    METHOXYMALONYL_COA = 4
+    # TODO: something is wrong with those substrates
+    # METHYLBUTYRYL_COA_2S = 5
+    # METHYLBUTYRYL_COA_2R = 6
     ETHYLMALONYL_COA = 7
 
     @staticmethod
@@ -141,12 +145,19 @@ class PKSSubstrate(Substrate):
     def __init__(self, name: str) -> None:
         smiles = _PKS_TO_SMILES.get(name, None)
         if smiles is None:
+
             raise ValueError(f"Cannot fetch SMILES string for PKS substrate {name}.")
         super().__init__(name, smiles)
-        if name in [v.name for v in PksElongationSubstrate]:
+        if name == "WILDCARD":
+            self.smiles = _PKS_TO_SMILES.get("WILDCARD_STARTER", None)
+            self.starter_monomer = make_starter_monomer("WILDCARD_STARTER", self.smiles)
             self.elongation_monomer = make_elongation_monomer(self.name)
+        elif name in [v.name for v in PksElongationSubstrate]:
+            self.elongation_monomer = make_elongation_monomer(self.name)
+            self.starter_monomer = None
         elif name in [v.name for v in PksStarterSubstrate]:
             self.elongation_monomer = None
+            self.starter_monomer = make_starter_monomer(self.name, self.smiles)
         else:
             raise ValueError(f"PKS substrate {self.name} is not recognised by RAIChU.")
 
@@ -156,5 +167,6 @@ class TerpeneCyclaseSubstrate(Substrate):
         smiles = _TERPENE_PRECURSOR_TO_SMILES.get(name, None)
         if smiles is None:
             raise ValueError(
-                f"Cannot fetch SMILES string for terpene cyclase substrate {name}.")
+                f"Cannot fetch SMILES string for terpene cyclase substrate {name}."
+            )
         super().__init__(name, smiles)

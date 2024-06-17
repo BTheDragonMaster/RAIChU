@@ -1,6 +1,12 @@
-
-from raichu.drawing.colours import OUTLINE_COLOURS, FILL_COLOURS, DOMAIN_ABBREVIATIONS, TRANSPARENT_OUTLINE_COLOURS, \
-    TRANSPARENT_FILL_COLOURS, TRANSPARENT_TEXT_COLOURS, TEXT_COLOUR
+from raichu.drawing.colours import (
+    OUTLINE_COLOURS,
+    FILL_COLOURS,
+    DOMAIN_ABBREVIATIONS,
+    TRANSPARENT_OUTLINE_COLOURS,
+    TRANSPARENT_FILL_COLOURS,
+    TRANSPARENT_TEXT_COLOURS,
+    TEXT_COLOUR,
+)
 
 
 def make_circle(x_coord, y_coord, domain):
@@ -22,8 +28,10 @@ def make_circle(x_coord, y_coord, domain):
     return circle
 
 
-def draw_rectangle(gene_name, x, y, width, height=12, text_colour='white'):
-    rectangle = f"""<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="black" />"""
+def draw_rectangle(gene_name, x, y, width, height=12, text_colour="white"):
+    rectangle = (
+        f"""<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="black" />"""
+    )
     text_x = x + width / 2
     text_y = y + height / 2
     text = f"""<text x="{text_x}" y="{text_y}" fill="{text_colour}" text-anchor="middle" font-family="verdana" font-size = "{8}">\
@@ -45,7 +53,7 @@ def draw_line(start_x, end_x, y=4):
 def make_module_text(start_x, end_x, y, module_nr, offset_1=True):
     if offset_1:
         module_nr += 1
-    text_x = start_x + (end_x - start_x)/2
+    text_x = start_x + (end_x - start_x) / 2
     text = f"""<text x="{text_x}" y="{y}" fill="'black" text-anchor="middle" font-family="verdana" font-size = "{12}">\
 <tspan y="{y}" dy="0.35em">Module {module_nr}</tspan></text>"""
     return text
@@ -63,6 +71,8 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
     for i, module in enumerate(cluster.modules):
         current_y = bubble_height
         for j, domain in enumerate(module.domains):
+
+            # Take note of whether the domain is part of a new gene (modules can be split across multiple genes)
             new_gene = False
             if j < len(module.domains) - 1:
                 current_gene = domain.gene
@@ -70,7 +80,9 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
                 if current_gene != next_gene:
                     new_gene = True
 
-            if domain.supertype.name == 'UNKNOWN' or domain.supertype.name == 'TAILORING':
+            # Move up bubbles representing unknown and tailoring domains
+
+            if domain.supertype.name == "UNKNOWN" or domain.supertype.name == "TAILORING":
 
                 if current_y == bubble_height - 7:
                     level_change = False
@@ -78,6 +90,7 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
                     level_change = True
 
                 current_y = bubble_height - 7
+
             else:
                 if current_y == bubble_height:
                     level_change = False
@@ -85,16 +98,24 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
                     level_change = True
                 current_y = bubble_height
 
+            # If there is a level change, you can place the bubble closer to the previous one
+
             if level_change and j != 0:
                 x_bubbles -= 1
                 x -= 1
 
-            if domain.supertype.name == "CARRIER" and domain.used:
+            # Only note the position of the cp domain if the module is not broken
+
+            if domain.supertype.name == "CARRIER" and domain.used and not module.is_broken:
                 cp_positions_bubbles.append(x_bubbles)
+
+                # Record how much space the structures take up left and right
 
                 current_space_left, current_space_right = widths[i]
 
                 minimum_x = previous_cp_position + current_space_left + previous_space_right
+
+                # If structures take up more space than the bubbles, shift the CP domain to the right
 
                 x = max([minimum_x, x])
                 cp_positions.append(x)
@@ -103,6 +124,9 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
 
             x_bubbles += delta_x
             x += delta_x
+
+            # If a new gene is introduced, move the bubbles over
+
             if new_gene:
                 x_bubbles += min_gene_padding
                 x += min_gene_padding
@@ -111,6 +135,8 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
         x_bubbles += min_module_padding
 
     module_shifts = []
+
+    # Calculate how much each module has to shift
 
     for i, cp_position in enumerate(cp_positions):
         module_shift = cp_positions[i] - cp_positions_bubbles[i]
@@ -136,7 +162,10 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
     genes = []
     module_texts = []
 
+    correct_modules = 0
+
     for i, module in enumerate(cluster.modules):
+
         start_x = current_x - 15
         current_y = bubble_height
 
@@ -145,7 +174,9 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
                 genes.append(domain.gene)
             if current_gene and domain.gene != current_gene:
                 width = gene_end - gene_start
-                gene_rects.append(draw_rectangle(current_gene, gene_start, bubble_height - 75, width))
+                gene_rects.append(
+                    draw_rectangle(current_gene, gene_start, bubble_height - 75, width)
+                )
                 gene_start = current_x - 15
             elif not current_gene:
                 gene_start = current_x - 15
@@ -162,9 +193,12 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
             if abbreviation is None:
                 abbreviation = DOMAIN_ABBREVIATIONS.get(domain.domain_name)
                 if abbreviation is None:
-                    abbreviation = ''
+                    abbreviation = ""
 
-            if domain.supertype.name == 'UNKNOWN' or domain.supertype.name == 'TAILORING':
+            if (
+                domain.supertype.name == "UNKNOWN"
+                or domain.supertype.name == "TAILORING"
+            ):
                 if current_y == bubble_height - 7:
                     level_change = False
                 else:
@@ -205,20 +239,29 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
 
         module_shift = 0.0
 
-        if i != len(cluster.modules) - 1:
-            module_shift = module_shifts[i + 1]
+        if not cluster.modules[i].is_broken:
+            correct_modules += 1
+
+        if i != len(cluster.modules) - 1 and not cluster.modules[i + 1].is_broken:
+
+            module_shift = module_shifts[correct_modules]
 
         end_x = current_x - 15
-        lines.append(draw_line(start_x, end_x, y=bubble_height - 26))
-        module_texts.append(make_module_text(start_x, end_x, bubble_height - 34, i))
 
-        current_x += (min_module_padding + module_shift)
+        if not cluster.modules[i].is_broken:
+
+            lines.append(draw_line(start_x, end_x, y=bubble_height - 26))
+            module_texts.append(make_module_text(start_x, end_x, bubble_height - 34, correct_modules - 1))
+
+        current_x += min_module_padding + module_shift
 
     if gene_start and gene_end:
         width = gene_end - gene_start
-        gene_rects.append((draw_rectangle(current_gene, gene_start, bubble_height - 75, width)))
+        gene_rects.append(
+            (draw_rectangle(current_gene, gene_start, bubble_height - 75, width))
+        )
 
-    svg = ''
+    svg = ""
 
     svg += f"""<g id="domain_circles">\n"""
     for i, circle in enumerate(circles):
@@ -244,9 +287,3 @@ def draw_bubbles(cluster, widths, delta_x=29, bubble_height=80, min_gene_padding
     svg += "</g>\n"
 
     return svg, cp_positions, current_x
-
-
-
-
-
-

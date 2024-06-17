@@ -8,6 +8,10 @@ Author-email: barbara.r.terlouw@gmail.com
 License: UNKNOWN
 Platform: UNKNOWN
 License-File: LICENSE.txt
+Requires-Dist: matplotlib
+Requires-Dist: biopython==1.76
+Requires-Dist: pikachu-chem>=1.0.13
+Requires-Dist: paras
 
 A package to automatically draw natural product biosynthesis pathways.
 

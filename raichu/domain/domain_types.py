@@ -29,6 +29,7 @@ class RecognitionDomainType(Enum):
     AT = 2
     DUMMY_A = 3
     DUMMY_AT = 4
+    CAL = 5
 
     @staticmethod
     def from_string(label: str) -> "RecognitionDomainType":
@@ -205,6 +206,8 @@ class KSDomainSubtype(Enum):
     ALPHAME_ZDB = 46
     ALPHA_D_ME_SHDB = 47
     ALPHAME_DB = 48
+    ALPHAME_KETO = 49
+    NON_ELONGATING_SHDB = 50
 
     @staticmethod
     def from_string(label: str) -> "KSDomainSubtype":

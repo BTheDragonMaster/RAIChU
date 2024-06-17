@@ -29,8 +29,9 @@ def epimerize(nrp):
             chiral_c_ep_atoms.append(atom)
 
     # If the substrate is a (fatty) acid, epimerization is not possible
-    if len(chiral_c_ep_atoms) == 0:
-       print('Warning: Cannot perform epimerization reaction on non-amino acid substrate!')
+    # TODO: Make verbose mode that prints this
+    # if len(chiral_c_ep_atoms) == 0:
+    #    print('Warning: Cannot perform epimerization reaction on non-amino acid substrate!')
 
     assert len(chiral_c_ep_atoms) < 2
 
@@ -84,8 +85,9 @@ def n_methylate(nrp):
             n_meth_locations.append(atom)
 
     # If the substrate is not an amino acid, N-methylation is not possible
-    if len(n_meth_locations) == 0:
-        print('Warning: Cannot perform N-methylation on a non-amino acid substrate!')
+    # TODO: Add a verbose mode that prints this
+    # if len(n_meth_locations) == 0:
+    #     print('Warning: Cannot perform N-methylation on a non-amino acid substrate!')
 
     assert len(n_meth_locations) < 2
 
@@ -143,20 +145,28 @@ def nrps_cyclodehydration(nrp):
         assert len(cysteine_oxs) == 1
         attacking_atom = cysteine_ss[0]
         keto_group = cysteine_oxs[0]
+        carbon = keto_group.get_neighbour("C")
+        nitrogen = carbon.get_neighbour("N")
     else:
         serine_os = find_atoms(ATTACHED_SERINE_O, nrp)
         if len(serine_os) == 1:
             serine_oxs = find_atoms(ATTACHED_SERINE_OX, nrp)
             attacking_atom = serine_os[0]
             keto_group = serine_oxs[0]
+            carbon = keto_group.get_neighbour("C")
+            nitrogen = carbon.get_neighbour("N")
 
         else:
             return nrp, False
 
-    product = cyclodehydration(nrp, attacking_atom, keto_group)
-    assert product
+    if nitrogen.has_neighbour('H') and attacking_atom.has_neighbour('H'):
 
-    return product, True
+        product = cyclodehydration(nrp, attacking_atom, keto_group)
+        assert product
+
+        return product, True
+    else:
+        return nrp, False
 
 
 if __name__ == "__main__":

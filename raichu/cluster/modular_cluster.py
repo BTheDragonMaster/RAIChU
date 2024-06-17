@@ -9,16 +9,26 @@ from raichu.drawing.drawer import RaichuDrawer
 from raichu.module import _Module
 from raichu.drawing.bubbles import draw_bubbles
 from raichu.substrate import PKSSubstrate
-from raichu.data.trans_at import TRANSATOR_CLADE_TO_TAILORING_REACTIONS, TRANSATOR_CLADE_TO_STARTER_SUBSTRATE, \
-    TRANSATOR_CLADE_TO_ELONGATING
+from raichu.data.trans_at import (
+    TRANSATOR_CLADE_TO_TAILORING_REACTIONS,
+    TRANSATOR_CLADE_TO_STARTER_SUBSTRATE,
+    TRANSATOR_CLADE_TO_ELONGATING,
+)
 from raichu.domain.domain import TailoringDomain
 from raichu.data.molecular_moieties import O_OH, N_NH, KETO_GROUP_C
 from raichu.cluster.base_cluster import Cluster
-from raichu.representations import TailoringRepresentation, MacrocyclizationRepresentation
+from raichu.representations import (
+    TailoringRepresentation,
+    MacrocyclizationRepresentation,
+)
 
 
 class ModularCluster(Cluster):
-    def __init__(self, modules: List[_Module], tailoring_representations: List[TailoringRepresentation] = None) -> None:
+    def __init__(
+        self,
+        modules: List[_Module],
+        tailoring_representations: List[TailoringRepresentation] = None,
+    ) -> None:
         super().__init__(tailoring_representations)
         self.modules = modules
         self.tailoring_enzymes = tailoring_representations
@@ -33,18 +43,31 @@ class ModularCluster(Cluster):
         for i, module in enumerate(self.modules):
             if module.type.name == "PKS" and module.subtype.name == "PKS_TRANS":
                 substrate = PKSSubstrate("MALONYL_COA")
+                if module.is_starter_module:
+                    substrate = PKSSubstrate("ACETYL_COA")
                 if i < len(self.modules) - 1:
                     j = i + 1
                     next_module = self.modules[j]
                     if next_module.is_broken:
-                        while next_module.is_broken:
+                        while next_module.is_broken and j < len(self.modules):
                             next_module = self.modules[j]
                             j += 1
                     if next_module.type.name == "PKS":
-                        if module.is_starter_module and next_module.subtype.name == "PKS_TRANS":
+                        if (
+                            module.is_starter_module
+                            and next_module.subtype.name == "PKS_TRANS"
+                        ):
                             if next_module.synthesis_domain:
-                                if next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN":
-                                    substrate_name = TRANSATOR_CLADE_TO_STARTER_SUBSTRATE.get(next_module.synthesis_domain.subtype.name)
+                                if (
+                                    next_module.synthesis_domain.subtype
+                                    and next_module.synthesis_domain.subtype.name
+                                    != "UNKNOWN"
+                                ):
+                                    substrate_name = (
+                                        TRANSATOR_CLADE_TO_STARTER_SUBSTRATE.get(
+                                            next_module.synthesis_domain.subtype.name
+                                        )
+                                    )
                                     if substrate_name is not None:
                                         substrate = PKSSubstrate(substrate_name)
                                     else:
@@ -53,35 +76,67 @@ class ModularCluster(Cluster):
                                     substrate = PKSSubstrate("ACETYL_COA")
                             else:
                                 substrate = PKSSubstrate("ACETYL_COA")
-                                    # TODO: Transfer names of substrates to a dictionary in raichu.substrate
+                                # TODO: Transfer names of substrates to a dictionary in raichu.substrate
                         elif module.is_starter_module:
                             substrate = PKSSubstrate("ACETYL_COA")
                         if next_module.synthesis_domain:
-                            if not module.is_termination_module and next_module.subtype.name == "PKS_TRANS" and next_module.synthesis_domain.subtype and next_module.synthesis_domain.subtype.name != "UNKNOWN" and next_module.synthesis_domain.subtype.name != "MISCELLANEOUS" and next_module.synthesis_domain.subtype.name != "NON_ELONGATING":
+                            if (
+                                not module.is_termination_module
+                                and next_module.subtype.name == "PKS_TRANS"
+                                and next_module.synthesis_domain.subtype
+                                and next_module.synthesis_domain.subtype.name
+                                != "UNKNOWN"
+                                and next_module.synthesis_domain.subtype.name
+                                != "MISCELLANEOUS"
+                                and next_module.synthesis_domain.subtype.name
+                                != "NON_ELONGATING"
+                            ):
                                 # Ignore tailoring domains in the module itself
                                 module.tailoring_domains = []
-                                for dummy_domain_type, dummy_domain_subtype in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[next_module.synthesis_domain.subtype.name]:
-                                    self.modules[i].tailoring_domains.append(TailoringDomain(dummy_domain_type,
-                                                                                             dummy_domain_subtype))
+                                for (
+                                    dummy_domain_type,
+                                    dummy_domain_subtype,
+                                ) in TRANSATOR_CLADE_TO_TAILORING_REACTIONS[
+                                    next_module.synthesis_domain.subtype.name
+                                ]:
+                                    self.modules[i].tailoring_domains.append(
+                                        TailoringDomain(
+                                            dummy_domain_type, dummy_domain_subtype
+                                        )
+                                    )
                 if module.synthesis_domain:
-                    if module.synthesis_domain.subtype and module.synthesis_domain.subtype.name != "UNKNOWN" and module.synthesis_domain.subtype.name != "MISCELLANEOUS":
-                        self.modules[i].synthesis_domain.is_elongating = TRANSATOR_CLADE_TO_ELONGATING[module.synthesis_domain.subtype.name]
+                    if (
+                        module.synthesis_domain.subtype
+                        and module.synthesis_domain.subtype.name != "UNKNOWN"
+                        and module.synthesis_domain.subtype.name != "MISCELLANEOUS"
+                    ):
+                        self.modules[i].synthesis_domain.is_elongating = (
+                            TRANSATOR_CLADE_TO_ELONGATING[
+                                module.synthesis_domain.subtype.name
+                            ]
+                        )
                 self.modules[i].recognition_domain.substrate = substrate
 
     def compute_structures(self, compute_cyclic_products=True):
+
         for module in self.modules:
             structure = module.run_module(self.chain_intermediate)
-            self.modular_intermediates.append(structure.deepcopy())
+            if module.carrier_domain and not module.is_broken:
+                self.modular_intermediates.append(structure.deepcopy())
             self.chain_intermediate = structure
             if module.is_termination_module:
+                if not structure:
+                    raise ValueError("No product to release. Check if cluster has functional modules.")
                 self.linear_product = module.release_chain(structure)
                 self.chain_intermediate = self.linear_product
-                if module.termination_domain.type.name in ["TE", 'DUMMY_TE']:
-                    self.cyclisation_type = 'condensative'
+                if module.termination_domain.type.name in ["TE", "DUMMY_TE"]:
+                    self.cyclisation_type = "condensative"
                 elif module.termination_domain.type.name in ["TD", "DUMMY_TD"]:
-                    self.cyclisation_type = 'oxidative'
+                    self.cyclisation_type = "oxidative"
                 else:
-                    raise ValueError(f"RAIChU does not recognise termination domain type {module.termination_domain.type.name}.")
+                    raise ValueError(
+                        f"RAIChU does not recognise termination domain type {module.termination_domain.type.name}."
+                    )
                 break
         else:
             raise ValueError("Cluster must contain at least one termination module.")
@@ -100,46 +155,62 @@ class ModularCluster(Cluster):
         self.macrocyclisation_representations = []
         self.cyclised_products = []
 
-        o_not_to_use = find_o_betapropriolactone(self.chain_intermediate, release_type=self.cyclisation_type)
+        o_not_to_use = find_o_betapropriolactone(
+            self.chain_intermediate, release_type=self.cyclisation_type
+        )
 
         candidate_target_atoms = []
         terminal_o = None
         terminal_c = None
 
         for atom in find_atoms(N_NH, self.chain_intermediate):
-            if len(atom.get_neighbours('H')) == 2:
+            if len(atom.get_neighbours("H")) == 2:
                 candidate_target_atoms.append(str(atom))
 
-        if self.cyclisation_type == 'condensative':
+        if self.cyclisation_type == "condensative":
             for atom in find_atoms(O_OH, self.chain_intermediate):
 
-                if atom.has_neighbour('H') and atom != o_not_to_use and not getattr(atom.annotations, 'terminal_o'):
+                if (
+                    atom.has_neighbour("H")
+                    and atom != o_not_to_use
+                    and not getattr(atom.annotations, "terminal_o")
+                ):
                     candidate_target_atoms.append(str(atom))
-                elif getattr(atom.annotations, 'terminal_o'):
+                elif getattr(atom.annotations, "terminal_o"):
                     terminal_o = str(atom)
 
             assert terminal_o
             for atom in candidate_target_atoms:
-                macrocyclisation_representation = MacrocyclizationRepresentation(atom, terminal_o, 'condensative')
-                self.macrocyclisation_representations.append(macrocyclisation_representation)
+                macrocyclisation_representation = MacrocyclizationRepresentation(
+                    atom, terminal_o, "condensative"
+                )
+                self.macrocyclisation_representations.append(
+                    macrocyclisation_representation
+                )
 
-        elif self.cyclisation_type == 'oxidative':
+        elif self.cyclisation_type == "oxidative":
             for atom in find_atoms(O_OH, self.chain_intermediate):
-                if atom.has_neighbour('H') and atom != o_not_to_use:
+                if atom.has_neighbour("H") and atom != o_not_to_use:
                     candidate_target_atoms.append(str(atom))
 
             for atom in find_atoms(KETO_GROUP_C, self.chain_intermediate):
-                if atom.has_neighbour('H') and getattr(atom.annotations, 'terminal_c'):
+                if atom.has_neighbour("H") and getattr(atom.annotations, "terminal_c"):
                     terminal_c = str(atom)
 
             assert terminal_c
 
             for atom in candidate_target_atoms:
-                macrocyclisation_representation = MacrocyclizationRepresentation(atom, terminal_c, 'oxidative')
-                self.macrocyclisation_representations.append(macrocyclisation_representation)
+                macrocyclisation_representation = MacrocyclizationRepresentation(
+                    atom, terminal_c, "oxidative"
+                )
+                self.macrocyclisation_representations.append(
+                    macrocyclisation_representation
+                )
 
         else:
-            raise ValueError(f"Macrocyclisation must be oxidative or condensative. '{self.cyclisation_type}' given.")
+            raise ValueError(
+                f"Macrocyclisation must be oxidative or condensative. '{self.cyclisation_type}' given."
+            )
 
         self.do_macrocyclization(sequential=False)
 
@@ -150,13 +221,13 @@ class ModularCluster(Cluster):
         last_i = 0
 
         for i, product in enumerate(self.cyclic_products):
-            out_file = os.path.join(out_dir, f'product_{i}.svg')
+            out_file = os.path.join(out_dir, f"product_{i}.svg")
             drawing = Drawer(product)
             drawing.write_svg(out_file)
             last_i = i
 
         drawing = Drawer(self.linear_product)
-        out_file = os.path.join(out_dir, f'product_{last_i + 1}.svg')
+        out_file = os.path.join(out_dir, f"product_{last_i + 1}.svg")
         drawing.write_svg(out_file)
 
     # TODO: Use PIKAChU's SVG drawer
@@ -176,12 +247,20 @@ class ModularCluster(Cluster):
     def get_spaghettis(self, whitespace=30):
         drawings = []
         widths = []
+        correct_modules = -1
+        for i, module in enumerate(self.modules):
 
-        for i, structure in enumerate(self.modular_intermediates):
+            if module.is_broken:
+                widths.append((0, 0))
+                continue
 
+            correct_modules += 1
+
+            structure = self.modular_intermediates[correct_modules]
             drawing = RaichuDrawer(structure, dont_show=True)
 
             drawing.flip_y_axis()
+            drawing.finetune_overlap_bubbles()
             drawing.move_to_positive_coords()
             drawing.convert_to_int()
 
@@ -204,14 +283,16 @@ class ModularCluster(Cluster):
                     if atom.draw.position.x > max_x:
                         max_x = atom.draw.position.x
 
-            width = (carrier_domain_pos.x - min_x + 0.5 * whitespace,
-                     max_x - carrier_domain_pos.x + 0.5 * whitespace)
+            width = (
+                carrier_domain_pos.x - min_x + 0.5 * whitespace,
+                max_x - carrier_domain_pos.x + 0.5 * whitespace,
+            )
             widths.append(width)
             drawings.append(drawing)
 
         return drawings, widths
 
-    def draw_cluster(self, as_string=True, out_file=None):
+    def draw_cluster(self, as_string=True, out_file=None, colour_by_module=True):
         drawings, widths = self.get_spaghettis()
         bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
@@ -226,8 +307,9 @@ class ModularCluster(Cluster):
 
         for i, drawing in enumerate(drawings):
             drawing.set_structure_id(f"s{i}")
-            drawing.set_annotation_for_grouping('module_nr')
-            drawing.colour_by_annotation()
+            drawing.set_annotation_for_grouping("module_nr")
+            if colour_by_module:
+                drawing.colour_by_annotation()
             svg_style = drawing.svg_style
 
             padding = drawing.options.padding
@@ -245,7 +327,7 @@ class ModularCluster(Cluster):
             y_translation = bubble_y - carrier_domain_pos.y
 
             drawing.move_structure(x_translation, y_translation + 15)
-            svg = drawing.draw_svg(annotation='module_nr')
+            svg = drawing.draw_svg(annotation="module_nr")
             svg_strings.append(svg)
 
             sulphur_pos = None
@@ -262,7 +344,7 @@ class ModularCluster(Cluster):
                     if atom.draw.position.y > max_y:
                         max_y = atom.draw.position.y
                 if atom.annotations.domain_type:
-                    sulphur_pos = atom.get_neighbour('S').draw.position
+                    sulphur_pos = atom.get_neighbour("S").draw.position
                     carrier_pos = atom.draw.position
 
             squiggly_svg = f'<path d="M {sulphur_pos.x} {sulphur_pos.y - 5} Q {sulphur_pos.x - 5} {sulphur_pos.y - (sulphur_pos.y - 5 - carrier_pos.y)/2}, {carrier_pos.x} {sulphur_pos.y - 5 - (sulphur_pos.y - 5 - carrier_pos.y)/2} T {carrier_pos.x} {carrier_pos.y}" stroke="grey" fill="white"/>'
@@ -292,7 +374,9 @@ class ModularCluster(Cluster):
             return svg_string
         else:
             if out_file is None:
-                raise ValueError("Must provide output svg directory if 'as_string' is set to False.")
+                raise ValueError(
+                    "Must provide output svg directory if 'as_string' is set to False."
+                )
             else:
-                with open(out_file, 'w') as svg_out:
+                with open(out_file, "w") as svg_out:
                     svg_out.write(svg_string)

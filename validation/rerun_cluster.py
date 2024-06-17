@@ -18,4 +18,4 @@ draw_products_from_modular_cluster_representation(cluster, out_path)
 
 out_file = os.path.join(argv[1], "cluster.svg")
 
-draw_cluster(cluster, out_file)
+draw_cluster(cluster, out_file, colour_by_module=False)

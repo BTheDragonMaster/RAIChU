@@ -1,0 +1,26 @@
+gene_name	module_nr	module_type	module_subtype	module_substrate	nr_iterations	domain_type	domain_subtype	domain_name	domain_used	domain_active
+HrmK	0	NRPS	None	5‐chloropyrrole‐2‐carboxylic acid	1	A	None	None	True	True
+HrmL	0	NRPS	None	5‐chloropyrrole‐2‐carboxylic acid	1	PCP	None	None	True	True
+HrmO	1	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	C	None	None	True	True
+HrmO	1	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	A	None	None	True	True
+HrmO	1	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	PCP	None	None	True	True
+HrmO	2	NRPS	None	threonine	1	C	None	None	True	True
+HrmO	2	NRPS	None	threonine	1	A	None	None	True	True
+HrmO	2	NRPS	None	threonine	1	PCP	None	None	True	True
+HrmO	2	NRPS	None	threonine	1	E	None	None	True	True
+HrmO	3	NRPS	None	R-beta-methylphenylalanine	1	C	None	None	True	True
+HrmO	3	NRPS	None	R-beta-methylphenylalanine	1	A	None	None	True	True
+HrmO	3	NRPS	None	R-beta-methylphenylalanine	1	PCP	None	None	True	True
+HrmO	4	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	C	None	None	True	True
+HrmO	4	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	A	None	None	True	True
+HrmO	4	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	PCP	None	None	True	True
+HrmO	4	NRPS	None	3-[(1r,2r)-2-nitrocyclopropyl]-l-alanine	1	E	None	None	True	True
+HrmP	5	NRPS	None	R-beta-methylphenylalanine	1	C	None	None	True	True
+HrmP	5	NRPS	None	R-beta-methylphenylalanine	1	A	None	None	True	True
+HrmP	5	NRPS	None	R-beta-methylphenylalanine	1	PCP	None	None	True	True
+HrmP	6	NRPS	None	isoleucine	1	C	None	None	True	True
+HrmP	6	NRPS	None	isoleucine	1	A	None	None	True	True
+HrmP	6	NRPS	None	isoleucine	1	PCP	None	None	True	True
+HrmP	7	NRPS	None	4S-propenylproline	1	C	None	None	True	True
+HrmP	7	NRPS	None	4S-propenylproline	1	A	None	None	True	True
+HrmP	7	NRPS	None	4S-propenylproline	1	PCP	None	None	True	True

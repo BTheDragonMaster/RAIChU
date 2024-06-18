@@ -1013,9 +1013,6 @@ class RaichuDrawer(Drawer):
         self.finetune_overlap_resolution(
             masked_bonds=central_chain_bonds, highest_atom=backbone[0])
 
-        for backbone_atom in backbone:
-            print(backbone_atom.position.y)
-
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
         if self.horizontal:

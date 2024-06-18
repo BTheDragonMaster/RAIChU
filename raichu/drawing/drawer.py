@@ -239,7 +239,7 @@ class RaichuDrawer(Drawer):
         best_bonds = list(set(best_bonds))
 
         for best_bond in best_bonds:
-            if len(self.find_out_of_bound_atoms(minimum_y))>0:
+            if len(self.find_out_of_bound_atoms(minimum_y)) > 0:
 
                 path1 = self.find_shortest_path(best_bond.atom_1, domain)
                 path2 = self.find_shortest_path(best_bond.atom_2, domain)
@@ -914,6 +914,7 @@ class RaichuDrawer(Drawer):
 
         self.structure.refresh_structure()
         backbone, full_rings, rings, atom_to_ring, stop_linearising = reorder_central_chain(backbone_atoms, self)
+
         if len(domains) == 2:
             for domain in domains:
                 if domain.annotations.domain_type == 'Leader':
@@ -999,15 +1000,21 @@ class RaichuDrawer(Drawer):
         # self.resolve_primary_overlaps()
         self.total_overlap_score, sorted_overlap_scores, atom_to_scores = self.get_overlap_score()
         central_chain_bonds = set()
+        central_chain_only_bonds = set()
 
         for bond in self.structure.bonds.values():
             # if bond.atom_1.annotations.in_central_chain or \
             #         bond.atom_2.annotations.in_central_chain:
             if bond.atom_1 in backbone or bond.atom_2 in backbone:
                 central_chain_bonds.add(bond)
+            if bond.atom_1 in backbone and bond.atom_2 in backbone:
+                central_chain_only_bonds.add(bond)
 
         self.finetune_overlap_resolution(
             masked_bonds=central_chain_bonds, highest_atom=backbone[0])
+
+        for backbone_atom in backbone:
+            print(backbone_atom.position.y)
 
         self.resolve_secondary_overlaps(sorted_overlap_scores)
 
@@ -1103,7 +1110,6 @@ class RaichuDrawer(Drawer):
                     if self.bond_is_rotatable(bond) and bond != masked_bond:
                         rotatable_bonds.append(bond)
                 backbone_to_rotatable_bonds[backbone_atom] = rotatable_bonds
-
 
             if len(sidechains) == 2:
                 pass

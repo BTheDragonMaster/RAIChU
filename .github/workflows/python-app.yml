@@ -28,6 +28,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install pikachu-chem flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+    - name: Clean up before installing package
+      run: |
+        find . -type d -name "__pycache__" -exec rm -r {} +
+        find . -name "*.pyc" -exec rm -f {} +
     - name: Install package
       run: |
         pip install .

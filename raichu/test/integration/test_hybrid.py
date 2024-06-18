@@ -6,7 +6,8 @@ from raichu.representations import ClusterRepresentation
 
 
 def test_hybrid_from_mibig():
-    cluster_dir = os.path.realpath("../test_data/hybrid/microcystin/")
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    cluster_dir = os.path.join(current_dir, "../test_data/hybrid/microcystin/")
     cluster_representation = ClusterRepresentation.from_file(cluster_dir)
     cluster = build_cluster(cluster_representation, strict=False)
     cluster.compute_structures(compute_cyclic_products=False)

@@ -31,7 +31,7 @@ def test_double_bond_isomerase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C=C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C=C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -43,7 +43,7 @@ def test_threonin_serin_dehydratase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)=CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)=CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -58,7 +58,7 @@ def test_prenyltransferase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CC(C)=CCC/C(/C)=C/CC/C(/C)=C/CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)CCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CC(C)=CCC/C(/C)=C/CC/C(/C)=C/CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)CCN)=O)C"
     )
 
 
@@ -71,7 +71,7 @@ def test_aminotransferase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N)N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N)N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -84,7 +84,7 @@ def test_hydroxylase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(O)N)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(O)N)=O)C"
     )
 
 
@@ -97,7 +97,7 @@ def test_halogenase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(F)N)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(F)N)=O)C"
     )
 
 
@@ -109,7 +109,7 @@ def test_acetyltransferase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(C(=O)C)N)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(C(=O)C)N)=O)C"
     )
 
 
@@ -121,20 +121,21 @@ def test_keto_reduction():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)O)C"
     )
 
 
 def test_acyltransferase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "ACYLTRANSFERASE", [["C_10"]], "ACYL"),
+            TailoringRepresentation(
+                "truF", "ACYLTRANSFERASE", [["C_10"]], "OLEIC_ACID"
+            ),
         ]
     )
-
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CCC=CCCCCCCCC(=O)[O-])CCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CCCCCCCCC=CCCCCCCCC(O)=O)CCN)=O)C"
     )
 
 
@@ -149,7 +150,7 @@ def test_double_bond_reductase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -161,7 +162,7 @@ def test_dehydrogenase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCC=CN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCC=CN)=O)C"
     )
 
 
@@ -174,7 +175,7 @@ def test_dehydratase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)=C)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)=C)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -187,7 +188,7 @@ def test_peptidase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)NC(=O)[C@H]([C@@H](C)O)N"
+        == r"SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)NC(=O)[C@H]([C@@H](C)O)N"
     )
 
 
@@ -200,7 +201,7 @@ def test_protease():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)N"
+        == r"SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)N"
     )
 
 
@@ -213,7 +214,7 @@ def test_alcohol_dehydrogenase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)C=O)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)C=O)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -227,7 +228,7 @@ def test_epoxidase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(O2)(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C2C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(O2)(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C2C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
 
@@ -240,7 +241,7 @@ def test_methyl_mutase():
 
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "NCC(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)C(C)S)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O"
+        == r"NCC(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)C(C)S)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O"
     )
 
 
@@ -252,9 +253,9 @@ def test_monoamine_oxidase():
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC=O)=O)C"
+        == r"N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC=O)=O)C"
     )
 
 
 if __name__ == "__main__":
-    test_monoamine_oxidase()
+    test_acyltransferase()

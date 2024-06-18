@@ -29,12 +29,6 @@ def test_double_bond_isomerase():
             ),
         ]
     )
-    cluster.draw_product(out_file="test_2.svg")
-    get_tailoring_sites(
-        cluster.chain_intermediate,
-        enzyme_name="METHYLTRANSFERASE",
-        out_file="test.svg",
-    )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C=C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
@@ -52,13 +46,16 @@ def test_threonin_serin_dehydratase():
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)=CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
+
 def test_prenyltransferase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "PRENYLTRANSFERASE", [["C_10"]], "SQUALENE" ),
+            TailoringRepresentation(
+                "truF", "PRENYLTRANSFERASE", [["C_10"]], "SQUALENE"
+            ),
         ]
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CC(C)=CCC/C(/C)=C/CC/C(/C)=C/CC/C=C(\C)/CC/C=C(\C)/CCC=C(C)C)CCN)=O)C"
@@ -71,11 +68,12 @@ def test_aminotransferase():
             TailoringRepresentation("truF", "AMINOTRANSFERASE", [["C_34"]]),
         ]
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N)N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
+
 
 def test_hydroxylase():
     cluster = _helper_build_substrate(
@@ -83,185 +81,180 @@ def test_hydroxylase():
             TailoringRepresentation("truF", "HYDROXYLASE", [["C_12"]]),
         ]
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(O)N)=O)C"
     )
 
+
 def test_halogenase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "HALOGENASE", [["C_12"]], "F" ),
+            TailoringRepresentation("truF", "HALOGENASE", [["C_12"]], "F"),
         ]
-        
     )
-    get_tailoring_sites(
-        cluster.chain_intermediate,
-        enzyme_name="HALOGENASE",
-        out_file="test.svg",
-    )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(F)N)=O)C"
     )
 
+
 def test_acetyltransferase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "ACETYLTRANSFERASE", [["C_12"]] ),
+            TailoringRepresentation("truF", "ACETYLTRANSFERASE", [["C_12"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC(C(=O)C)N)=O)C"
     )
 
+
 def test_keto_reduction():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "KETO_REDUCTION", [["C_4"]] ),
+            TailoringRepresentation("truF", "KETO_REDUCTION", [["C_4"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)O)C"
     )
+
+
 def test_acyltransferase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "ACYLTRANSFERASE", [["C_10"]], "ACYL" ),
+            TailoringRepresentation("truF", "ACYLTRANSFERASE", [["C_10"]], "ACYL"),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CC(CCC=CCCCCCCCC(=O)[O-])CCN)=O)C"
     )
 
+
 def test_double_bond_reductase():
     cluster = _helper_build_substrate(
         [
             TailoringRepresentation("truF", "THREONINE_SERINE_DEHYDRATASE", [["O_48"]]),
-            TailoringRepresentation("truF", "DOUBLE_BOND_REDUCTASE", [[ "C_44", "C_46"]] ),
+            TailoringRepresentation(
+                "truF", "DOUBLE_BOND_REDUCTASE", [["C_44", "C_46"]]
+            ),
         ]
-        
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)CC)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
+
+
 def test_dehydrogenase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "DEHYDROGENASE", [[ "C_11", "C_12"]] ),
+            TailoringRepresentation("truF", "DEHYDROGENASE", [["C_11", "C_12"]]),
         ]
-        
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCC=CN)=O)C"
     )
+
+
 def test_dehydratase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "DEHYDRATASE", [[ "C_37", "C_39"]] ),
+            TailoringRepresentation("truF", "DEHYDRATASE", [["C_37", "C_39"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)=C)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
+
+
 def test_peptidase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "PEPTIDASE", [[ "N_43", "C_41"]]),
+            TailoringRepresentation("truF", "PEPTIDASE", [["N_43", "C_41"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)NC(=O)[C@H]([C@@H](C)O)N"
     )
+
+
 def test_protease():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "PROTEASE", [[ "N_52", "C_50"]]),
+            TailoringRepresentation("truF", "PROTEASE", [["N_52", "C_50"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "SC[C@@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(N)=O)N"
     )
 
+
 def test_alcohol_dehydrogenase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "ALCOHOL_DEHYDROGENASE", [[ "O_40"]]),
+            TailoringRepresentation("truF", "ALCOHOL_DEHYDROGENASE", [["O_40"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)C=O)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
+
+
 def test_epoxidase():
     cluster = _helper_build_substrate(
         [
             TailoringRepresentation("truF", "THREONINE_SERINE_DEHYDRATASE", [["O_48"]]),
-            TailoringRepresentation("truF", "EPOXIDASE", [[ "C_46" , "C_44"]]),
+            TailoringRepresentation("truF", "EPOXIDASE", [["C_46", "C_44"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(NC(O2)(C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)C2C)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O)C"
     )
 
+
 def test_methyl_mutase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "METHYL_MUTASE", [[ "C_3", "C_64"]]),
+            TailoringRepresentation("truF", "METHYL_MUTASE", [["C_3", "C_64"]]),
         ]
-        
     )
-    print(structure_to_smiles(cluster.chain_intermediate))
+
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "NCC(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)C(C)S)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCCN)=O"
     )
 
+
 def test_monoamine_oxidase():
     cluster = _helper_build_substrate(
         [
-            TailoringRepresentation("truF", "MONOAMINE_OXIDASE", [[ "N_13"]]),
+            TailoringRepresentation("truF", "MONOAMINE_OXIDASE", [["N_13"]]),
         ]
-        
-    )
-    get_tailoring_sites(
-        cluster.chain_intermediate,
-        enzyme_name="MONOAMINE_OXIDASE",
-        out_file="test.svg",
     )
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CC(N)=O)=O)[C@@H](C)O)=O)CO)=O)CC(O)=O)=O)Cc1cnc[nH]1)=O)CCCC=O)=O)C"
     )
 
+
 if __name__ == "__main__":
     test_monoamine_oxidase()
-
-

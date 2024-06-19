@@ -315,9 +315,6 @@ def dehydration(
         if neighbour != c2:
             c1 = neighbour
 
-    # Remove hydroxyl group from c2
-    chain_intermediate.break_bond(co_bond)
-
     # Remove H-atom from c1
     bond_to_break = None
     hydrogen = None
@@ -331,8 +328,12 @@ def dehydration(
                         bond_to_break = bond
                     break
 
-    assert bond_to_break and hydrogen
+    if not (bond_to_break and hydrogen):
+        return chain_intermediate, False
 
+    # Remove hydroxyl group from c2
+    chain_intermediate.break_bond(co_bond)
+    # Remove H-atom from c1
     chain_intermediate.break_bond(bond_to_break)
 
     # Patch. When the bond is broken, the electron is not removed from

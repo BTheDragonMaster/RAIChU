@@ -1,6 +1,7 @@
 from typing import Union, Tuple
 from pikachu.chem.structure import Structure
 from pikachu.general import read_smiles
+from pikachu.reactions.functional_groups import find_atoms
 from raichu.substrate import NRPSSubstrate, PKSSubstrate
 from raichu.reactions.pks_tailoring_reactions import (
     exo_methylen_oxidase,
@@ -15,6 +16,7 @@ from raichu.reactions.pks_tailoring_reactions import (
     beta_hydroxy_methyl_transferase,
     beta_methyl_transferase,
     beta_branching_cassette,
+    RECENT_ALPHA_C,
 )
 from raichu.reactions.nrps_tailoring_reactions import (
     epimerize,
@@ -129,9 +131,24 @@ class TailoringDomain(Domain):
             return dehydration(structure, "Z")
         elif self.type.name == "ER" or self.type.name == "DUMMY_ER":
             return enoylreduction(structure, self.subtype)
-        elif self.type.name == "ALMT" or self.type.name == "DUMMY_ALMT":
+        elif self.type.name == "ALMT":
             return alpha_L_methyl_transferase(structure)
-        elif self.type.name == "AMT" or self.type.name == "DUMMY_AMT":
+        # For trans-At_PKS, only add the methyl-group, if their is not an methyl group already present
+        elif self.type.name == "DUMMY_ALMT":
+            alpha_c = find_atoms(RECENT_ALPHA_C, structure)
+            if not alpha_c:
+                return structure, False
+            if [neighbour.type for neighbour in alpha_c[0].neighbours].count("H") != 2:
+                return structure, False
+            return alpha_methyl_transferase(structure)
+        elif self.type.name == "AMT":
+            return alpha_methyl_transferase(structure)
+        elif self.type.name == "DUMMY_AMT":
+            alpha_c = find_atoms(RECENT_ALPHA_C, structure)
+            if not alpha_c:
+                return structure, False
+            if [neighbour.type for neighbour in alpha_c[0].neighbours].count("H") != 2:
+                return structure, False
             return alpha_methyl_transferase(structure)
         elif self.type.name == "SC" or self.type.name == "DUMMY_SC":
             return smallest_cyclisation(structure)

@@ -490,12 +490,6 @@ def test_hydrolase():
            TailoringRepresentation("truF", "HYDROLASE", [["C_28", "O_29"]]),
         ]  
     )
-    get_tailoring_sites(
-        cluster.chain_intermediate,
-        enzyme_name="HYDROLASE",
-        out_file="test.svg",
-    )
-    #print(structure_to_smiles(cluster.chain_intermediate))
     assert (
         structure_to_smiles(cluster.chain_intermediate)
         == "OC[C@@H](C(N[C@H](C(N[C@H](C(N[C@H](C(N[C@H](C(O)=O)[C@@H](C)O)=O)CS)=O)CCCNC(N)=N)=O)[C@@H](C)O)=O)NC(=O)[C@H](CC(O)=O)NC(=O)[C@H](CCCCN)NC(=O)[C@H](C)N"

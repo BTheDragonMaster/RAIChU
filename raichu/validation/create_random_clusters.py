@@ -337,21 +337,13 @@ def generate_trans_pks_module(
 
 @timeout_decorator.timeout(60)
 def generate_modular_cluster(
-    nr_modules,
-    output_folder,
-    cluster_nr,
-    cis_pks=True,
-    nrps=True,
-    trans_pks=True,
-    acid=False,
-):
-    drawing_dir = os.path.join(output_folder, "drawings")
-    cluster_dir = os.path.join(output_folder, "clusters")
-
-    if not os.path.exists(drawing_dir):
-        os.mkdir(drawing_dir)
-    if not os.path.exists(cluster_dir):
-        os.mkdir(cluster_dir)
+        nr_modules,
+        cluster_nr=None,
+        output_folder=None,
+        cis_pks=True,
+        nrps=True,
+        trans_pks=True,
+        acid=False):
 
     gene_nr = 1
     choices = []
@@ -392,16 +384,29 @@ def generate_modular_cluster(
         modules.append(module)
 
     cluster = ClusterRepresentation(modules)
-    cluster_out = os.path.join(cluster_dir, f"cluster_{cluster_nr}")
-    cluster.write_cluster(cluster_out)
 
-    try:
-        drawing_out = os.path.join(drawing_dir, f"cluster_{cluster_nr}.svg")
-        draw_cluster(cluster, drawing_out)
+    if output_folder:
+        assert cluster_nr is not None
+        drawing_dir = os.path.join(output_folder, "drawings")
+        cluster_dir = os.path.join(output_folder, "clusters")
 
-    except Exception:
-        print(cluster.modules[0].substrate)
-        print(traceback.format_exc())
+        if not os.path.exists(drawing_dir):
+            os.mkdir(drawing_dir)
+        if not os.path.exists(cluster_dir):
+            os.mkdir(cluster_dir)
+
+        cluster_out = os.path.join(cluster_dir, f"cluster_{cluster_nr}")
+        cluster.write_cluster(cluster_out)
+
+        try:
+            drawing_out = os.path.join(drawing_dir, f"cluster_{cluster_nr}.svg")
+            draw_cluster(cluster, drawing_out)
+
+        except Exception:
+            print(cluster.modules[0].substrate)
+            print(traceback.format_exc())
+    else:
+        return cluster
 
 
 def generate_random_clusters(
@@ -415,8 +420,8 @@ def generate_random_clusters(
         print(f"Drawing cluster {i + 1}")
         generate_modular_cluster(
             nr_modules,
-            out_folder,
-            i + 1,
+            cluster_nr=i + 1,
+            output_folder=out_folder,
             nrps=nrps,
             cis_pks=cis_pks,
             trans_pks=trans_pks,

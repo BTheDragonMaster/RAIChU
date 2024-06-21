@@ -8,8 +8,12 @@ from raichu.general import build_cluster
 from raichu.central_chain_detection.find_central_chain import reorder_central_chain, find_central_chain
 
 
-def check_central_chains(cluster_folder):
+def check_central_chains_from_file(cluster_folder):
     cluster_repr = ClusterRepresentation.from_file(cluster_folder)
+    return check_central_chains(cluster_repr)
+
+
+def check_central_chains(cluster_repr):
 
     cluster = build_cluster(cluster_repr, strict=False)
     cluster.compute_structures(compute_cyclic_products=False)
@@ -69,7 +73,7 @@ def check_clusters(folder):
             print(f"Checked {i} clusters, of which {faulty_clusters} have an incorrectly drawn central chain.")
         cluster_folder = os.path.join(folder, cluster_name)
         if os.path.isdir(cluster_folder) and 'cluster' in cluster_name:
-            central_chain_error, faulty_spaghettis, total_backbone_errors = check_central_chains(cluster_folder)
+            central_chain_error, faulty_spaghettis, total_backbone_errors = check_central_chains_from_file(cluster_folder)
             if central_chain_error:
                 faulty_clusters += 1
                 print(f"Central chain error in {cluster_name}.")

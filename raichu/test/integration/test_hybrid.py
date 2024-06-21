@@ -21,7 +21,7 @@ def test_hybrid_from_mibig():
     # Check if final structure is correct
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "OC(=O)[C@@H](NC(=O)C([*])NC(=O)C([*])NC(=O)[C@H](NC(=O)[C@@H](N(C)C(=O)C([*])NC(=O)CC(=O)C=CCC(=O)CC(=O)C([*])N)CO)C)CCCN=C(N)N"
+        == r"OC(=O)[C@@H](NC(=O)C([*])NC(=O)C([*])NC(=O)[C@H](NC(=O)[C@@H](N(C)C(=O)C([*])NC(=O)CC(=O)C=CCC(=O)CC(=O)C([*])N)CO)C)CCCN=C(N)N"
     )
 
 

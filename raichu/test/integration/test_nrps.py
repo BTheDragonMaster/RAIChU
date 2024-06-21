@@ -28,7 +28,7 @@ def test_NRPS():
     # Check if final structure is correct
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "OC(=O)[C@H](N(C(=O)[C@@H](NC(=O)[C@@H](NC(=O)[C@H](NC(=O)[C@@H](NC(=O)[C@H](NC(=O)[C@@H](NC(c6ccc(Cl)[nH]6)=O)C[C@@H]5C[C@@H]5[N+]([O-])=O)[C@H](O)C)[C@H](c4ccccc4)C)C[C@@H]2C[C@@H]2[N+]([O-])=O)[C@H](c3ccccc3)C)[C@H](C)CC)C1)C[C@H]1/C=C\C"
+        == r"OC(=O)[C@H](N(C(=O)[C@@H](NC(=O)[C@@H](NC(=O)[C@H](NC(=O)[C@@H](NC(=O)[C@H](NC(=O)[C@@H](NC(c6ccc(Cl)[nH]6)=O)C[C@@H]5C[C@@H]5[N+]([O-])=O)[C@H](O)C)[C@H](c4ccccc4)C)C[C@@H]2C[C@@H]2[N+]([O-])=O)[C@H](c3ccccc3)C)[C@H](C)CC)C1)C[C@H]1/C=C\C"
     )
 
 

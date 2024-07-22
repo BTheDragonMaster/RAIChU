@@ -280,3 +280,4 @@ isoleucine, valine	NC(*)C(=O)O
 homophenylalanine	C1=CC=C(C=C1)CC[C@@H](C(=O)O)N
 4-hydroxy-tetrahydropyridazine-3-carboxylic acid	OC1C[C@H](NN=C1)C(=O)O
 2-ethyl-3-aminoproprionic acid	OC(=O)C(CC)CN
+isovaleric acid	O=C(O)CC(C)C

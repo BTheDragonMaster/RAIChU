@@ -24,6 +24,7 @@ pip install raichu
 
 
 View the general.py script to learn about RAIChU's functionalities
+If you want to use a newer python version, use the instructions in the biopython_independent branch.
 
 Explore our wiki to dive deeper into RAIChU's features:
 [Home](https://github.com/SophieVromans/RAIChU/wiki)

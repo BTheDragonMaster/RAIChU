@@ -1,4 +1,5 @@
 # RAIChU: Reaction Analysis through Imaging of Chemical Units
+This branch can be used without the Biopython dependency and can be used with modern python versions. Unfortunately, the antiSMASH parser can not be used without Biopython.
 ## Python-based informatics  tool for the visualisation of natural product chemistry
 
 RAIChU is a chemoinformatics tool designed to illuminate the intricate processes of scaffold diversification in natural product chemistry through the implementation of 34 tailoring reactions. These reactions encompass family-specific posttranslational modifications across 25 RiPP families, enabling the exploration of advanced RiPP chemistry. A unique feature of RAIChU is its capability to detect and visually highlight potential sites for these tailoring reactions on molecules, a critical step due to the current limitations in predicting the regio- and stereochemistry of tailoring enzymes.
@@ -9,17 +10,25 @@ However, it's important to note that while RAIChU strives for accuracy, the natu
 
 ## Installation
 
-First, create a new environment with python version 3.9.12, for instance with conda:
+First, create a new environment with a novel version, for instance with conda:
 
 ```
-conda create -n raichu python==3.9.12
+conda create -n raichu python==3.11
 conda activate raichu
 ```
 
-Then, install raichu with pip:
+Then, clone the biopython independent branch from github:
 
 ```
-pip install raichu
+git clone --branch biopython_independent https://github.com/BTheDragonMaster/RAIChU.git
+
+```
+
+Install the package using pip:
+```
+cd RAIChU
+pip install .
+
 ```
 
 

@@ -20,5 +20,4 @@ setup(
     package_data={"": ["*.png", "*.svg", "*.txt"]},
     python_requires=">=3.7, <3.10",
     install_requires=["matplotlib", "biopython==1.83", "pikachu-chem>=1.0.13", "timeout-decorator"],
-    scripts=["bin/raichu"],
 )

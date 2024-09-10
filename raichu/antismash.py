@@ -1048,4 +1048,4 @@ def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
 
 
 if __name__ == "__main__":
-    draw_cluster(load_antismash_gbk(argv[1]), "test.svg")
+    draw_cluster(load_antismash_gbk(argv[1]), argv[2])

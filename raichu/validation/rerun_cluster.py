@@ -14,10 +14,9 @@ if not os.path.exists(out_path):
 out_pathway = os.path.join(out_path, "pathway.svg")
 out_smiles = os.path.join(out_path, "smiles.txt")
 
+out_file = os.path.join(argv[1], "cluster.svg")
+draw_cluster(cluster, out_file, colour_by_module=False)
+
 draw_cluster_from_modular_cluster_representation(cluster, out_pathway)
 draw_products_from_modular_cluster_representation(cluster, out_path)
 write_linear_product(cluster, out_smiles)
-
-out_file = os.path.join(argv[1], "cluster.svg")
-
-draw_cluster(cluster, out_file, colour_by_module=False)

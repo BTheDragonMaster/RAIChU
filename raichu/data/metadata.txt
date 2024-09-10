@@ -280,3 +280,4 @@ isoleucine, valine	NC(*)C(=O)O	Ile|Val	amino_acid	L	Ile
 isoquinoline-3-carboxylic acid	C1C(NCC2=CC=CC=C21)C(=O)O	isoQui	acid	None	None
 5‐chloropyrrole‐2‐carboxylic acid	OC(=O)C1=CC=C(N1)Cl	Cl-Pyr	acid	None	None
 isovaleric acid	O=C(O)CC(C)C	ivaa	acid	None	None
+decanoic acid	O=C(O)CCCCCCCCC	C10	acid	None	C10:0

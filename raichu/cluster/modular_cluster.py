@@ -292,7 +292,7 @@ class ModularCluster(Cluster):
 
         return drawings, widths
 
-    def draw_cluster(self, as_string=True, out_file=None, colour_by_module=True):
+    def draw_cluster(self, as_string=True, out_file=None, colour_by_module=True, colour_dictionary=None):
         drawings, widths = self.get_spaghettis()
         bubble_svg, bubble_positions, last_domain_coord = draw_bubbles(self, widths)
         min_x = 100000000
@@ -309,7 +309,7 @@ class ModularCluster(Cluster):
             drawing.set_structure_id(f"s{i}")
             drawing.set_annotation_for_grouping("module_nr")
             if colour_by_module:
-                drawing.colour_by_annotation()
+                drawing.colour_by_annotation(colour_dictionary)
             svg_style = drawing.svg_style
 
             padding = drawing.options.padding

@@ -19,10 +19,11 @@ from raichu.reactions.general_tailoring_reactions import (
     change_chirality,
     excise_from_structure,
     reductive_bond_breakage,
-    
-    
 )
-from raichu.data.attributes import (PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES , ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES)
+from raichu.data.attributes import (
+    PRENYL_TRANSFERASE_SUBSTRATES_TO_SMILES,
+    ACYL_TRANSFERASE_SUBSTRATES_TO_SMILES,
+)
 from raichu.data.molecular_moieties import (
     CO_BOND,
     CC_DOUBLE_BOND,
@@ -99,7 +100,6 @@ class TailoringEnzymeType(Enum):
     OMEGA_AMIDE = 37
     OMEGA_ESTER = 38
     OMEGA_THIOESTER = 39
-    
 
     # Epimerization
     AMINO_ACID_EPIMERASE = 32
@@ -264,9 +264,11 @@ class TailoringEnzyme:
                     if carbon_2_candidate.has_neighbour("N"):
                         carbon_2 = carbon_2_candidate
                 if not carbon_2:
-                    raise ValueError("No nitrogen next to keto group, no thioamide can be formed.")
+                    raise ValueError(
+                        "No nitrogen next to keto group, no thioamide can be formed."
+                    )
                 structure = single_bond_oxidation(carbon_2, sulfur, structure)
-                
+
         elif self.type.name == "KETO_REDUCTION":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -329,18 +331,22 @@ class TailoringEnzyme:
                     raise ValueError(
                         f"Can not perform MONOAMINE_OXYDASE on atom {atom1}, since there is no nitrogen to be removed."
                     )
-                has_oxygen = True if any([neighbour.type == "O" for neighbour in carbon.neighbours]) else False
+                has_oxygen = (
+                    True
+                    if any([neighbour.type == "O" for neighbour in carbon.neighbours])
+                    else False
+                )
                 print(has_oxygen)
                 if has_oxygen:
-                        structure = remove_atom(atom1, structure)
+                    structure = remove_atom(atom1, structure)
                 else:
 
-                        structure = remove_atom(atom1, structure)
-                        structure = addition(carbon, "O", structure)
-                        structure.refresh_structure()
-                        carbon = structure.get_atom(carbon)
-                        oxygen = carbon.get_neighbour("O")
-                        structure = single_bond_oxidation(oxygen, carbon, structure)
+                    structure = remove_atom(atom1, structure)
+                    structure = addition(carbon, "O", structure)
+                    structure.refresh_structure()
+                    carbon = structure.get_atom(carbon)
+                    oxygen = carbon.get_neighbour("O")
+                    structure = single_bond_oxidation(oxygen, carbon, structure)
         elif self.type.name == "HALOGENASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -379,7 +385,9 @@ class TailoringEnzyme:
                 assert terminal_nitrogen
                 h_atom = terminal_nitrogen.get_neighbour("H")
                 h_bond = terminal_nitrogen.get_bond(h_atom)
-                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product, water = internal_condensation(
+                    structure, oh_bond, h_bond
+                )
                 cyclic_product.refresh_structure()
                 initialise_atom_attributes(cyclic_product)
                 return cyclic_product
@@ -400,7 +408,9 @@ class TailoringEnzyme:
                 assert terminal_sh
                 h_atom = terminal_sh.get_neighbour("H")
                 h_bond = terminal_sh.get_bond(h_atom)
-                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product, water = internal_condensation(
+                    structure, oh_bond, h_bond
+                )
                 cyclic_product.refresh_structure()
                 initialise_atom_attributes(cyclic_product)
                 return cyclic_product
@@ -421,13 +431,14 @@ class TailoringEnzyme:
                 assert terminal_oh
                 h_atom = terminal_oh.get_neighbour("H")
                 h_bond = terminal_oh.get_bond(h_atom)
-                cyclic_product, water = internal_condensation(structure, oh_bond, h_bond)
+                cyclic_product, water = internal_condensation(
+                    structure, oh_bond, h_bond
+                )
                 cyclic_product.refresh_structure()
                 initialise_atom_attributes(cyclic_product)
                 return cyclic_product
 
-
-                #structure = omega_amide_formation(structure, atom1)
+                # structure = omega_amide_formation(structure, atom1)
         elif self.type.name == "CYCLODEHYDRASE":
             for atom in self.modification_sites:
                 if len(atom) == 0:
@@ -441,7 +452,11 @@ class TailoringEnzyme:
                             if neighbour_2.type == "C":
                                 nitrogen = neighbour_2.get_neighbour("N")
                                 if nitrogen:
-                                    carbon = [carbon for carbon in nitrogen.neighbours if carbon != neighbour_2 and carbon.type == "C"][0]
+                                    carbon = [
+                                        carbon
+                                        for carbon in nitrogen.neighbours
+                                        if carbon != neighbour_2 and carbon.type == "C"
+                                    ][0]
                                     oxygen = carbon.get_neighbour("O")
                                     if carbon and oxygen:
                                         structure = cyclodehydration(
@@ -459,9 +474,9 @@ class TailoringEnzyme:
 
         elif self.type.name == "MACROLACTAMIDINATION":
             for atom in self.modification_sites:
-                if len(atom) <2:
+                if len(atom) < 2:
                     continue
-                atom1 = atom[0]  
+                atom1 = atom[0]
                 atom2 = atom[1]
                 atom1 = structure.get_atom(atom1)
                 terminal_nitrogen = None
@@ -470,14 +485,17 @@ class TailoringEnzyme:
                     if neighbour.type == "O" or neighbour.type == "S":
                         oxygen_sulfur = neighbour
                         assert oxygen_sulfur
-                        structure = double_bond_reduction(oxygen_sulfur, atom1, structure)
-                nitrogen = atom1.get_neighbour("N")                
+                        structure = double_bond_reduction(
+                            oxygen_sulfur, atom1, structure
+                        )
+                nitrogen = atom1.get_neighbour("N")
                 structure = remove_atom(oxygen_sulfur, structure)
-                structure = oxidative_bond_formation(atom1, terminal_nitrogen, structure)
+                structure = oxidative_bond_formation(
+                    atom1, terminal_nitrogen, structure
+                )
                 structure = single_bond_oxidation(atom1, nitrogen, structure)
                 structure.refresh_structure()
                 return structure
-                     
 
         elif self.type.name == "THIOPEPTIDE_CYCLASE":
             for atoms in self.modification_sites:
@@ -648,13 +666,14 @@ class TailoringEnzyme:
                 structure.add_atom("H", [nitrogen])
                 structure.refresh_structure(find_cycles=True)
                 nitrogen = structure.get_atom(nitrogen)
-                if len(nitrogen.neighbours)<2:
+                if len(nitrogen.neighbours) < 2:
                     structure.add_atom("H", [nitrogen])
                 structure.refresh_structure(find_cycles=True)
         elif self.type.name == "METHYL_MUTASE":
             for atoms in self.modification_sites:
                 if len(atoms) != 2:
                     continue
+                assert atoms[0] != atoms[1]
                 transferred_c = atoms[0]
                 # Assert its actually a methyl group
                 assert [atom.type for atom in transferred_c.neighbours].count("H") == 3
@@ -705,7 +724,6 @@ class TailoringEnzyme:
             "ACYLTRANSFERASE",
             "OXIDATIVE_BOND_SYNTHASE",
             "HALOGENASE",
-            "METHYL_MUTASE",
         ]:
             possible_sites.extend(
                 [
@@ -758,7 +776,7 @@ class TailoringEnzyme:
             peptide_bonds = find_bonds(CC_SINGLE_BOND, structure)
             for bond in peptide_bonds:
                 possible_sites.append(bond.neighbours)
-            
+
         elif self.type.name == "REDUCTIVE_LYASE":
             possible_sites.extend(
                 [
@@ -809,11 +827,13 @@ class TailoringEnzyme:
                 for neighbouring_bond in neighbouring_bonds:
                     if (
                         not "H" in [atom.type for atom in neighbouring_bond.neighbours]
-                        #and not "C=O" in [bond.type for bond in neighbouring_bonds]
+                        # and not "C=O" in [bond.type for bond in neighbouring_bonds]
                         and neighbouring_bond.type == "single"
                     ):
                         for neighbouring_atom in neighbouring_bond.neighbours:
-                            if neighbouring_atom != co_bond.get_neighbour("C") and neighbouring_atom.has_neighbour("H"):
+                            if neighbouring_atom != co_bond.get_neighbour(
+                                "C"
+                            ) and neighbouring_atom.has_neighbour("H"):
                                 possible_sites.append(neighbouring_bond.neighbours)
 
         elif self.type.name == "MONOAMINE_OXIDASE":
@@ -835,36 +855,57 @@ class TailoringEnzyme:
             )
             possible_sites.extend(asp_glu_oxygen)
         elif self.type.name == "OMEGA_AMIDE":
-            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(
+                GLUTAMIC_ACID, structure
+            )
             nitrogens = find_atoms(N_NH, structure)
-            primary_amine = [nitrogen for nitrogen in nitrogens if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2]            
-            combinations = [list(t) for t in itertools.product(asp_glu_oxygen, primary_amine)]
+            primary_amine = [
+                nitrogen
+                for nitrogen in nitrogens
+                if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2
+            ]
+            combinations = [
+                list(t) for t in itertools.product(asp_glu_oxygen, primary_amine)
+            ]
             possible_sites.extend(combinations)
 
         elif self.type.name == "OMEGA_ESTER":
-            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
-            ser_thr_x = find_atoms(SERINE, structure) 
-            combinations = [list(t) for t in itertools.product(asp_glu_oxygen, ser_thr_x)]
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(
+                GLUTAMIC_ACID, structure
+            )
+            ser_thr_x = find_atoms(SERINE, structure)
+            combinations = [
+                list(t) for t in itertools.product(asp_glu_oxygen, ser_thr_x)
+            ]
             possible_sites.extend(combinations)
 
         elif self.type.name == "OMEGA_THIOESTER":
-            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(GLUTAMIC_ACID, structure)
-            cys_x = find_atoms(CYSTEINE, structure) 
+            asp_glu_oxygen = find_atoms(ASPARTIC_ACID, structure) + find_atoms(
+                GLUTAMIC_ACID, structure
+            )
+            cys_x = find_atoms(CYSTEINE, structure)
             combinations = [list(t) for t in itertools.product(asp_glu_oxygen, cys_x)]
             possible_sites.extend(combinations)
-            
+
         elif self.type.name == "CYCLODEHYDRASE":
-            cys_ser_thr_x = (
-                find_atoms(CYSTEINE, structure)
-                + find_atoms(SERINE, structure)
+            cys_ser_thr_x = find_atoms(CYSTEINE, structure) + find_atoms(
+                SERINE, structure
             )
             possible_sites.extend([[atom] for atom in cys_ser_thr_x])
 
         elif self.type.name == "MACROLACTAMIDINATION":
-            keto_thioketo_group = (find_atoms(AMIDE_GROUP_O, structure) + find_atoms(AMIDE_GROUP_S, structure))
+            keto_thioketo_group = find_atoms(AMIDE_GROUP_O, structure) + find_atoms(
+                AMIDE_GROUP_S, structure
+            )
             nitrogens = find_atoms(N_NH, structure)
-            primary_amine = [nitrogen for nitrogen in nitrogens if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2]            
-            combinations = [list(t) for t in itertools.product(keto_thioketo_group, primary_amine)]
+            primary_amine = [
+                nitrogen
+                for nitrogen in nitrogens
+                if [neighbour.type for neighbour in nitrogen.neighbours].count("H") == 2
+            ]
+            combinations = [
+                list(t) for t in itertools.product(keto_thioketo_group, primary_amine)
+            ]
             possible_sites.extend(combinations)
 
         elif self.type.name == "THREONINE_SERINE_DEHYDRATASE":
@@ -900,6 +941,23 @@ class TailoringEnzyme:
             possible_sites.extend(
                 [list(t) for t in itertools.product(ser_thr_c, ser_thr_c)]
             )
+        elif self.type.name == "METHYL_MUTASE":
+            # Find moving Methyl group
+            methyl_cs = []
+            for atom in structure.graph:
+                if atom.type == "C":
+                    neighbour_types = []
+                    for neighbour in atom.neighbours:
+                        neighbour_types.append(neighbour.type)
+                    if atom not in methyl_cs and neighbour_types.count("H") == 3:
+                        methyl_cs.append(atom)
+            acceptor_cs = find_atoms_for_tailoring(structure, "C")
+            combinations = [
+                [methyl_c, acceptor_c]
+                for methyl_c, acceptor_c in itertools.product(methyl_cs, acceptor_cs)
+                if methyl_c != acceptor_c
+            ]
+            possible_sites.extend(combinations)
 
         if out_file:
             drawing = Drawer(structure)

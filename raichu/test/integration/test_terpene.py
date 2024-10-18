@@ -37,7 +37,7 @@ def test_terpene():
     # Check if final structure is correct
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == "CC(CC(O4)C4(CCCC(=C)C)C)C3C1CC2C3(C)C2C1"
+        == r"CC(CC(O4)C4(CCCC(=C)C)C)C3C1CC2C3(C)C2C1"
     )
 
 

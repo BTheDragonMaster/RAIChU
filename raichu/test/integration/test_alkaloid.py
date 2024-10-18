@@ -25,7 +25,7 @@ def test_alkaloid():
 
     # Check if final structure is correct
     assert (
-        structure_to_smiles(cluster.chain_intermediate) == "Oc1ccc([nH]cc2CCN(C)C)c2c1"
+        structure_to_smiles(cluster.chain_intermediate) == r"Oc1ccc([nH]cc2CCN(C)C)c2c1"
     )
 
 

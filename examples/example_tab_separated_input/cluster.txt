@@ -1,0 +1,14 @@
+gene_name	module_nr	module_type	module_subtype	module_substrate	nr_iterations	domain_type	domain_subtype	domain_name	domain_used	domain_active
+gene_1	0	NRPS	None	**Unknown**	1	A	None	None	TRUE	TRUE
+gene_1	0	NRPS	None	**Unknown**	1	PCP	None	None	TRUE	TRUE
+gene_1	1	NRPS	None	tryptophan	1	C	None	None	TRUE	TRUE
+gene_1	1	NRPS	None	tryptophan	1	A	None	None	TRUE	TRUE
+gene_1	1	NRPS	None	tryptophan	1	PCP	None	None	TRUE	TRUE
+gene_1	1	NRPS	None	tryptophan	1	E	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	KS	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	AT	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	DH	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	ER	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	KR	A1	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	ACP	None	None	TRUE	TRUE
+gene_2	2	PKS	PKS_CIS	METHYLMALONYL_COA	1	TE	None	None	TRUE	TRUE

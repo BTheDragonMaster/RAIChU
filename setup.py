@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 DESCRIPTION = "RAIChU"
 LONG_DESCRIPTION = (
     "A package to automatically draw natural product biosynthesis pathways."
@@ -19,6 +19,5 @@ setup(
     packages=find_packages(exclude="build"),
     package_data={"": ["*.png", "*.svg", "*.txt"]},
     python_requires=">=3.7, <3.10",
-    install_requires=["matplotlib", "biopython==1.76", "pikachu-chem>=1.0.13", "paras", "timeout-decorator"],
-    scripts=["bin/raichu"],
+    install_requires=["matplotlib", "biopython==1.83", "pikachu-chem>=1.0.13", "timeout-decorator"],
 )

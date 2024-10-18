@@ -1,5 +1,8 @@
 import os
 import csv
+
+from pikachu.general import structure_to_smiles
+
 from raichu.substrate import PksStarterSubstrate
 from raichu.cluster.modular_cluster import ModularCluster
 from raichu.cluster.ripp_cluster import RiPPCluster
@@ -222,6 +225,29 @@ def draw_products(cluster_repr: ClusterRepresentation, out_dir) -> None:
     cluster.do_tailoring()
     cluster.cyclise_all()
     cluster.draw_all_products(out_dir)
+
+
+def write_linear_product(cluster_repr: ClusterRepresentation, out_file) -> None:
+    cluster = build_cluster(cluster_repr, strict=False)
+    cluster.compute_structures(compute_cyclic_products=False)
+    cluster.do_tailoring()
+    with open(out_file, 'w') as out:
+        out.write(structure_to_smiles(cluster.linear_product))
+
+
+def write_products(cluster_repr: ClusterRepresentation, out_file) -> None:
+    cluster = build_cluster(cluster_repr, strict=False)
+    cluster.compute_structures(compute_cyclic_products=False)
+    cluster.do_tailoring()
+    cluster.cyclise_all()
+    with open(out_file, 'w') as out:
+        out.write(f"{structure_to_smiles(cluster.linear_product)}\n")
+        for structure in cluster.cyclic_products:
+            structure.print_graph()
+            for _, atom in structure.atoms.items():
+                print(atom, atom.neighbours)
+            print(structure.bond_lookup)
+            out.write(f"{structure_to_smiles(structure)}\n")
 
 
 def draw_product(cluster_repr: ClusterRepresentation, out_file) -> None:

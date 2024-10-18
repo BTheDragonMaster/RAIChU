@@ -627,8 +627,9 @@ class ModuleOrder:
                     if domain.raichu_type == "CAL" and substrate == "WILDCARD":
                         substrate = "**Unknown**"
 
-                domain_representation = DomainRepresentation(domain.gene, domain.raichu_type, domain.raichu_subtype,
-                                                             domain.active, True)
+                domain_representation = DomainRepresentation(gene_name=domain.gene, type=domain.raichu_type,
+                                                             subtype=domain.raichu_subtype,
+                                                             active=domain.active, used=True)
                 if domain_representation.type in [d.type for d in domain_representations]:
                     domain_representation.used = False
                 if domain_representation.type == 'UNKNOWN':
@@ -1047,4 +1048,4 @@ def parse_antismash_to_cluster_file(gbk_file, out_directory=None, version=7.0):
 
 
 if __name__ == "__main__":
-    draw_cluster(load_antismash_gbk(argv[1]), "test.svg")
+    draw_cluster(load_antismash_gbk(argv[1]), argv[2])

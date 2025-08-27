@@ -8,6 +8,7 @@ from raichu.representations import (
     TailoringRepresentation,
     IsomerizationRepresentation,
     MethylShiftRepresentation,
+    WaterQuenchingRepresentation,
 )
 from raichu.reactions.general_tailoring_reactions import (
     dephosphorylation,
@@ -31,6 +32,7 @@ class TerpeneCluster(Cluster):
         macrocyclisations: List[MacrocyclizationRepresentation] = None,
         double_bond_isomerisations: List[IsomerizationRepresentation] = None,
         methyl_shifts: List[MethylShiftRepresentation] = None,
+        water_quenching: List[WaterQuenchingRepresentation] = None,
         tailoring_representations: List[TailoringRepresentation] = None,
     ) -> None:
         super().__init__(tailoring_representations, macrocyclisations)
@@ -39,6 +41,7 @@ class TerpeneCluster(Cluster):
         self.precursor = precursor
         self.isomerization_representations = double_bond_isomerisations
         self.methyl_shift_representations = methyl_shifts
+        self.water_quenching_representations = water_quenching
 
         self.chain_intermediate = None
         self.tailored_product = None
@@ -48,6 +51,28 @@ class TerpeneCluster(Cluster):
     def create_precursor(self) -> None:
         substrate = TerpeneCyclaseSubstrate(self.precursor)
         self.chain_intermediate = read_smiles(substrate.smiles)
+
+    def do_water_quenching(self):
+        if not self.water_quenching_representations:
+            return
+        initialized_water_quenching_atoms = self.initialize_modification_sites(
+            [
+                water_quenching_representation.modification_sites
+                for water_quenching_representation in self.water_quenching_representations
+            ]
+        )
+        for atom in initialized_water_quenching_atoms:
+
+            acceptor_atom = self.chain_intermediate.get_atom(atom[0])
+            # Check if acceptor atom has double bond
+
+            for bond in acceptor_atom.bonds:
+                # reduce one double bond
+                if bond.type == "double" or bond.type == "aromatic":
+                    self.chain_intermediate = double_bond_reduction(bond.neighbours[0], bond.neighbours[1], self.chain_intermediate)
+                    break
+            self.chain_intermediate = addition(acceptor_atom, "O", self.chain_intermediate)
+            self.chain_intermediate.refresh_structure(find_cycles=True)
 
     def do_double_bond_isomerization(self):
         if not self.isomerization_representations:
@@ -77,7 +102,6 @@ class TerpeneCluster(Cluster):
                 new_double_bond_atom2,
             )
 
-
     def do_methyl_shift(self):
         if not self.methyl_shift_representations:
             return
@@ -88,25 +112,23 @@ class TerpeneCluster(Cluster):
                 ]
             )
         for atoms in initialized_methyl_shift_atoms:
-                if len(atoms) != 2:
-                    continue
-                transferred_c = atoms[0]
-                # Assert its actually a methyl group
-                assert [atom.type for atom in transferred_c.neighbours].count("H") == 3
-                source = None
-                source = [
+            if len(atoms) != 2:
+                continue
+            transferred_c = atoms[0]
+            # Assert its actually a methyl group
+            assert [atom.type for atom in transferred_c.neighbours].count("H") == 3
+            source = None
+            source = [
                     atom for atom in transferred_c.neighbours if atom.type != "H"
                 ][0]
-                assert source
-                destination_c = atoms[1]
-                assert destination_c.has_neighbour("H")
-                assert transferred_c.type == "C" and destination_c.type == "C"
+            assert source
+            destination_c = atoms[1]
+            assert destination_c.has_neighbour("H")
+            assert transferred_c.type == "C" and destination_c.type == "C"
 
-                self.chain_intermediate = reductive_bond_breakage(source, transferred_c, self.chain_intermediate)
-                self.chain_intermediate = addition(destination_c, "C", self.chain_intermediate)
-                self.chain_intermediate.refresh_structure(find_cycles=True)
-
-
+            self.chain_intermediate = reductive_bond_breakage(source, transferred_c, self.chain_intermediate)
+            self.chain_intermediate = addition(destination_c, "C", self.chain_intermediate)
+            self.chain_intermediate.refresh_structure(find_cycles=True)
 
     def do_macrocyclization(self, sequential=True):
         initialized_macrocyclization_atoms = self.initialize_macrocyclization()

@@ -83,6 +83,9 @@ def draw_terpene_structure_from_terpene_cluster(terpene_cluster: TerpeneCluster,
     terpene_cluster.draw_product(
         as_string=False, out_file=os.path.join(out_folder, "precursor_test_terpene.svg"))
     terpene_cluster.do_macrocyclization()
+    terpene_cluster.do_double_bond_isomerization()
+    terpene_cluster.do_methyl_shift()
+    terpene_cluster.do_water_quenching()
     terpene_cluster.draw_product(
         as_string=False, out_file=os.path.join(out_folder, "macroyclisation_test_terpene.svg"))
     terpene_cluster.do_tailoring()

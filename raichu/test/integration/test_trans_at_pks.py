@@ -21,7 +21,7 @@ def test_extensive_KS_subtypes():
     # Check if final structure is correct
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == r"OC(=O)C[C@H](O)CC(=C)C[C@@H](O1)CC(C[*])CC1C(C)C=C[C@H](O2)CC(OC)C2C(=O)C=C[C@H](O)C"
+        == r"OC(=O)C[C@H](O)CC(=C)C[C@@H](O1)CC(C[*])CC1C(C)C=C[C@H](O2)C[C@@H](OC)C2C(=O)C=C[C@H](O)C"
     )
 
 

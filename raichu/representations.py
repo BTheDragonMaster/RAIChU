@@ -37,6 +37,12 @@ class MethylShiftRepresentation:
 
 
 @dataclass
+class WaterQuenchingRepresentation:
+    # Should be the atom to receive OH
+    modification_sites: List[List[str]]
+
+
+@dataclass
 class DomainRepresentation:
     gene_name: Union[str, None]
     type: str

@@ -248,7 +248,7 @@ class KSDomainSubtype(Enum):
 @unique
 class ERDomainSubtype(Enum):
     """
-    An Enum representing the subtypes of KS domain supported by RAIChU
+    An Enum representing the subtypes of ER domain supported by RAIChU
     """
 
     S = 1

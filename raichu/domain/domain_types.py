@@ -142,6 +142,23 @@ class TailoringDomainType(Enum):
 
 
 @unique
+class CDomainSubtype(Enum):
+    """
+    An Enum representing the subtypes of C domain supported by RAIChU
+    """
+
+    STARTER = 1
+    UNKNOWN = 2
+
+    @staticmethod
+    def from_string(label: str) -> "CDomainSubtype":
+        for value in CDomainSubtype:
+            if str(value.name) == label:
+                return value
+        raise ValueError(f"Unknown C domain subtype: {label}")
+
+
+@unique
 class KRDomainSubtype(Enum):
     """
     An Enum representing the subtypes of KR domain supported by RAIChU
@@ -231,7 +248,7 @@ class KSDomainSubtype(Enum):
 @unique
 class ERDomainSubtype(Enum):
     """
-    An Enum representing the subtypes of KS domain supported by RAIChU
+    An Enum representing the subtypes of ER domain supported by RAIChU
     """
 
     S = 1

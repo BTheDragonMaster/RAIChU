@@ -1,3 +1,5 @@
+# Development branch for RAIChU - new features should be tested here first
+
 # RAIChU: Reaction Analysis through Imaging of Chemical Units
 ## Python-based informatics  tool for the visualisation of natural product chemistry
 

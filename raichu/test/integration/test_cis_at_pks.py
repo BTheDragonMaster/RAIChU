@@ -21,7 +21,7 @@ def test_cis_at_PKS():
     # Check if final structure is correct
     assert (
         structure_to_smiles(cluster.chain_intermediate)
-        == r"OC([C@H]([C@H]([C@H]([C@@H](C(C[C@H](C([C@H]([C@@H]([C@@H]([C@@H](CC)O)C)O)C)=O)C)C)O)C)O)C)=O"
+        == r"OC([C@@H]([C@H]([C@@H]([C@H]([C@H](C[C@H](C([C@@H]([C@H]([C@H]([C@@H](CC)O)C)O)C)=O)C)C)O)C)O)C)=O"
     )
 
 
